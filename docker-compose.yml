@@ -1,0 +1,18 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+      args:
+        - PGDATA=${PGDATA}
+    container_name: "postgres"
+    env_file: .env
+    volumes:
+      - pgdata:${PGDATA}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
