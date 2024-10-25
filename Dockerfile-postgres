@@ -1,5 +1,5 @@
 # Start from the official PostgreSQL image
-FROM postgres:latest
+FROM postgres:17.0
 
 # Set the UID and GID you want to use
 ENV USER_ID=1000
@@ -11,7 +11,7 @@ ARG PGDATA
 RUN groupadd -g ${GROUP_ID} postgres_user
 RUN useradd -m -u ${USER_ID} -g postgres_user -s /bin/bash postgres_user
 RUN mkdir -p ${PGDATA}
-RUN chown -R postgres_user:postgres_user /home/postgres_user && \
+RUN chown -R postgres_user:postgres_user /home/postgres_user
 RUN chmod 700 ${PGDATA}
 
 # Switch to the non-root user for running PostgreSQL
