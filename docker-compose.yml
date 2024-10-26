@@ -3,12 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-postgres
-      args:
-        - PGDATA=${PGDATA}
     container_name: "postgres"
-    env_file: .env
+    environment:
+      POSTGRES_USER: mdtools
+      POSTGRES_PASSWORD: team03
     volumes:
-      - pgdata:${PGDATA}
+      - pgdata:/home/postgres_user/data
     ports:
       - "5432:5432"
     restart: unless-stopped
