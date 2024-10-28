@@ -1,0 +1,15 @@
+# Stage 1: Build Svelte app
+FROM node:18-alpine AS svelte-builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy Svelte project files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the Svelte application files and build
+COPY frontend/ . 
+RUN npm run build
