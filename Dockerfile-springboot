@@ -2,7 +2,7 @@
 FROM maven:3.8.5-openjdk-17 AS spring-builder
 
 # Set working directory
-WORKDIR /app
+RUN -mkdir /app
 
 # Copy the Svelte build output to Spring Boot's static resources
 COPY --from=svelte-builder /app/build backend/src/main/resources/static
