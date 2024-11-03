@@ -25,9 +25,6 @@ services:
     environment:
       NODE_ENV: development  # Ensures the app runs in dev mode, use production for production
     restart: unless-stopped # Automatically restarts the container unless manually stopped
-    volumes:
-      - ./frontend:/app      # Bind mount for development (optional)
-    command: npm run dev       # Runs the dev server with live reload, not to be used in production
 
   springboot:
     build:
