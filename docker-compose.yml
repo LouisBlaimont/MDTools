@@ -7,10 +7,11 @@ services:
     environment:
       POSTGRES_USER: team03
       POSTGRES_PASSWORD: mdtools
+      PGDATA: /home/postgres_user/data
     volumes:
-      - pgdata:/home/postgres_user/data
+      #- pgdata:/home/postgres_user/data
       # pgdata is a named volume, which is a persistent volume
-      # pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -26,16 +27,16 @@ services:
       - "5000:5000"
     restart: unless-stopped
 
-  springboot:
-    build:
-      context: .
-      dockerfile: Dockerfile-springboot
-    container_name: "springboot"
-    volumes:
-      - ./springboot:/home/springboot_user/springboot
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
+#   springboot:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile-springboot
+#     container_name: "springboot"
+#     volumes:
+#       - ./springboot:/home/springboot_user/springboot
+#     ports:
+#       - "8080:8080"
+#     restart: unless-stopped
 
 volumes:
   pgdata:

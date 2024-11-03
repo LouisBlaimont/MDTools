@@ -1,15 +1,23 @@
-# Stage 1: Build Svelte app
-FROM node:18-alpine AS svelte-builder
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy Svelte project files
-COPY frontend/package*.json ./
+COPY --chown=1000:1000 package.json /app/
+COPY --chown=1000:1000 . /app/
 
-# Install dependencies
-RUN npm install
+RUN chgrp 1000 /app
+RUN chmod g+rw /app
 
-# Copy the rest of the Svelte application files and build
-COPY frontend/ . 
+# Clear npm cache and install dependencies
+RUN npm cache clean --force && npm install
+
+# Build the Svelte application
 RUN npm run build
+
+# Expose the port the app runs on
+EXPOSE 5000
+
+# Command to run the application
+CMD ["npm", "run", "start"]
