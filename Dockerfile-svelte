@@ -1,15 +1,32 @@
-# Stage 1: Build Svelte app
-FROM node:18-alpine AS svelte-builder
+# Stage 1: Build the SvelteKit app
+FROM node:18 AS build
 
-# Set working directory
+# Set working directory in the container
 WORKDIR /app
 
-# Copy Svelte project files
-COPY frontend/package*.json ./
-
-# Install dependencies
+# Copy package files and install dependencies
+COPY ./frontend/package*.json ./
 RUN npm install
 
-# Copy the rest of the Svelte application files and build
-COPY frontend/ . 
+# Copy the entire SvelteKit project from /frontend
+COPY ./frontend ./
+
+# Build the application
 RUN npm run build
+
+# Stage 2: Create a minimal container for the production server
+FROM node:18-slim AS runner
+
+# Set working directory in the container
+WORKDIR /app
+
+# Copy the built application and node_modules from the build stage
+COPY --from=build /app/build ./build
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package*.json ./
+
+# Expose the port SvelteKit uses by default
+EXPOSE 3000
+
+# Start the SvelteKit server
+CMD ["node", "./build/index.js"]
