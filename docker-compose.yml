@@ -5,14 +5,9 @@ services:
       dockerfile: Dockerfile-postgres
     container_name: "postgres"
     environment:
-<<<<<<< HEAD
-      POSTGRES_USER: team03
-      POSTGRES_PASSWORD: mdtools
-      PGDATA: /home/postgres_user/data
-=======
+
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
->>>>>>> a51169ad5350c6850f5a49f9b8941dd5b356dac2
     volumes:
       #- pgdata:/home/postgres_user/data
       # pgdata is a named volume, which is a persistent volume
@@ -32,18 +27,6 @@ services:
       NODE_ENV: development  # Ensures the app runs in dev mode, use production for production
     restart: unless-stopped # Automatically restarts the container unless manually stopped
 
-<<<<<<< HEAD
-#   springboot:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile-springboot
-#     container_name: "springboot"
-#     volumes:
-#       - ./springboot:/home/springboot_user/springboot
-#     ports:
-#       - "8080:8080"
-#     restart: unless-stopped
-=======
   springboot:
     build:
       context: .
@@ -59,7 +42,6 @@ services:
       spring.datasource.username: ${DB_USER}
       spring.datasource.password: ${DB_PASSWORD}
       spring.datasource.driver.class.name: "org.postgresql.Driver"
->>>>>>> a51169ad5350c6850f5a49f9b8941dd5b356dac2
 
 volumes:
   pgdata:
