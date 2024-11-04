@@ -94,7 +94,7 @@
     <div class ="side-bar">
         <div class="searches">
             <form id="google-search">
-                <label for="google-search" id="google-search-label">Recherche par mot clé(s)</label>
+                <label for="google-search" id="google-search-label">Recherche par mot(s) clé(s)</label>
                 <input type="text" id="google-search" name="google-search" placeholder="Entrez un mot clé">
             </form>
             <form id="char-search">
