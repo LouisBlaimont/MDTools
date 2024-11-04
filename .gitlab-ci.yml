@@ -13,7 +13,7 @@ variables:
 
   IMAGE_TAG: latest
   ## for gitlab image registry:
-  REPO_PATH: gitlab.uliege.be:5050/SPEAM/2024-2025/team3/mdtools
+  REPO_PATH: gitlab.uliege.be:5050/speam/2024-2025/team3/mdtools
   REGISTRY_HOST: gitlab.uliege.be:5050
   # GITLAB_REGISTRY_USER and GITLAB_REGISTRY_TOKEN are defined in the secret store
   PUSH_USER: $GITLAB_REGISTRY_USER
