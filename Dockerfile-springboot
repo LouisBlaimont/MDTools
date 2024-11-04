@@ -14,6 +14,10 @@ RUN mvn clean package -DskipTests
 # Stage 2: Create a minimal image for running the application
 FROM eclipse-temurin:17-jre-jammy
 
+# Set the UID and GID
+ENV USER_ID=3000
+ENV GROUP_ID=3000
+
 # Set the working directory
 WORKDIR /app
 
