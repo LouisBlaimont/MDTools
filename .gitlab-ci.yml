@@ -50,5 +50,6 @@ postgres_init:
     - sleep 10 && docker info
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
   script:
+    - echo $REPO_TAG
     - docker build --network host -t $REPO_TAG -f Dockerfile-postgres .
     - docker push $REPO_TAG
