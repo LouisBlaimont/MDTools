@@ -8,8 +8,11 @@
 
 variables:
   POSTGRES: postgres
+  POSTGRES_DIR: database
   SVELTE: svelte
+  SVELTE_DIR: frontend
   SPRINGBOOT: springboot
+  SPRINGBOOT_DIR: backend
 
   IMAGE_TAG: latest
   ## for gitlab image registry:
@@ -32,7 +35,7 @@ postgres_init:
       when: never
     - changes:
         paths: 
-          - Dockerfile-postgres
+          - database/*
           - $CI_CONFIG_PATH
   tags:
     - openshift 
@@ -51,5 +54,5 @@ postgres_init:
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
   script:
     - echo $REPO_TAG
-    - docker build --network host -t $REPO_TAG -f Dockerfile-postgres .
+    - docker build --network host -t $REPO_TAG -f $POSTGRES_DIR/Dockerfile ./$POSTGRES_DIR
     - docker push $REPO_TAG
