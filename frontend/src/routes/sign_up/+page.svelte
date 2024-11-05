@@ -1,106 +1,44 @@
-<head><title>Sign up</title></head>
-<header class ="header_bar"><img alt="md original logo" src="src/lib/assets/logo-blanc.png" class="md_logo" /></header>
-<main>
-  <form class="sign_form"> 
-    <div class="bienvue">
-        <p>Bienvenue sur MDTools</p>
-    </div>
-    <div class="txt">
-        <span> 
-            Crée un compte <br />
-            ou <br />
-            connecte toi&nbsp<a href="src/routes/login/+page.svelte">ici</a>&nbspsi tu en as déjà un. <br />
-        </span>
-    </div>
-   
-    <div class="container">
-      <label for="email"><b>Email</b></label>
-      <input type="text" placeholder="Entrez un email" name="email" required>
+<head><title>Inscription</title></head>
+<header class="bg-teal-500 h-16 flex items-center">
+  <img alt="Logo MD" src="src/lib/assets/logo-blanc.png" class="h-full p-2" />
+</header>
 
-      <label for="mdp"><b>Mot de passe</b></label>
-      <input type="text" placeholder="Entrez votre mot de passe" name="mdp" required>
+<main class="flex justify-center py-12 px-6 sm:px-10">
+  <form class="border-3 border-teal-500 rounded-lg w-full sm:w-3/4 lg:w-1/2 xl:w-1/3 p-8 bg-white shadow-md">
+    <div class="text-center mb-6">
+      <p class="text-teal-500 text-3xl font-bold">Bienvenue sur MDTools</p>
+    </div>
 
-      <label for="mdp_2"><b>Confirmation du mot de passe</b></label>
-      <input type="text" placeholder="Entrez de nouveau votre mot de passe" name="mdp_2" required>
+    <div class="text-center text-gray-700 mb-6">
+      <p>
+        Créez un compte <br />
+        ou <br />
+        connectez-vous <a href="/login" class="text-blue-500 underline">ici</a> si vous en avez déjà un.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <label for="email" class="block font-semibold">Adresse e-mail</label>
+      <input type="email" placeholder="Entrez votre adresse e-mail" name="email" required
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+
+      <label for="password" class="block font-semibold">Mot de passe</label>
+      <input type="password" placeholder="Créez un mot de passe" name="password" required
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+
+      <label for="confirm-password" class="block font-semibold">Confirmation du mot de passe</label>
+      <input type="password" placeholder="Confirmez votre mot de passe" name="confirm-password" required
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+
+      <label for="function" class="block font-semibold">Quelle est votre fonction ?</label>
+      <input list="functions" name="function" type="text" placeholder="Choisissez votre fonction"
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+      <datalist id="functions">
+        <option value="Je travaille chez MDTools">
+        <option value="Je suis médecin">
+      </datalist>
       
-      <div>
-        <label for="function"><b>Quelle est votre fonction?</b></label>
-        <input list="functions" name="function" type="text" placeholder="Choisissez votre fonction">
-        <datalist id="functions">
-          <option value="Je travail chez MDTools">
-          <option value="Je suis médecin">
-        </datalist>
-      </div>
-
-      <button class="btn" type="submit">Sign up</button>
+      <button class="bg-teal-500 text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600" type="submit">S'inscrire</button>
     </div>
   </form>
 </main>
-
-<style>  
-  .header_bar {
-    background-color: rgb(109, 199, 172);
-    height: 70px;
-  }
-
-  .md_logo {
-    margin-left: 5px;
-    background-color: rgb(109, 199, 172);
-    height: 70px;
-  }
-
-  main {
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    justify-content: center;
-    padding-top: 50px;
-  }
-
-  .sign_form {
-    border: 3px solid rgb(109, 199, 172);
-    width: 35%;
-    border-radius: 10px; 
-  }
-
-  input[type=text] {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 9px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    border-radius: 20px;
-  }
-
-  .btn {
-    background-color:rgb(109, 199, 172);
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    border-radius: 20px;
-  }
-
-  button:hover {
-    background-color: #4f74a1;
-  }
-
-  .container {
-    padding: 18px;
-  }
-
-  .txt {
-    text-align: center;
-    margin-bottom: 2px;
-  }
-
-  .bienvue {
-    color:rgb(109, 199, 172);
-    font-size: 2.6em;
-    text-align: center;
-    margin-bottom: -20px;
-  }
-
-</style>
