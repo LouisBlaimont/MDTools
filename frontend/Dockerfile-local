@@ -5,11 +5,11 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY ./frontend/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-# Copy the entire SvelteKit project from /frontend
-COPY ./frontend ./
+# Copy the entire SvelteKit project
+COPY . ./
 
 # Build the application
 RUN npm run build
@@ -18,11 +18,11 @@ RUN npm run build
 FROM node:18-slim AS runner
 
 # Set the UID and GID
-ENV USER_ID=2000
-ENV GROUP_ID=2000
+# ENV USER_ID=2000
+# ENV GROUP_ID=2000
 
-# Switch to the non-root user
-USER ${USER_ID}:${GROUP_ID}
+# # Switch to the non-root user
+# USER ${USER_ID}:${GROUP_ID}
 
 # Set working directory in the container
 WORKDIR /app

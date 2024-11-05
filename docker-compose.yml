@@ -1,8 +1,8 @@
 services:
   postgres:
     build:
-      context: .
-      dockerfile: Dockerfile-postgres
+      context: ./database
+      dockerfile: Dockerfile
     container_name: "postgres"
     environment:
 
@@ -18,19 +18,22 @@ services:
 
   svelte:
     build:
-      context: .            # Path to your Dockerfile and frontend directory
-      dockerfile: Dockerfile-svelte
+      context: ./frontend
+      dockerfile: Dockerfile-local
     container_name: "svelte"
+    volumes:
+      - ./frontend:/app  # Mount the frontend directory for live reload
     ports:
       - "3000:3000"         # Maps port 3000 on the host to port 3000 in the container
     environment:
-      NODE_ENV: development  # Ensures the app runs in dev mode, use production for production
-    restart: unless-stopped # Automatically restarts the container unless manually stopped
+      NODE_ENV: development  
+    restart: unless-stopped
+    command: npm run dev
 
   springboot:
     build:
-      context: .
-      dockerfile: Dockerfile-springboot
+      context: ./backend
+      dockerfile: Dockerfile-local
     container_name: "springboot"
     volumes:
       - ./backend:/app/backend  # Mount the backend directory for live reload
