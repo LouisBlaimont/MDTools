@@ -35,14 +35,14 @@ postgres_init:
       when: never
     - changes:
         paths: 
-          - database/*
+          - $POSTGRES_DIR/*
           - $CI_CONFIG_PATH
   tags:
     - openshift 
     - docker
   image: docker:20.10.16
   variables:
-    REPO_TAG: ${REPO_PATH}postgres:${IMAGE_TAG}
+    REPO_TAG: ${REPO_PATH}$POSTGRES:${IMAGE_TAG}
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
@@ -55,4 +55,33 @@ postgres_init:
   script:
     - echo $REPO_TAG
     - docker build --network host -t $REPO_TAG -f $POSTGRES_DIR/Dockerfile ./$POSTGRES_DIR
+    - docker push $REPO_TAG
+
+frontend:
+  stage: prepare
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: never
+    - changes:
+        paths: 
+          - SVELTE_DIR/*
+          - $CI_CONFIG_PATH
+  tags:
+    - openshift 
+    - docker
+  image: docker:20.10.16
+  variables:
+    REPO_TAG: ${REPO_PATH}$SVELTE:${IMAGE_TAG}
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - sleep 10 && docker info
+    - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
+  script:
+    - echo $REPO_TAG
+    - docker build --network host -t $REPO_TAG -f $SVELTE_DIR/Dockerfile ./$SVELTE_DIR
     - docker push $REPO_TAG
