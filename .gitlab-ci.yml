@@ -24,8 +24,8 @@ variables:
    
 stages: # List of stages for grouping and sequencing jobs, and their order of execution
   - prepare
-  - test
   - package
+  - test
   - deploy
 
 postgres_init:
@@ -57,8 +57,24 @@ postgres_init:
     - docker build --network host -t $REPO_TAG -f $POSTGRES_DIR/Dockerfile ./$POSTGRES_DIR
     - docker push $REPO_TAG
 
+frontend_test:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: never
+    - changes:
+        paths: 
+          - $SVELTE_DIR/*
+          - $CI_CONFIG_PATH
+  tags:
+    - openshift 
+    - docker
+  image: node:18
+  script:
+    - cd frontend
+    - npm test
 frontend:
-  stage: prepare
+  stage: package
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
@@ -87,7 +103,7 @@ frontend:
     - docker push $REPO_TAG
 
 backend:
-  stage: prepare
+  stage: package
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
