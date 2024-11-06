@@ -73,7 +73,8 @@ frontend_test:
   script:
     - cd frontend
     - npm install
-    - npm test
+    - npm test --run --coverage
+  coverage: '/All files\s+\|\s+\d+\.\d+\s+\|\s+\d+\.\d+\s+\|\s+\d+\.\d+\s+\|\s+(\d+\.\d+)\s+.*/'
 
 frontend:
   stage: package
