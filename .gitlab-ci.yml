@@ -72,9 +72,12 @@ frontend_test:
   image: node:18
   script:
     - cd frontend
-    - npm install-test
+    - npm install
+    - npm test
+
 frontend:
   stage: package
+  needs: ['frontend_test']
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
