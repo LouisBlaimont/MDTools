@@ -24,8 +24,8 @@ variables:
    
 stages: # List of stages for grouping and sequencing jobs, and their order of execution
   - prepare
-  - package
   - test
+  - package
   - deploy
 
 postgres_init:
