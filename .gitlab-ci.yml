@@ -72,7 +72,7 @@ frontend_test:
   image: node:18
   script:
     - cd frontend
-    - npm test
+    - npm install-test
 frontend:
   stage: package
   rules:
