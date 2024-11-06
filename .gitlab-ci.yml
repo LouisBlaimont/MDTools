@@ -64,7 +64,7 @@ frontend:
       when: never
     - changes:
         paths: 
-          - SVELTE_DIR/*
+          - $SVELTE_DIR/*
           - $CI_CONFIG_PATH
   tags:
     - openshift 
