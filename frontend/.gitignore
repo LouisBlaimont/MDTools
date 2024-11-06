@@ -8,6 +8,7 @@ node_modules
 /.svelte-kit/*.d.ts
 
 /build
+/coverage
 
 # OS
 .DS_Store
