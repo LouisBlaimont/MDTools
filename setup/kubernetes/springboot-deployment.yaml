@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.prod.yml convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    io.kompose.service: springboot
+  name: springboot
+spec:
+  replicas: 1
+  tags:
+    - importPolicy:
+        scheduled: true
+  selector:
+    matchLabels:
+      io.kompose.service: springboot
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.prod.yml convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        io.kompose.service: springboot
+    spec:
+      containers:
+        - env:
+            - name: spring.datasource.driver.class.name
+              value: org.postgresql.Driver
+            - name: spring.datasource.password
+              value: mdtools
+            - name: spring.datasource.url
+              value: jdbc:postgresql://postgres:5432/postgres
+            - name: spring.datasource.username
+              value: team03
+          image: gitlab.uliege.be:5050/speam/2024-2025/team3/mdtools/springboot:latest
+          name: springboot
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: mdtools-gitlab-registry-deploytoken
