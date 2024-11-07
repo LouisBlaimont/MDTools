@@ -12,5 +12,9 @@
 	<a href="/searches">searches</a> <!--opens normally when doing a research but for now like this-->
 </nav>
 
+<header class="bg-teal-500 h-16 flex items-center">
+	<img alt="Logo MD" src="logo-blanc.png" class="h-full p-2" />
+ </header>
+
 
 {@render children()}
