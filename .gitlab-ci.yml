@@ -35,7 +35,7 @@ postgres_init:
       when: never
     - changes:
         paths: 
-          - $POSTGRES_DIR/*
+          - $POSTGRES_DIR/**
           - $CI_CONFIG_PATH
   tags:
     - openshift 
@@ -64,7 +64,7 @@ frontend_test:
       when: never
     - changes:
         paths: 
-          - $SVELTE_DIR/*
+          - $SVELTE_DIR/**
           - $CI_CONFIG_PATH
   tags:
     - openshift 
@@ -84,7 +84,7 @@ frontend:
       when: never
     - changes:
         paths: 
-          - $SVELTE_DIR/*
+          - $SVELTE_DIR/**
           - $CI_CONFIG_PATH
   tags:
     - openshift 
@@ -113,7 +113,7 @@ backend:
       when: never
     - changes:
         paths: 
-          - $SPRINGBOOT_DIR/*
+          - $SPRINGBOOT_DIR/**
           - $CI_CONFIG_PATH
   tags:
     - openshift 
