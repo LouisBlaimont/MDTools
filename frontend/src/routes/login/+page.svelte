@@ -1,6 +1,6 @@
 <head><title>Login</title></head>
 <header class="bg-teal-500 h-16 flex items-center">
-  <img alt="md original logo" src="src/lib/assets/logo-blanc.png" class="h-full p-2" />
+  <img alt="md original logo" src="logo-blanc.png" class="h-full p-2" />
 </header>
 
 <main class="flex flex-col md:flex-row justify-center w-11/12 lg:w-3/4 mx-auto mt-6 p-6">
@@ -14,7 +14,7 @@
 
   <form class="border-3 rounded-lg w-full md:w-2/3 lg:w-1/2 p-6 mx-auto bg-white shadow-lg">
     <div class="text-center mb-4">
-      <img alt="The project logo" src="src/lib/assets/image0.webp" class="w-1/2 md:w-1/3 lg:w-1/4 rounded-full mx-auto"/>
+      <img alt="The project logo" src="MDlogo.jpg" class="w-1/2 md:w-1/3 lg:w-1/4 rounded-full mx-auto"/>
     </div>
 
     <div class="space-y-4">
