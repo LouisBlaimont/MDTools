@@ -92,7 +92,7 @@
 <div class="top-bar">
     <img id = "logo_MD" alt = "MDtools logo" src="/MDlogo.jpg" >
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-300 rounded-full" on:click={openModifPage}>
+    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full" on:click={openModifPage}>
         <!-- Custom Edit Icon SVG -->
         <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" version="1.1" id="Capa_1" viewBox="0 0 494.936 494.936" class="w-6 h-6 text-gray-800">
             <g>

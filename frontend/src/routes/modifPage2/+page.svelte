@@ -52,13 +52,14 @@
     function openSearchPage(){
         goto('/searches');
     }
+    import ModifIcon from './modifIcon.svelte';
 
 </script>
 
 <div class="top-bar">
     <img id = "logo_MD" alt = "MDtools logo" src="/MDlogo.jpg" >
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-300 rounded-full" on:click={openSearchPage}>
+    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full" on:click={openSearchPage}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="24" width="24" viewBox="0 0 568.599 568.599" class="w-6 h-6 text-gray-800">
             <g>
                 <path d="M565.692,147.211L507.96,89.479c-4.08-4.08-10.404-4.08-14.484,0L241.128,342.031L75.276,176.179
@@ -155,7 +156,7 @@
         <div class = "tools-suppliers">
             <div class="tools">
                 <table id="tools-table">
-                    <thead><tr><th>GROUPE</th><th>FONCTION</th><th>NOM</th><th>FORME</th><th>DIMENSION</th></tr></thead>
+                    <thead><tr><th></th><th>GROUPE</th><th>FONCTION</th><th>NOM</th><th>FORME</th><th>DIMENSION</th></tr></thead>
                     <tbody>
                         {#each tools as row, index}
 
@@ -167,24 +168,38 @@
                                 on:mouseover={()=> hoveredToolIndex = index}
                                 on:mouseout={() => hoveredToolIndex = null}
                             >
+                                <td class="transition-colors duration-300 bg-yellow-500 text-black hover:bg-black hover:text-yellow-500">
+                                    <ModifIcon></ModifIcon>
+                                </td>
                                 <td>{row.group}</td><td>{row.fct}</td><td>{row.name}</td><td>{row.form}</td><td>{row.dim}</td>
                             </tr>
                         {/each}
                     </tbody>
                 </table>
+                <button class="w-7 h-7 bg-yellow-500 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                    +
+                </button>
             </div>
             <div class="tools-pictures">
                 {#each tools as row, index}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                    <img 
-                        alt="tool{row.id}" 
-                        src={row.src}
-                        on:click={()=>showBigPicture(row.src)} 
-                        on:mouseover={()=>hoveredToolImageIndex = index}
-                        on:mouseout={()=>hoveredToolImageIndex = null}
-                        class="image {selectedToolIndex === index ? 'selected-image' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hovered-image' : ''}">
+                    <div class="relative">
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                        <img 
+                            alt="tool{row.id}" 
+                            src={row.src}
+                            on:click={()=>showBigPicture(row.src)} 
+                            on:mouseover={()=>hoveredToolImageIndex = index}
+                            on:mouseout={()=>hoveredToolImageIndex = null}
+                            class="image {selectedToolIndex === index ? 'selected-image' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hovered-image' : ''}">
+                        
+                            {#if selectedToolIndex === index}
+                            <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-500 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                                +
+                            </button>
+                            {/if}
+                    </div>
                 {/each}
             </div>
 
@@ -205,7 +220,14 @@
                                 on:mouseout={()=>hoveredSupplierImageIndex = null}
                                 class="image {selectedSupplierIndex === index ? 'selected-image' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'hovered-image' : ''}"
                             >
-                            <div class="reference">{row.ref}</div>
+                            <div class="reference">
+                                {row.ref}
+                                {#if selectedSupplierIndex === index}
+                                    <button class="w-5 h-5 bg-yellow-500 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                                        +
+                                    </button>
+                                {/if}
+                            </div>
                         </div>
                     {/each}
                 </div>
@@ -213,7 +235,7 @@
 
                 <div class = "suppliers-table">
                     <table>
-                        <thead><tr><th>REF</th><th>MARQUE</th><th>DESCRIPTION</th><th>PRIX</th><th>ALT</th><th>OBS</th></tr></thead>
+                        <thead><tr><th></th><th>REF</th><th>MARQUE</th><th>DESCRIPTION</th><th>PRIX</th><th>ALT</th><th>OBS</th></tr></thead>
                         <tbody>
                             {#each currentSuppliers as row, index}
                                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -224,11 +246,16 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
-                                    <td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
+                                <td class="transition-colors duration-300 bg-yellow-500 text-black hover:bg-black hover:text-yellow-500">
+                                    <ModifIcon></ModifIcon>
+                                </td><td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
                                 </tr>
                             {/each}
                         </tbody>
                     </table>
+                    <button class="w-7 h-7 bg-yellow-500 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                        +
+                    </button>
                 </div>
             </div>
         </div>
@@ -338,6 +365,9 @@
     }
     .tools{
         flex : 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         margin: 0;
         height: 100%; 
         overflow-y: auto; 
@@ -349,6 +379,11 @@
         max-height: 100%; 
         overflow-y: auto; 
         box-sizing: border-box;
+    }
+    .suppliers-table{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     .suppliers{
         flex : 3;
@@ -392,6 +427,8 @@
         margin-right : 3px;
     }
     .suppliers-picture-group .reference{
+        display: flex;
+        justify-content: space-between;
         border-top: 1px solid black;
         padding: 3px;
         box-sizing: border-box;
