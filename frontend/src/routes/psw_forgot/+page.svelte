@@ -1,95 +1,25 @@
-<head><title>Password forgot</title></head>
-<header class ="header_bar"><img alt="md original logo" src="src/lib/assets/logo-blanc.png" class="md_logo" /></header>
-<main>
-  <form class="login_form"> 
-    <div class="imgcontainer">
-      <img alt="cadenas" src="src/lib/assets/ouvrir.png" class="cadenas"/>
-    <span class="txt"> Entrez votre adresse email et nous vous enverrons un lien pour récupérer votre compte.</span>
+<head><title>Mot de passe oublié</title></head>
+
+
+<main class="flex justify-center p-6 sm:p-10">
+  <form class="border-3 border-teal-500 rounded-lg w-full sm:w-3/4 lg:w-1/2 xl:w-1/3 p-6">
+    <div class="text-center mb-6">
+      <img alt="Icône de cadenas" src="src/lib/assets/ouvrir.png" class="w-1/2 sm:w-1/3 mx-auto rounded-full mb-4"/>
+      <p class="text-center text-gray-700 text-lg">
+        Vous avez oublié votre mot de passe ? Pas de souci ! Entrez simplement votre adresse e-mail ci-dessous, et nous vous enverrons un lien pour le réinitialiser.
+      </p>
     </div>
-   
-    <div class="container">
-      <label for="email"><b>Email</b></label>
-      <input type="text" placeholder="Entrez un email" name="email" required>
-      <button class="btn" type="submit">Envoyer un lien</button>
-      <span class="rtn"><a href="src/routes/login/+page.svelte">Retourner sur la page de connexion</a></span>
+
+    <div class="space-y-4">
+      <label for="email" class="block font-semibold">Adresse e-mail</label>
+      <input type="email" placeholder="Entrez votre adresse e-mail" name="email" required
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+
+      <button class="bg-teal-500 text-white py-3 mt-4 rounded-lg w-full hover:bg-teal-600" type="submit">Envoyer le lien de réinitialisation</button>
+    </div>
+
+    <div class="flex justify-center mt-4 text-blue-500">
+      <a href="/login">Retour à la page de connexion</a>
     </div>
   </form>
 </main>
-
-<style>  
-  .header_bar {
-    background-color: rgb(109, 199, 172);
-    height: 70px;
-  }
-
-  .md_logo {
-    margin-left: 5px;
-    background-color: rgb(109, 199, 172);
-    height: 70px;
-  }
-
-  main {
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    justify-content: center;
-    padding: 100px;
-  }
-
-  .login_form {
-    border: 3px solid rgb(109, 199, 172);
-    width: 30%;
-    border-radius: 10px; 
-  }
-
-  input[type=text] {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    border-radius: 20px;
-  }
-
-  .btn {
-    background-color:rgb(109, 199, 172);
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    border-radius: 20px;
-  }
-
-  button:hover {
-    background-color: #4f74a1;
-  }
-
-  .imgcontainer {
-    text-align: center;
-    margin: 24px 0 12px 0;
-  }
-
-  .cadenas {
-    width: 40%;
-    border-radius: 50%;
-    width: 200px;
-  }
-
-  .container {
-    padding: 16px;
-  }
-
-  .txt {
-    display: flex;
-    align-content: center;
-    padding-top: 30px;
-  }
-
-  .rtn {
-    display: flex;
-    justify-content: center;
-    padding-top: 10px;
-  }
-</style>

@@ -3,8 +3,12 @@ node_modules
 # Output
 .output
 .vercel
-/.svelte-kit
+/.svelte-kit/generated
+/.svelte-kit/types
+/.svelte-kit/*.d.ts
+
 /build
+/coverage
 
 # OS
 .DS_Store
