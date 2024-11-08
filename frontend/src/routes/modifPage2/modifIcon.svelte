@@ -1,6 +1,7 @@
 <script>
     export let size = 'w-6 h-6';
 </script>
+<!-- svelte-ignore a11y_consider_explicit_label -->
 <button>
     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" version="1.1" id="Capa_1" viewBox="0 0 494.936 494.936" class="{size}">
         <g>
