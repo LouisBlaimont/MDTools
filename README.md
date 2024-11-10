@@ -11,9 +11,9 @@
 
 The project is organized as follows:
 
--   **/frontend** - Contains the SvelteKit frontend code.
--   **/backend** - Contains the Spring Boot backend API code.
--   **/database** - Contains the PostgreSQL database setup, including initialization scripts.
+-   `/frontend` - Contains the SvelteKit frontend code.
+-   `/backend` - Contains the Spring Boot backend API code.
+-   `/database` - Contains the PostgreSQL database setup, including initialization scripts.
 
 ## Setup a development environment (Docker)
 
@@ -72,3 +72,12 @@ Refer to the .env file.
 ## API Documentation
 
 The API specifications for MDTools can be found on Swagger: [MDTools API Documentation](https://app.swaggerhub.com/apis-docs/ALTTPCONH5R7Q/MDTools/).
+
+## CI/CD Pipeline
+This project uses [GitLab CI/CD](https://docs.gitlab.com/ee/ci/yaml/) for automated **building**, **testing**, and **deployment** of the **MDTools** components on OpenShift. The `.gitlab-ci.yml` file defines the following stages and jobs to manage the pipeline efficiently: 
+- **Testing**: Runs unit tests for the frontend to ensure code quality. Test for the backend will be implemented in a near future.
+- **Building**: Builds images for each component—-frontend, backend, and database—-and pushes them to the GitLab Container Registry.
+
+### OpenShift-Specific Configurations
+
+Each job that builds and pushes images uses OpenShift-compatible Docker configurations. Docker-in-Docker (`docker:20.10.16-dind`) is used to ensure isolated container builds,.
