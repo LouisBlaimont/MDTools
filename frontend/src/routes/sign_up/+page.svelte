@@ -1,15 +1,11 @@
 <head><title>Inscription</title></head>
-<header class="bg-teal-500 h-16 flex items-center">
-  <img alt="Logo MD" src="src/lib/assets/logo-blanc.png" class="h-full p-2" />
-</header>
-
-<main class="flex justify-center py-12 px-6 sm:px-10">
-  <form class="border-3 border-teal-500 rounded-lg w-full sm:w-3/4 lg:w-1/2 xl:w-1/3 p-8 bg-white shadow-md">
-    <div class="text-center mb-6">
+<main class="flex justify-center py-6 px-6 sm:px-10">
+  <form class="border-3 rounded-lg w-full md:w-2/3 lg:w-1/2 p-6 mx-auto bg-white shadow-lg">
+    <div class="text-center mb-4">
       <p class="text-teal-500 text-3xl font-bold">Bienvenue sur MDTools</p>
     </div>
 
-    <div class="text-center text-gray-700 mb-6">
+    <div class="text-center text-gray-700 mb-5">
       <p>
         Créez un compte <br />
         ou <br />
@@ -17,7 +13,7 @@
       </p>
     </div>
 
-    <div class="space-y-4">
+    <div class="space-y-3">
       <label for="email" class="block font-semibold">Adresse e-mail</label>
       <input type="email" placeholder="Entrez votre adresse e-mail" name="email" required
              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">

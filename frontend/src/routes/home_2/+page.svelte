@@ -3,9 +3,6 @@
 </script>
 
 <head><title>Accueil</title></head>
-<header class="bg-teal-500 h-20 flex items-center px-6">
-  <img alt="Logo MD" src="src/lib/assets/logo-blanc.png" class="h-full p-4" />
-</header>
 
 <main class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto">
   <aside class="w-full md:w-1/4 bg-gray-100 rounded-lg p-8 shadow-md">
@@ -34,10 +31,14 @@
           <option value="ref5">
         </datalist>
       </div>
-      
-      <button type="submit" class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg">Rechercher</button>
+
+      <button type="submit" class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg"><a href="/searches">Rechercher</a></button>
+
+      <div class="flex flex-col">
+        <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/add_group">Ajouter un groupe</a></button>
+      </div>
     </form>
-  </aside>
+  </aside>  
 
   <section class="w-full md:w-3/4 grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto">
     {#each Object.values(images) as { default: imageUrl }}
@@ -51,20 +52,26 @@
   </section>
 </main>
 
-<div class="container mx-auto w-full bg-gray-50 p-6 shadow-lg flex justify-center items-center space-x-6">
-  <div class="flex flex-col items-center">
+<div class="container mx-auto bg-gray-50 p-6 shadow-lg flex justify-center flex items-center space-x-6">
+  <div>
     <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
-    <label for="id_ref" class="text-gray-700 text-lg">Rechercher une commande:</label>
   </div>
-  
-  <input list="commandes" name="commandes" placeholder="Entrez un numéro de commande"
-         class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
-  <datalist id="commandes">
-    <option value="#123456">
-    <option value="#123457">
-    <option value="#123458">
-    <option value="#123459">
-  </datalist>
-  
-  <button class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg">Rechercher</button>
+  <div> 
+    <label for="id_ref" class="font-semibold text-lg">Rechercher une commande:</label> 
+    <div class= "flex flex-row"> 
+      <div>   
+        <input list="commandes" name="commandes" placeholder="Entrez un numéro de commande"
+              class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+        <datalist id="commandes">
+          <option value="#123456">
+          <option value="#123457">
+          <option value="#123458">
+          <option value="#123459">
+        </datalist>
+      </div>
+      <div>
+        <button class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg">Rechercher</button>
+      </div>
+    </div>
+  </div>  
 </div>

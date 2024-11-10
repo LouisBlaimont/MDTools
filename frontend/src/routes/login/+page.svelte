@@ -1,14 +1,10 @@
 <head><title>Login</title></head>
-<header class="bg-teal-500 h-16 flex items-center">
-  <img alt="md original logo" src="logo-blanc.png" class="h-full p-2" />
-</header>
-
 <main class="flex flex-col md:flex-row justify-center w-11/12 lg:w-3/4 mx-auto mt-6 p-6">
   <div class="flex w-full md:w-1/3 lg:w-1/4 mb-6 md:mb-0 justify-center items-center border-3 rounded-lg bg-teal-500 shadow-lg shadow-teal-500">
     <form class="flex flex-col items-center w-full p-6">
       <h1 class="text-2xl text-center mb-2 text-white">Bienvenue sur MDTools</h1>
       <span class="text-center text-white">Pas encore de compte?</span>
-      <button class="mt-4 bg-white text-teal-500 py-2 px-4 rounded-lg w-3/4 lg:w-4/5" type="submit">Crée un compte ici</button>
+      <button class="mt-4 bg-white text-teal-500 py-2 px-4 rounded-lg w-3/4 lg:w-4/5" type="submit"><a href="/sign_up">Crée un compte ici</a></button>
     </form>
   </div>
 
@@ -19,7 +15,7 @@
 
     <div class="space-y-4">
       <label for="email" class="block font-bold">Email</label>
-      <input type="text" placeholder="Entrez un email" name="email" required
+      <input type="email" placeholder="Entrez un email" name="email" required
              class="w-full p-3 border border-gray-300 rounded-lg">
 
       <label for="mdp" class="block font-bold">Mot de passe</label>
