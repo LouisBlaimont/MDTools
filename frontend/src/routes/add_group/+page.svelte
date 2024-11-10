@@ -17,15 +17,6 @@
             fields.appendChild(clonedDiv);
         }
     }
-
-    function close_char() {
-        const fields = document.getElementById("fields");
-        fields.style.display = "none";
-        let field_name = document.getElementById("field_name");
-        field_name.style.display = "none";
-        let number_field = document.getElementById("number_field");
-        number_field.style.display = "block";
-    }
 </script>
 
 <main class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto">
