@@ -15,7 +15,7 @@ The project is organized as follows:
 -   **/backend** - Contains the Spring Boot backend API code.
 -   **/database** - Contains the PostgreSQL database setup, including initialization scripts.
 
-## Setup a development environment
+## Setup a development environment (Docker)
 
 ### Prerequisites
 
@@ -46,6 +46,14 @@ This command will:
 Frontend: http://localhost:3000
 API: http://localhost:8080/api
 ```
+
+## Setup a production environment (OpenShift)
+
+### Prerequisites
+- Basic knowledge about OpenShift, see this [reference](https://jira.montefiore.ulg.ac.be/xwiki/wiki/openshiftcluster/view/Application%20Deployment/Deploy%20via%20the%20OpenShift%20Console/).
+
+### Deployment
+Import the YAML files in **/setup/openshift/** inside your OpenShift instance. Modify these files according to your image registry.
 
 ## Environment Variables
 
