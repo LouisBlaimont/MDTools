@@ -1,96 +1,83 @@
+
 # MDTools
 
+**MDTools** is a **Product Information Management** (PIM) platform dedicated to managing and organizing information on medical instruments such as finding instruments based on varying characteristics or outdated references. This project leverages a microservices architecture built with containers (Docker & OpenShift), including a SvelteKit frontend, a Spring Boot backend, and a PostgreSQL database.
 
+## Table of Contents
 
-## Getting started
+[[_TOC_]]
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Project Structure
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+The project is organized as follows:
 
-## Add your files
+-   `/frontend` - Contains the SvelteKit frontend code.
+-   `/backend` - Contains the Spring Boot backend API code.
+-   `/database` - Contains the PostgreSQL database setup, including initialization scripts.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Setup a development environment (Docker)
+
+### Prerequisites
+
+-   Docker and Docker Compose installed on your machine.
+-   Access to the [MDTools Wiki](https://jira.montefiore.ulg.ac.be/xwiki/wiki/team0324/view/Main/) for additional setup details and project information.
+
+### Installation
+
+1.  **Clone the repository**:
+```zsh
+git clone git@gitlab.uliege.be:SPEAM/2024-2025/team3/mdtools.git
+cd MDTools
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.uliege.be/SPEAM/2024-2025/team3/mdtools.git
-git branch -M main
-git push -uf origin main
+2. **Build and Run Containers**: Use Docker Compose to build and start the containers.
+```zsh
+docker compose build
+docker compose up -d
+```
+This command will:
+- Build the SvelteKit frontend in /frontend
+- Build the Spring Boot backend in /backend
+- Set up the PostgreSQL database with any necessary initialization in /database
+
+3. **Access the Application**:
+
+```
+Frontend: http://localhost:3000
+API: http://localhost:8080/api
 ```
 
-## Integrate with your tools
+## Setup a production environment (OpenShift)
 
-- [ ] [Set up project integrations](https://gitlab.uliege.be/SPEAM/2024-2025/team3/mdtools/-/settings/integrations)
+### Prerequisites
+- Basic knowledge about OpenShift, see this [reference](https://jira.montefiore.ulg.ac.be/xwiki/wiki/openshiftcluster/view/Application%20Deployment/Deploy%20via%20the%20OpenShift%20Console/).
 
-## Collaborate with your team
+### Deployment
+Import the YAML files in **/setup/openshift/** inside your OpenShift instance. Modify these files according to your image registry.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Environment Variables
 
-## Test and Deploy
+Ensure the following environment variables are set before running the application:
 
-Use the built-in continuous integration in GitLab.
+    JWT_SECRET - Secret key for JWT token generation.
+    DB_USER - PostgreSQL database user.
+    DB_PASSWORD - PostgreSQL database password.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Refer to the .env file.
 
-***
+## Authentication
 
-# Editing this README
+**MDTools** uses JWT authorization for secure access to API endpoints. Each API request must include a valid JWT token in the request headers. Users must authenticate to obtain a token, which will be required for protected endpoints.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## API Documentation
 
-## Suggestions for a good README
+The API specifications for MDTools can be found on Swagger: [MDTools API Documentation](https://app.swaggerhub.com/apis-docs/ALTTPCONH5R7Q/MDTools/).
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## CI/CD Pipeline
+This project uses [GitLab CI/CD](https://docs.gitlab.com/ee/ci/yaml/) for automated **building**, **testing**, and **deployment** of the **MDTools** components on OpenShift. The `.gitlab-ci.yml` file defines the following stages and jobs to manage the pipeline efficiently: 
+- **Testing**: Runs unit tests for the frontend to ensure code quality. Test for the backend will be implemented in a near future.
+- **Building**: Builds images for each component—-frontend, backend, and database—-and pushes them to the GitLab Container Registry.
 
-## Name
-Choose a self-explaining name for your project.
+### OpenShift-Specific Configurations
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
-
-## Work status
-We began to learn how GitLab works but in order to not disturb this project, we created another one to test the features and follow the labs of the GitLab tutorials.
+Each job that builds and pushes images uses OpenShift-compatible Docker configurations. Docker-in-Docker (`docker:20.10.16-dind`) is used to ensure isolated container builds,.
