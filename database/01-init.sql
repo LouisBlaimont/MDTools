@@ -127,7 +127,7 @@ END;
 $BODY$;
 
 ALTER FUNCTION public.check_alternative_constraints()
-    OWNER TO postgres;
+    OWNER TO team03;
 
 CREATE TRIGGER verify_alternative_constraints
 BEFORE INSERT OR UPDATE ON alternatives

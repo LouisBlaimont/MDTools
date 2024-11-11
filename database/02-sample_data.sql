@@ -47,7 +47,7 @@ INSERT INTO characteristic (characteristic_name) VALUES
 INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, value, value_abreviation) 
 VALUES
 (1, 1, 'Large', 'L'),      -- volume, avec "L" comme abrégé
-(1, 2, 'Curved', 'C')      -- curve, avec "C" comme abrégé
+(1, 2, 'Curved', 'C'),      -- curve, avec "C" comme abrégé
 (2, 1, '10cm', '10CM');
 
 -- Insert into instruments table

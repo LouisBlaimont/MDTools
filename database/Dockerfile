@@ -17,6 +17,8 @@ RUN chown ${USER_ID}:${GROUP_ID} ${PGDATA}
 
 USER ${USER_ID}:${GROUP_ID}
 
+COPY *.sql /docker-entrypoint-initdb.d/
+
 WORKDIR ${PGDATA}
 
 # Switch to the non-root user for running PostgreSQL
