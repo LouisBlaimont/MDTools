@@ -103,9 +103,9 @@
 </header>
 
 <!-- Flex column pour la partie au dessus et la commande -->
-<div class="grid grid-rows-3 h-screen">
+<div class="flex flex-col h-screen">
     <!-- Flex row pour les 4 éléments du dessus de la page -->
-     <div class="row-start-1 row-end-3">
+     <div class="basis-3/4 grow-0 shrink-0 h-fit">
         <div class="flex flex-6 gap-4">
 
             <!-- RECHERCHES -->
@@ -220,7 +220,7 @@
             </div>
 
             <!-- PHOTOS RESULTATS RECHERCHES -->
-            <div class="flex flex-wrap overflow-auto flex flex-1">
+            <div class="flex flex-wrap overflow-auto flex flex-1 h-fit w-auto">
                 {#each tools as row, index}
                     <img 
                         alt="tool{row.id}" 
@@ -301,16 +301,36 @@
     </div>
 
     <!-- COMMANDE/SET -->
-    <div class="row-start-3 row-end-4">
-        <div class="flex gap-4">
-            <form id="order-search" class="flex-1 flex items-center">
-                <label for="order-search" class="mr-2">Recherche par nom de commande : </label>
-                <input type="text" id="order-search" name="order-search" class="w-1/2 border p-1">
-            </form>
-            <button id="export-order" class="bg-blue-500 text-white p-2 rounded" on:click={()=>exportOrderToExcel()}>Exporter</button>
+    <div class="basis-1/4 grow-0 shrink-0 w-full mt-6 container mx-auto bg-gray-50 p-6 shadow-lg">
+        <div class="mb-5">
+            <div class="flex items-center space-x-6">
+                <div>
+                  <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
+                </div>
+                <div> 
+                    <label for="id_ref" class="font-semibold text-lg">Rechercher une commande:</label> 
+                    <div class= "flex flex-row"> 
+                        <div>   
+                        <input list="commandes" name="commandes" placeholder="Entrez un numéro de commande"
+                                class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+                        <datalist id="commandes">
+                            <option value="#123456">
+                            <option value="#123457">
+                            <option value="#123458">
+                            <option value="#123459">
+                        </datalist>
+                        </div>
+                        <div class="flex justify-end">
+                            <button class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg">Rechercher</button>
+                        </div>
+                    </div>
+                </div>  
+                <button id="export-order" class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg" on:click={()=>exportOrderToExcel()}>Exporter</button>
+            </div>
+              
         </div>
         <div class="overflow-y-auto">
-            <table class="w-full border-collapse">
+            <table class="w-3/4 border-collapse">
                 <thead>
                     <tr class="bg-yellow-300 text-center">
                         <th class="bg-teal-400 border-b border border-slate-500">REF</th>
@@ -339,6 +359,8 @@
                             <td class="bg-white border-b border border-slate-500 px-2">{row.pu_htva}</td>
                             <td class="bg-white border-b border border-slate-500 px-2">{row.total_htva}</td>
                         </tr>
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>modifyToolQt("tip_blade")}>+</button>
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>modifyToolQt("tip_blade")}>-</button>
                     {/each}
                 </tbody>
             </table>
