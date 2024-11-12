@@ -90,7 +90,6 @@
 </script>
 
 <div class="top-bar">
-    <img id = "logo_MD" alt = "MDtools logo" src="/MDlogo.jpg" >
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full" on:click={openModifPage}>
         <!-- Custom Edit Icon SVG -->
@@ -105,87 +104,87 @@
     </button>
 </div>
 
-<div class = "container">
-    <div class ="side-bar">
-        <div class="searches">
-            <form id="google-search">
+<div class = "flex gap-[5px] box-border w-full h-[80vh]">
+    <div class ="flex-1 h-full ml-[5px]">
+        <div class="flex-1 m-0">
+            <form class="flex flex-col w-[90%] mb-2.5">
                 <label for="google-search" id="google-search-label">Recherche par mot(s) clé(s)</label>
                 <input type="text" id="google-search" name="google-search" placeholder="Entrez un mot clé">
             </form>
-            <form id="char-search">
+            <form class="flex flex-col w-full gap-2.5">
                 Recherche par charactéristiques :<br>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="group">Groupe :</label>
                     <input type ="text" id="group" name="group">
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="name">Nom :</label>
                     <input type="text" id="name" name="name">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("name")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("name")}>&times;</button>
                 </div>
                 <button id="clear-all" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="fct">Fonction :</label>
                     <input type="text" id="fct" name="fct">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="curvature_bade">Courbure lame :</label>
                     <input type="text" id="curvature_blade" name="curvature_blade">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="tip_blade">Pointe lame :</label>
                     <input type="text" id="tip_blade" name="tip_blade">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="specific_blade">Spécificité lame :</label>
                     <input type="text" id="specific_blade" name="specific_blade">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="material">Matière:</label>
                     <input type="text" id="material" name="material">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("material")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("material")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="thick">Épaisseur :</label>
                     <input type="text" id="thick" name="thick">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="arm">Forme manche :</label>
                     <input type="text" id="arm" name="arm">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="rings">Anneaux :</label>
                     <input type="text" id="rings" name="rings">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="length">Longueur :</label>
                     <input type="text" id="length" name="length">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("length")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("length")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="tolerance">Tolérance :</label>
                     <input type="text" id="tolerance" name="tolerance">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
                 </div>
-                <div class = "form-group">
+                <div class = "flex items-center">
                     <label for="other">Autres :</label>
                     <input type="text" id="other" name="other">
-                    <button class="delete_char" on:click={()=>deleteCharacteristic("other")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("other")}>&times;</button>
                 </div> 
             </form>
         </div>
     </div>
-    <div class = "main-content">
-        <div class = "tools-suppliers">
-            <div class="tools">
-                <table id="tools-table">
+    <div class = "flex-[6] flex flex-col gap-[15px] h-full">
+        <div class = "flex gap-[15px] box-border w-full h-[80vh]">
+            <div class="flex-[3] h-full overflow-y-auto box-border m-0">
+                <table id="tools-table" class="w-full border-collapse">
                     <thead><tr><th>GROUPE</th><th>FONCTION</th><th>NOM</th><th>FORME</th><th>DIMENSION</th></tr></thead>
                     <tbody>
                         {#each tools as row, index}
@@ -204,7 +203,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tools-pictures">
+            <div class="flex-1 max-h-full overflow-y-auto box-border m-0">
                 {#each tools as row, index}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -215,31 +214,31 @@
                         on:click={()=>showBigPicture(row.src)} 
                         on:mouseover={()=>hoveredToolImageIndex = index}
                         on:mouseout={()=>hoveredToolImageIndex = null}
-                        class="image {selectedToolIndex === index ? 'selected-image' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hovered-image' : ''}">
+                        class="image {selectedToolIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
                 {/each}
             </div>
 
-            <div class="suppliers">
-                <div id="supplier-pictures-text">Photos fournisseurs</div>
-                <div class="suppliers-pictures">
+            <div class="flex-[3] max-h-full overflow-y-auto box-border m-0">
+                <div class="border bg-[tan] mb-[5px] border-solid border-[black]">Photos fournisseurs</div>
+                <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
                     {#each currentSuppliers as row, index}
-                        <div class="suppliers-picture-group" on:click={()=>showBigPicture(row.src)}>
+                        <div class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]" on:click={()=>showBigPicture(row.src)}>
                             <img 
                                 alt="supplier{row.id}" 
                                 src={row.src}
                                 on:click={()=>showBigPicture(row.src)} 
                                 on:mouseover={()=>hoveredSupplierImageIndex = index}
                                 on:mouseout={()=>hoveredSupplierImageIndex = null}
-                                class="image {selectedSupplierIndex === index ? 'selected-image' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'hovered-image' : ''}"
+                                class="h-4/5 {selectedSupplierIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'cursor-pointer border-2 border-solid border-[lightgray]' : ''}"
                             >
-                            <div class="reference">{row.ref}</div>
+                            <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
                         </div>
                     {/each}
                 </div>
 
 
                 <div class = "suppliers-table">
-                    <table>
+                    <table class="w-full border-collapse">
                         <thead><tr><th>AJOUT</th><th>REF</th><th>MARQUE</th><th>DESCRIPTION</th><th>PRIX</th><th>ALT</th><th>OBS</th></tr></thead>
                         <tbody>
                             {#each currentSuppliers as row, index}
@@ -251,7 +250,7 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
-                                    <td class="add-tool" on:click={()=>addToOrderPannel(row.ref)}>+</td><td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
+                                    <td class="text-[green]" on:click={()=>addToOrderPannel(row.ref)}>+</td><td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -261,19 +260,19 @@
         </div>
     
         <div class = "orders">
-            <div class = "form-export-order">
-                <div class="form-order">
-                    <form id="order-search">
+            <div class = "flex flex-row">
+                <div class="w-6/12 mr-0">
+                    <form class="my-2.5">
                         <label for="order-search" id="order-search-label">Recherche par nom de commande : </label>
                         <input type="text" id="order-search" name="order-search" >
                     </form>
                 </div>
                 <div>
-                    <button id="export-order" on:click={()=>exportOrderToExcel()}>Exporter</button>
+                    <button class="text-[white] border bg-[green] mt-[15px] p-2.5 rounded-[10px] border-solid border-[black]" on:click={()=>exportOrderToExcel()}>Exporter</button>
                 </div>
             </div>
-            <div class="order-table">
-                <table>
+            <div class="w-[90%] mb-[50px]">
+                <table class="w-full border-collapse">
                     <thead><tr><th>REF</th><th>MARQUE</th><th>GROUPE</th><th>FONCTION</th><th>NOM</th><th>FORME</th><th>DIMENSION</th><th>QTE</th><th>PU HTVA</th><th>TOTAL HTVA</th></tr></thead>
                     <tbody>
                         {#each order as row, index}
@@ -288,19 +287,19 @@
     </div>
 </div>
 
-<div class="overlay" id="overlay"></div>
+<div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
-<div class="big-pannel" id="big-tool-pannel">
+<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="big-tool-pannel">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <span class="close" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
-    <img id="big-tool" alt="big tool">
+    <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
+    <img class="h-[300px]" alt="big tool">
 </div>
 
-<div class="big-pannel" id="add-order-pannel">
+<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="add-order-pannel">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <span class="close" on:click={(event)=>{event.stopPropagation(); closeAddToOrder();}}>&times;</span>
+    <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5" on:click={(event)=>{event.stopPropagation(); closeAddToOrder();}}>&times;</span>
     <div>AJOUTER référence "{toolToAddRef}" à la commande:</div>
     <div>
         <label for="qte">QUANTITE:</label>
@@ -323,49 +322,6 @@
         box-sizing: border-box;
         margin-bottom : 10px;
     }
-  
-    #logo_MD {
-        height: 50px; 
-    }
-
-    .container{
-        display: flex;
-        gap : 5px;
-        box-sizing: border-box;
-        width: 100%;
-        height: 80vh;
-    }
-    .side-bar{
-        margin-left: 5px;
-        flex : 1;
-        height : 100%;
-    }
-    #google-search{
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-        width : 90%;
-    }
-
-    #char-search{
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 10px;
-    }
-    .delete_char{
-        margin-left: 2px;
-        color : white;
-        background-color: firebrick;
-        border : none;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-    }
-    .form-group {
-        display: flex;
-        align-items: center;
-    }
 
     input[type="text"]{
         width : 50%;
@@ -375,66 +331,18 @@
     label{
         width : 40%;
     }
+
     #google-search-label{
         width : 100%
     }
+
     #clear-all{
         width : 90px;
         border: 1px solid black;
         background-color : gray;  
     }
-    .main-content{
-        flex: 6;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        height: 100%;
-    }
-    .tools-suppliers{
-        display: flex;
-        gap : 15px;
-        box-sizing: border-box;
-        width: 100%;
-        height: 80vh;
-    }
-    .searches{
-        flex : 1;
-        margin: 0;
-    }
-    .tools{
-        flex : 3;
-        margin: 0;
-        height: 100%; 
-        overflow-y: auto; 
-        box-sizing: border-box;
-    }
-    .tools-pictures{
-        flex : 1;
-        margin: 0;
-        max-height: 100%; 
-        overflow-y: auto; 
-        box-sizing: border-box;
-    }
-    .suppliers{
-        flex : 3;
-        margin: 0;
-        max-height: 100%; 
-        overflow-y: auto; 
-        box-sizing: border-box;
-    }
-    .suppliers-pictures{
-        display: flex;
-        height: 160px;
-        margin-bottom: 15px;
-        max-width : 100%; 
-        overflow-x: auto; 
-        box-sizing: border-box;
-    }
-    
-    table{
-        width : 100%;
-        border-collapse: collapse;
-    }
+   
+   
     th, td{
         text-align: center;
         border: 1px solid black;
@@ -446,97 +354,12 @@
         width: 90%;
         margin-bottom: 3px;
     }
-    .suppliers-picture-group{
-        display: flex;
-        flex-shrink: 0;
-        flex-direction: column;
-        height: 95%;
-        text-align: center;
-        box-sizing: border-box;
-        border : 1px solid black;
-        margin-right : 3px;
-    }
-    .suppliers-picture-group .reference{
-        border-top: 1px solid black;
-        padding: 3px;
-        box-sizing: border-box;
-    }
-    .suppliers-picture-group img{
-        height: 80%;
-    }
-    
-    #order-search{
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
-    .order-table{
-        width: 90%;
-        margin-bottom: 50px;
-    }
-
-    .big-pannel{
-        display: none;
-        position: fixed;
-        padding : 50px;
-        box-sizing: border-box;
-        background-color: rgba(0,0,0,0.8);
-        justify-content: center;
-        align-items: center;
-        top : 50%;
-        left : 50%;
-        transform: translate(-50%, -50%);
-        border-radius: 30px;
-    }
-    .overlay {
-        display: none; 
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0); 
-    }
-    #big-tool{
-        height: 300px;
-    }
-    .close{
-        position: absolute;
-        top : 10px;
-        right : 15px;
-        color : white;
-        font-size: 40px;
-        cursor: pointer;
-        transition: color 0.3s;
-    }
+  
     .close:hover{
         color:red;
         cursor: pointer;
     }
 
-    .selected-row{
-        background-color: cornflowerblue;
-    }
-    .hovered-row{
-        background-color: lightgray;
-        cursor: pointer;
-    }
-    .selected-image{
-        border : 2px solid cornflowerblue;
-        cursor : pointer;
-    }
-    .hovered-image{
-        border : 2px solid lightgray;
-        cursor: pointer;
-    }
-
-    #supplier-pictures-text{
-        border: 1px solid black;
-        background-color: tan;
-        margin-bottom: 5px;
-    }
-    .add-tool{
-        color:green;
-    }
     .add-tool:hover{
         background-color: green;
         color : white;
@@ -550,23 +373,13 @@
     button:hover{
         cursor: pointer;
     }
-    #export-order{
-        color:white;
-        border : 1px solid black;
-        background-color: green;
-        padding : 10px;
-        border-radius: 10px;
-        margin-top: 15px; 
-    }
-    .form-export-order{
-        display: flex;
-        flex-direction: row;
-    }
-    .form-order{
-        width : 50%;
-        margin-right : 0px;
-    }
-
-
     
-  </style>
+    .selected-row{
+        background-color: cornflowerblue;
+    }
+    .hovered-row{
+        background-color: lightgray;
+        cursor: pointer;
+    }
+    
+</style>

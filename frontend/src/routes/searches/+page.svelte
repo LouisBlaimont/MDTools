@@ -359,8 +359,7 @@
                             <td class="bg-white border-b border border-slate-500 px-2">{row.pu_htva}</td>
                             <td class="bg-white border-b border border-slate-500 px-2">{row.total_htva}</td>
                         </tr>
-                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>modifyToolQt("tip_blade")}>+</button>
-                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>modifyToolQt("tip_blade")}>-</button>
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>modifyToolQt()}>+</button>
                     {/each}
                 </tbody>
             </table>
