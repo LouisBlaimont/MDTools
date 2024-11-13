@@ -89,9 +89,9 @@
 
 </script>
 
-<div class="top-bar">
+<div class="flex justify-end">
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full" on:click={openModifPage}>
+    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full cursor-pointer" on:click={openModifPage}>
         <!-- Custom Edit Icon SVG -->
         <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" version="1.1" id="Capa_1" viewBox="0 0 494.936 494.936" class="w-6 h-6 text-gray-800">
             <g>
@@ -108,7 +108,7 @@
     <div class ="flex-1 h-full ml-[5px]">
         <div class="flex-1 m-0">
             <form class="flex flex-col w-[90%] mb-2.5">
-                <label for="google-search" id="google-search-label">Recherche par mot(s) clé(s)</label>
+                <label for="google-search" class="w-full">Recherche par mot(s) clé(s)</label>
                 <input type="text" id="google-search" name="google-search" placeholder="Entrez un mot clé">
             </form>
             <form class="flex flex-col w-full gap-2.5">
@@ -120,63 +120,63 @@
                 <div class = "flex items-center">
                     <label for="name">Nom :</label>
                     <input type="text" id="name" name="name">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("name")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("name")}>&times;</button>
                 </div>
-                <button id="clear-all" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
+                <button id="clear-all" class="w-[90px] border bg-[gray] border-solid border-[black]" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
                 <div class = "flex items-center">
                     <label for="fct">Fonction :</label>
                     <input type="text" id="fct" name="fct">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="curvature_bade">Courbure lame :</label>
                     <input type="text" id="curvature_blade" name="curvature_blade">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="tip_blade">Pointe lame :</label>
                     <input type="text" id="tip_blade" name="tip_blade">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="specific_blade">Spécificité lame :</label>
                     <input type="text" id="specific_blade" name="specific_blade">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="material">Matière:</label>
                     <input type="text" id="material" name="material">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("material")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("material")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="thick">Épaisseur :</label>
                     <input type="text" id="thick" name="thick">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="arm">Forme manche :</label>
                     <input type="text" id="arm" name="arm">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="rings">Anneaux :</label>
                     <input type="text" id="rings" name="rings">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="length">Longueur :</label>
                     <input type="text" id="length" name="length">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("length")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("length")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="tolerance">Tolérance :</label>
                     <input type="text" id="tolerance" name="tolerance">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
                 </div>
                 <div class = "flex items-center">
                     <label for="other">Autres :</label>
                     <input type="text" id="other" name="other">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none]" on:click={()=>deleteCharacteristic("other")}>&times;</button>
+                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("other")}>&times;</button>
                 </div> 
             </form>
         </div>
@@ -250,7 +250,7 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
-                                    <td class="text-[green]" on:click={()=>addToOrderPannel(row.ref)}>+</td><td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
+                                    <td class="green" on:click={()=>addToOrderPannel(row.ref)}>+</td><td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -268,7 +268,7 @@
                     </form>
                 </div>
                 <div>
-                    <button class="text-[white] border bg-[green] mt-[15px] p-2.5 rounded-[10px] border-solid border-[black]" on:click={()=>exportOrderToExcel()}>Exporter</button>
+                    <button class="text-[white] border bg-[green] mt-[15px] p-2.5 rounded-[10px] border-solid border-[black] cursor-pointer" on:click={()=>exportOrderToExcel()}>Exporter</button>
                 </div>
             </div>
             <div class="w-[90%] mb-[50px]">
@@ -292,11 +292,11 @@
 <div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="big-tool-pannel">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
-    <img class="h-[300px]" alt="big tool">
+    <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
+    <img class="h-[300px]" id="big-tool" alt="big tool">
 </div>
 
-<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="add-order-pannel">
+<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]" id="add-order-pannel">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5" on:click={(event)=>{event.stopPropagation(); closeAddToOrder();}}>&times;</span>
@@ -304,7 +304,7 @@
     <div>
         <label for="qte">QUANTITE:</label>
         <input type ="number" id="qte" name="qte" class="border border-black rounded p-2 text-black bg-white" bind:value={quantity}>
-        <button on:click={()=>addToOrder()}>AJOUT</button>
+        <button class="cursor-pointer" pointer on:click={()=>addToOrder()}>AJOUT</button>
     </div>
         
 </div>
@@ -312,15 +312,6 @@
 <style>
     div, button, input{
         font-size: 13px;
-    }
-    .top-bar {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        background-color: lightskyblue; 
-        padding: 5px 5px;
-        box-sizing: border-box;
-        margin-bottom : 10px;
     }
 
     input[type="text"]{
@@ -332,17 +323,6 @@
         width : 40%;
     }
 
-    #google-search-label{
-        width : 100%
-    }
-
-    #clear-all{
-        width : 90px;
-        border: 1px solid black;
-        background-color : gray;  
-    }
-   
-   
     th, td{
         text-align: center;
         border: 1px solid black;
@@ -350,27 +330,15 @@
     th{
         background-color: tan;
     }
+
     .tools-pictures img{
         width: 90%;
         margin-bottom: 3px;
-    }
-  
-    .close:hover{
-        color:red;
-        cursor: pointer;
     }
 
     .add-tool:hover{
         background-color: green;
         color : white;
-        cursor: pointer;
-    }
-    #add-order-pannel{
-        color : white;
-        flex-direction: column;
-        gap : 15px;
-    }
-    button:hover{
         cursor: pointer;
     }
     
