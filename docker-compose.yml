@@ -56,7 +56,7 @@ services:
       - "8080:8080"  # Expose the Spring Boot application port
     environment:
       SPRING_PROFILES_ACTIVE: "dev"  # Activate the development profile
-      spring.datasource.url: "jdbc:postgresql://postgres:5432/postgres"
+      spring.datasource.url: "jdbc:postgresql://postgres:5432/team03"
       spring.datasource.username: ${DB_USER}
       spring.datasource.password: ${DB_PASSWORD}
       spring.datasource.driver.class.name: "org.postgresql.Driver"
