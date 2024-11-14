@@ -7,6 +7,7 @@ import be.uliege.speam.team03.MDTools.GroupRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
+@SuppressWarnings("unused")
 @RestController
 public class GroupController {
     private final GroupRepository groupRepository; 
