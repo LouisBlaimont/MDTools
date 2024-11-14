@@ -196,6 +196,7 @@
                                 on:mouseover={()=> hoveredToolIndex = index}
                                 on:mouseout={() => hoveredToolIndex = null}
                             >
+                                <td class="transition-colors duration-300 bg-yellow-500 text-black hover:bg-black hover:text-yellow-500"><ModifIcon></ModifIcon></td>
                                 <td class="text-center border border-solid border-[black]">{row.group}</td>
                                 <td class="text-center border border-solid border-[black]">{row.fct}</td>
                                 <td class="text-center border border-solid border-[black]">{row.name}</td>
@@ -205,6 +206,9 @@
                         {/each}
                     </tbody>
                 </table>
+                <button class="w-7 h-7 bg-yellow-500 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                    +
+                </button>
 
                 <!-- BOUTON POUR PASSER EN ADMIN -->
                 <div class="flex justify-end mt-20 mr-20">
@@ -236,6 +240,12 @@
                         on:mouseover={()=>hoveredToolImageIndex = index}
                         on:mouseout={()=>hoveredToolImageIndex = null}
                         class="mb-[3px] {selectedToolIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
+
+                        {#if selectedToolIndex === index}
+                            <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-500 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                                +
+                            </button>
+                        {/if}
                 {/each}
             </div>
 
@@ -255,6 +265,14 @@
                                on:mouseout={()=>hoveredSupplierImageIndex = null}
                                class="h-4/5 {selectedSupplierIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'cursor-pointer border-2 border-solid border-[lightgray]' : ''}"
                            >
+                           <div class="reference">
+                                {row.ref}
+                                {#if selectedSupplierIndex === index}
+                                    <button class="w-5 h-5 bg-yellow-500 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                                        +
+                                    </button>
+                                {/if}
+                            </div>
                            <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
                        </div>
                    {/each}
@@ -265,7 +283,7 @@
                     <table class="w-full border-collapse">
                         <thead class="bg-teal-400">
                             <tr>
-                                <th class="text-center border border-solid border-[black]">AJOUT</th>
+                                <th class="text-center border border-solid border-[black]"></th>
                                 <th class="text-center border border-solid border-[black]">REF</th>
                                 <th class="text-center border border-solid border-[black]">MARQUE</th>
                                 <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
@@ -285,6 +303,9 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
+                                    <td class="transition-colors duration-300 bg-yellow-500 text-black hover:bg-black hover:text-yellow-500">
+                                        <ModifIcon></ModifIcon>
+                                    </td>
                                     <td class="green text-center border border-solid border-[black]" on:click={()=>addToOrderPannel(row.ref)}>+</td>
                                     <td class="text-center border border-solid border-[black]">{row.ref}</td>
                                     <td class="text-center border border-solid border-[black]">{row.brand}</td>
@@ -296,6 +317,9 @@
                             {/each}
                         </tbody>
                     </table>
+                    <button class="w-7 h-7 bg-yellow-500 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                        +
+                    </button>
                 </div>
             </div>
         </div>

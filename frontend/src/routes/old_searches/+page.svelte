@@ -89,265 +89,310 @@
 
 </script>
 
-<div class="flex justify-end">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
-    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full cursor-pointer" on:click={openModifPage}>
-        <!-- Custom Edit Icon SVG -->
+<header class="g-sky-300 py-1 px-1 mb-2 flex justify-end">
+    <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full" on:click={openModifPage}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" version="1.1" id="Capa_1" viewBox="0 0 494.936 494.936" class="w-6 h-6 text-gray-800">
             <g>
                 <g>
-                    <path d="M389.844,182.85c-6.743,0-12.21,5.467-12.21,12.21v222.968c0,23.562-19.174,42.735-42.736,42.735H67.157 c-23.562,0-42.736-19.174-42.736-42.735V150.285c0-23.562,19.174-42.735,42.736-42.735h267.741c6.743,0,12.21-5.467,12.21-12.21 s-5.467-12.21-12.21-12.21H67.157C30.126,83.13,0,113.255,0,150.285v267.743c0,37.029,30.126,67.155,67.157,67.155h267.741 c37.03,0,67.156-30.126,67.156-67.155V195.061C402.054,188.318,396.587,182.85,389.844,182.85z"/>
-                    <path d="M483.876,20.791c-14.72-14.72-38.669-14.714-53.377,0L221.352,229.944c-0.28,0.28-3.434,3.559-4.251,5.396l-28.963,65.069 c-2.057,4.619-1.056,10.027,2.521,13.6c2.337,2.336,5.461,3.576,8.639,3.576c1.675,0,3.362-0.346,4.96-1.057l65.07-28.963 c1.83-0.815,5.114-3.97,5.396-4.25L483.876,74.169c7.131-7.131,11.06-16.61,11.06-26.692 C494.936,37.396,491.007,27.915,483.876,20.791z M466.61,56.897L257.457,266.05c-0.035,0.036-0.055,0.078-0.089,0.107 l-33.989,15.131L238.51,247.3c0.03-0.036,0.071-0.055,0.107-0.09L447.765,38.058c5.038-5.039,13.819-5.033,18.846,0.005 c2.518,2.51,3.905,5.855,3.905,9.414C470.516,51.036,469.127,54.38,466.61,56.897z"/>
+                    <path d="M389.844,182.85c-6.743,0-12.21,5.467-12.21,12.21v222.968c0,23.562-19.174,42.735-42.736,42.735H67.157c-23.562,0-42.736-19.174-42.736-42.735V150.285c0-23.562,19.174-42.735,42.736-42.735h267.741c6.743,0,12.21-5.467,12.21-12.21s-5.467-12.21-12.21-12.21H67.157C30.126,83.13,0,113.255,0,150.285v267.743c0,37.029,30.126,67.155,67.157,67.155h267.741c37.03,0,67.156-30.126,67.156-67.155V195.061C402.054,188.318,396.587,182.85,389.844,182.85z"/>
+                    <path d="M483.876,20.791c-14.72-14.72-38.669-14.714-53.377,0L221.352,229.944c-0.28,0.28-3.434,3.559-4.251,5.396l-28.963,65.069c-2.057,4.619-1.056,10.027,2.521,13.6c2.337,2.336,5.461,3.576,8.639,3.576c1.675,0,3.362-0.346,4.96-1.057l65.07-28.963c1.83-0.815,5.114-3.97,5.396-4.25L483.876,74.169c7.131-7.131,11.06-16.61,11.06-26.692C494.936,37.396,491.007,27.915,483.876,20.791z M466.61,56.897L257.457,266.05c-0.035,0.036-0.055,0.078-0.089,0.107l-33.989,15.131L238.51,247.3c0.03-0.036,0.071-0.055,0.107-0.09L447.765,38.058c5.038-5.039,13.819-5.033,18.846,0.005c2.518,2.51,3.905,5.855,3.905,9.414C470.516,51.036,469.127,54.38,466.61,56.897z"/>
                 </g>
             </g>
         </svg>
     </button>
-</div>
+</header>
 
-<div class = "flex gap-[5px] box-border w-full h-[80vh]">
-    <div class ="flex-1 h-full ml-[5px]">
-        <div class="flex-1 m-0">
-            <form class="flex flex-col w-[90%] mb-2.5">
-                <label for="google-search" class="w-full">Recherche par mot(s) clé(s)</label>
-                <input type="text" id="google-search" name="google-search" placeholder="Entrez un mot clé">
-            </form>
-            <form class="flex flex-col w-full gap-2.5">
-                Recherche par charactéristiques :<br>
-                <div class = "flex items-center">
-                    <label for="group">Groupe :</label>
-                    <input type ="text" id="group" name="group">
-                </div>
-                <div class = "flex items-center">
-                    <label for="name">Nom :</label>
-                    <input type="text" id="name" name="name">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("name")}>&times;</button>
-                </div>
-                <button id="clear-all" class="w-[90px] border bg-[gray] border-solid border-[black]" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
-                <div class = "flex items-center">
-                    <label for="fct">Fonction :</label>
-                    <input type="text" id="fct" name="fct">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="curvature_bade">Courbure lame :</label>
-                    <input type="text" id="curvature_blade" name="curvature_blade">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="tip_blade">Pointe lame :</label>
-                    <input type="text" id="tip_blade" name="tip_blade">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="specific_blade">Spécificité lame :</label>
-                    <input type="text" id="specific_blade" name="specific_blade">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="material">Matière:</label>
-                    <input type="text" id="material" name="material">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("material")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="thick">Épaisseur :</label>
-                    <input type="text" id="thick" name="thick">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="arm">Forme manche :</label>
-                    <input type="text" id="arm" name="arm">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="rings">Anneaux :</label>
-                    <input type="text" id="rings" name="rings">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="length">Longueur :</label>
-                    <input type="text" id="length" name="length">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("length")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="tolerance">Tolérance :</label>
-                    <input type="text" id="tolerance" name="tolerance">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
-                </div>
-                <div class = "flex items-center">
-                    <label for="other">Autres :</label>
-                    <input type="text" id="other" name="other">
-                    <button class="text-[white] bg-[firebrick] w-[25px] h-[25px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("other")}>&times;</button>
-                </div> 
-            </form>
-        </div>
-    </div>
-    <div class = "flex-[6] flex flex-col gap-[15px] h-full">
-        <div class = "flex gap-[15px] box-border w-full h-[80vh]">
-            <div class="flex-[3] h-full overflow-y-auto box-border m-0">
-                <table id="tools-table" class="w-full border-collapse">
-                    <thead><tr><th>GROUPE</th><th>FONCTION</th><th>NOM</th><th>FORME</th><th>DIMENSION</th></tr></thead>
-                    <tbody>
+<!-- Flex column pour la partie au dessus et la commande -->
+<div class="flex flex-col h-screen">
+    <!-- Flex row pour les 4 éléments du dessus de la page -->
+     <div class="basis-3/4 grow-0 shrink-0 h-fit">
+        <div class="flex flex-6 gap-4">
+
+            <!-- RECHERCHES -->
+            <div class="ml-2 bg-gray-100 rounded-lg shadow-md flex flex-1 h-fit">
+                <form id="google-search" class="flex flex-col gap-2 w-full">
+                    <label for="google-search" class="font-semibold text-lg mt-2">Recherche par mot(s) clé(s) :</label>
+                    <input type="text" id="google-search" name="google-search" placeholder="Entrez un mot clé" class="border border-slate-500 p-0.5 w-3/4">
+                    <div class="font-semibold text-lg">Recherche par charactéristiques :<br>
+                    </div>                    
+                    <div class="flex items-center">
+                        <label for="group" class="mr-2 w-1/5">Groupe :</label>
+                        <input type="text" id="group" name="group" class="border border-slate-500 p-0.5">
+                    </div>
+                    <div class="flex items-center">
+                        <label for="name" class="mr-2 w-1/5">Nom :</label>
+                        <input type="text" id="name" name="name" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("name")}>&times;</button>
+                    </div>
+                    <div class="flex justify-center">
+                    <button id="clear-all" class="w-40 border bg-gray-300 my-5" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="fct" class="mr-2 w-1/5">Fonction :</label>
+                        <input type="text" id="fct" name="fct" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
+                    </div>    
+                    <div class="flex items-center">
+                        <label for="curvature_bade" class="mr-2 w-1/5">Courbure lame :</label>
+                        <input type="text" id="curvature_blade" name="curvature_blade" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
+                    </div>     
+                    <div class="flex items-center">
+                        <label for="tip_blade" class="mr-2 w-1/5">Pointe lame :</label>
+                        <input type="text" id="tip_blade" name="tip_blade" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="specific_blade" class="mr-2 w-1/5">Spécificité lame:</label>
+                        <input type="text" id="specific_blade" name="specific_blade" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="material" class="mr-2 w-1/5">Matière:</label>
+                        <input type="text" id="material" name="material" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("material")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="thick" class="mr-2 w-1/5">Épaisseur :</label>
+                        <input type="text" id="thick" name="thick" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="arm" class="mr-2 w-1/5">Forme manche :</label>
+                        <input type="text" id="arm" name="arm" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="rings" class="mr-2 w-1/5">Anneaux :</label>
+                        <input type="text" id="rings" name="rings" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="length" class="mr-2 w-1/5">Longueur :</label>
+                        <input type="text" id="length" name="length" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("length")}>&times;</button>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="tolerance" class="mr-2 w-1/5">Tolérance :</label>
+                        <input type="text" id="tolerance" name="tolerance" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
+                    </div>
+                    <div class="flex items-center mb-5">
+                        <label for="other" class="mr-2 w-1/5">Autres :</label>
+                        <input type="text" id="other" name="other" class="border border-slate-500 p-0.5">
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>deleteCharacteristic("other")}>&times;</button>
+                    </div> 
+                </form>
+            </div>
+
+            <!-- TABLEAU RESULTATS RECHERCHES -->
+            <div class="overflow-y-auto border-collapse text-left flex flex-3 h-fit">
+                <table id="tools-table" class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="bg-teal-400 border-b border border-slate-500">GROUPE</th>
+                            <th class="bg-teal-400 border-b border border-slate-500">FONCTION</th>
+                            <th class="bg-teal-400 border-b border border-slate-500">NOM</th>
+                            <th class="bg-teal-400 border-b border border-slate-500">FORME</th>
+                            <th class="bg-teal-400 border-b border border-slate-500">DIMENSION</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-left">
                         {#each tools as row, index}
 
                             <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                            <tr
+                            <tr class="bg-white border-b border border-slate-500"
                                 class:selected-row={selectedToolIndex === index}
                                 class:hovered-row={hoveredToolIndex === index && selectedToolIndex !== index}
                                 on:click={()=>selectTool(index)}
                                 on:mouseover={()=> hoveredToolIndex = index}
                                 on:mouseout={() => hoveredToolIndex = null}
                             >
-                                <td>{row.group}</td><td>{row.fct}</td><td>{row.name}</td><td>{row.form}</td><td>{row.dim}</td>
+                                <td class="bg-white border-b border border-slate-500 px-1">{row.group}</td>
+                                <td class="bg-white border-b border border-slate-500 px-1">{row.fct}</td>
+                                <td class="bg-white border-b border border-slate-500 px-1">{row.name}</td>
+                                <td class="bg-white border-b border border-slate-500 px-1">{row.form}</td>
+                                <td class="bg-white border-b border border-slate-500 px-1">{row.dim}</td>
                             </tr>
                         {/each}
                     </tbody>
                 </table>
             </div>
-            <div class="flex-1 max-h-full overflow-y-auto box-border m-0">
+
+            <!-- PHOTOS RESULTATS RECHERCHES -->
+            <div class="flex flex-wrap overflow-auto flex flex-1 h-fit w-auto">
                 {#each tools as row, index}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                     <img 
                         alt="tool{row.id}" 
                         src={row.src}
                         on:click={()=>showBigPicture(row.src)} 
                         on:mouseover={()=>hoveredToolImageIndex = index}
                         on:mouseout={()=>hoveredToolImageIndex = null}
-                        class="image {selectedToolIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
+                        class="w-1/2 h-3/8 image {selectedToolIndex === index ? 'selected-image' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hovered-image' : ''}">
                 {/each}
             </div>
 
-            <div class="flex-[3] max-h-full overflow-y-auto box-border m-0">
-                <div class="border bg-[tan] mb-[5px] border-solid border-[black]">Photos fournisseurs</div>
-                <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
-                    {#each currentSuppliers as row, index}
-                        <div class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]" on:click={()=>showBigPicture(row.src)}>
-                            <img 
-                                alt="supplier{row.id}" 
-                                src={row.src}
-                                on:click={()=>showBigPicture(row.src)} 
-                                on:mouseover={()=>hoveredSupplierImageIndex = index}
-                                on:mouseout={()=>hoveredSupplierImageIndex = null}
-                                class="h-4/5 {selectedSupplierIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'cursor-pointer border-2 border-solid border-[lightgray]' : ''}"
-                            >
-                            <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
+            <div class="flex flex-3">
+                <div class="w-full">
+                    <!-- Flex column pour les deux objets fournisseurs-->
+                    <div class="flex flex-col overflow-y-auto box-border m-0 max-h-full">
+                        
+                        <!-- PHOT0S FOURNISSEURS -->
+                        <div>
+                            <div class="text-center mb-2 bg-teal-400 border-b border border-slate-500">Photos fournisseurs</div>
+                            <div class="flex overflow-x-auto mb-2">
+                                {#each currentSuppliers as row, index}
+                                <div class="flex-shrink-0 flex flex-col text-center border w-28 h-full" on:click={()=>showBigPicture(row.src)}>
+                                    <img 
+                                        alt="supplier{row.id}" 
+                                        src={row.src}
+                                        on:click={()=>showBigPicture(row.src)} 
+                                        on:mouseover={()=>hoveredSupplierImageIndex = index}
+                                        on:mouseout={()=>hoveredSupplierImageIndex = null}
+                                        class="image {selectedSupplierIndex === index ? 'selected-image' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'hovered-image' : ''}"
+                                    >
+                                    <div class="flex-shrink-0 flex flex-col text-center border w-28 h-full">{row.ref}</div>
+                                </div>
+                                {/each}
+                            </div>
                         </div>
-                    {/each}
-                </div>
 
+                        <!-- TABLEAU FOURNISSEURS -->
+                        <div>
+                            <table class="flex-none overflow-y-auto box-border border-collapse border border-slate-500 text-center w-full">
+                                <thead>
+                                    <tr class="bg-yellow-300 text-left">
+                                        <th class="bg-teal-400 border-b border border-slate-500">AJOUT</th>
+                                        <th class="bg-teal-400 border-b border border-slate-500">REF</th>
+                                        <th class="bg-teal-400 border-b border border-slate-500">MARQUE</th>
+                                        <th class="bg-teal-400 border-b border border-slate-500">DESCRIPTION</th>
+                                        <th class="bg-teal-400 border-b border border-slate-500">PRIX</th>
+                                        <th class="bg-teal-400 border-b border border-slate-500">ALT</th>
+                                        <th class="bg-teal-400 border-b border border-slate-500">OBS</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-left">
+                                    {#each currentSuppliers as row, index}
+                                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                                        <tr class="bg-white border-b border border-slate-500"
+                                            class:selected-row={selectedSupplierIndex === index}
+                                            class:hovered-row={hoveredSupplierIndex ===   index && selectedSupplierIndex !== index}
+                                            on:click={()=>selectSupplier(index)}
+                                            on:mouseover={()=> hoveredSupplierIndex = index}
+                                            on:mouseout={() => hoveredSupplierIndex = null}
+                                        >
+                                            <td class="add-tool" on:click={()=>addToOrderPannel(row.ref)}>+</td>
+                                            <td class="bg-white border-b border border-slate-500 px-1">{row.ref}</td>
+                                            <td class="bg-white border-b border border-slate-500 px-1">{row.brand}</td>
+                                            <td class="bg-white border-b border border-slate-500 px-1">{row.description}</td>
+                                            <td class="bg-white border-b border border-slate-500 px-1">{row.price}</td>
+                                            <td class="bg-white border-b border border-slate-500 px-1">{row.alt}</td>
+                                            <td class="bg-white border-b border border-slate-500 px-1">{row.obs}</td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
 
-                <div class = "suppliers-table">
-                    <table class="w-full border-collapse">
-                        <thead><tr><th>AJOUT</th><th>REF</th><th>MARQUE</th><th>DESCRIPTION</th><th>PRIX</th><th>ALT</th><th>OBS</th></tr></thead>
-                        <tbody>
-                            {#each currentSuppliers as row, index}
-                                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                                <tr
-                                    class:selected-row={selectedSupplierIndex === index}
-                                    class:hovered-row={hoveredSupplierIndex === index && selectedSupplierIndex !== index}
-                                    on:click={()=>selectSupplier(index)}
-                                    on:mouseover={()=> hoveredSupplierIndex = index}
-                                    on:mouseout={() => hoveredSupplierIndex = null}
-                                >
-                                    <td class="green" on:click={()=>addToOrderPannel(row.ref)}>+</td><td>{row.ref}</td><td>{row.brand}</td><td>{row.description}</td><td>{row.price}</td><td>{row.alt}</td><td>{row.obs}</td>
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
+                    </div>
                 </div>
             </div>
         </div>
-    
-        <div class = "orders">
-            <div class = "flex flex-row">
-                <div class="w-6/12 mr-0">
-                    <form class="my-2.5">
-                        <label for="order-search" id="order-search-label">Recherche par nom de commande : </label>
-                        <input type="text" id="order-search" name="order-search" >
-                    </form>
-                </div>
+    </div>
+
+    <!-- COMMANDE/SET -->
+    <div class="basis-1/4 grow-0 shrink-0 w-full mt-6 container mx-auto bg-gray-50 p-6 shadow-lg">
+        <div class="mb-5">
+            <div class="flex items-center space-x-6">
                 <div>
-                    <button class="text-[white] border bg-[green] mt-[15px] p-2.5 rounded-[10px] border-solid border-[black] cursor-pointer" on:click={()=>exportOrderToExcel()}>Exporter</button>
+                  <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
                 </div>
+                <div> 
+                    <label for="id_ref" class="font-semibold text-lg">Rechercher une commande:</label> 
+                    <div class= "flex flex-row"> 
+                        <div>   
+                        <input list="commandes" name="commandes" placeholder="Entrez un numéro de commande"
+                                class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+                        <datalist id="commandes">
+                            <option value="#123456">
+                            <option value="#123457">
+                            <option value="#123458">
+                            <option value="#123459">
+                        </datalist>
+                        </div>
+                        <div class="flex justify-end">
+                            <button class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg">Rechercher</button>
+                        </div>
+                    </div>
+                </div>  
+                <button id="export-order" class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg" on:click={()=>exportOrderToExcel()}>Exporter</button>
             </div>
-            <div class="w-[90%] mb-[50px]">
-                <table class="w-full border-collapse">
-                    <thead><tr><th>REF</th><th>MARQUE</th><th>GROUPE</th><th>FONCTION</th><th>NOM</th><th>FORME</th><th>DIMENSION</th><th>QTE</th><th>PU HTVA</th><th>TOTAL HTVA</th></tr></thead>
-                    <tbody>
-                        {#each order as row, index}
+              
+        </div>
+        <div class="overflow-y-auto">
+            <table class="w-3/4 border-collapse">
+                <thead>
+                    <tr class="bg-yellow-300 text-center">
+                        <th class="bg-teal-400 border-b border border-slate-500">REF</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">MARQUE</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">GROUPE</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">FONCTION</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">NOM</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">FORME</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">DIMENSION</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">QTE</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">PU HTVA</th>
+                        <th class="bg-teal-400 border-b border border-slate-500">TOTAL HTVA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each order as row, index}
                         <tr>
-                            <td>{row.ref}</td><td>{row.brand}</td><td>{row.group}</td><td>{row.fct}</td><td>{row.name}</td><td>{row.form}</td><td>{row.dim}</td><td>{row.qte}</td><td>{row.pu_htva}</td><td>{row.total_htva}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.ref}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.brand}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.group}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.fct}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.name}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.form}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.dim}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.qte}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.pu_htva}</td>
+                            <td class="bg-white border-b border border-slate-500 px-2">{row.total_htva}</td>
                         </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            </div>
+                        <button class="ml-1 bg-red-600 text-white w-6 h-6 rounded-full" on:click={()=>modifyToolQt()}>+</button>
+                    {/each}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
+<!-- HIDDEN, FOR THE "DYNAMISM/STYLE" OF THE PAGE -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
 
-<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="big-tool-pannel">
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
-    <img class="h-[300px]" id="big-tool" alt="big tool">
+<div id="big-tool-pannel" class="fixed inset-0 flex justify-center items-center bg-white p-4 hidden">
+    <span class="absolute top-2 right-2 text-2xl font-bold cursor-pointer" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
+    <img id="big-tool" alt="big tool">
 </div>
 
-<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]" id="add-order-pannel">
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5" on:click={(event)=>{event.stopPropagation(); closeAddToOrder();}}>&times;</span>
+<div id="add-order-pannel" class="fixed inset-0 flex justify-center items-center bg-white p-4 hidden">
+    <span class="absolute top-2 right-2 text-2xl font-bold cursor-pointer" on:click={(event)=>{event.stopPropagation(); closeAddToOrder();}}>&times;</span>
     <div>AJOUTER référence "{toolToAddRef}" à la commande:</div>
     <div>
         <label for="qte">QUANTITE:</label>
         <input type ="number" id="qte" name="qte" class="border border-black rounded p-2 text-black bg-white" bind:value={quantity}>
-        <button class="cursor-pointer" pointer on:click={()=>addToOrder()}>AJOUT</button>
+        <button on:click={()=>addToOrder()}>AJOUT</button>
     </div>
-        
 </div>
 
+
 <style>
-    div, button, input{
-        font-size: 13px;
+     .selected-image{
+        border : 2px solid cornflowerblue;
+        cursor : pointer;
     }
-
-    input[type="text"]{
-        width : 50%;
-        border : 1px solid black;
-        padding: 2px;
-    }
-    label{
-        width : 40%;
-    }
-
-    th, td{
-        text-align: center;
-        border: 1px solid black;
-    }
-    th{
-        background-color: tan;
-    }
-
-    .tools-pictures img{
-        width: 90%;
-        margin-bottom: 3px;
-    }
-
-    .add-tool:hover{
-        background-color: green;
-        color : white;
+    .hovered-image{
+        border : 2px solid lightgray;
         cursor: pointer;
     }
-    
-    .selected-row{
-        background-color: cornflowerblue;
-    }
-    .hovered-row{
-        background-color: lightgray;
-        cursor: pointer;
-    }
-    
-</style>
+  </style>
