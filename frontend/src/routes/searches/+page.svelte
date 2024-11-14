@@ -84,13 +84,11 @@
 
     }
     function openModifPage(){
-        goto('/modifPage2');
+        goto('/searches_admin');
     }
 
 </script>
 <div class="text-[13px]">
-    
-
     <div class = "flex flex-col gap-[5px] box-border w-full">
 
         <!-- PARTIE DU DESSUS -->
@@ -207,7 +205,7 @@
                 </table>
 
                 <!-- BOUTON POUR PASSER EN ADMIN -->
-                <div class="flex justify-end mt-20 mr-20">
+                <div class="flex justify-center mt-8">
                     <!-- svelte-ignore a11y_consider_explicit_label -->
                     <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full cursor-pointer" on:click={openModifPage}>
                         <!-- Custom Edit Icon SVG -->
