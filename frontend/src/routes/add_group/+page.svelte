@@ -1,4 +1,4 @@
-<head><title>Add a group</title></head>
+<svelte:head><title>Add a group</title></svelte:head>
 
 <script>
     function display_char_fields() {

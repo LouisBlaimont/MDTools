@@ -16,7 +16,7 @@
 
     let hoveredSupplierIndex = null;
     let hoveredSupplierImageIndex = null;
-    let selectedSupplierIndex = null;
+    let selectedSupplierIndex = null; 
     function selectSupplier(index) {
         selectedSupplierIndex = index;
     }
@@ -138,7 +138,7 @@
                     <label for="length">Longueur :</label>
                     <input type="text" id="length" name="length">
                     <button class="delete_char" on:click={()=>deleteCharacteristic("length")}>&times;</button>
-                </div>
+                </div>  
                 <div class = "form-group">
                     <label for="tolerance">Tolérance :</label>
                     <input type="text" id="tolerance" name="tolerance">

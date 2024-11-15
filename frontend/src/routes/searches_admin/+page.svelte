@@ -3,6 +3,7 @@
     import { suppliers } from '../../suppliers.js';
     import { getOrder, addTool } from '../../order.js';
     import { goto } from '$app/navigation';
+    import ModifIcon from '../searches_admin/modifIcon.svelte';
 
     let hoveredToolIndex = null;
     let hoveredToolImageIndex = null;
@@ -84,7 +85,7 @@
 
     }
     function openModifPage(){
-        goto('/searches_admin');
+        goto('/searches');
     }
 
 </script>
@@ -175,6 +176,7 @@
                 <table id="tools-table" class="w-full border-collapse">
                     <thead class="bg-teal-400">
                         <tr>
+                            <th class="text-center border border-solid border-[black]"></th>
                             <th class="text-center border border-solid border-[black]">GROUPE</th>
                             <th class="text-center border border-solid border-[black]">FONCTION</th>
                             <th class="text-center border border-solid border-[black]">NOM</th>
@@ -194,27 +196,39 @@
                                 on:mouseover={()=> hoveredToolIndex = index}
                                 on:mouseout={() => hoveredToolIndex = null}
                             >
+                                <td class="transition-colors duration-300 bg-yellow-400 text-black hover:bg-black hover:text-yellow-500 text-center border border-solid border-[black]">
+                                    <ModifIcon></ModifIcon>
+                                </td>
                                 <td class="text-center border border-solid border-[black]">{row.group}</td>
                                 <td class="text-center border border-solid border-[black]">{row.fct}</td>
                                 <td class="text-center border border-solid border-[black]">{row.name}</td>
                                 <td class="text-center border border-solid border-[black]">{row.form}</td>
-                                <td class="text-center border border-solid border-[black]">{row.dim}</td>
+                                <td class="text-center border border-solid border-[black]">{row.dim}</td> 
                             </tr>
                         {/each}
                     </tbody>
                 </table>
+                <div class="flex justify-center">
+                    <button class="ml-8 w-7 h-7 bg-yellow-400 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                        +
+                    </button>
+                </div>
 
                 <!-- BOUTON POUR PASSER EN ADMIN -->
-                <div class="flex justify-center mt-8">
+                <div class="flex justify-center mt-8"> 
                     <!-- svelte-ignore a11y_consider_explicit_label -->
                     <button class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full cursor-pointer" on:click={openModifPage}>
                         <!-- Custom Edit Icon SVG -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" version="1.1" id="Capa_1" viewBox="0 0 494.936 494.936" class="w-6 h-6 text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="24" width="24" viewBox="0 0 568.599 568.599" class="w-6 h-6 text-gray-800">
                             <g>
-                                <g>
-                                    <path d="M389.844,182.85c-6.743,0-12.21,5.467-12.21,12.21v222.968c0,23.562-19.174,42.735-42.736,42.735H67.157 c-23.562,0-42.736-19.174-42.736-42.735V150.285c0-23.562,19.174-42.735,42.736-42.735h267.741c6.743,0,12.21-5.467,12.21-12.21 s-5.467-12.21-12.21-12.21H67.157C30.126,83.13,0,113.255,0,150.285v267.743c0,37.029,30.126,67.155,67.157,67.155h267.741 c37.03,0,67.156-30.126,67.156-67.155V195.061C402.054,188.318,396.587,182.85,389.844,182.85z"/>
-                                    <path d="M483.876,20.791c-14.72-14.72-38.669-14.714-53.377,0L221.352,229.944c-0.28,0.28-3.434,3.559-4.251,5.396l-28.963,65.069 c-2.057,4.619-1.056,10.027,2.521,13.6c2.337,2.336,5.461,3.576,8.639,3.576c1.675,0,3.362-0.346,4.96-1.057l65.07-28.963 c1.83-0.815,5.114-3.97,5.396-4.25L483.876,74.169c7.131-7.131,11.06-16.61,11.06-26.692 C494.936,37.396,491.007,27.915,483.876,20.791z M466.61,56.897L257.457,266.05c-0.035,0.036-0.055,0.078-0.089,0.107 l-33.989,15.131L238.51,247.3c0.03-0.036,0.071-0.055,0.107-0.09L447.765,38.058c5.038-5.039,13.819-5.033,18.846,0.005 c2.518,2.51,3.905,5.855,3.905,9.414C470.516,51.036,469.127,54.38,466.61,56.897z"/>
-                                </g>
+                                <path d="M565.692,147.211L507.96,89.479c-4.08-4.08-10.404-4.08-14.484,0L241.128,342.031L75.276,176.179
+                                    c-4.08-4.08-10.404-4.08-14.484,0L3.06,233.911c-4.08,4.08-4.08,10.404,0,14.484l230.724,230.724
+                                    c1.836,1.836,4.488,3.06,7.14,3.06s5.304-1.02,7.14-3.06l317.628-317.424C569.568,157.615,569.568,151.291,565.692,147.211z
+                                    M241.128,457.495L24.684,241.051l43.248-43.248l165.852,165.852c4.08,4.08,10.404,4.08,14.484,0L500.82,111.103l43.248,43.248
+                                    L241.128,457.495z"/>
+                                <path d="M497.148,133.543L352.92,277.771c-2.04,2.04-2.04,5.304,0,7.14c1.02,1.02,2.244,1.428,3.672,1.428
+                                    c1.428,0,2.652-0.408,3.672-1.428L500.82,144.355l10.812,10.812c2.04,2.04,5.304,2.04,7.14,0c2.04-2.04,2.04-5.304,0-7.14
+                                    l-14.484-14.484c-1.02-1.02-2.244-1.428-3.672-1.428C499.188,132.115,498.168,132.523,497.148,133.543z"/>
                             </g>
                         </svg>
                     </button>
@@ -224,16 +238,21 @@
             <!-- PHOTOS CORRESPONDANTES AUX RECHERCHERS -->
             <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3">
                 {#each tools as row, index}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                    <img 
-                        alt="tool{row.id}" 
-                        src={row.src}
-                        on:click={()=>showBigPicture(row.src)} 
-                        on:mouseover={()=>hoveredToolImageIndex = index}
-                        on:mouseout={()=>hoveredToolImageIndex = null}
-                        class="mb-[3px] {selectedToolIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
+                    <div class="relative">
+                        <img 
+                            alt="tool{row.id}" 
+                            src={row.src}
+                            on:click={()=>showBigPicture(row.src)} 
+                            on:mouseover={()=>hoveredToolImageIndex = index}
+                            on:mouseout={()=>hoveredToolImageIndex = null}
+                            class="mb-[3px] {selectedToolIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
+
+                            {#if selectedToolIndex === index}
+                            <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                                +
+                            </button>
+                            {/if}
+                        </div>
                 {/each}
             </div>
 
@@ -243,19 +262,30 @@
                     <span class="p-1">Photos fournisseurs</span>
                 </div>
                 <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
-                   {#each currentSuppliers as row, index}
-                       <div class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]" on:click={()=>showBigPicture(row.src)}>
-                           <img 
-                               alt="supplier{row.id}" 
-                               src={row.src}
-                               on:click={()=>showBigPicture(row.src)} 
-                               on:mouseover={()=>hoveredSupplierImageIndex = index}
-                               on:mouseout={()=>hoveredSupplierImageIndex = null}
-                               class="h-4/5 {selectedSupplierIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'cursor-pointer border-2 border-solid border-[lightgray]' : ''}"
-                           >
-                           <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
-                       </div>
-                   {/each}
+                    {#each currentSuppliers as row, index}
+                        <div class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]" on:click={()=>showBigPicture(row.src)}>
+                            <img 
+                                alt="supplier{row.id}" 
+                                src={row.src}
+                                on:click={()=>showBigPicture(row.src)} 
+                                on:mouseover={()=>hoveredSupplierImageIndex = index}
+                                on:mouseout={()=>hoveredSupplierImageIndex = null}
+                                class="h-4/5 {selectedSupplierIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index ? 'cursor-pointer border-2 border-solid border-[lightgray]' : ''}"
+                            >
+                            <div class="flex justify-between items-center box-border p-[3px] border-[black] border-t border-solid">
+                                <div>
+                                    {row.ref}
+                                </div>
+                                <div class="mr-2">
+                                    {#if selectedSupplierIndex === index}
+                                        <button class="w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                                            +
+                                        </button>
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
                 </div>
 
                 <!-- TABLEAU DES FOURNISSEURS -->
@@ -263,6 +293,7 @@
                     <table class="w-full border-collapse">
                         <thead class="bg-teal-400">
                             <tr>
+                                <th class="text-center border border-solid border-[black]"></th>
                                 <th class="text-center border border-solid border-[black]">AJOUT</th>
                                 <th class="text-center border border-solid border-[black]">REF</th>
                                 <th class="text-center border border-solid border-[black]">MARQUE</th>
@@ -283,6 +314,9 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
+                                    <td class="transition-colors duration-300 bg-yellow-400 text-black hover:bg-black hover:text-yellow-500 text-center border border-solid border-[black]">
+                                        <ModifIcon></ModifIcon>
+                                    </td>
                                     <td class="green text-center border border-solid border-[black]" on:click={()=>addToOrderPannel(row.ref)}>+</td>
                                     <td class="text-center border border-solid border-[black]">{row.ref}</td>
                                     <td class="text-center border border-solid border-[black]">{row.brand}</td>
@@ -294,6 +328,11 @@
                             {/each}
                         </tbody>
                     </table>
+                    <div class="flex justify-center">
+                        <button class="w-7 h-7 bg-yellow-400 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                            +
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <script>
-    export let size = 'w-6 h-6';
+    export let size = 'w-5 h-5';
 </script>
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <button>
