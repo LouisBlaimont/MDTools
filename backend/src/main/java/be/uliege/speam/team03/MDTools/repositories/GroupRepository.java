@@ -1,9 +1,8 @@
-package be.uliege.speam.team03.MDTools;
+package be.uliege.speam.team03.MDTools.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 
-import be.uliege.speam.team03.MDTools.Group;
+import be.uliege.speam.team03.MDTools.models.Group;
 
-@SuppressWarnings("unused")
 public interface GroupRepository extends CrudRepository<Group, Integer>{}
 

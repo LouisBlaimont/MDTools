@@ -1,6 +1,8 @@
-package be.uliege.speam.team03.MDTools;
+package be.uliege.speam.team03.MDTools.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -9,14 +11,15 @@ import jakarta.persistence.Table;
 
 public class Group {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer group_id;
+    
     private String group_name;
 
     public Group(){}
 
-    public Group(Integer id, String group_name){
+    public Group(String group_name){
         this.group_name = group_name;
-        this.group_id = id;
     }
 
     public Integer getId(){
