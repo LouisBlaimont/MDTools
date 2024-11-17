@@ -1,29 +1,33 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.util.List;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "characteristic")
 public class Characteristic {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer characteristic_id;
-    private String characteristic_name;
+    @Column(name="characteristic_id")
+    private Integer id;
+
+    @Column(name="characteristic_name")
+    private String name;
+
+    @OneToMany(mappedBy = "characteristic")
+    private List<GroupCharacteristic> groupCharacteristics; 
 
     public Characteristic(){}
 
     public Characteristic(String name){
-        this.characteristic_name = name;
+        this.name = name;
     }
 
     public Integer getId(){
-        return this.characteristic_id;
+        return this.id;
     }
     public String getName(){
-        return this.characteristic_name;
+        return this.name;
     }
 }

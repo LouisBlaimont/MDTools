@@ -1,10 +1,8 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.util.List;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="\"group\"")
@@ -12,21 +10,29 @@ import jakarta.persistence.Table;
 public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer group_id;
+    @Column(name="group_id")
+    private Integer id;
     
-    private String group_name;
+    @Column(name="group_name")
+    private String name;
+
+    @OneToMany(mappedBy = "group")
+    private List<GroupCharacteristic> groupCharacteristics;
 
     public Group(){}
 
-    public Group(String group_name){
-        this.group_name = group_name;
+    public Group(String groupName){
+        this.name = groupName;
     }
 
     public Integer getId(){
-        return this.group_id;
+        return this.id;
     }
     public String getName(){
-        return this.group_name;
+        return this.name;
     }   
+    public List<GroupCharacteristic> getGroupCharacteristics(){
+        return groupCharacteristics;
+    }
 }
 

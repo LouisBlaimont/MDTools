@@ -1,31 +1,40 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import be.uliege.speam.team03.MDTools.compositeKeys.GroupCharacteristicKey;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "group_characteristic")
 public class GroupCharacteristic {
-    @Id
-    private Integer group_id;
-    @Id
-    private Integer characateristic_id;
+    
+    @EmbeddedId
+    GroupCharacteristicKey id;
+
+    @ManyToOne
+    @MapsId("groupId")
+    @JoinColumn(name = "group_id")
+    Group group;
+
+    @ManyToOne
+    @MapsId("charId")
+    @JoinColumn(name = "characteristic_id")
+    Characteristic characteristic;
+
     private Integer order_position;
+
+    @Transient
+    private String charName;
 
     public GroupCharacteristic(){}
 
-    public GroupCharacteristic(Integer groupId, Integer charId, Integer orderPos){
-        this.group_id = groupId;
-        this.characateristic_id = charId;
+    public GroupCharacteristic(Group group, Characteristic characteristic, Integer orderPos){
         this.order_position = orderPos;
+        this.group = group;
+        this.characteristic = characteristic;
     }
 
-    public Integer getGroupId(){
-        return this.group_id;
-    }
-    public Integer getCharId(){
-        return this.characateristic_id;
+    public Characteristic getCharacteristic(){
+        return this.characteristic;
     }
     public Integer getOrderPos(){
         return this.order_position;
