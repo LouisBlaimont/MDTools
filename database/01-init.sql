@@ -97,6 +97,20 @@ CREATE TABLE order_items (
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_id, instrument_id)
 );
+-- Create table for instrument images
+CREATE TABLE instrument_pictures (
+  photo_id SERIAL PRIMARY KEY,
+  instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+  picture_path VARCHAR(255) NOT NULL
+);
+
+-- Create table for sub-group images
+CREATE TABLE sub_group_pictures (
+  photo_id SERIAL PRIMARY KEY,
+  sub_group_id INTEGER NOT NULL REFERENCES sub_group(sub_group_id) ON DELETE CASCADE,
+  picture_path VARCHAR(255) NOT NULL
+);
+
 -- FUNCTION: public.check_alternative_constraints()
 
 -- DROP FUNCTION IF EXISTS public.check_alternative_constraints();

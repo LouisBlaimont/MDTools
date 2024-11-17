@@ -1,37 +1,33 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name="sub_group")
-
+@Table(name = "sub_group")
 public class SubGroups {
+
     @Id
-    @GeneratedValue(strategy =  GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sub_group_id;
 
-    private Integer group_id;
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private Group group;
+
     private String shape;
 
-    public SubGroups(){}
+    public SubGroups() {}
 
-    public SubGroups(Integer groupId, String shape){
-        this.group_id = groupId;
+    public SubGroups(Group group, String shape) {
+        this.group = group;
         this.shape = shape;
     }
 
-    public Integer getId(){
-        return this.sub_group_id;
+    public Group getGroup() {
+        return this.group;
     }
-    public Integer getGroupId(){
-        return this.group_id;
-    }
-    public String getShape(){
+
+    public String getShape() {
         return this.shape;
     }
-    
 }
