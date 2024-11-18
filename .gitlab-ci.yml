@@ -92,7 +92,7 @@ backend_test:
   script:
     - cd backend
     - mvn test
-    - cat target/site/jacoco-merge/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
+    - cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
   coverage: '/Total.*?([0-9]{1,3})%/'
   
 frontend:
