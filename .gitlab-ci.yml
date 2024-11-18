@@ -75,10 +75,29 @@ frontend_test:
     - npm install
     - npm run test:unit -- --run --coverage
   coverage: '/All\s+files\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+(\d+(?:\.\d+)?)\s+\|/'
+
+backend_test:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: never
+    - changes:
+        paths: 
+          - $SVELTE_DIR/**/*
+          - $CI_CONFIG_PATH
+  tags:
+    - openshift 
+    - docker
+  image: node:18
+  script:
+    - mvn test
+    - cat target/site/jacoco-merge/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
+  coverage: '/Total.*?([0-9]{1,3})%/'
   
 frontend:
   stage: package
-  needs: ['frontend_test']
+  needs: 
+    - frontend_test
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
@@ -108,6 +127,8 @@ frontend:
 
 backend:
   stage: package
+  needs:
+    - backend_test
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
