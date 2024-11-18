@@ -8,7 +8,7 @@ public class SubGroups {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer sub_group_id;
+    private Integer subGroupId;
 
     @ManyToOne
     @JoinColumn(name = "group_id")

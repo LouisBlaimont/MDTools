@@ -14,13 +14,14 @@ public class SubGroupPictures {
     @JoinColumn(name = "sub_group_id", nullable = false)
     private SubGroups subGroup;
 
-    private String picture_path;
+    @Column(name = "picture_path", nullable = false)
+    private String picturePath;
 
     public SubGroupPictures() {}
 
     public SubGroupPictures(SubGroups subGroup, String picturePath) {
         this.subGroup = subGroup;
-        this.picture_path = picturePath;
+        this.picturePath = picturePath;
     }
 
     public SubGroups getSubGroup() {
@@ -28,6 +29,6 @@ public class SubGroupPictures {
     }
 
     public String getPicturePath() {
-        return this.picture_path;
+        return this.picturePath;
     }
 }
