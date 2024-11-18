@@ -59,6 +59,16 @@ public class GroupController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(groupDeleted);
     }
+
+    @PatchMapping("/{groupName}")
+    public ResponseEntity<?> updateGroup(@PathVariable String groupName, @RequestBody Map<String, Object> body){
+        Group groupUpdated = groupService.updateGroup(body, groupName);
+        if (groupUpdated == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group or Already existing group name");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(groupUpdated);
+
+    }
      
 }
 

@@ -30,7 +30,10 @@ public class Group {
     }
     public String getName(){
         return this.name;
-    }   
+    } 
+    public void setName(String name){
+        this.name = name;
+    }  
     public List<GroupCharacteristic> getGroupCharacteristics(){
         return groupCharacteristics;
     }

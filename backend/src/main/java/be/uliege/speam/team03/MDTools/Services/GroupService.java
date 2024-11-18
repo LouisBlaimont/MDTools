@@ -98,5 +98,22 @@ public class GroupService {
         groupRepository.delete(group);
         return "Successfully deleted group.";
     }
-    
+
+    public Group updateGroup(Map<String, Object> body, String groupName){
+        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
+        if (groupMaybe.isPresent() == false){
+            return null;
+        }
+        Group group = groupMaybe.get();
+
+        String name = (String) body.get("name");
+        Optional<Group> sameGroup = groupRepository.findByName(name);
+        if (sameGroup.isPresent()){
+            return null;
+        }
+        group.setName(name);
+        groupRepository.save(group);
+
+        return group;
+    }
 }
