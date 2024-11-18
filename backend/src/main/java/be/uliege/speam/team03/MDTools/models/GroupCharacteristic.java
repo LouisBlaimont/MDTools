@@ -22,9 +22,6 @@ public class GroupCharacteristic {
 
     private Integer order_position;
 
-    @Transient
-    private String charName;
-
     public GroupCharacteristic(){}
 
     public GroupCharacteristic(Group group, Characteristic characteristic, Integer orderPos){
@@ -33,11 +30,31 @@ public class GroupCharacteristic {
         this.characteristic = characteristic;
     }
 
+    public GroupCharacteristicKey getKey(){
+        return this.id;
+    }
+    /*public Group getGroup(){
+        return this.group;
+    }*/
     public Characteristic getCharacteristic(){
         return this.characteristic;
     }
     public Integer getOrderPos(){
         return this.order_position;
     }
+
+    public void setKey(GroupCharacteristicKey key){
+        this.id = key;
+    }
+    public void setGroup(Group group){
+        this.group = group;
+    }
+    public void setChar(Characteristic characteristic){
+        this.characteristic = characteristic;
+    }
+    public void setOrder(Integer order){
+        this.order_position = order;
+    }
+
     
 }

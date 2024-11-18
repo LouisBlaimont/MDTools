@@ -2,11 +2,13 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import be.uliege.speam.team03.MDTools.models.Group;
 import be.uliege.speam.team03.MDTools.models.GroupCharacteristic;
-import be.uliege.speam.team03.MDTools.repositories.GroupRepository;
+import be.uliege.speam.team03.MDTools.Services.GroupService;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -14,25 +16,48 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/groups")
 public class GroupController {
+    private final GroupService groupService;
 
-    private GroupRepository groupRepository; 
-
-    public GroupController(GroupRepository groupRepository){
-        this.groupRepository = groupRepository;
+    public GroupController(GroupService service){
+        this.groupService = service;
     }
 
     @GetMapping("")
-    public Iterable<Group> findallGroups(){
-        return this.groupRepository.findAll();
+    public ResponseEntity<?> findallGroups(){
+        try{
+            Iterable<Group> groups = groupService.findAllGroups();
+            return ResponseEntity.ok(groups);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while retrieving groups.");
+        }
     }
 
     @GetMapping("/{groupName}")
-    public List<GroupCharacteristic> getGroupDetailsByName(@PathVariable String groupName) {
-        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
-        Group group = groupMaybe.get();
-        List<GroupCharacteristic> groupDetails = group.getGroupCharacteristics();
-        return groupDetails;
+    public ResponseEntity<?> getGroupDetailsByName(@PathVariable String groupName) {
+        List<GroupCharacteristic> groupDetails = groupService.getGroupDetailsByName(groupName);
+        if (groupDetails == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group name");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(groupDetails);
         
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addGroup(@RequestBody Map<String, Object> body){
+        Group newGroup = groupService.addGroup(body);
+        if (newGroup == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Group already exists.");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
+    }
+
+    @DeleteMapping("/{groupName}")
+    public ResponseEntity<String> deleteGroup(@PathVariable String groupName){
+        String groupDeleted = groupService.deleteGroup(groupName);
+        if (groupDeleted == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group.");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(groupDeleted);
     }
      
 }

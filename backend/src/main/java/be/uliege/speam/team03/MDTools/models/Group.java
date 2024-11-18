@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 
 public class Group {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="group_id")
     private Integer id;
     

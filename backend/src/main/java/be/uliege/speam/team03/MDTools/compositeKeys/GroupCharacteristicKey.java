@@ -26,6 +26,12 @@ public class GroupCharacteristicKey implements Serializable{
     public Integer getCharId(){
         return this.charId;
     }
+    public void setGroupId(Integer groupId){
+        this.groupId = groupId;
+    }
+    public void setCharId(Integer charId){
+        this.charId = charId;
+    }
     @Override
     public boolean equals(Object o){
         if(this == o) return true;
