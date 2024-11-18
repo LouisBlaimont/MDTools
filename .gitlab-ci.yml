@@ -90,6 +90,7 @@ backend_test:
     - docker
   image: maven:3.8.5-openjdk-17
   script:
+    - cd backend
     - mvn test
     - cat target/site/jacoco-merge/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
   coverage: '/Total.*?([0-9]{1,3})%/'
