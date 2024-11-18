@@ -6,7 +6,9 @@
 
 
 <header class="bg-teal-500 h-16 flex items-center">
-	<img alt="Logo MD" src="logo-blanc.png" class="h-full p-2" />
+	<a href="/">
+		<img alt="Logo MD" src="logo-blanc.png" class="h-full p-2" />
+	</a>		
 	<nav class="ml-3">	
 		<a href="/">home_client</a>
 		<a href="/home_2">home_admin</a>

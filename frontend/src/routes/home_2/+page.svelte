@@ -10,19 +10,19 @@
       <div class="flex flex-col">
         <label for="id_search_keyword" class="font-semibold text-lg">Recherche par mot(s) clé(s):</label>
         <input type="text" name="search_keyword" id="id_search_keyword" placeholder="Entrez un mot clé"
-               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
       </div>
       
       <div class="flex flex-col">
         <label for="id_search_by_groups" class="font-semibold text-lg">Recherche par groupe ou sous-groupe:</label>
         <input type="text" name="search_by_groups" id="id_search_by_groups" placeholder="Entrez un groupe"
-               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
       </div>
       
       <div class="flex flex-col">
         <label for="id_search_set" class="font-semibold text-lg">Recherche par référence:</label>
         <input list="ref" name="ref" placeholder="Entrez une référence"
-               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
         <datalist id="ref">
           <option value="ref1">
           <option value="ref2">
@@ -61,7 +61,7 @@
     <div class= "flex flex-row"> 
       <div>   
         <input list="commandes" name="commandes" placeholder="Entrez un numéro de commande"
-              class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg">
+              class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
         <datalist id="commandes">
           <option value="#123456">
           <option value="#123457">
