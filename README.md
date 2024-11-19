@@ -71,7 +71,7 @@ Refer to the .env file.
 
 ## API Documentation
 
-The API specifications for MDTools can be found on Swagger: [MDTools API Documentation](https://app.swaggerhub.com/apis-docs/ALTTPCONH5R7Q/MDTools/).
+The API specifications for MDTools can be found on Swagger: [MDTools API Documentation](https://app.swaggerhub.com/apis-docs/ALTTPCONH5R7Q/MDTools/) or in the corresponding [repository](https://gitlab.uliege.be/SPEAM/2024-2025/team3/mdtools-openapi) hosted on the [GitLab page](https://speam.gitlabpages.uliege.be/2024-2025/team3/mdtools-openapi/).
 
 ## CI/CD Pipeline
 This project uses [GitLab CI/CD](https://docs.gitlab.com/ee/ci/yaml/) for automated **building**, **testing**, and **deployment** of the **MDTools** components on OpenShift. The `.gitlab-ci.yml` file defines the following stages and jobs to manage the pipeline efficiently: 
