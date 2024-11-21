@@ -8,7 +8,8 @@
   );
   console.log(images);*/
   const imageUrls = [
-    '/Groups_img/1.png'
+    '/Groups_img/1.png','/Groups_img/2.png','/Groups_img/3.png','/Groups_img/4.png','/Groups_img/5.png','/Groups_img/6.png','/Groups_img/7.png',
+    '/Groups_img/8.png','/Groups_img/9.png','/Groups_img/10.png','/Groups_img/11.png','/Groups_img/12.png','/Groups_img/13.png','/Groups_img/14.png',
   ];
 </script>
 

@@ -1,5 +1,9 @@
 <script lang="ts">
-  const images: Record<string, {default: string}> = import.meta.glob('/groups/*.png', {eager: true});
+  // const images: Record<string, {default: string}> = import.meta.glob('/groups/*.png', {eager: true});
+  const imageUrls = [
+    '/Groups_img/1.png','/Groups_img/2.png','/Groups_img/3.png','/Groups_img/4.png','/Groups_img/5.png','/Groups_img/6.png','/Groups_img/7.png',
+    '/Groups_img/8.png','/Groups_img/9.png','/Groups_img/10.png','/Groups_img/11.png','/Groups_img/12.png','/Groups_img/13.png','/Groups_img/14.png',
+  ];
 </script>
 
 <head><title>Accueil</title></head>
@@ -41,7 +45,7 @@
   </aside>  
 
   <section class="w-full md:w-3/4 grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto">
-    {#each Object.values(images) as { default: imageUrl }}
+    {#each imageUrls as imageUrl}
     <div class="relative group">
       <img class="w-full object-cover rounded-lg" src={imageUrl} alt="group_img"/>
       <div class="absolute bottom-0 left-0 p-2 text-white text-xs">
