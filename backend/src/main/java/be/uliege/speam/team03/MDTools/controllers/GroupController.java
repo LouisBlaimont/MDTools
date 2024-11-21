@@ -1,8 +1,8 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import be.uliege.speam.team03.MDTools.models.Group;
-import be.uliege.speam.team03.MDTools.models.GroupCharacteristic;
+
 import be.uliege.speam.team03.MDTools.Services.GroupService;
+import be.uliege.speam.team03.MDTools.DTOs.*;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class GroupController {
     @GetMapping("")
     public ResponseEntity<?> findallGroups(){
         try{
-            Iterable<Group> groups = groupService.findAllGroups();
+            List<GroupDTO> groups = groupService.findAllGroups();
             return ResponseEntity.ok(groups);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while retrieving groups.");
@@ -34,7 +34,7 @@ public class GroupController {
 
     @GetMapping("/{groupName}")
     public ResponseEntity<?> getGroupDetailsByName(@PathVariable String groupName) {
-        List<GroupCharacteristic> groupDetails = groupService.getGroupDetailsByName(groupName);
+        GroupDTO groupDetails = groupService.getGroupDetailsByName(groupName);
         if (groupDetails == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group name");
         }
@@ -44,7 +44,7 @@ public class GroupController {
 
     @PostMapping
     public ResponseEntity<?> addGroup(@RequestBody Map<String, Object> body){
-        Group newGroup = groupService.addGroup(body);
+        GroupDTO newGroup = groupService.addGroup(body);
         if (newGroup == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Group already exists.");
         }
@@ -62,7 +62,7 @@ public class GroupController {
 
     @PatchMapping("/{groupName}")
     public ResponseEntity<?> updateGroup(@PathVariable String groupName, @RequestBody Map<String, Object> body){
-        Group groupUpdated = groupService.updateGroup(body, groupName);
+        GroupDTO groupUpdated = groupService.updateGroup(body, groupName);
         if (groupUpdated == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group or Already existing group name");
         }

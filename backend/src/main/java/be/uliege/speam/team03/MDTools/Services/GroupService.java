@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.compositeKeys.GroupCharacteristicKey;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import be.uliege.speam.team03.MDTools.DTOs.*;
 
 @Service
 public class GroupService {
@@ -23,22 +25,25 @@ public class GroupService {
         this.groupCharRepository = groupCharRepository;
     }
 
-    public Iterable<Group> findAllGroups(){
-        return groupRepository.findAll();
+    public List<GroupDTO> findAllGroups(){
+        List<Group> groups = (List<Group>) groupRepository.findAll();
+        List<GroupDTO> groupsDTO = groups.stream().map(group -> new GroupDTO(group.getName(), group.getGroupCharacteristics().stream().map(detail -> detail.getCharacteristic().getName()).collect(Collectors.toList()))).collect(Collectors.toList());
+        return groupsDTO;
     }
 
-    public List<GroupCharacteristic> getGroupDetailsByName(String groupName){
+    public GroupDTO getGroupDetailsByName(String groupName){
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
             return null;
         }
         Group group = groupMaybe.get();
         List<GroupCharacteristic> groupDetails = group.getGroupCharacteristics();
-        return groupDetails;
+        GroupDTO groupDTO = new GroupDTO(group.getName(), groupDetails.stream().map(detail -> detail.getCharacteristic().getName()).collect(Collectors.toList()) );
+        return groupDTO;
     }
 
     @SuppressWarnings("unchecked")
-    public Group addGroup(Map<String, Object> body){
+    public GroupDTO addGroup(Map<String, Object> body){
         String groupName = (String) body.get("groupName");
         List<String> characteristics = (List<String>)body.get("characteristics");
 
@@ -72,7 +77,8 @@ public class GroupService {
 
         groupCharRepository.saveAll(groupDetails);
 
-        return newGroup;
+        GroupDTO newGroupDTO = new GroupDTO(newGroup.getName(), characteristics);
+        return newGroupDTO;
     }
 
     public String deleteGroup(String groupName){
@@ -99,7 +105,7 @@ public class GroupService {
         return "Successfully deleted group.";
     }
 
-    public Group updateGroup(Map<String, Object> body, String groupName){
+    public GroupDTO updateGroup(Map<String, Object> body, String groupName){
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
             return null;
@@ -114,6 +120,8 @@ public class GroupService {
         group.setName(name);
         groupRepository.save(group);
 
-        return group;
+        GroupDTO groupDTO = new GroupDTO(group.getName(), group.getGroupCharacteristics().stream().map(detail->detail.getCharacteristic().getName()).collect(Collectors.toList()));
+
+        return groupDTO;
     }
 }

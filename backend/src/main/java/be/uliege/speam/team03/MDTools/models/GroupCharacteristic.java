@@ -33,9 +33,9 @@ public class GroupCharacteristic {
     public GroupCharacteristicKey getKey(){
         return this.id;
     }
-    /*public Group getGroup(){
+    public Group getGroup(){
         return this.group;
-    }*/
+    }
     public Characteristic getCharacteristic(){
         return this.characteristic;
     }
