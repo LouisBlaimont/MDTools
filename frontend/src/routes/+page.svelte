@@ -1,12 +1,15 @@
 <script lang="ts">
-  const images = import.meta.glob('/Groups_img/*.png', { as: 'url' });
+  /*const images = import.meta.glob('/Groups_img/*.png', { as: 'url' });
   console.log(images);
 
   let imageUrls: string[] = [];
   Promise.all(
     Object.values(images).map(loader => loader())).then(urls => {imageUrls = urls;}
   );
-  console.log(images);
+  console.log(images);*/
+  const imageUrls = [
+    '/Groups_img/1.png'
+  ];
 </script>
 
 <head><title>Accueil</title></head>
