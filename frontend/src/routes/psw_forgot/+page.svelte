@@ -4,7 +4,7 @@
   
   <form class="border-3 rounded-lg w-full md:w-2/3 lg:w-1/2 p-6 mx-auto bg-gray-100 shadow-lg">
     <div class="text-center mb-6">
-      <img alt="Icône de cadenas" src="src/lib/assets/ouvrir.png" class="w-1/2 sm:w-1/3 mx-auto rounded-full mb-4"/>
+      <img alt="Icône de cadenas" src="ouvrir.png" class="w-1/2 sm:w-1/3 mx-auto rounded-full mb-4"/>
       <p class="text-center text-lg">
         Vous avez oublié votre mot de passe ? Pas de souci ! Entrez simplement votre adresse e-mail ci-dessous, et nous vous enverrons un lien pour le réinitialiser.
       </p>

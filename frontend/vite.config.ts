@@ -1,3 +1,4 @@
+import { defineConfig } from 'vite';
 import { defineConfig, coverageConfigDefaults } from "vitest/config";
 import { sveltekit } from '@sveltejs/kit/vite';
 
@@ -14,5 +15,5 @@ export default defineConfig({
         coverage: {
             exclude: ['coverage', 'node_modules', '.svelte-kit', '*.config.js', ...coverageConfigDefaults.exclude]
         }
-    }
+    
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-  const images: Record<string, {default: string}> = import.meta.glob('$lib/assets/groups/*.png', {eager: true});
+  const images: Record<string, {default: string}> = import.meta.glob('/groups/*.png', {eager: true});
 </script>
 
 <head><title>Accueil</title></head>

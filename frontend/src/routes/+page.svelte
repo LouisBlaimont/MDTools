@@ -1,5 +1,12 @@
 <script lang="ts">
-  const images: Record<string, {default: string}> = import.meta.glob('$lib/assets/groups/*.png', {eager: true});
+  const images = import.meta.glob('/Groups_img/*.png', { as: 'url' });
+  console.log(images);
+
+  let imageUrls: string[] = [];
+  Promise.all(
+    Object.values(images).map(loader => loader())).then(urls => {imageUrls = urls;}
+  );
+  console.log(images);
 </script>
 
 <head><title>Accueil</title></head>
@@ -10,19 +17,19 @@
       <div class="flex flex-col">
         <label for="id_search_keyword" class="font-semibold text-lg">Recherche par mot(s) clé(s):</label>
         <input type="text" name="search_keyword" id="id_search_keyword" placeholder="Entrez un mot clé"
-               class="p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
       </div>
       
       <div class="flex flex-col">
         <label for="id_search_by_groups" class="font-semibold text-lg">Recherche par groupe ou sous-groupe:</label>
         <input type="text" name="search_by_groups" id="id_search_by_groups" placeholder="Entrez un groupe"
-               class="p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
       </div>
       
       <div class="flex flex-col">
         <label for="id_search_set" class="font-semibold text-lg">Recherche par référence:</label>
         <input list="ref" name="ref" placeholder="Entrez une référence"
-               class="p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
         <datalist id="ref">
           <option value="ref1">
           <option value="ref2">
@@ -31,13 +38,13 @@
           <option value="ref5">
         </datalist>
       </div>
-      
+
       <button type="submit" class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg"><a href="/searches">Rechercher</a></button>
     </form>
   </aside>
 
   <section class="w-full md:w-3/4 grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto">
-    {#each Object.values(images) as { default: imageUrl }}
+    {#each imageUrls as imageUrl}
     <div class="relative group">
       <img class="w-full object-cover rounded-lg" src={imageUrl} alt="group_img"/>
       <div class="absolute bottom-0 left-0 p-2 text-white text-xs">
