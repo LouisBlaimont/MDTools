@@ -1,5 +1,5 @@
 <script>
-  import { goto } from "$app/navigation"; // Import SvelteKit navigation helper
+  import { goto } from "$app/navigation";
   import { toast } from "@zerodevx/svelte-toast";
 
   let users = [
@@ -7,20 +7,41 @@
     { id: "2", email: "user2@example.com", roles: ["user"], enabled: true },
     { id: "3", email: "user3@example.com", roles: ["admin", "webmaster"], enabled: true },
     { id: "4", email: "admin@example.com", roles: ["user"], enabled: true },
-  ]; // This would normally come from an API
+    { id: "5", email: "employee@example.com", roles: ["user"], enabled: false },
+    { id: "6", email: "test@example.com", roles: ["user"], enabled: true },
+    { id: "7", email: "example@example.com", roles: ["admin"], enabled: true },
+  ]; // Normally from API
 
   let email = "";
-  let searchQuery = ""; // New search query state
+  let searchQuery = "";
   let loading = false;
 
-  // Action functions
+  const itemsPerPage = 3; // Number of items per page
+  let currentPage = 1; // Current page number
+
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+
+  // Reactive statement to filter and paginate users
+  $: filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  $: paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+  };
+
   const createUser = async () => {
     if (!email) {
       toast.push("Please enter a valid email address");
       return;
     }
     loading = true;
-    // Simulate API call with a delay
     setTimeout(() => {
       toast.push(`User with email ${email} created!`);
       users.push({ id: (users.length + 1).toString(), email });
@@ -32,7 +53,7 @@
   const disableAccount = (userId) => {
     const userIndex = users.findIndex((u) => u.id === userId);
     if (userIndex !== -1) {
-      users[userIndex].enabled = !users[userIndex].enabled; // Toggle status
+      users[userIndex].enabled = !users[userIndex].enabled;
       toast.push(
         users[userIndex].enabled
           ? `Account with ID ${userId} enabled!`
@@ -47,7 +68,6 @@
     }
   };
 
-  // Navigate to the logs page
   const viewLogs = () => {
     goto("/webmaster/logs");
   };
@@ -89,20 +109,16 @@
     }
     return [];
   };
-
-  // Filter users based on the search query
-  $: filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 </script>
 
 <div class="p-8 space-y-10">
   <section class="bg-white shadow-lg rounded-xl p-6">
-    <h2 class="text-2xl font-semibold mb-8">Website Administration</h2>
+    <h2 class="text-2xl font-semibold mb-8">Administration du site</h2>
 
     <div class="flex flex-col lg:flex-row items-start lg:space-x-6 space-y-6 lg:space-y-0 mb-8">
+      <!-- Create User Section -->
       <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
-        <h3 class="text-lg font-medium mb-4">Create User</h3>
+        <h3 class="text-lg font-medium mb-4">Créer un utilisateur</h3>
         <div class="space-y-4">
           <input
             type="email"
@@ -117,28 +133,29 @@
           >
             {#if loading}
               <span class="animate-spin h-5 w-5 border-t-2 border-white rounded-full"></span>
-              <span>Creating...</span>
+              <span>Création ...</span>
             {:else}
-              <span>Create User</span>
+              <span>Créer</span>
             {/if}
           </button>
         </div>
       </div>
 
+      <!-- Consult Logs Section -->
       <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
-        <h3 class="text-lg font-medium mb-4">Consult Logs</h3>
+        <h3 class="text-lg font-medium mb-4">Consulter les logs</h3>
         <button
           on:click={viewLogs}
           class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition"
         >
-          View Logs
+          Accéder aux logs
         </button>
       </div>
     </div>
 
     <!-- Users List Section -->
     <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
-      <h3 class="text-lg font-medium mb-6">Existing Users</h3>
+      <h3 class="text-lg font-medium mb-6">Utilisateurs existants</h3>
 
       <!-- Search Bar -->
       <div class="mb-6 max-w-xs">
@@ -155,13 +172,13 @@
         <table class="min-w-full table-auto border-collapse">
           <thead>
             <tr class="bg-gray-100 text-left text-sm font-semibold">
-              <th class="px-6 py-4">User Email</th>
-              <th class="px-6 py-4">Roles</th>
-              <th class="px-6 py-4">Actions</th>
+              <th class="px-6 py-4 w-96">Adresse email</th>
+              <th class="px-6 py-4 w-64">Rôles</th>
+              <th class="px-6 py-4 w-36">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {#each filteredUsers as user}
+            {#each paginatedUsers as user}
               <tr class="border-b hover:bg-gray-50 transition">
                 <td class="px-6 py-4">
                   {user.email}
@@ -189,7 +206,7 @@
                 <td class="px-6 py-4 inline-flex rounded-md shadow-sm">
                   <button
                     on:click={() => disableAccount(user.id)}
-                    class={`px-5 py-2 rounded-l-lg w-32 flex items-center transform transition ${
+                    class={`px-5 py-2 rounded-l-lg w-36 flex items-center transform transition ${
                       user.enabled
                         ? "bg-red-600 hover:bg-red-700 text-white"
                         : "bg-green-600 hover:bg-green-700 text-white"
@@ -211,7 +228,7 @@
                         />
                       </svg>
                     </span>
-                    <span class="pl-2">{user.enabled ? "Disable" : "Enable"}</span>
+                    <span class="pl-2">{user.enabled ? "Désactiver" : "Activer"}</span>
                   </button>
 
                   <button
@@ -234,13 +251,29 @@
                         />
                       </svg>
                     </span>
-                    <span class="pl-2">Reset Password</span>
+                    <span class="pl-2">Réinitialiser le mdp</span>
                   </button>
                 </td>
               </tr>
             {/each}
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex justify-center items-center space-x-4 mt-4">
+        <button on:click={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Précédent">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+          </svg>          
+        </button>
+        <span>Page {currentPage} sur {totalPages}</span>
+        <button on:click={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Suivant">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+          </svg>
+          
+        </button>
       </div>
     </div>
   </section>
