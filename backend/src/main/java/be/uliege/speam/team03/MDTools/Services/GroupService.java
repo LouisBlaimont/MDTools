@@ -25,9 +25,10 @@ public class GroupService {
         this.groupCharRepository = groupCharRepository;
     }
 
+
     public List<GroupDTO> findAllGroups(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
-        List<GroupDTO> groupsDTO = groups.stream().map(group -> new GroupDTO(group.getName(), group.getGroupCharacteristics().stream().map(detail -> detail.getCharacteristic().getName()).collect(Collectors.toList()))).collect(Collectors.toList());
+        List<GroupDTO> groupsDTO = groups.stream().map(group -> new GroupDTO(group.getName(), group.getGroupCharacteristics().stream().map(detail -> detail.getCharacteristic().getName()).collect(Collectors.toList()), group.getInstrCount())).collect(Collectors.toList());
         return groupsDTO;
     }
 
@@ -38,7 +39,7 @@ public class GroupService {
         }
         Group group = groupMaybe.get();
         List<GroupCharacteristic> groupDetails = group.getGroupCharacteristics();
-        GroupDTO groupDTO = new GroupDTO(group.getName(), groupDetails.stream().map(detail -> detail.getCharacteristic().getName()).collect(Collectors.toList()) );
+        GroupDTO groupDTO = new GroupDTO(group.getName(), groupDetails.stream().map(detail -> detail.getCharacteristic().getName()).collect(Collectors.toList()), group.getInstrCount() );
         return groupDTO;
     }
 
@@ -55,6 +56,7 @@ public class GroupService {
 
         Group newGroup = new Group(groupName);
         groupRepository.save(newGroup);
+        newGroup.setInstrCount(0);
 
         List<GroupCharacteristic> groupDetails = new ArrayList<>();
 
@@ -77,7 +79,7 @@ public class GroupService {
 
         groupCharRepository.saveAll(groupDetails);
 
-        GroupDTO newGroupDTO = new GroupDTO(newGroup.getName(), characteristics);
+        GroupDTO newGroupDTO = new GroupDTO(newGroup.getName(), characteristics, 0);
         return newGroupDTO;
     }
 
@@ -120,8 +122,14 @@ public class GroupService {
         group.setName(name);
         groupRepository.save(group);
 
-        GroupDTO groupDTO = new GroupDTO(group.getName(), group.getGroupCharacteristics().stream().map(detail->detail.getCharacteristic().getName()).collect(Collectors.toList()));
+        GroupDTO groupDTO = new GroupDTO(group.getName(), group.getGroupCharacteristics().stream().map(detail->detail.getCharacteristic().getName()).collect(Collectors.toList()), group.getInstrCount());
 
         return groupDTO;
+    }
+
+    public List<GroupSummaryDTO> getGroupsSummary(){
+        List<Group> groups = (List<Group>) groupRepository.findAll();
+        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount())).collect(Collectors.toList());
+        return groupsSummaryDTO;
     }
 }

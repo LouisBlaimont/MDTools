@@ -10,7 +10,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
@@ -69,6 +69,15 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK).body(groupUpdated);
 
     }
-     
+
+    @GetMapping("/summary")
+    public ResponseEntity<?> getSummaries(){
+        try{
+            List<GroupSummaryDTO> groups = groupService.getGroupsSummary();
+            return ResponseEntity.ok(groups);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while retrieving groups.");
+        }
+    }   
 }
 

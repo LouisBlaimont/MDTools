@@ -23,11 +23,21 @@ public class SubGroups {
         this.shape = shape;
     }
 
+    public Integer getId(){
+        return subGroupId;
+    }
     public Group getGroup() {
         return this.group;
     }
 
+    public void setGroup(Group group){
+        this.group = group;
+    }
+
     public String getShape() {
         return this.shape;
+    }
+    public void setShape(String shape){
+        this.shape = shape;
     }
 }
