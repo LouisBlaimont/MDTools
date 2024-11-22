@@ -45,7 +45,7 @@ public class GroupService {
 
     @SuppressWarnings("unchecked")
     public GroupDTO addGroup(Map<String, Object> body){
-        String groupName = (String) body.get("groupName");
+        String groupName = (String) body.get("name");
         List<String> characteristics = (List<String>)body.get("characteristics");
 
         Optional<Group> sameGroup = groupRepository.findByName(groupName);
