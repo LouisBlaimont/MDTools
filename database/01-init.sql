@@ -16,7 +16,9 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     role_name VARCHAR(50) NOT NULL, -- Note: 'admin or user'
     job_position VARCHAR(100),
-    workplace VARCHAR(100)
+    workplace VARCHAR(100),
+    reset_token VARCHAR(40),
+    reset_token_expiration TIMESTAMPTZ
 );
 
 -- Table logs
