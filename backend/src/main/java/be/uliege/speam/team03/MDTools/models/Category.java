@@ -17,33 +17,35 @@ public class Category {
     private Integer categoryId;
 
     @ManyToOne
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @JoinColumn(name = "sub_group_id", nullable = false) // Updated to reference sub_group_id
+    private SubGroup subGroup; // Updated to reference SubGroup instead of Group
 
     private String shape;
 
     public Category() {}
 
-    public Category(Group group, String shape) {
-        this.group = group;
+    public Category(SubGroup subGroup, String shape) { // Updated constructor
+        this.subGroup = subGroup;
         this.shape = shape;
     }
 
-    public Integer getId(){
+    public Integer getCategoryId() {
         return categoryId;
     }
-    public Group getGroup() {
-        return this.group;
+
+    public SubGroup getSubGroup() {
+        return subGroup;
     }
 
-    public void setGroup(Group group){
-        this.group = group;
+    public void setSubGroup(SubGroup subGroup) {
+        this.subGroup = subGroup;
     }
 
     public String getShape() {
-        return this.shape;
+        return shape;
     }
-    public void setShape(String shape){
+
+    public void setShape(String shape) {
         this.shape = shape;
     }
 }

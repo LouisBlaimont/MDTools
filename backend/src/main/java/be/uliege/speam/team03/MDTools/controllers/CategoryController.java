@@ -18,19 +18,21 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    public CategoryController(CategoryService service){
+    public CategoryController(CategoryService service) {
         this.categoryService = service;
     }
 
-
     @GetMapping("/{groupName}")
     public ResponseEntity<?> getCategoryFromGroup(@PathVariable String groupName) {
-        List<CategoryDTO> category = categoryService.findAllCategory(groupName);
-        if (category == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group name");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(category);
-        
-    }
+        // Fetch categories from the service
+        List<CategoryDTO> categories = categoryService.findAllCategory(groupName);
 
+        // Handle cases where no categories are found
+        if (categories == null || categories.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found for the group name: " + groupName);
+        }
+
+        // Return the list of categories
+        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    }
 }
