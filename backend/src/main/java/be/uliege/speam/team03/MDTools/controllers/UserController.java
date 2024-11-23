@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
-import be.uliege.speam.team03.MDTools.Services.UserService;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.services.UserService;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

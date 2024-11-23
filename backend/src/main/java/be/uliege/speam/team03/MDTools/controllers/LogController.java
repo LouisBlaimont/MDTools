@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.LogDto;
-import be.uliege.speam.team03.MDTools.Services.LogService;
+import be.uliege.speam.team03.MDTools.services.LogService;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

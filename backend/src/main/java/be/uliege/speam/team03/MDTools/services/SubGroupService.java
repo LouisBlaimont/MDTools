@@ -1,4 +1,4 @@
-package be.uliege.speam.team03.MDTools.Services;
+package be.uliege.speam.team03.MDTools.services;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.models;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,13 +14,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Entity
+@EqualsAndHashCode
 @Table(name = "users")
 public class User {
     @Id
@@ -39,7 +44,7 @@ public class User {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt; // it's probably better to use Timestamp instead of LocalDateTime
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false, updatable = true)
@@ -56,4 +61,13 @@ public class User {
     @Nullable
     @Column(name = "workplace")
     private String workplace;
+
+    @Nullable
+    @Column(name = "reset_token", unique = true)
+    private String resetToken;
+
+    @Nullable
+    @Column(name = "reset_token_expiration")
+    private LocalDateTime resetTokenExpiration;
+
 }

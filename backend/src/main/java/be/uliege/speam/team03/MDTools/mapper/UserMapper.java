@@ -11,7 +11,7 @@ public class UserMapper {
 
    public static User mapToUser(UserDto userDto) {
       return new User(userDto.getUserId(), userDto.getUsername(), userDto.getEmail(), userDto.getPassword(), userDto.getCreatedAt(),
-            userDto.getUpdatedAt(), userDto.getRoleName(), userDto.getJobPosition(), userDto.getWorkplace());
+            userDto.getUpdatedAt(), userDto.getRoleName(), userDto.getJobPosition(), userDto.getWorkplace(), null, null);
    }
 
 }

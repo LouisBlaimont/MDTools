@@ -1,9 +1,9 @@
-package be.uliege.speam.team03.MDTools.Services;
+package be.uliege.speam.team03.MDTools.services;
 
-import be.uliege.speam.team03.MDTools.models.Instruments;
-import be.uliege.speam.team03.MDTools.models.InstrumentPictures;
-import be.uliege.speam.team03.MDTools.repositories.InstrumentPicturesRepository;
-import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
+import be.uliege.speam.team03.MDTools.models.SubGroups;
+import be.uliege.speam.team03.MDTools.models.SubGroupPictures;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupPicturesRepository;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,48 +16,48 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 /**
- * Service responsible for processing new instrument pictures.
- * This includes validating directories, associating images with instruments,
+ * Service responsible for processing new sub-group pictures.
+ * This includes validating directories, associating images with sub-groups,
  * and moving processed files to the main folder.
  */
 @Service
-public class InstrumentPictureService {
+public class SubGroupPictureService {
 
-    // Path to the main folder for instrument pictures
-    @Value("${instrument.pictures.folder:/app/pictures/instrument_pictures}")
+    // Path to the main folder for sub-group pictures
+    @Value("${subgroup.pictures.folder:/app/pictures/sub_group_pictures}")
     private String picturesFolder;
 
     // Path to the folder for newly uploaded pictures
-    @Value("${instrument.pictures.new.folder:/app/pictures/new_instrument_pictures}")
+    @Value("${subgroup.pictures.new.folder:/app/pictures/new_sub_group_pictures}")
     private String newPicturesFolder;
 
-    private final InstrumentRepository instrumentRepository;
-    private final InstrumentPicturesRepository instrumentPicturesRepository;
+    private final SubGroupRepository subGroupRepository;
+    private final SubGroupPicturesRepository subGroupPicturesRepository;
 
     /**
      * Constructor to inject dependencies.
      *
-     * @param instrumentRepository Repository for accessing instruments.
-     * @param instrumentPicturesRepository Repository for managing instrument pictures.
+     * @param subGroupRepository Repository for accessing sub-groups.
+     * @param subGroupPicturesRepository Repository for managing sub-group pictures.
      */
-    public InstrumentPictureService(InstrumentRepository instrumentRepository, InstrumentPicturesRepository instrumentPicturesRepository) {
-        this.instrumentRepository = instrumentRepository;
-        this.instrumentPicturesRepository = instrumentPicturesRepository;
+    public SubGroupPictureService(SubGroupRepository subGroupRepository, SubGroupPicturesRepository subGroupPicturesRepository) {
+        this.subGroupRepository = subGroupRepository;
+        this.subGroupPicturesRepository = subGroupPicturesRepository;
     }
 
     /**
-     * Processes new instrument pictures by validating paths, associating images
-     * with instruments, and moving the files to the main folder.
+     * Processes new sub-group pictures by validating paths, associating images
+     * with sub-groups, and moving the files to the main folder.
      */
-    public void processNewInstrumentPictures() {
+    public void processNewSubGroupPictures() {
         try {
             // Resolve folder paths
             Path newFolderPath = resolvePath(newPicturesFolder);
             Path mainFolderPath = resolvePath(picturesFolder);
 
             // Validate folder paths
-            validateFolder(newFolderPath, "Invalid new pictures folder path: ");
-            validateFolder(mainFolderPath, "Invalid main pictures folder path: ");
+            validateFolder(newFolderPath, "Invalid new sub-group pictures folder path: ");
+            validateFolder(mainFolderPath, "Invalid sub-group pictures folder path: ");
 
             // Process each PNG file in the new pictures folder
             File newFolder = newFolderPath.toFile();
@@ -67,9 +67,9 @@ public class InstrumentPictureService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("An error occurred while processing images: " + e.getMessage());
+            System.err.println("An error occurred while processing sub-group pictures: " + e.getMessage());
             e.printStackTrace();
-            throw new IllegalStateException("Error while processing images: " + e.getMessage(), e);
+            throw new IllegalStateException("Error while processing sub-group pictures: " + e.getMessage(), e);
         }
     }
 
@@ -104,30 +104,40 @@ public class InstrumentPictureService {
     }
 
     /**
-     * Processes a single image file: associates it with an instrument, saves the association
+     * Processes a single image file: associates it with a sub-group, saves the association
      * in the database, and moves the file to the main folder.
      *
      * @param file Image file to process.
      * @param mainFolder Main folder where the file should be moved.
      */
     private void processFile(File file, File mainFolder) {
-        String reference = file.getName().replace(".png", ""); // Extract reference from file name
+        // Extract sub-group ID from the file name (e.g., "12.png" -> sub_group_id = 12)
+        String subGroupIdStr = file.getName().replace(".png", "");
+        Integer subGroupId;
 
-        Optional<Instruments> instrumentOpt = instrumentRepository.findByReference(reference);
-        if (instrumentOpt.isPresent()) {
-            Instruments instrument = instrumentOpt.get();
+        try {
+            subGroupId = Integer.parseInt(subGroupIdStr); // Convert to Integer
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid file name format for sub-group ID: " + file.getName());
+            return; // Skip processing this file
+        }
+
+        // Fetch sub-group by ID
+        Optional<SubGroups> subGroupOpt = subGroupRepository.findById(subGroupId);
+        if (subGroupOpt.isPresent()) {
+            SubGroups subGroup = subGroupOpt.get();
 
             // Check if the picture already exists in the database
-            if (!instrumentPicturesRepository.existsByInstrumentAndPicturePath(instrument, "pictures/instrument_pictures/" + file.getName())) {
+            if (!subGroupPicturesRepository.existsBySubGroupAndPicturePath(subGroup, "pictures/sub_group_pictures/" + file.getName())) {
                 // Save the new picture to the database
-                InstrumentPictures newPicture = new InstrumentPictures(instrument, "pictures/instrument_pictures/" + file.getName());
-                instrumentPicturesRepository.save(newPicture);
+                SubGroupPictures newPicture = new SubGroupPictures(subGroup, "pictures/sub_group_pictures/" + file.getName());
+                subGroupPicturesRepository.save(newPicture);
 
                 // Move the file to the main folder
                 moveFileToMainFolder(file, mainFolder);
             }
         } else {
-            System.out.println("No instrument found for reference: " + reference);
+            System.out.println("No sub-group found for ID: " + subGroupId);
         }
     }
 

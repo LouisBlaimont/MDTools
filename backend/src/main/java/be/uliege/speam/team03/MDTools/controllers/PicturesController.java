@@ -4,8 +4,8 @@ import be.uliege.speam.team03.MDTools.models.InstrumentPictures;
 import be.uliege.speam.team03.MDTools.models.SubGroupPictures;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentPicturesRepository;
 import be.uliege.speam.team03.MDTools.repositories.SubGroupPicturesRepository;
-import be.uliege.speam.team03.MDTools.Services.InstrumentPictureService;
-import be.uliege.speam.team03.MDTools.Services.SubGroupPictureService;
+import be.uliege.speam.team03.MDTools.services.InstrumentPictureService;
+import be.uliege.speam.team03.MDTools.services.SubGroupPictureService;
 
 import org.springframework.web.bind.annotation.*;
 

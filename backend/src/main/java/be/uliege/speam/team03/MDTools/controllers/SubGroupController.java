@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import be.uliege.speam.team03.MDTools.Services.SubGroupService;
 import be.uliege.speam.team03.MDTools.DTOs.*;
+import be.uliege.speam.team03.MDTools.services.SubGroupService;
 
 @RestController
 @RequestMapping("/api/subgroups")

@@ -1,8 +1,8 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 
-import be.uliege.speam.team03.MDTools.Services.GroupService;
 import be.uliege.speam.team03.MDTools.DTOs.*;
+import be.uliege.speam.team03.MDTools.services.GroupService;
 
 import java.util.List;
 import java.util.Map;
@@ -80,4 +80,3 @@ public class GroupController {
         }
     }   
 }
-
