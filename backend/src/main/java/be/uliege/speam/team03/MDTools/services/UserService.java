@@ -1,5 +1,6 @@
 package be.uliege.speam.team03.MDTools.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,18 +19,12 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserService {
    private final UserRepository userRepository;
-   private final EmailService emailService;
-   private final AuthenticationService authenticationService;
 
    public UserDto createUser(UserDto userDto) throws MailException, UserAlreadyExistsException {
       if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
          throw new UserAlreadyExistsException("User with email " + userDto.getEmail() + " already exists.");
       }
       User user = UserMapper.mapToUser(userDto);
-      // Create a token
-      user = authenticationService.generateResetToken(user);
-      // Send email
-      emailService.sendRegistrationEmail(user.getEmail(), user);
       User savedUser = userRepository.save(user);
       return UserMapper.mapToUserDto(savedUser);
    }
@@ -63,4 +58,14 @@ public class UserService {
       user.setPassword(password);
       userRepository.save(user);
    }
+
+   public User setResetToken(String email, String resetToken, LocalDateTime resetTokenExpiration) {
+      User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received email: " + email));
+      user.setResetToken(resetToken);
+      user.setResetTokenExpiration(resetTokenExpiration);
+      userRepository.save(user);
+      return user;
+   }
+
 }

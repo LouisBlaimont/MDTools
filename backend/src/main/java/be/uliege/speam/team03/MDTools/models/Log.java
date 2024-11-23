@@ -27,7 +27,7 @@ public class Log {
     private Long logId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", updatable = false, nullable = false)
     private User user;
     @Column(name = "action", nullable = false)
     private String action;

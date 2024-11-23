@@ -37,5 +37,15 @@ public class EmailService {
                 "Best regards,\nMDTools Team";
         sendEmail(to, subject, text);
     }
+
+    public void sendPasswordResetEmail(String to, User user) throws MailException {
+        String subject = "Password Reset";
+        String text = "Dear " + user.getUsername() + ",\n\n"
+                + "You have requested a password reset. Please click the link below to reset your password:\n\n"
+                + baseUrl + "/auth/reset-password?token=" + user.getResetToken() + "\n\n" + 
+                "This token is valid until : " + user.getResetTokenExpiration() + "\n\n" +
+                "Best regards,\nMDTools Team";
+        sendEmail(to, subject, text);
+    }
    
 }

@@ -3,15 +3,17 @@ package be.uliege.speam.team03.MDTools.services;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.utils.PasswordUtils;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticationService {
    private final PasswordUtils passwordUtils;
    private final UserService userService;
@@ -22,6 +24,12 @@ public class AuthenticationService {
    public boolean authenticate(String plainPassword, String storedPswdFingeprint) {
       return passwordUtils.verifyPassword(plainPassword, storedPswdFingeprint);
    }
+
+   public User forgotPassword(String email) {
+      Pair<String, LocalDateTime> resetToken = generateResetToken();
+      return userService.setResetToken(email, resetToken.getFirst(), resetToken.getSecond());
+   }
+
 
    /**
     * Updates the password of a user in the database.
@@ -41,11 +49,10 @@ public class AuthenticationService {
       userService.updatePassword(userId, hashedPassword);
    }
 
-   public User generateResetToken(User user) {
+   public Pair<String, LocalDateTime> generateResetToken() {
       String token = passwordUtils.generateToken();
-      user.setResetToken(token);
-      user.setResetTokenExpiration(LocalDateTime.now().plusHours(tokenExpiryHours)); // Token valid for 24 hours
-      return user;
+      LocalDateTime expiration = LocalDateTime.now().plusHours(tokenExpiryHours);
+      return Pair.of(token, expiration);
    }
    
 }
