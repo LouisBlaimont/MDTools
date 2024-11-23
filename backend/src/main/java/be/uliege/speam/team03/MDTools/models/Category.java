@@ -1,14 +1,20 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "sub_group")
-public class SubGroups {
+@Table(name = "category")
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer subGroupId;
+    private Integer categoryId;
 
     @ManyToOne
     @JoinColumn(name = "group_id")
@@ -16,15 +22,15 @@ public class SubGroups {
 
     private String shape;
 
-    public SubGroups() {}
+    public Category() {}
 
-    public SubGroups(Group group, String shape) {
+    public Category(Group group, String shape) {
         this.group = group;
         this.shape = shape;
     }
 
     public Integer getId(){
-        return subGroupId;
+        return categoryId;
     }
     public Group getGroup() {
         return this.group;

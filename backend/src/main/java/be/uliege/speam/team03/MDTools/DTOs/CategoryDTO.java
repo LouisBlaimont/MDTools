@@ -1,10 +1,10 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
 
-public class SubGroupDTO {
+public class CategoryDTO {
     private String shape;
 
-    public SubGroupDTO(String shape) {
+    public CategoryDTO(String shape) {
         this.shape = shape;
     }
 

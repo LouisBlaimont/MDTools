@@ -5,10 +5,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="sub_group_characteristic")
-public class SubgroupCharacteristic {
+@Table(name="category_characteristic")
+public class CategoryCharacteristic {
     @Id
-    private Integer sub_group_id;
+    private Integer category_id;
 
     @Id
     private Integer characteristic_id;
@@ -16,17 +16,17 @@ public class SubgroupCharacteristic {
     private String value;
     private String value_abreviation;
 
-    public SubgroupCharacteristic(){}
+    public CategoryCharacteristic(){}
 
-    public SubgroupCharacteristic(Integer subgroupId, Integer charId, String val, String valAbrv){
-        this.sub_group_id = subgroupId;
+    public CategoryCharacteristic(Integer categoryId, Integer charId, String val, String valAbrv){
+        this.category_id = categoryId;
         this.characteristic_id = charId;
         this.value = val;
         this.value_abreviation = valAbrv;
     }
 
-    public Integer getSubgroupId(){
-        return this.sub_group_id;
+    public Integer getCategoryId(){
+        return this.category_id;
     }
     public Integer getCharId(){
         return this.characteristic_id;

@@ -1,4 +1,4 @@
-
+DROP TABLE IF EXISTS sub_group;
 
 -- Table group
 CREATE TABLE "group" (
@@ -37,9 +37,9 @@ CREATE TABLE supplier (
     closed BOOLEAN DEFAULT FALSE
 );
 
--- Table sub_group
-CREATE TABLE sub_group (
-    sub_group_id SERIAL PRIMARY KEY,
+-- Table category
+CREATE TABLE category (
+    category_id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES "group"(group_id),
     shape VARCHAR(255)
 );
@@ -50,20 +50,20 @@ CREATE TABLE characteristic (
     characteristic_name VARCHAR(255)
 );
 
--- Table sub_group_characteristic
-CREATE TABLE sub_group_characteristic (
-    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
+-- Table category_characteristic
+CREATE TABLE category_characteristic (
+    category_id INTEGER REFERENCES category(category_id),
     characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
     value VARCHAR(255),
     value_abreviation VARCHAR(100),
-    PRIMARY KEY (sub_group_id, characteristic_id)
+    PRIMARY KEY (category_id, characteristic_id)
 );
 
 -- Table instruments
 CREATE TABLE instruments (
     instrument_id SERIAL PRIMARY KEY,
     supplier_id INTEGER REFERENCES supplier(supplier_id),
-    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
+    category_id INTEGER REFERENCES category(category_id),
     reference VARCHAR(255) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
@@ -107,9 +107,9 @@ CREATE TABLE instrument_pictures (
 );
 
 -- Create table for sub-group images
-CREATE TABLE sub_group_pictures (
+CREATE TABLE category_pictures (
   photo_id SERIAL PRIMARY KEY,
-  sub_group_id INTEGER NOT NULL REFERENCES sub_group(sub_group_id) ON DELETE CASCADE,
+  category_id INTEGER NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
   picture_path VARCHAR(255) NOT NULL
 );
 
@@ -130,11 +130,11 @@ BEGIN
         RAISE EXCEPTION 'Instruments must be from different suppliers';
     END IF;
 
-    -- Ensure instruments are from the same group by checking through sub_group and group
-    IF (SELECT group_id FROM sub_group 
-        WHERE sub_group_id = (SELECT sub_group_id FROM instruments WHERE instrument_id = NEW.instruments_id_1)) <> 
-       (SELECT group_id FROM sub_group 
-        WHERE sub_group_id = (SELECT sub_group_id FROM instruments WHERE instrument_id = NEW.instruments_id_2)) THEN
+    -- Ensure instruments are from the same group by checking through category and group
+    IF (SELECT group_id FROM category 
+        WHERE category_id = (SELECT category_id FROM instruments WHERE instrument_id = NEW.instruments_id_1)) <> 
+       (SELECT group_id FROM category 
+        WHERE category_id = (SELECT category_id FROM instruments WHERE instrument_id = NEW.instruments_id_2)) THEN
         RAISE EXCEPTION 'Instruments must be from the same group';
     END IF;
 
@@ -158,10 +158,10 @@ BEGIN
     -- Construire la chaîne shape en fonction des caractéristiques présentes et de leur ordre
     FOR characteristic_record IN
         SELECT sgc.value_abreviation
-        FROM sub_group_characteristic sgc
-        JOIN group_characteristic gc ON gc.group_id = (SELECT group_id FROM sub_group WHERE sub_group_id = NEW.sub_group_id)
+        FROM category_characteristic sgc
+        JOIN group_characteristic gc ON gc.group_id = (SELECT group_id FROM category WHERE category_id = NEW.category_id)
                                      AND gc.characteristic_id = sgc.characteristic_id
-        WHERE sgc.sub_group_id = NEW.sub_group_id
+        WHERE sgc.category_id = NEW.category_id
           AND gc.order_position IS NOT NULL
         ORDER BY gc.order_position
     LOOP
@@ -172,16 +172,16 @@ BEGIN
     -- Supprimer le dernier séparateur '/' à la fin de la chaîne
     shape_text := RTRIM(shape_text, '/');
 
-    -- Mettre à jour le champ shape dans sub_group
-    UPDATE sub_group
+    -- Mettre à jour le champ shape dans category
+    UPDATE category
     SET shape = shape_text
-    WHERE sub_group_id = NEW.sub_group_id;
+    WHERE category_id = NEW.category_id;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_update_shape
-AFTER INSERT OR UPDATE ON sub_group_characteristic
+AFTER INSERT OR UPDATE ON category_characteristic
 FOR EACH ROW
 EXECUTE FUNCTION update_shape();

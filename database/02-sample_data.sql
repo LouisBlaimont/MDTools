@@ -2,7 +2,7 @@
 /* if problem with sequence you can add this:
 ALTER SEQUENCE "group_group_id_seq" RESTART WITH 1;
 ALTER SEQUENCE users_user_id_seq RESTART WITH 1;
-ALTER SEQUENCE sub_group_sub_group_id_seq RESTART WITH 1;
+ALTER SEQUENCE category_category_id_seq RESTART WITH 1;
 ALTER SEQUENCE characteristic_characteristic_id_seq RESTART WITH 1;
 ALTER SEQUENCE supplier_supplier_id_seq RESTART WITH 1;
 ALTER SEQUENCE instruments_instrument_id_seq RESTART WITH 1;
@@ -31,8 +31,8 @@ INSERT INTO supplier (supplier_name, sold_by_md, closed) VALUES
 ('Medicon', TRUE, FALSE),
 ('Geomed', TRUE, FALSE);
 
--- Insert into sub_group table
-INSERT INTO sub_group (group_id, shape) VALUES 
+-- Insert into category table
+INSERT INTO category (group_id, shape) VALUES 
 (1, NULL), 
 (1, NULL), 
 (3, NULL);
@@ -43,15 +43,15 @@ INSERT INTO characteristic (characteristic_name) VALUES
 ('Material'), 
 ('Sharpness');
 
--- Insert into sub_group_characteristic table
-INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, value, value_abreviation) 
+-- Insert into category_characteristic table
+INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) 
 VALUES
 (1, 1, 'Large', 'L'),      -- volume, avec "L" comme abrégé
 (1, 2, 'Curved', 'C'),      -- curve, avec "C" comme abrégé
 (2, 1, '10cm', '10CM');
 
 -- Insert into instruments table
-INSERT INTO instruments (supplier_id, sub_group_id, reference, supplier_description, price, obsolete) VALUES 
+INSERT INTO instruments (supplier_id, category_id, reference, supplier_description, price, obsolete) VALUES 
 (1, 1, 'SC-1234', '15cm Scalpel', 15.99, FALSE),
 (2, 2, 'SC-5678', '15cm Scalpel de geomed', 10.50, FALSE),
 (2, 3, 'FR-0001', 'Forceps with lock', 20.75, TRUE);

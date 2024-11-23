@@ -1,6 +1,12 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "instruments")
@@ -15,8 +21,8 @@ public class Instruments {
     private Suppliers supplier;
 
     @ManyToOne
-    @JoinColumn(name = "sub_group_id")
-    private SubGroups subGroup;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private String reference;
     private String supplier_description;
@@ -25,9 +31,9 @@ public class Instruments {
 
     public Instruments() {}
 
-    public Instruments(Suppliers supplier, SubGroups subGroup, String reference, String supplierDescription, Float price, Boolean obsolete) {
+    public Instruments(Suppliers supplier, Category category, String reference, String supplierDescription, Float price, Boolean obsolete) {
         this.supplier = supplier;
-        this.subGroup = subGroup;
+        this.category = category;
         this.reference = reference;
         this.supplier_description = supplierDescription;
         this.price = price;
@@ -38,8 +44,8 @@ public class Instruments {
         return this.supplier;
     }
 
-    public SubGroups getSubGroup() {
-        return this.subGroup;
+    public Category getCategory() {
+        return this.category;
     }
 
     public String getReference() {

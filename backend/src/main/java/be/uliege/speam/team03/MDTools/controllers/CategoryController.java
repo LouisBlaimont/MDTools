@@ -9,27 +9,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import be.uliege.speam.team03.MDTools.DTOs.*;
-import be.uliege.speam.team03.MDTools.services.SubGroupService;
+import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.services.CategoryService;
 
 @RestController
-@RequestMapping("/api/subgroups")
-public class SubGroupController {
+@RequestMapping("/api/category")
+public class CategoryController {
 
-    private final SubGroupService subgroupService;
+    private final CategoryService categoryService;
 
-    public SubGroupController(SubGroupService service){
-        this.subgroupService = service;
+    public CategoryController(CategoryService service){
+        this.categoryService = service;
     }
 
 
     @GetMapping("/{groupName}")
-    public ResponseEntity<?> getSubgroupsFromGroup(@PathVariable String groupName) {
-        List<SubGroupDTO> subGroups = subgroupService.findAllSubGroups(groupName);
-        if (subGroups == null){
+    public ResponseEntity<?> getCategoryFromGroup(@PathVariable String groupName) {
+        List<CategoryDTO> category = categoryService.findAllCategory(groupName);
+        if (category == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find group name");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(subGroups);
+        return ResponseEntity.status(HttpStatus.OK).body(category);
         
     }
 
