@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +40,9 @@ public class UserController {
       UserDto savedUser = userService.createUser(userDto);
 
       User user = userService.setResetToken(savedUser.getEmail(), resetToken.getFirst(), resetToken.getSecond());
-      emailService.sendRegistrationEmail(user.getEmail(), user);
+      try {
+         emailService.sendRegistrationEmail(user.getEmail(), user); 
+      } catch (MailException e) { }
 
       return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
    }

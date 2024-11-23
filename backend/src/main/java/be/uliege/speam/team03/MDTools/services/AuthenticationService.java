@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.utils.PasswordUtils;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Service
