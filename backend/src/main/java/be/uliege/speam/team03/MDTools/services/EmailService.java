@@ -15,6 +15,8 @@ public class EmailService {
 
     @Value("${app.base-url}")
     private String baseUrl;
+    @Value("${spring.mail.properties.mail.smtp.from}")
+    private String from;
 
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
@@ -22,6 +24,7 @@ public class EmailService {
 
     public void sendEmail(String to, String subject, String text) throws MailException{
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
