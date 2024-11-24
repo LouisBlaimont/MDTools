@@ -227,3 +227,6 @@ INSERT INTO order_items (order_id, instrument_id, quantity) VALUES
 (1, 1, 5), 
 (2, 2, 3), 
 (2, 3, 2);
+
+Insert INTO instrument_pictures (instrument_id, picture_path) VALUES
+  (19, 'pictures/instrument_pictures/STS-1001.png');
