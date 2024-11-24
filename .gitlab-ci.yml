@@ -83,7 +83,7 @@ backend_test:
       when: never
     - changes:
         paths: 
-          - $SVELTE_DIR/**/*
+          - $SPRINGBOOT_DIR/**/*
           - $CI_CONFIG_PATH
   tags:
     - openshift 
