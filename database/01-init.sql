@@ -182,29 +182,29 @@ DECLARE
     characteristic_record RECORD;
     shape_text TEXT := '';
 BEGIN
-    -- Construire la chaîne shape en fonction des caractéristiques présentes et de leur ordre
+    -- Build the shape string based on the present characteristics and their order
     FOR characteristic_record IN
         SELECT sgc.value_abreviation
         FROM category_characteristic sgc
-        JOIN group_characteristic gc 
-            ON gc.group_id = (SELECT group_id 
-                              FROM sub_groups
-                              WHERE sub_group_id = (SELECT sub_group_id 
-                                                    FROM category 
-                                                    WHERE category_id = NEW.category_id))
-            AND gc.characteristic_id = sgc.characteristic_id
+        JOIN sub_group_characteristic sgc_rel
+            ON sgc_rel.sub_group_id = (SELECT sub_group_id
+                                       FROM sub_groups
+                                       WHERE sub_group_id = (SELECT sub_group_id
+                                                             FROM category
+                                                             WHERE category_id = NEW.category_id))
+            AND sgc_rel.characteristic_id = sgc.characteristic_id
         WHERE sgc.category_id = NEW.category_id
-          AND gc.order_position IS NOT NULL
-        ORDER BY gc.order_position
+          AND sgc_rel.order_position IS NOT NULL
+        ORDER BY sgc_rel.order_position
     LOOP
-        -- Concaténer chaque value_abreviation avec un '/' comme séparateur
+        -- Concatenate each value_abreviation with a '/' as a separator
         shape_text := shape_text || characteristic_record.value_abreviation || '/';
     END LOOP;
 
-    -- Supprimer le dernier séparateur '/' à la fin de la chaîne
+    -- Remove the last '/' separator at the end of the string
     shape_text := RTRIM(shape_text, '/');
 
-    -- Mettre à jour le champ shape dans category
+    -- Update the shape field in the category table
     UPDATE category
     SET shape = shape_text
     WHERE category_id = NEW.category_id;
@@ -213,6 +213,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Update the trigger to reflect the modified function
 CREATE TRIGGER trigger_update_shape
 AFTER INSERT OR UPDATE ON category_characteristic
 FOR EACH ROW
