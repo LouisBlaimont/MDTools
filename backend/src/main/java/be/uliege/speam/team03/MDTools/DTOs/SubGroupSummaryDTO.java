@@ -1,10 +1,10 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
-public class GroupSummaryDTO {
+public class SubGroupSummaryDTO {
     private String name;
     private int nbInstr;
 
-    public GroupSummaryDTO(String name, int nbInstr) {
+    public SubGroupSummaryDTO(String name, int nbInstr) {
         this.name = name;
         this.nbInstr = nbInstr;
     }
