@@ -10,33 +10,33 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "instrument_pictures")
-public class InstrumentPictures {
+@Table(name = "group_pictures")
+public class GroupPictures {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer instrument_pictures_id;
+    private Integer group_pictures_id;
 
     @ManyToOne
-    @JoinColumn(name = "instrument_id", nullable = false)
-    private Instruments instrument;
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
 
     @Column(name = "picture_path", nullable = false)
     private String picturePath;
 
-    public InstrumentPictures() {}
+    public GroupPictures() {}
 
-    public InstrumentPictures(Instruments instrument, String picturePath) {
-        this.instrument = instrument;
+    public GroupPictures(Group group, String picturePath) {
+        this.group = group;
         this.picturePath = picturePath;
     }
 
-    public Instruments getInstrument() {
-        return this.instrument;
+    public Group getGroup() {
+        return this.group;
     }
 
-    public void setInstrument(Instruments instrument) {
-        this.instrument = instrument;
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public String getPicturePath() {

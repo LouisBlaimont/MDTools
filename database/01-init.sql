@@ -108,17 +108,32 @@ CREATE TABLE order_items (
 );
 -- Create table for instrument images
 CREATE TABLE instrument_pictures (
-  photo_id SERIAL PRIMARY KEY,
+  instrument_pictures_id SERIAL PRIMARY KEY,
   instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
   picture_path VARCHAR(255) NOT NULL
 );
 
 -- Create table for sub-group images
 CREATE TABLE category_pictures (
-  photo_id SERIAL PRIMARY KEY,
+  category_pictures_id SERIAL PRIMARY KEY,
   category_id INTEGER NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
   picture_path VARCHAR(255) NOT NULL
 );
+
+-- Create table for sub-group images
+CREATE TABLE group_pictures (
+  group_pictures_id SERIAL PRIMARY KEY,
+  group_id INTEGER NOT NULL REFERENCES "group"(group_id) ON DELETE CASCADE,
+  picture_path VARCHAR(255) NOT NULL
+);
+
+-- Create table for sub-group images
+CREATE TABLE sub_group_pictures (
+  sub_group_pictures_id SERIAL PRIMARY KEY,
+  sub_group_id INTEGER NOT NULL REFERENCES sub_group(sub_group_id) ON DELETE CASCADE,
+  picture_path VARCHAR(255) NOT NULL
+);
+
 
 -- FUNCTION: public.check_alternative_constraints()
 
