@@ -18,7 +18,7 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255),
+    password_fingerprint VARCHAR(60),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     role_name VARCHAR(50) NOT NULL, -- Note: 'admin or user'
@@ -71,18 +71,18 @@ CREATE TABLE instruments (
     instrument_id SERIAL PRIMARY KEY,
     supplier_id INTEGER REFERENCES supplier(supplier_id),
     category_id INTEGER REFERENCES category(category_id),
-    reference VARCHAR(255) NOT NULL,
+    reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
     obsolete BOOLEAN DEFAULT FALSE
 );
 
 -- Table group_characteristic
-CREATE TABLE group_characteristic (
-    group_id INTEGER REFERENCES "group"(group_id),
+CREATE TABLE sub_group_characteristic (
+    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
     characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
     order_position INTEGER,
-    PRIMARY KEY (group_id, characteristic_id)
+    PRIMARY KEY (sub_group_id, characteristic_id)
 );
 
 -- Table alternatives
