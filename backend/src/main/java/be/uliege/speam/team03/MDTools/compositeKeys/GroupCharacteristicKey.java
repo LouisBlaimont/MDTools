@@ -1,32 +1,33 @@
 package be.uliege.speam.team03.MDTools.compositeKeys;
 
 import java.io.Serializable;
+
 import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class SubGroupCharacteristicKey implements Serializable{
-    @Column(name="sub_group_id")
-    private Integer subgroupId;
+public class GroupCharacteristicKey implements Serializable{
+    @Column(name="group_id")
+    private Integer groupId;
 
     @Column(name="characteristic_id")
     private Integer charId;
 
-    public SubGroupCharacteristicKey(){}
-    public SubGroupCharacteristicKey(Integer subgroupId, Integer charId){
-        this.subgroupId = subgroupId;
+    public GroupCharacteristicKey(){}
+    public GroupCharacteristicKey(Integer groupId, Integer charId){
+        this.groupId = groupId;
         this.charId = charId;
     }
-    public Integer getSubGroupId(){
-        return this.subgroupId;
+    public Integer getGroupId(){
+        return this.groupId;
     }
     public Integer getCharId(){
         return this.charId;
     }
-    public void setSubGroupId(Integer subgroupId){
-        this.subgroupId = subgroupId;
+    public void setGroupId(Integer groupId){
+        this.groupId = groupId;
     }
     public void setCharId(Integer charId){
         this.charId = charId;
@@ -35,13 +36,13 @@ public class SubGroupCharacteristicKey implements Serializable{
     public boolean equals(Object o){
         if(this == o) return true;
         if(o == null || this.getClass() != o.getClass() ) return false;
-        SubGroupCharacteristicKey that = (SubGroupCharacteristicKey) o;
-        return Objects.equals(subgroupId, that.subgroupId) &&
+        GroupCharacteristicKey that = (GroupCharacteristicKey) o;
+        return Objects.equals(groupId, that.groupId) &&
                Objects.equals(charId, that.charId);
 
     }
     @Override
     public int hashCode(){
-        return Objects.hash(subgroupId, charId);
+        return Objects.hash(groupId, charId);
     } 
 }

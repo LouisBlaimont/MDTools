@@ -16,6 +16,9 @@ public class Group {
     @Column(name="group_name")
     private String name;
 
+    @OneToMany(mappedBy = "group")
+    private List<GroupCharacteristic> groupCharacteristics;
+
     @Transient
     private Integer instrCount;
 
@@ -39,7 +42,9 @@ public class Group {
     public void setName(String name){
         this.name = name;
     }  
-
+    public List<GroupCharacteristic> getGroupCharacteristics(){
+        return groupCharacteristics;
+    }
     public int getInstrCount(){
         return instrCount;
     }

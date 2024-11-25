@@ -41,6 +41,6 @@ public class CategoryService {
     return categories.stream()
             .map(cat -> new CategoryDTO(cat.getShape()))
             .collect(Collectors.toList());
-    }
+}
 
 }

@@ -15,7 +15,7 @@ public class CategoryPictures {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer category_pictures_id;
+    private Integer photo_id;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

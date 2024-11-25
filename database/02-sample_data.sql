@@ -87,33 +87,20 @@ INSERT INTO characteristic (characteristic_name) VALUES
 ('Flexibility'), 
 ('Grip Type');
 
--- Link characteristics to sub_groups
-INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_position) VALUES
--- Plastic Scalpels group
+-- Link characteristics to groups
+INSERT INTO group_characteristic (group_id, characteristic_id, order_position) VALUES
+-- Scalpels group
 (1, 1, NULL), -- Length
 (1, 2, 2), -- Material
 (1, 3, 3), -- Sharpness
 
--- Metal Scalpels group
+-- Scissors group
 (2, 1, NULL), -- Length
-(2, 2, 2), -- Material
-(2, 3, 3), -- Sharpness
+(2, 4, 2), -- Flexibility
 
--- straight Scissors group
+-- Forceps group
 (3, 1, NULL), -- Length
-(3, 4, 2), -- Flexibility
-
--- Cureved Scissors group
-(4, 1, NULL), -- Length
-(4, 4, 2), -- Flexibility
-
--- locking Forceps group
-(5, 1, NULL), -- Length
-(5, 5, 2); -- Grip Type
-
--- non-locking Forceps group
-(6, 1, NULL), -- Length
-(6, 5, 2); -- Grip Type
+(3, 5, 2); -- Grip Type
 
 -- Add characteristic values for Plastic Scalpels (sub_group_id = 1)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
