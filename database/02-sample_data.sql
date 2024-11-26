@@ -25,7 +25,7 @@ INSERT INTO sub_group (sub_group_name, group_id) VALUES
 ('Non-Locking Forceps', 3);
 
 -- Insert into users table
-INSERT INTO users (username, email, password, role_name, job_position, workplace) VALUES 
+INSERT INTO users (username, email, password_fingerprint, role_name, job_position, workplace) VALUES 
 ('john_doe', 'john@example.com', 'hashed_password_123', 'user', 'Surgeon', 'City Hospital'),
 ('jane_admin', 'jane@example.com', 'hashed_password_456', 'admin', 'IT Manager', 'Head Office');
 
@@ -101,6 +101,18 @@ INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_pos
 -- Forceps group
 (3, 1, NULL), -- Length
 (3, 5, 2); -- Grip Type
+
+-- Cureved Scissors group
+(4, 1, NULL), -- Length
+(4, 4, 2), -- Flexibility
+
+-- locking Forceps group
+(5, 1, NULL), -- Length
+(5, 5, 2), -- Grip Type
+
+-- non-locking Forceps group
+(6, 1, NULL), -- Length
+(6, 5, 2); -- Grip Type
 
 -- Add characteristic values for Plastic Scalpels (sub_group_id = 1)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
