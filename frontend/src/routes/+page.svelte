@@ -15,7 +15,7 @@
 
 <head><title>Accueil</title></head>
 
-<main class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto text-[14px]">
+<main class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto text-[14px">
   <aside class="w-full md:w-1/4 bg-gray-100 rounded-lg p-8 shadow-md">
     <form class="space-y-6">
       <div class="flex flex-col">
