@@ -12,7 +12,7 @@ public class CategoryDTO {
         return shape;
     }
 
-    public void setName(String shape) {
+    public void setShape(String shape) {
         this.shape = shape;
     }
 }

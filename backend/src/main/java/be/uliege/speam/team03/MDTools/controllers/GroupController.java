@@ -42,6 +42,7 @@ public class GroupController {
         
     }
 
+    
     @PostMapping
     public ResponseEntity<?> addGroup(@RequestBody Map<String, Object> body){
         GroupDTO newGroup = groupService.addGroup(body);
@@ -50,7 +51,7 @@ public class GroupController {
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
     }
-
+    
     @DeleteMapping("/{groupName}")
     public ResponseEntity<String> deleteGroup(@PathVariable String groupName){
         String groupDeleted = groupService.deleteGroup(groupName);
@@ -60,6 +61,7 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK).body(groupDeleted);
     }
 
+    
     @PatchMapping("/{groupName}")
     public ResponseEntity<?> updateGroup(@PathVariable String groupName, @RequestBody Map<String, Object> body){
         GroupDTO groupUpdated = groupService.updateGroup(body, groupName);
@@ -68,8 +70,7 @@ public class GroupController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(groupUpdated);
 
-    }
-
+    } 
     @GetMapping("/summary")
     public ResponseEntity<?> getSummaries(){
         try{

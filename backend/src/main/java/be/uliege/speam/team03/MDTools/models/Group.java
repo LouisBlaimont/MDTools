@@ -22,6 +22,9 @@ public class Group {
     @Transient
     private Integer instrCount;
 
+    @OneToMany(mappedBy = "group")
+    private List<SubGroup> subGroups;
+
     @PostLoad //happens each time data is fetched, replaced, .. in the DB so I must add cond so that it doesn't change the number when patch and get (post value is manually given)
     private void calculateInstrumentCount() {
         this.instrCount = 3;
@@ -42,9 +45,13 @@ public class Group {
     public void setName(String name){
         this.name = name;
     }  
-    public List<GroupCharacteristic> getGroupCharacteristics(){
-        return groupCharacteristics;
+    public List<SubGroup> getSubGroups(){
+        return this.subGroups;
     }
+    public void setSubGroups(List<SubGroup> subGroups){
+        this.subGroups = subGroups;
+    }
+
     public int getInstrCount(){
         return instrCount;
     }

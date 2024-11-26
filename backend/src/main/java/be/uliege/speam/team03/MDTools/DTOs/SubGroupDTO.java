@@ -2,16 +2,15 @@ package be.uliege.speam.team03.MDTools.DTOs;
 
 import java.util.List;
 
-public class GroupDTO {
+public class SubGroupDTO {
     private String name;
-    private List<SubGroupDTO> subGroups;
+    private List<String> characteristics;
     private int nbInstr;
 
-    public GroupDTO(String name, List<SubGroupDTO> subgroups, int nbInstr) {
+    public SubGroupDTO(String name, List<String> characteristics, int nbInstr) {
         this.name = name;
         this.characteristics = characteristics;
         this.nbInstr = nbInstr;
-        this.subGroups = subgroups;
     }
 
     public String getName() {
@@ -34,12 +33,5 @@ public class GroupDTO {
     }
     public void setNbInstr(int instr){
         this.nbInstr = instr;
-    }
-
-    public List<SubGroupDTO> getSubGroups(){
-        return subGroups;
-    }
-    public void setSubGroups(List<SubGroupDTO> subgroups){
-        this.subGroups = subgroups;
     }
 }
