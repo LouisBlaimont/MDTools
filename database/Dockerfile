@@ -1,5 +1,6 @@
 # Start from the official PostgreSQL image
-FROM postgres:17.0
+#FROM postgres:17.0
+FROM gitlab.uliege.be:5050/speam/2024-2025/team3/mdtools/postgres_ghcr_cache:17.0
 
 # Set the UID and GID
 ENV USER_ID=1000
