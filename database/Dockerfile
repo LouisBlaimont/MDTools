@@ -10,21 +10,15 @@ ENV PGDATA="/home/postgres_user/data"
 
 # Install necessary packages and create a non-root user and group with the specified UID:GID
 # RUN groupadd -g ${GROUP_ID} postgres_group
-# RUN useradd -m -u ${USER_ID} -g postgres_group -s /bin/bash postgres_user
-#RUN mkdir -p ${PGDATA}
+# RUN useradd -m -u ${USER_ID} -g postgres_group -s /bin/bash postgres
+RUN mkdir -p ${PGDATA}
 # RUN chown -R postgres_user:postgres_group ${HOMEDIR}
-#RUN chown ${USER_ID}:${GROUP_ID} ${PGDATA}
+RUN chown -R ${USER_ID}:${GROUP_ID} ${HOMEDIR}
 
 USER ${USER_ID}:${GROUP_ID}
 
-WORKDIR ${HOMEDIR}
-
-RUN mkdir ${PGDATA}
-
 
 COPY *.sql /docker-entrypoint-initdb.d/
-
-WORKDIR ${PGDATA}
 
 # Switch to the non-root user for running PostgreSQL
 # USER postgres_user:postgres_group
