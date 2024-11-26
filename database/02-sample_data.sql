@@ -16,7 +16,7 @@ INSERT INTO "group" (group_name) VALUES
 ('Forceps');
 
 /* Insert into sub_group table */
-INSERT INTO sub_groups (sub_group_name, group_id) VALUES
+INSERT INTO sub_group (sub_group_name, group_id) VALUES
 ('Plastic Scalpels', 1),
 ('Metal Scalpels', 1),
 ('Curved Scissors', 2),
@@ -87,9 +87,9 @@ INSERT INTO characteristic (characteristic_name) VALUES
 ('Flexibility'), 
 ('Grip Type');
 
--- Link characteristics to groups
-INSERT INTO group_characteristic (group_id, characteristic_id, order_position) VALUES
--- Scalpels group
+-- Link characteristics to sub_group
+INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_position) VALUES
+-- Plastic Scalpels group
 (1, 1, NULL), -- Length
 (1, 2, 2), -- Material
 (1, 3, 3), -- Sharpness

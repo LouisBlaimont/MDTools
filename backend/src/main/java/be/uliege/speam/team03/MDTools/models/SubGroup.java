@@ -12,7 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "sub_groups")
+@Table(name = "sub_group")
 public class SubGroup {
 
     @Id
