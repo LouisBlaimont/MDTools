@@ -54,7 +54,7 @@ postgres_init:
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
   script:
     - echo $REPO_TAG
-    - docker build --network host -t $REPO_TAG -f $POSTGRES_DIR/Dockerfile ./$POSTGRES_DIR
+    - docker build --cache-from $REPO_TAG --network host -t $REPO_TAG -f $POSTGRES_DIR/Dockerfile ./$POSTGRES_DIR
     - docker push $REPO_TAG
 
 frontend_test:
