@@ -83,7 +83,7 @@ public class SubGroupService {
             
             SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId(), newChar.getId());
             SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(newSubGroup, newChar, 1);
-            subGroupChar.setKey(key);
+            subGroupChar.setId(key);
             subGroupChars.add(subGroupChar); 
         }
 

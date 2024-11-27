@@ -107,7 +107,7 @@ public class GroupService {
             
             SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId(), newChar.getId());
             SubGroupCharacteristic subGroupDetail = new SubGroupCharacteristic(newSubGroup, newChar, 1);
-            subGroupDetail.setKey(key);
+            subGroupDetail.setId(key);
             subGroupDetails.add(subGroupDetail); 
         }
 

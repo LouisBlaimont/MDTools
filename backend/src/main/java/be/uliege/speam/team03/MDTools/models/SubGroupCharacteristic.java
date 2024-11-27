@@ -2,7 +2,11 @@ package be.uliege.speam.team03.MDTools.models;
 
 import be.uliege.speam.team03.MDTools.compositeKeys.SubGroupCharacteristicKey;
 import jakarta.persistence.*;
+import lombok.*;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "sub_group_characteristic")
 public class SubGroupCharacteristic {
@@ -11,50 +15,21 @@ public class SubGroupCharacteristic {
     SubGroupCharacteristicKey id;
 
     @ManyToOne
-    @MapsId("subgroupId")
+    @MapsId("subGroupId")
     @JoinColumn(name = "sub_group_id")
-    SubGroup subgroup;
+    SubGroup subGroup;
 
     @ManyToOne
     @MapsId("charId")
     @JoinColumn(name = "characteristic_id")
     Characteristic characteristic;
 
-    private Integer order_position;
-
-    public SubGroupCharacteristic(){}
+    @Column(name="order_position")
+    private Integer orderPosition;
 
     public SubGroupCharacteristic(SubGroup subgroup, Characteristic characteristic, Integer orderPos){
-        this.order_position = orderPos;
-        this.subgroup = subgroup;
+        this.orderPosition = orderPos;
+        this.subGroup = subgroup;
         this.characteristic = characteristic;
     }
-
-    public SubGroupCharacteristicKey getKey(){
-        return this.id;
-    }
-    public SubGroup getSubGroup(){
-        return this.subgroup;
-    }
-    public Characteristic getCharacteristic(){
-        return this.characteristic;
-    }
-    public Integer getOrderPos(){
-        return this.order_position;
-    }
-
-    public void setKey(SubGroupCharacteristicKey key){
-        this.id = key;
-    }
-    public void setSubGroup(SubGroup subgroup){
-        this.subgroup = subgroup;
-    }
-    public void setChar(Characteristic characteristic){
-        this.characteristic = characteristic;
-    }
-    public void setOrder(Integer order){
-        this.order_position = order;
-    }
-
-    
 }

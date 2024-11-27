@@ -23,7 +23,7 @@ public class SubGroup {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    @OneToMany(mappedBy = "subgroup")
+    @OneToMany(mappedBy = "subGroup")
     private List<SubGroupCharacteristic> subGroupCharacteristics;
 
     @Transient
