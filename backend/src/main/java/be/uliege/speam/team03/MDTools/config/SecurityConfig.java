@@ -21,7 +21,8 @@ import be.uliege.speam.team03.MDTools.utils.JwtTokenUtils;
 import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig {
    private JwtTokenUtils jwtUtil;
 
@@ -35,9 +36,11 @@ public class SecurityConfig {
       http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                  .requestMatchers("/api/auth/**").permitAll()
-                  .anyRequest().authenticated())
-            .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                  // .requestMatchers("/api/auth/**").permitAll()
+                  // .anyRequest().authenticated())
+                  .anyRequest().permitAll())
+            .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
       return http.build();
    }

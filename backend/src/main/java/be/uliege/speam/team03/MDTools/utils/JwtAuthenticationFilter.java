@@ -11,9 +11,11 @@ import java.io.IOException;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @AllArgsConstructor
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtTokenUtils jwtUtil;
 
