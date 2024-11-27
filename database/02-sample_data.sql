@@ -26,8 +26,8 @@ INSERT INTO sub_group (sub_group_name, group_id) VALUES
 
 -- Insert into users table
 INSERT INTO users (username, email, password_fingerprint, role_name, job_position, workplace) VALUES 
-('john_doe', 'john@example.com', 'hashed_password_123', 'user', 'Surgeon', 'City Hospital'),
-('jane_admin', 'jane@example.com', 'hashed_password_456', 'admin', 'IT Manager', 'Head Office');
+('john_doe', 'john@example.com', '$2y$10$umwMQdPProLsXUBJWLSLaeGMt3WjM4Sp6C6Unxh38YZOsEnSzzWOm', 'ROLE_USER', 'Surgeon', 'City Hospital'),
+('jane_admin', 'jane@example.com', 'hashed_password_456', 'ROLE_ADMIN', 'IT Manager', 'Head Office');
 
 -- Insert into logs table
 INSERT INTO logs (user_id, action) VALUES 
