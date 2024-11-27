@@ -22,6 +22,7 @@
     let presentColumns = [];
     let jsonData = null;
     let isLoading = false;
+    let loadingProgress = 0;
     const groups = ["Pinces", "Ciseaux"];
     let subGroups = { "Classique": ["Sous-groupe 1", "Sous-groupe 2"], "Pinces": ["Sous-groupe A", "Sous-groupe B"], "Ciseaux": ["Sous-groupe X", "Sous-groupe Y"]};
     const requiredColumns = ["Nom", "Description", "Quantité", "Prix"];
@@ -130,20 +131,35 @@
     };
   
     // Handles the "Next" button click to move to the next view in the modal.
-    const handleNext = () => {
+    const handleNext = async () => {
       if (currentView === "main" && isNextEnabled) {
         currentView = "sous-groupe";
         isNextEnabled = false;
         selectedSubGroup = "";
       } else if (currentView === "sous-groupe" && isNextEnabled) {
         isLoading = true;
-        setTimeout(() => {
-          currentView = "verification";
-          verifyColumns();
-          extractExcelDataToJson();
-          isLoading = false;
-        }, 500); // Simulating a delay for loading
+        loadingProgress = 0;
+
+        await simulateLoadingProgress();
+
+        isLoading = false;
+        currentView = "verification";
+        verifyColumns();
+        extractExcelDataToJson();
       }
+    };
+
+    const simulateLoadingProgress = () => {
+      return new Promise((resolve) => {
+        const loadingInterval = setInterval(() => {
+          if (loadingProgress >= 100) {
+            clearInterval(loadingInterval);
+            resolve();
+          } else {
+            loadingProgress += 10; // Simulating progress increment
+          }
+        }, 100);
+      });
     };
   
     // Handles changing the selected group.
@@ -168,17 +184,21 @@
 
     // Extracts the data from the Excel file and converts it to JSON format.
     const extractExcelDataToJson = () => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        console.log("Données JSON extraites:", jsonData);
-      };
-      reader.readAsArrayBuffer(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            console.log("Données JSON extraites:", jsonData);
+            isLoading = false;
+            currentView = "verification";
+            verifyColumns();
+        };
+        reader.readAsArrayBuffer(file);
     };
+
 
     // Handles opening the JSON modal to view the extracted data.
     const handleViewJson = () => {
@@ -195,6 +215,13 @@
       console.log("Importation terminée avec les colonnes correctes");
       showModal = false;
     };
+
+    const handleCloseModal = () => {
+      showModal = false;
+      isLoading = false;
+      loadingProgress = 0;
+    };
+
   
     // Adds event listeners for mouse events when the component is mounted.
     onMount(() => {
@@ -245,13 +272,14 @@
       <div class="fixed inset-0 flex items-center justify-center overflow-auto" style="background: rgba(0, 0, 0, 0.1);">
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="bg-white w-3/4 p-10 rounded-lg shadow-xl relative" style="left: {modalPosition.x}px; top: {modalPosition.y}px; position: absolute; min-height: 500px;" on:mousedown={handleMouseDown}>
-          <button class="absolute top-2 right-2 text-gray-600" on:click={() => showModal = false}>
+          <button class="absolute top-2 right-2 text-gray-600" on:click={handleCloseModal}>
             ✖
-          </button>
+          </button>              
           {#if isLoading}
-            <!-- Loading Spinner -->
-            <div class="flex items-center justify-center h-full">
-              <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+            <div class="flex flex-col items-center justify-center h-full">
+              <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32 mb-4"></div>
+              <progress value={loadingProgress} max="100" class="w-full"></progress>
+              <p class="mt-2">Chargement: {loadingProgress}%</p>
             </div>
           {:else}
             {#if currentView === "main"}
