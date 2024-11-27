@@ -31,7 +31,7 @@ public class JwtTokenUtils {
       
 
       return Jwts.builder()
-            .subject(userDetails.getUsername())
+            .subject(userDetails.getUsername()).claim("roles", userDetails.getAuthorities())
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
             .signWith(key)
