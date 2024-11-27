@@ -91,7 +91,7 @@ public class SubGroupService {
 
         newSubGroup.setInstrCount(0);
         newSubGroup.setCategories(null);
-        newSubGroup.setCharacteristics(subGroupChars);
+        newSubGroup.setSubGroupCharacteristics(subGroupChars);
 
         List<SubGroup> subGroups = group.getSubGroups();
         subGroups.add(newSubGroup);

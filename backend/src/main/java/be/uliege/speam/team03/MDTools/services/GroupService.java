@@ -118,7 +118,7 @@ public class GroupService {
 
         newSubGroup.setInstrCount(0);
         newSubGroup.setCategories(null);
-        newSubGroup.setCharacteristics(subGroupDetails);
+        newSubGroup.setSubGroupCharacteristics(subGroupDetails);
 
         SubGroupDTO newSubGroupDTO = new SubGroupDTO(
                     newSubGroup.getName(), 

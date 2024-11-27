@@ -3,7 +3,12 @@ package be.uliege.speam.team03.MDTools.models;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.*;
 
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
 @Entity
 @Table(name="\"group\"")
 
@@ -30,34 +35,10 @@ public class Group {
         this.instrCount = 3;
     }
 
-    public Group(){}
-
     public Group(String groupName){
         this.name = groupName;
     }
 
-    public Integer getId(){
-        return this.id;
-    }
-    public String getName(){
-        return this.name;
-    } 
-    public void setName(String name){
-        this.name = name;
-    }  
-    public List<SubGroup> getSubGroups(){
-        return this.subGroups;
-    }
-    public void setSubGroups(List<SubGroup> subGroups){
-        this.subGroups = subGroups;
-    }
-
-    public int getInstrCount(){
-        return instrCount;
-    }
-    public void setInstrCount(int count){
-        instrCount = count;
-    }
     public void incrInstrCount(){
         instrCount+=1;
     }
