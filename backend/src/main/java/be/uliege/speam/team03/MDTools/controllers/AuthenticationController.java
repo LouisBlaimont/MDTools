@@ -20,7 +20,7 @@ import be.uliege.speam.team03.MDTools.exception.UnauthorizedException;
 import be.uliege.speam.team03.MDTools.services.AuthenticationService;
 import be.uliege.speam.team03.MDTools.services.EmailService;
 import be.uliege.speam.team03.MDTools.services.UserDetailsServiceImpl;
-import be.uliege.speam.team03.MDTools.utils.JwtTokenProvider;
+import be.uliege.speam.team03.MDTools.utils.JwtTokenUtils;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -31,7 +31,7 @@ public class AuthenticationController {
    private final EmailService emailService;
 
    private final AuthenticationManager authenticationManager;
-   private final JwtTokenProvider jwtTokenProvider; // Replace with your JWT implementation
+   private final JwtTokenUtils jwtTokenProvider; // Replace with your JWT implementation
    private final UserDetailsServiceImpl userDetailsService;
 
    @PostMapping("/forgot-password")
