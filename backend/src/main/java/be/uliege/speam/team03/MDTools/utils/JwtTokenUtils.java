@@ -16,13 +16,15 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenUtils {
-   @Value("${security.jwt.secret}")
-   private String jwtSecret;
+      
+   private final long jwtExpirationMs;
 
-   @Value("${security.jwt.expiration}")
-   private long jwtExpirationMs;
+   private final SecretKey key;
 
-   private final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+   public JwtTokenUtils(@Value("${security.jwt.secret}") final String jwtSecret,@Value("${security.jwt.expiration}") long jwtExpirationMs) {
+      this.jwtExpirationMs = jwtExpirationMs;
+      this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+   }
 
    public String generateToken(Authentication authentication) {
       UserDetails userDetails = (UserDetails) authentication.getPrincipal();

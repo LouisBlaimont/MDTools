@@ -1,5 +1,6 @@
 package be.uliege.speam.team03.MDTools.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,12 +13,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import be.uliege.speam.team03.MDTools.services.UserDetailsServiceImpl;
+import be.uliege.speam.team03.MDTools.utils.JwtAuthenticationFilter;
+import be.uliege.speam.team03.MDTools.utils.JwtTokenUtils;
+import lombok.AllArgsConstructor;
 
 @Configuration
-@EnableWebSecurity(debug=true)
+@EnableWebSecurity(debug = true)
 public class SecurityConfig {
+   private JwtTokenUtils jwtUtil;
 
    @Bean
    public PasswordEncoder passwordEncoder() {
@@ -29,8 +35,9 @@ public class SecurityConfig {
       http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                  .requestMatchers("/api/auth/login").permitAll()
-                  .anyRequest().authenticated());
+                  .requestMatchers("/api/auth/**").permitAll()
+                  .anyRequest().authenticated())
+            .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
       return http.build();
    }
