@@ -118,7 +118,8 @@ frontend:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   services:
-    - docker:20.10.16-dind
+    - name: docker:20.10.16-dind
+      command: ["--registry-mirror=https://mirror.gcr.io"]
   before_script:
     - sleep 10 && docker info
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
@@ -149,7 +150,8 @@ backend:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   services:
-    - docker:20.10.16-dind
+    - name: docker:20.10.16-dind
+      command: ["--registry-mirror=https://mirror.gcr.io"]
   before_script:
     - sleep 10 && docker info
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
