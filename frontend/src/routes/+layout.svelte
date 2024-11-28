@@ -40,6 +40,8 @@
       </a>
     <a href="/webmaster" class="text-white hover:text-teal-200 transition duration-300">
       Webmaster</a>
+    <a href="/import?" class="text-white hover:text-teal-200 transition duration-300">
+      Import</a>
   </nav>
   <a class="mr-6" href="/">
 		<button class="text-black bg-gray-300 rounded hover:bg-gray-700" type="submit">Log out</button>
