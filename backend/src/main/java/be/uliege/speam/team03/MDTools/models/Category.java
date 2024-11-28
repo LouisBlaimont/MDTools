@@ -31,4 +31,7 @@ public class Category {
         this.subGroup = subGroup;
         this.shape = shape;
     }
+    public Category(SubGroup subGroup){
+        this.subGroup = subGroup;
+    }
 }

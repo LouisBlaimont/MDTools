@@ -3,6 +3,7 @@ package be.uliege.speam.team03.MDTools.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,16 @@ import be.uliege.speam.team03.MDTools.models.SubGroup;
 
 @Repository
 public interface CategoryRepository extends CrudRepository<Category, Integer> {
+    @Query("SELECT cc.val FROM CategoryCharacteristic cc " +
+           "JOIN cc.characteristic c " +
+           "WHERE cc.category.id = :categoryId AND c.name = :characteristicName")
+    Optional<String> findCharacteristicVal(Integer categoryId, String characteristicName);
+
+    @Query("SELECT cc.valAbrev FROM CategoryCharacteristic cc " +
+           "JOIN cc.characteristic c " +
+           "WHERE cc.category.id = :categoryId AND c.name = :characteristicName")
+    Optional<String> findCharacteristicValAbrv(Integer categoryId, String characteristicName);
+    
     Optional<List<Category>> findBySubGroup(SubGroup subGroup);
-    List<Category> findBySubGroupIn(List<SubGroup> subGroups);
+    Optional<List<Category>> findBySubGroupIn(List<SubGroup> subGroups);
 }
