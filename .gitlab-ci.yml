@@ -21,6 +21,9 @@ variables:
   # GITLAB_REGISTRY_USER and GITLAB_REGISTRY_TOKEN are defined in the secret store
   PUSH_USER: $GITLAB_REGISTRY_USER
   PUSH_TOKEN: $GITLAB_REGISTRY_TOKEN
+
+  # Add google mirror registery
+  DOCKER_OPTS: "--registry-mirror=https://mirror.gcr.io"
    
 stages: # List of stages for grouping and sequencing jobs, and their order of execution
   - prepare
