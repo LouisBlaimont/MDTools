@@ -25,13 +25,8 @@ spec:
       labels:
         io.kompose.service: postgres
     spec:
-      initContainers:
-      - name: set-permissions
-        image: busybox
-        command: ["sh", "-c", "chown -R 1000:1000 /mnt/data"]
-        volumeMounts:
-        - name: postgres-data
-          mountPath: /mnt/data
+      securityContext:
+        fsGroup: 1000
       containers:
         - env:
             - name: POSTGRES_PASSWORD
@@ -44,7 +39,7 @@ spec:
             - containerPort: 5432
               protocol: TCP
           volumeMounts:
-            - mountPath: /home/postgres_user/
+            - mountPath: /var/lib/postgresql/data
               name: pgdata
       restartPolicy: Always
       imagePullSecrets:

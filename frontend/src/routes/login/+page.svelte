@@ -8,17 +8,17 @@
     </form>
   </div>
 
-  <form class="border-3 rounded-lg w-full md:w-2/3 lg:w-1/2 p-6 mx-auto bg-gray-100 shadow-lg">
+  <form class="border-3 rounded-lg w-full md:w-2/3 lg:w-1/2 p-6 mx-auto bg-white shadow-lg">
     <div class="text-center mb-4">
       <img alt="The project logo" src="MDlogo.jpg" class="w-1/2 md:w-1/3 lg:w-1/4 rounded-full mx-auto"/>
     </div>
 
-    <div class="space-y-3">
-      <label for="email" class="block font-bold text-lg">Email:</label>
+    <div class="space-y-4">
+      <label for="email" class="block font-bold">Email</label>
       <input type="email" placeholder="Entrez un email" name="email" required
              class="w-full p-3 border border-gray-300 rounded-lg">
 
-      <label for="mdp" class="block font-bold text-lg">Mot de passe:</label>
+      <label for="mdp" class="block font-bold">Mot de passe</label>
       <input type="password" placeholder="Entrez un mot de passe" name="mdp" required
              class="w-full p-3 border border-gray-300 rounded-lg">
 

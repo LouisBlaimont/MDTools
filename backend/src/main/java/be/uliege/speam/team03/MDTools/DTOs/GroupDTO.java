@@ -4,19 +4,19 @@ import java.util.List;
 
 public class GroupDTO {
     private String name;
-    private List<String> characteristics;
+    private List<SubGroupDTO> subGroups;
     private int nbInstr;
 
-    public GroupDTO(String name, List<String> characteristics, int nbInstr) {
+    public GroupDTO(String name, List<SubGroupDTO> subgroups, int nbInstr) {
         this.name = name;
         this.characteristics = characteristics;
         this.nbInstr = nbInstr;
+        this.subGroups = subgroups;
     }
 
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -34,5 +34,12 @@ public class GroupDTO {
     }
     public void setNbInstr(int instr){
         this.nbInstr = instr;
+    }
+
+    public List<SubGroupDTO> getSubGroups(){
+        return subGroups;
+    }
+    public void setSubGroups(List<SubGroupDTO> subgroups){
+        this.subGroups = subgroups;
     }
 }

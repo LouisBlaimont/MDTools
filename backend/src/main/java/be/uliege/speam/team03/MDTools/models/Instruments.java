@@ -1,6 +1,5 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +14,6 @@ public class Instruments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "instrument_id")
     private Integer instrument_id;
 
     @ManyToOne
@@ -40,9 +38,6 @@ public class Instruments {
         this.supplier_description = supplierDescription;
         this.price = price;
         this.obsolete = obsolete;
-    }
-    public Integer getInstrument_id() {
-        return this.instrument_id;
     }
 
     public Suppliers getSupplier() {

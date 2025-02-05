@@ -88,9 +88,7 @@
     }
 
 </script>
-<head><title>Recherches</title></head>
-
-<div class="text-[14px]">
+<div class="text-[13px]">
     <div class = "flex flex-col gap-[5px] box-border w-full">
 
         <!-- PARTIE DU DESSUS -->
@@ -265,13 +263,13 @@
                     <table class="w-full border-collapse">
                         <thead class="bg-teal-400">
                             <tr>
-                                <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
-                                <th class="text-center border border-solid border-[black] w-24">REF</th>
-                                <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
+                                <th class="text-center border border-solid border-[black]">AJOUT</th>
+                                <th class="text-center border border-solid border-[black]">REF</th>
+                                <th class="text-center border border-solid border-[black]">MARQUE</th>
                                 <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-                                <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-                                <th class="text-center border border-solid border-[black] w-16">ALT</th>
-                                <th class="text-center border border-solid border-[black] w-16">OBS</th>
+                                <th class="text-center border border-solid border-[black]">PRIX</th>
+                                <th class="text-center border border-solid border-[black]">ALT</th>
+                                <th class="text-center border border-solid border-[black]">OBS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -386,3 +384,5 @@
     </div>
         
 </div>
+
+

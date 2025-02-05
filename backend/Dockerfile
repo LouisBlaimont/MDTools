@@ -21,9 +21,6 @@ ENV GROUP_ID=3000
 # Set the working directory
 WORKDIR /app
 
-# Hardcode the IP address of plesk1.dyjix.eu in /etc/hosts
-RUN echo "185.171.202.140 plesk1.dyjix.eu" >> /etc/hosts  
-
 # Copy the built JAR file from the build stage
 COPY --from=build /app/target/*.jar app.jar
 

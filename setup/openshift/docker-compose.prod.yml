@@ -9,9 +9,9 @@ services:
       POSTGRES_USER: team03
       POSTGRES_PASSWORD: mdtools
     volumes:
-      - pgdata:/home/postgres_user/data
+      #- pgdata:/home/postgres_user/data
       # pgdata is a named volume, which is a persistent volume
-      #- pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped

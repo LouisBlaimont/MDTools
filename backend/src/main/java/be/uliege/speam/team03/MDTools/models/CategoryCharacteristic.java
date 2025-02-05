@@ -1,41 +1,40 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
+import jakarta.persistence.*;
+import lombok.*;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name="category_characteristic")
 public class CategoryCharacteristic {
-    @Id
-    private Integer category_id;
+    
+    @EmbeddedId
+    CategoryCharacteristicKey id;
 
-    @Id
-    private Integer characteristic_id;
+    @ManyToOne
+    @MapsId("categoryId")
+    @JoinColumn(name="category_id")
+    Category category;
 
-    private String value;
-    private String value_abreviation;
+    @ManyToOne
+    @MapsId("charId")
+    @JoinColumn(name="characteristic_id")
+    Characteristic characteristic;
 
-    public CategoryCharacteristic(){}
+    @Column(name="value")
+    private String val;
 
-    public CategoryCharacteristic(Integer categoryId, Integer charId, String val, String valAbrv){
-        this.category_id = categoryId;
-        this.characteristic_id = charId;
-        this.value = val;
-        this.value_abreviation = valAbrv;
-    }
+    @Column(name="value_abreviation")
+    private String valAbrev;
 
-    public Integer getCategoryId(){
-        return this.category_id;
-    }
-    public Integer getCharId(){
-        return this.characteristic_id;
-    }
-    public String getVal(){
-        return this.value;
-    }
-    public String getAbrv(){
-        return this.value_abreviation;
+    public CategoryCharacteristic(Category category, Characteristic characteristic, String val, String valAbrv){
+        this.category = category;
+        this.characteristic = characteristic;
+        this.val = val;
+        this.valAbrev = valAbrv;
     }
     
 }
