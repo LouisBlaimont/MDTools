@@ -1,7 +1,6 @@
 package be.uliege.speam.team03.MDTools.compositeKeys;
 
 import java.io.Serializable;
-
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -13,9 +12,9 @@ import lombok.*;
 @Getter
 @Setter
 @Embeddable
-public class SubGroupCharacteristicKey implements Serializable{
-    @Column(name="sub_group_id")
-    private Integer subGroupId;
+public class CategoryCharacteristicKey implements Serializable {
+    @Column(name="category_id")
+    private Integer categoryId;
 
     @Column(name="characteristic_id")
     private Integer charId;
@@ -23,14 +22,13 @@ public class SubGroupCharacteristicKey implements Serializable{
     @Override
     public boolean equals(Object o){
         if(this == o) return true;
-        if(o == null || this.getClass() != o.getClass() ) return false;
-        SubGroupCharacteristicKey that = (SubGroupCharacteristicKey) o;
-        return Objects.equals(subGroupId, that.subGroupId) &&
+        if(o == null || this.getClass() != o.getClass()) return false;
+        CategoryCharacteristicKey that = (CategoryCharacteristicKey) o;
+        return Objects.equals(categoryId, that.categoryId) &&
                Objects.equals(charId, that.charId);
-
     }
     @Override
     public int hashCode(){
-        return Objects.hash(subGroupId, charId);
-    } 
+        return Objects.hash(categoryId, charId);
+    }
 }
