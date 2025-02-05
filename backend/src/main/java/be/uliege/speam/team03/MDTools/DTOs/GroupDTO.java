@@ -5,6 +5,7 @@ import java.util.List;
 public class GroupDTO {
     private String name;
     private List<SubGroupDTO> subGroups;
+    private List<String> characteristics;
     private int nbInstr;
 
     public GroupDTO(String name, List<SubGroupDTO> subgroups, int nbInstr) {
