@@ -11,7 +11,17 @@ COPY ./src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Stage 2: Create a minimal image for running the application
+# Stage 2: Run tests
+FROM maven:3.8.5-openjdk-17 AS test
+WORKDIR /app
+
+# Copy project files
+COPY --from=build /app /app
+
+# Run tests
+CMD ["mvn", "test"]
+
+# Stage 3: Create a minimal image for running the application
 FROM openjdk:17-jdk-slim
 
 # Set the UID and GID

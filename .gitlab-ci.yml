@@ -31,6 +31,8 @@ stages: # List of stages for grouping and sequencing jobs, and their order of ex
 postgres_init:
   stage: prepare
   rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
@@ -57,9 +59,43 @@ postgres_init:
     - docker build --network host -t $REPO_TAG -f $POSTGRES_DIR/Dockerfile ./$POSTGRES_DIR
     - docker push $REPO_TAG
 
+# sonarqube:
+#   stage: test
+#   needs:
+#     - frontend_test
+#     - backend_test
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#       when: always
+#     - if: $CI_COMMIT_BRANCH != "main"
+#       when: never
+#     - changes:
+#         paths:
+#           - $SPRINGBOOT_DIR/**/*
+#           - $SVELTE_DIR/**/*
+#           - $CI_CONFIG_PATH
+#   tags:
+#     - openshift
+#     - docker
+#   image: sonarsource/sonar-scanner-cli:latest
+#   services:
+#     - name: sonarqube:community
+#       alias: sonarqube
+#   variables:
+#     SONAR_HOST_URL: "http://localhost:9000"
+#     SONAR_SCANNER_OPTS: "-Dsonar.qualitygate.wait=true"
+#     sonar.auth.anonymousAccess: true
+#   script:
+#     - echo "Waiting for SonarQube to start..."
+#     - until curl -s $SONAR_HOST_URL/api/system/status | grep -q "UP"; do sleep 5; done
+#     - echo "Started!"
+#     - sonar-scanner -Dsonar.projectKey=MDTools -Dsonar.host.url=$SONAR_HOST_URL $SONAR_SCANNER_OPTS
+
 frontend_test:
   stage: test
   rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
@@ -75,6 +111,29 @@ frontend_test:
     - npm install
     - npm run test:unit -- --run --coverage
   coverage: '/All\s+files\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+(\d+(?:\.\d+)?)\s+\|/'
+
+backend_test:
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: never
+    - changes:
+        paths: 
+          - $SPRINGBOOT_DIR/**/*
+          - $CI_CONFIG_PATH
+  tags:
+    - openshift 
+    - docker
+  image: maven:3.8.5-openjdk-17
+  variables:
+
+  script:
+    - cd backend
+    - mvn test -Dspring.profiles.active=test
+    #- cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
+  #coverage: '/Total.*?([0-9]{1,3})%/'
   
 frontend:
   stage: package

@@ -4,9 +4,8 @@ services:
       context: ./database
       dockerfile: Dockerfile
     container_name: "postgres"
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
     volumes:
       #- pgdata:/home/postgres_user/data
       # pgdata is a named volume, which is a persistent volume
@@ -15,7 +14,7 @@ services:
       - "5432:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_PASSWORD}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d team03"]
       interval: 30s
       timeout: 60s
       retries: 5
@@ -47,6 +46,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile-local
     container_name: "springboot"
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,13 +56,6 @@ services:
       - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
     ports:
       - "8080:8080"  # Expose the Spring Boot application port
-    environment:
-      SPRING_PROFILES_ACTIVE: "dev"  # Activate the development profile
-      spring.datasource.url: "jdbc:postgresql://postgres:5432/team03"
-      spring.datasource.username: ${DB_USER}
-      spring.datasource.password: ${DB_PASSWORD}
-      spring.datasource.driver.class.name: "org.postgresql.Driver"
-
 volumes:
   pgdata:
     driver: local
