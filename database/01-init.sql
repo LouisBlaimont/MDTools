@@ -70,18 +70,18 @@ CREATE TABLE instruments (
     instrument_id SERIAL PRIMARY KEY,
     supplier_id INTEGER REFERENCES supplier(supplier_id),
     category_id INTEGER REFERENCES category(category_id),
-    reference VARCHAR(255) NOT NULL,
+    reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
     obsolete BOOLEAN DEFAULT FALSE
 );
 
 -- Table group_characteristic
-CREATE TABLE group_characteristic (
-    group_id INTEGER REFERENCES "group"(group_id),
+CREATE TABLE sub_group_characteristic (
+    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
     characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
     order_position INTEGER,
-    PRIMARY KEY (group_id, characteristic_id)
+    PRIMARY KEY (sub_group_id, characteristic_id)
 );
 
 -- Table alternatives
@@ -107,17 +107,32 @@ CREATE TABLE order_items (
 );
 -- Create table for instrument images
 CREATE TABLE instrument_pictures (
-  photo_id SERIAL PRIMARY KEY,
+  instrument_pictures_id SERIAL PRIMARY KEY,
   instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
   picture_path VARCHAR(255) NOT NULL
 );
 
 -- Create table for sub-group images
 CREATE TABLE category_pictures (
-  photo_id SERIAL PRIMARY KEY,
+  category_pictures_id SERIAL PRIMARY KEY,
   category_id INTEGER NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
   picture_path VARCHAR(255) NOT NULL
 );
+
+-- Create table for sub-group images
+CREATE TABLE group_pictures (
+  group_pictures_id SERIAL PRIMARY KEY,
+  group_id INTEGER NOT NULL REFERENCES "group"(group_id) ON DELETE CASCADE,
+  picture_path VARCHAR(255) NOT NULL
+);
+
+-- Create table for sub-group images
+CREATE TABLE sub_group_pictures (
+  sub_group_pictures_id SERIAL PRIMARY KEY,
+  sub_group_id INTEGER NOT NULL REFERENCES sub_group(sub_group_id) ON DELETE CASCADE,
+  picture_path VARCHAR(255) NOT NULL
+);
+
 
 -- FUNCTION: public.check_alternative_constraints()
 
@@ -166,7 +181,7 @@ DECLARE
     characteristic_record RECORD;
     shape_text TEXT := '';
 BEGIN
-    -- Construire la chaîne shape en fonction des caractéristiques présentes et de leur ordre
+    -- Build the shape string based on the present characteristics and their order
     FOR characteristic_record IN
         SELECT sgc.value_abreviation
         FROM category_characteristic sgc
@@ -178,17 +193,17 @@ BEGIN
                                                              WHERE category_id = NEW.category_id))
             AND sgc_rel.characteristic_id = sgc.characteristic_id
         WHERE sgc.category_id = NEW.category_id
-          AND gc.order_position IS NOT NULL
-        ORDER BY gc.order_position
+          AND sgc_rel.order_position IS NOT NULL
+        ORDER BY sgc_rel.order_position
     LOOP
-        -- Concaténer chaque value_abreviation avec un '/' comme séparateur
+        -- Concatenate each value_abreviation with a '/' as a separator
         shape_text := shape_text || characteristic_record.value_abreviation || '/';
     END LOOP;
 
-    -- Supprimer le dernier séparateur '/' à la fin de la chaîne
+    -- Remove the last '/' separator at the end of the string
     shape_text := RTRIM(shape_text, '/');
 
-    -- Mettre à jour le champ shape dans category
+    -- Update the shape field in the category table
     UPDATE category
     SET shape = shape_text
     WHERE category_id = NEW.category_id;
@@ -197,6 +212,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Update the trigger to reflect the modified function
 CREATE TRIGGER trigger_update_shape
 AFTER INSERT OR UPDATE ON category_characteristic
 FOR EACH ROW

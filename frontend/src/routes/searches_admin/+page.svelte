@@ -89,9 +89,7 @@
     }
 
 </script>
-<head><title>Recherches</title></head>
-
-<div class="text-[14px]">
+<div class="text-[13px]">
     <div class = "flex flex-col gap-[5px] box-border w-full">
 
         <!-- PARTIE DU DESSUS -->

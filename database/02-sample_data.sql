@@ -98,14 +98,14 @@ INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_pos
 (1, 6, NULL), -- Function
 (1, 7, NULL), -- Name
 
--- Scissors group
+-- Metal Scalpels group
 (2, 1, NULL), -- Length
 (2, 2, 2), -- Material
 (2, 3, 3), -- Sharpness
 (2, 6, NULL), -- Function
 (2, 7, NULL), -- Name
 
--- Forceps group
+-- straight Scissors group
 (3, 1, NULL), -- Length
 (3, 4, 2), -- Flexibility
 (3, 6, NULL), -- Function
@@ -290,6 +290,3 @@ INSERT INTO order_items (order_id, instrument_id, quantity) VALUES
 (1, 1, 5), 
 (2, 2, 3), 
 (2, 3, 2);
-
-Insert INTO instrument_pictures (instrument_id, picture_path) VALUES
-  (19, 'pictures/instrument_pictures/STS-1001.png');

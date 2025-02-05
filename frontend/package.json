@@ -20,7 +20,6 @@
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@types/eslint": "^9.6.0",
 		"@vitest/coverage-v8": "^2.1.4",
-		"@zerodevx/svelte-toast": "^0.9.6",
 		"autoprefixer": "^10.4.20",
 		"eslint": "^9.7.0",
 		"eslint-plugin-svelte": "^2.36.0",
@@ -35,7 +34,6 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
-		"@sveltejs/adapter-node": "^5.2.9",
-		"xlsx": "^0.18.5"
+		"@sveltejs/adapter-node": "^5.2.9"
 	}
 }

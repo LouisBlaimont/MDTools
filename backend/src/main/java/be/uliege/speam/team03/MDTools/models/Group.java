@@ -21,9 +21,6 @@ public class Group {
     @Column(name="group_name")
     private String name;
 
-    @OneToMany(mappedBy = "group")
-    private List<GroupCharacteristic> groupCharacteristics;
-
     @Transient
     private Integer instrCount;
 

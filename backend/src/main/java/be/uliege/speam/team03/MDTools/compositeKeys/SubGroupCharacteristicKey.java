@@ -1,7 +1,6 @@
 package be.uliege.speam.team03.MDTools.compositeKeys;
 
 import java.io.Serializable;
-
 import java.util.Objects;
 
 import jakarta.persistence.Column;

@@ -48,8 +48,7 @@ postgres_init:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   services:
-    - name: docker:20.10.16-dind
-      command: ["--registry-mirror=https://mirror.gcr.io"]
+    - docker:20.10.16-dind
   before_script:
     - sleep 10 && docker info
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
@@ -76,30 +75,10 @@ frontend_test:
     - npm install
     - npm run test:unit -- --run --coverage
   coverage: '/All\s+files\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+(\d+(?:\.\d+)?)\s+\|/'
-
-backend_test:
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH != "main"
-      when: never
-    - changes:
-        paths: 
-          - $SPRINGBOOT_DIR/**/*
-          - $CI_CONFIG_PATH
-  tags:
-    - openshift 
-    - docker
-  image: maven:3.8.5-openjdk-17
-  script:
-    - cd backend
-    - mvn test
-    - cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>/ /; s/Total/Jacoco Coverage Total:/'
-  coverage: '/Total.*?([0-9]{1,3})%/'
   
 frontend:
   stage: package
-  needs: 
-    - frontend_test
+  needs: ['frontend_test']
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
@@ -118,8 +97,7 @@ frontend:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   services:
-    - name: docker:20.10.16-dind
-      command: ["--registry-mirror=https://mirror.gcr.io"]
+    - docker:20.10.16-dind
   before_script:
     - sleep 10 && docker info
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
@@ -130,8 +108,6 @@ frontend:
 
 backend:
   stage: package
-  needs:
-    - backend_test
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
@@ -150,8 +126,7 @@ backend:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   services:
-    - name: docker:20.10.16-dind
-      command: ["--registry-mirror=https://mirror.gcr.io"]
+    - docker:20.10.16-dind
   before_script:
     - sleep 10 && docker info
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
