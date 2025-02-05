@@ -51,7 +51,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./backend:/app/src  # Mount the backend directory for live reload
+      - ./backend:/app/backend  # Mount the backend directory for live reload
       - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
     ports:
       - "8080:8080"  # Expose the Spring Boot application port

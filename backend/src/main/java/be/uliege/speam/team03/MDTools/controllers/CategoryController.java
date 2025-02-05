@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 
-
-
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
@@ -24,23 +22,17 @@ public class CategoryController {
         this.categoryService = service;
     }
 
-    @GetMapping("/group/{groupName}")
+    @GetMapping("/{groupName}")
     public ResponseEntity<?> getCategoryFromGroup(@PathVariable String groupName) {
-        List<CategoryDTO> categories = categoryService.findCategoriesOfGroup(groupName);
+        // Fetch categories from the service
+        List<CategoryDTO> categories = categoryService.findAllCategory(groupName);
 
+        // Handle cases where no categories are found
         if (categories == null || categories.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found for the group name: " + groupName);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(categories);
-    }
 
-    @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<?> getCategoriesFromSubGroup(@PathVariable String subGroupName){
-        List<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName);
-        if (categories == null || categories.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found for the subgroup name :" + subGroupName);
-        }
+        // Return the list of categories
         return ResponseEntity.status(HttpStatus.OK).body(categories);
     }
-    
 }

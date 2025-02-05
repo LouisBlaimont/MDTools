@@ -1,16 +1,18 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
-import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
 public class CategoryDTO {
-    private String groupName;
-    private String subGroupName;
-    private String name;
-    private String function;
     private String shape;
-    private String lenAbrv;
+
+    public CategoryDTO(String shape) {
+        this.shape = shape;
+    }
+
+    public String getShape() {
+        return shape;
+    }
+
+    public void setName(String shape) {
+        this.shape = shape;
+    }
 }

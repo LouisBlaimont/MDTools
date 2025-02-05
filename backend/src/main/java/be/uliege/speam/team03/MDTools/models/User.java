@@ -39,7 +39,7 @@ public class User {
     private String email;
 
     @Nullable
-    @Column(name = "password_fingerprint")
+    @Column(name = "password")
     private String password;
 
     @CreationTimestamp

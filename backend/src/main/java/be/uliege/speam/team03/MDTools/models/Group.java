@@ -3,12 +3,7 @@ package be.uliege.speam.team03.MDTools.models;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.*;
 
-@NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
 @Entity
 @Table(name="\"group\"")
 
@@ -27,18 +22,35 @@ public class Group {
     @Transient
     private Integer instrCount;
 
-    @OneToMany(mappedBy = "group")
-    private List<SubGroup> subGroups;
-
     @PostLoad //happens each time data is fetched, replaced, .. in the DB so I must add cond so that it doesn't change the number when patch and get (post value is manually given)
     private void calculateInstrumentCount() {
         this.instrCount = 3;
     }
 
+    public Group(){}
+
     public Group(String groupName){
         this.name = groupName;
     }
 
+    public Integer getId(){
+        return this.id;
+    }
+    public String getName(){
+        return this.name;
+    } 
+    public void setName(String name){
+        this.name = name;
+    }  
+    public List<GroupCharacteristic> getGroupCharacteristics(){
+        return groupCharacteristics;
+    }
+    public int getInstrCount(){
+        return instrCount;
+    }
+    public void setInstrCount(int count){
+        instrCount = count;
+    }
     public void incrInstrCount(){
         instrCount+=1;
     }

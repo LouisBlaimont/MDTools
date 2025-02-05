@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS sub_group;
 
 -- Table group
 CREATE TABLE "group" (
@@ -5,8 +6,8 @@ CREATE TABLE "group" (
     group_name VARCHAR(100) UNIQUE NOT NULL
 );
 
---Table sub_group
-CREATE TABLE sub_group (
+--Table sub_groups
+CREATE TABLE sub_groups (
     sub_group_id SERIAL PRIMARY KEY,
     sub_group_name VARCHAR(100) NOT NULL,
     group_id INTEGER REFERENCES "group"(group_id) ON DELETE CASCADE
@@ -17,7 +18,7 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_fingerprint VARCHAR(100),
+    password VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     role_name VARCHAR(50) NOT NULL, -- Note: 'admin or user'
@@ -46,7 +47,7 @@ CREATE TABLE supplier (
 -- Table category
 CREATE TABLE category (
     category_id SERIAL PRIMARY KEY,
-    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
+    sub_group_id INTEGER REFERENCES sub_groups(sub_group_id),
     shape VARCHAR(255)
 );
 
@@ -137,10 +138,10 @@ BEGIN
     END IF;
 
     -- Ensure instruments are from the same group by checking through category and group
-    IF (SELECT group_id FROM sub_group
+    IF (SELECT group_id FROM sub_groups
     WHERE sub_group_id = (SELECT sub_group_id FROM category 
                           WHERE category_id = (SELECT category_id FROM instruments WHERE instrument_id = NEW.instruments_id_1))) <> 
-   (SELECT group_id FROM sub_group
+   (SELECT group_id FROM sub_groups
     WHERE sub_group_id = (SELECT sub_group_id FROM category 
                           WHERE category_id = (SELECT category_id FROM instruments WHERE instrument_id = NEW.instruments_id_2))) THEN
     RAISE EXCEPTION 'Instruments must be from the same group';
@@ -170,13 +171,13 @@ BEGIN
     FOR characteristic_record IN
         SELECT sgc.value_abreviation
         FROM category_characteristic sgc
-        JOIN sub_group_characteristic sgc_rel
-            ON sgc_rel.sub_group_id = (SELECT sub_group_id
-                                       FROM sub_group
-                                       WHERE sub_group_id = (SELECT sub_group_id
-                                                             FROM category
-                                                             WHERE category_id = NEW.category_id))
-            AND sgc_rel.characteristic_id = sgc.characteristic_id
+        JOIN group_characteristic gc 
+            ON gc.group_id = (SELECT group_id 
+                              FROM sub_groups
+                              WHERE sub_group_id = (SELECT sub_group_id 
+                                                    FROM category 
+                                                    WHERE category_id = NEW.category_id))
+            AND gc.characteristic_id = sgc.characteristic_id
         WHERE sgc.category_id = NEW.category_id
           AND gc.order_position IS NOT NULL
         ORDER BY gc.order_position

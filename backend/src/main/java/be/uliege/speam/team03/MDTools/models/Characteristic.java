@@ -3,11 +3,7 @@ package be.uliege.speam.team03.MDTools.models;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.*;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "characteristic")
 public class Characteristic {
@@ -20,9 +16,18 @@ public class Characteristic {
     private String name;
 
     @OneToMany(mappedBy = "characteristic")
-    private List<SubGroupCharacteristic> subGroupCharacteristics; 
+    private List<GroupCharacteristic> groupCharacteristics; 
+
+    public Characteristic(){}
 
     public Characteristic(String name){
         this.name = name;
+    }
+
+    public Integer getId(){
+        return this.id;
+    }
+    public String getName(){
+        return this.name;
     }
 }

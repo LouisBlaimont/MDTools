@@ -16,7 +16,7 @@ INSERT INTO "group" (group_name) VALUES
 ('Forceps');
 
 /* Insert into sub_group table */
-INSERT INTO sub_group (sub_group_name, group_id) VALUES
+INSERT INTO sub_groups (sub_group_name, group_id) VALUES
 ('Plastic Scalpels', 1),
 ('Metal Scalpels', 1),
 ('Curved Scissors', 2),
@@ -25,9 +25,9 @@ INSERT INTO sub_group (sub_group_name, group_id) VALUES
 ('Non-Locking Forceps', 3);
 
 -- Insert into users table
-INSERT INTO users (username, email, password_fingerprint, role_name, job_position, workplace) VALUES 
-('john_doe', 'john@example.com', '$2y$10$umwMQdPProLsXUBJWLSLaeGMt3WjM4Sp6C6Unxh38YZOsEnSzzWOm', 'ROLE_USER', 'Surgeon', 'City Hospital'),
-('jane_admin', 'jane@example.com', 'hashed_password_456', 'ROLE_ADMIN', 'IT Manager', 'Head Office');
+INSERT INTO users (username, email, password, role_name, job_position, workplace) VALUES 
+('john_doe', 'john@example.com', 'hashed_password_123', 'user', 'Surgeon', 'City Hospital'),
+('jane_admin', 'jane@example.com', 'hashed_password_456', 'admin', 'IT Manager', 'Head Office');
 
 -- Insert into logs table
 INSERT INTO logs (user_id, action) VALUES 
@@ -85,139 +85,76 @@ INSERT INTO characteristic (characteristic_name) VALUES
 ('Material'), 
 ('Sharpness'), 
 ('Flexibility'), 
-('Grip Type'),
-('Function'), 
-('Name');
+('Grip Type');
 
--- Link characteristics to sub_group
-INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_position) VALUES
--- Plastic Scalpels group
+-- Link characteristics to groups
+INSERT INTO group_characteristic (group_id, characteristic_id, order_position) VALUES
+-- Scalpels group
 (1, 1, NULL), -- Length
 (1, 2, 2), -- Material
 (1, 3, 3), -- Sharpness
-(1, 6, NULL), -- Function
-(1, 7, NULL), -- Name
 
 -- Scissors group
 (2, 1, NULL), -- Length
-(2, 2, 2), -- Material
-(2, 3, 3), -- Sharpness
-(2, 6, NULL), -- Function
-(2, 7, NULL), -- Name
+(2, 4, 2), -- Flexibility
 
 -- Forceps group
 (3, 1, NULL), -- Length
-(3, 4, 2), -- Flexibility
-(3, 6, NULL), -- Function
-(3, 7, NULL), -- Name
-
--- Cureved Scissors group
-(4, 1, NULL), -- Length
-(4, 4, 2), -- Flexibility
-(4, 6, NULL), -- Function
-(4, 7, NULL), -- Name
-
--- locking Forceps group
-(5, 1, NULL), -- Length
-(5, 5, 2), -- Grip Type
-(5, 6, NULL), -- Function
-(5, 7, NULL), -- Name
-
--- non-locking Forceps group
-(6, 1, NULL), -- Length
-(6, 5, 2), -- Grip Type
-(6, 6, NULL), -- Function
-(6, 7, NULL); -- Name
+(3, 5, 2); -- Grip Type
 
 -- Add characteristic values for Plastic Scalpels (sub_group_id = 1)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
 (1, 1, '10cm', '10CM'), -- Length
 (1, 2, 'Plastic', 'PL'), -- Material
 (1, 3, 'Sharp', 'SH'), -- Sharpness
-(1, 6, 'Cutting', 'CT'), -- Function
-(1, 7, 'Kelly', 'kel'), -- Name
 (2, 1, '15cm', '15CM'), -- Length
 (2, 2, 'Plastic', 'PL'), -- Material
 (2, 3, 'Very Sharp', 'VSH'), -- Sharpness
-(2, 6, 'Cutting', 'CT'), -- Function
-(2, 7, 'Kelly', 'kel'), -- Name
 (3, 1, '20cm', '20CM'), -- Length
-(3, 2, 'Plastic', 'PL'), -- Material
-(3, 6, 'Cutting', 'CT'), -- Function
-(3, 7, 'Kelly', 'kel'); -- Name
+(3, 2, 'Plastic', 'PL'); -- Material
 
 -- Add characteristic values for Metal Scalpels (sub_group_id = 2)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
 (4, 1, '12cm', '12CM'), -- Length
 (4, 2, 'Steel', 'ST'), -- Material
 (4, 3, 'Sharp', 'SH'), -- Sharpness
-(4, 6, 'Cutting', 'CT'), -- Function
-(4, 7, 'Kelly', 'kel'), -- Name
 (5, 1, '18cm', '18CM'), -- Length
 (5, 2, 'Stainless Steel', 'SS'), -- Material
 (5, 3, 'Very Sharp', 'VSH'), -- Sharpness
-(5, 6, 'Cutting', 'CT'), -- Function
-(5, 7, 'Kelly', 'kel'), -- Name
 (6, 1, '22cm', '22CM'), -- Length
-(6, 2, 'Steel', 'ST'), -- Material
-(6, 6, 'Cutting', 'CT'), -- Function
-(6, 7, 'Kelly', 'kel'); -- Name
+(6, 2, 'Steel', 'ST'); -- Material
 
 -- Add characteristic values for Curved Scissors (sub_group_id = 3)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
 (7, 1, '14cm', '14CM'), -- Length
 (7, 4, 'Flexible', 'FLX'), -- Flexibility
-(7, 6, 'Cutting', 'CT'), -- Function
-(7, 7, 'Kelly', 'kel'), -- Name
 (8, 1, '16cm', '16CM'), -- Length
 (8, 4, 'Semi-Flexible', 'SFLX'), -- Flexibility
-(8, 6, 'Cutting', 'CT'), -- Function
-(8, 7, 'Kelly', 'kel'), -- Name
-(9, 1, '20cm', '20CM'), -- Length
-(9, 6, 'Cutting', 'CT'), -- Function
-(9, 7, 'Kelly', 'kel'); -- Name
+(9, 1, '20cm', '20CM'); -- Length
 
 -- Add characteristic values for Straight Scissors (sub_group_id = 4)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
 (10, 1, '12cm', '12CM'), -- Length
 (10, 4, 'Rigid', 'RGD'), -- Flexibility
-(10, 6, 'Cutting', 'CT'), -- Function
-(10, 7, 'Kelly', 'kel'), -- Name
 (11, 1, '18cm', '18CM'), -- Length
 (11, 4, 'Semi-Rigid', 'SRGD'), -- Flexibility
-(11, 6, 'Cutting', 'CT'), -- Function
-(11, 7, 'Kelly', 'kel'), -- Name
-(12, 1, '20cm', '20CM'), -- Length
-(12, 6, 'Cutting', 'CT'), -- Function
-(12, 7, 'Kelly', 'kel'); -- Name
+(12, 1, '20cm', '20CM'); -- Length
 
 -- Add characteristic values for Locking Forceps (sub_group_id = 5)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
 (13, 1, '10cm', '10CM'), -- Length
 (13, 5, 'Ergonomic', 'ERG'), -- Grip Type
-(13, 6, 'Cutting', 'CT'), -- Function
-(13, 7, 'Kelly', 'kel'), -- Name
 (14, 1, '15cm', '15CM'), -- Length
 (14, 5, 'Comfortable', 'COMF'), -- Grip Type
-(14, 6, 'Cutting', 'CT'), -- Function
-(14, 7, 'Kelly', 'kel'), -- Name
-(15, 1, '20cm', '20CM'), -- Length
-(15, 6, 'Cutting', 'CT'), -- Function
-(15, 7, 'Kelly', 'kel'); -- Name
+(15, 1, '20cm', '20CM'); -- Length
 
 -- Add characteristic values for Non-Locking Forceps (sub_group_id = 6)
 INSERT INTO category_characteristic (category_id, characteristic_id, value, value_abreviation) VALUES
 (16, 1, '11cm', '11CM'), -- Length
 (16, 5, 'Textured', 'TXT'), -- Grip Type
-(16, 6, 'Cutting', 'CT'), -- Function
-(16, 7, 'Kelly', 'kel'), -- Name
 (17, 1, '17cm', '17CM'), -- Length
 (17, 5, 'Smooth', 'SMTH'), -- Grip Type
-(17, 6, 'Cutting', 'CT'), -- Function
-(17, 7, 'Kelly', 'kel'), -- Name
-(18, 1, '21cm', '21CM'), -- Length
-(18, 6, 'Cutting', 'CT'), -- Function
-(18, 7, 'Kelly', 'kel'); -- Name
+(18, 1, '21cm', '21CM'); -- Length
 
 
 -- Insert into instruments table

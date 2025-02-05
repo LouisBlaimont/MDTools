@@ -1,40 +1,41 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-@NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name="category_characteristic")
 public class CategoryCharacteristic {
-    
-    @EmbeddedId
-    CategoryCharacteristicKey id;
+    @Id
+    private Integer category_id;
 
-    @ManyToOne
-    @MapsId("categoryId")
-    @JoinColumn(name="category_id")
-    Category category;
+    @Id
+    private Integer characteristic_id;
 
-    @ManyToOne
-    @MapsId("charId")
-    @JoinColumn(name="characteristic_id")
-    Characteristic characteristic;
+    private String value;
+    private String value_abreviation;
 
-    @Column(name="value")
-    private String val;
+    public CategoryCharacteristic(){}
 
-    @Column(name="value_abreviation")
-    private String valAbrev;
+    public CategoryCharacteristic(Integer categoryId, Integer charId, String val, String valAbrv){
+        this.category_id = categoryId;
+        this.characteristic_id = charId;
+        this.value = val;
+        this.value_abreviation = valAbrv;
+    }
 
-    public CategoryCharacteristic(Category category, Characteristic characteristic, String val, String valAbrv){
-        this.category = category;
-        this.characteristic = characteristic;
-        this.val = val;
-        this.valAbrev = valAbrv;
+    public Integer getCategoryId(){
+        return this.category_id;
+    }
+    public Integer getCharId(){
+        return this.characteristic_id;
+    }
+    public String getVal(){
+        return this.value;
+    }
+    public String getAbrv(){
+        return this.value_abreviation;
     }
     
 }
