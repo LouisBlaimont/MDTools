@@ -34,6 +34,7 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
-		"@sveltejs/adapter-node": "^5.2.9"
+		"@sveltejs/adapter-node": "^5.2.9",
+		"mdtools-frontend": "file:"
 	}
 }
