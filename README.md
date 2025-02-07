@@ -28,9 +28,11 @@ The project is organized as follows:
 ```zsh
 git clone git@gitlab.uliege.be:SPEAM/2024-2025/team3/mdtools.git
 cd MDTools
-
 ```
-2. **Build and Run Containers**: Use Docker Compose to build and start the containers.
+
+2. **Duplicate `example.dev` & rename it `.env`.** Modify the environment variables accordingly.
+
+3. **Build and Run Containers**: Use Docker Compose to build and start the containers.
 ```zsh
 docker compose build
 docker compose up -d
@@ -40,7 +42,7 @@ This command will:
 - Build the Spring Boot backend in /backend
 - Set up the PostgreSQL database with any necessary initialization in /database
 
-3. **Access the Application**:
+4. **Access the Application**:
 
 ```
 Frontend: http://localhost:3000
