@@ -1,5 +1,3 @@
-<!-- {id : 1, ref : "04.54.16", brand : "MEDICON", description : "KELLY SCRS STR 16CM",price :"66.65" , alt :"" , obs :"", src : "/supplier1.png"}, -->
-
 <script>
     import { suppliers } from '../../../suppliers.js';
     import { onMount } from 'svelte';

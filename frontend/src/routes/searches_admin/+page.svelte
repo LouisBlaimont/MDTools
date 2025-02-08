@@ -92,6 +92,10 @@
         goto(`/instrument_edit/${toolId}`);
     }
 
+    function openAddInstrumentPage() {
+        goto('/add_instrument');
+    }
+
 </script>
 <div class="text-[13px]">
     <div class = "flex flex-col gap-[5px] box-border w-full">
@@ -333,7 +337,7 @@
                         </tbody>
                     </table>
                     <div class="flex justify-center">
-                        <button class="w-7 h-7 bg-yellow-400 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                        <button class="w-7 h-7 bg-yellow-400 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer" on:click={()=>openAddInstrumentPage()}>
                             +
                         </button>
                     </div>
