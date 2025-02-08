@@ -88,6 +88,14 @@
         goto('/searches');
     }
 
+    function openEditPage(toolId) {
+        goto(`/instrument_edit/${toolId}`);
+    }
+
+    function openAddInstrumentPage() {
+        goto('/add_instrument');
+    }
+
 </script>
 <div class="text-[13px]">
     <div class = "flex flex-col gap-[5px] box-border w-full">
@@ -314,7 +322,7 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
-                                    <td class="transition-colors duration-300 bg-yellow-400 text-black hover:bg-black hover:text-yellow-500 text-center border border-solid border-[black]">
+                                    <td class="transition-colors duration-300 bg-yellow-400 text-black hover:bg-black hover:text-yellow-500 text-center border border-solid border-[black]" on:click={(event) => { event.stopPropagation(); openEditPage(row.id); }}>
                                         <ModifIcon></ModifIcon>
                                     </td>
                                     <td class="green text-center border border-solid border-[black]" on:click={()=>addToOrderPannel(row.ref)}>+</td>
@@ -329,7 +337,7 @@
                         </tbody>
                     </table>
                     <div class="flex justify-center">
-                        <button class="w-7 h-7 bg-yellow-400 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                        <button class="w-7 h-7 bg-yellow-400 text-black text-xl rounded-full mt-2 transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer" on:click={()=>openAddInstrumentPage()}>
                             +
                         </button>
                     </div>
