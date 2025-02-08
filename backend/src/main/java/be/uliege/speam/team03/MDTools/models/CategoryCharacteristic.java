@@ -24,7 +24,7 @@ public class CategoryCharacteristic {
     @JoinColumn(name="characteristic_id")
     Characteristic characteristic;
 
-    @Column(name="value")
+    @Column(name="characteristic_value")
     private String val;
 
     @Column(name="value_abreviation")

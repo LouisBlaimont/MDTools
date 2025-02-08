@@ -1,25 +1,15 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class GroupSummaryDTO {
     private String name;
-    private int nbInstr;
-
-    public GroupSummaryDTO(String name, int nbInstr) {
-        this.name = name;
-        this.nbInstr = nbInstr;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getNbInstr(){
-        return nbInstr;
-    }
-    public void setNbInstr(int instr){
-        this.nbInstr = instr;
-    }
+    private int instrCount;
 }

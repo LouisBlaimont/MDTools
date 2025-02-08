@@ -60,7 +60,7 @@ CREATE TABLE characteristic (
 CREATE TABLE category_characteristic (
     category_id INTEGER REFERENCES category(category_id),
     characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
-    value VARCHAR(255),
+    characteristic_value VARCHAR(255),
     value_abreviation VARCHAR(100),
     PRIMARY KEY (category_id, characteristic_id)
 );

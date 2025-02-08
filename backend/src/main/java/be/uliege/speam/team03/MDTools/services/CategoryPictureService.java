@@ -80,7 +80,7 @@ public class CategoryPictureService {
      * @return Resolved Path object.
      * @throws IOException If the path does not exist or is inaccessible.
      */
-    private Path resolvePath(String folderPath) throws IOException {
+    protected Path resolvePath(String folderPath) throws IOException {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             System.out.println("Path found: " + folder.getAbsolutePath());
@@ -96,7 +96,7 @@ public class CategoryPictureService {
      * @param folderPath Path to validate.
      * @param errorMessage Error message to display if validation fails.
      */
-    private void validateFolder(Path folderPath, String errorMessage) {
+    protected void validateFolder(Path folderPath, String errorMessage) {
         File folder = folderPath.toFile();
         if (!folder.exists() || !folder.isDirectory()) {
             throw new IllegalArgumentException(errorMessage + folder.getAbsolutePath());
@@ -147,7 +147,7 @@ public class CategoryPictureService {
      * @param file File to move.
      * @param mainFolder Destination folder.
      */
-    private void moveFileToMainFolder(File file, File mainFolder) {
+    protected void moveFileToMainFolder(File file, File mainFolder) {
         try {
             Path source = file.toPath();
             Path target = mainFolder.toPath().resolve(file.getName());
