@@ -318,7 +318,7 @@
                                     on:mouseover={()=> hoveredSupplierIndex = index}
                                     on:mouseout={() => hoveredSupplierIndex = null}
                                 >
-                                    <td class="transition-colors duration-300 bg-yellow-400 text-black hover:bg-black hover:text-yellow-500 text-center border border-solid border-[black]"on:click={(event) => { event.stopPropagation(); openEditPage(row.id); }}>
+                                    <td class="transition-colors duration-300 bg-yellow-400 text-black hover:bg-black hover:text-yellow-500 text-center border border-solid border-[black]" on:click={(event) => { event.stopPropagation(); openEditPage(row.id); }}>
                                         <ModifIcon></ModifIcon>
                                     </td>
                                     <td class="green text-center border border-solid border-[black]" on:click={()=>addToOrderPannel(row.ref)}>+</td>

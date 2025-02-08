@@ -16,7 +16,6 @@
 		<a href="/sign_up">sign_up</a>
 		<a href="/searches">searches_client</a> <!--opens normally when doing a research but for now like this-->
 		<a href="/searches_admin">searches_admin</a> <!--opens normally when doing a research but for now like this-->
-		<a href="/instrument_edit">instrument_edit</a>
 	</nav>
 </header>
 

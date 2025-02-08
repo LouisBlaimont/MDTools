@@ -1,7 +1,7 @@
-{id : 1, ref : "04.54.16", brand : "MEDICON", description : "KELLY SCRS STR 16CM",price :"66.65" , alt :"" , obs :"", src : "/supplier1.png"},
+<!-- {id : 1, ref : "04.54.16", brand : "MEDICON", description : "KELLY SCRS STR 16CM",price :"66.65" , alt :"" , obs :"", src : "/supplier1.png"}, -->
 
 <script>
-    import { tools } from '../../../suppliers.js';
+    import { suppliers } from '../../../suppliers.js';
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
 
@@ -10,8 +10,11 @@
 
     $: toolId = $page.params.id;
 
+    console.log('Tool ID:', toolId);
+
     onMount(() => {
-        tool = tools.find(t => t.id == toolId);
+        tool = suppliers.flat().find(t => t.id == toolId);
+        console.log('Tool:', tool);
     });
 
     function saveChanges() {
@@ -44,10 +47,6 @@
                 <input type="text" bind:value={tool.price} class="border p-2 rounded w-full">
             </div>
             <div>
-                <label class="block font-semibold">Dimension:</label>
-                <input type="text" bind:value={tool.dim} class="border p-2 rounded w-full">
-            </div>
-            <div>
                 <label class="block font-semibold">Alternatives:</label>
                 <input type="text" bind:value={tool.alt} class="border p-2 rounded w-full">
             </div>
@@ -56,12 +55,14 @@
                 <input type="text" bind:value={tool.obs} class="border p-2 rounded w-full">
             </div>
             <div>
-                <label class="block font-semibold">Images:</label>
+                <label class="block font-semibold">Image Source:</label>
                 <input type="text" bind:value={tool.src} class="border p-2 rounded w-full">
             </div>
             <div class="flex gap-4">
-                <button class="bg-green-500 text-white p-2 rounded" on:click={saveChanges}>Save</button>
-                <button class="bg-red-500 text-white p-2 rounded" on:click={deleteTool}>Delete</button>
+                <button class="bg-green-500 text-white p-2 rounded hover:bg-green-700" 
+                    on:click={saveChanges}>Save</button>
+                <button class="bg-red-500 text-white p-2 rounded hover:bg-red-700" 
+                    on:click={deleteTool}>Delete</button>
             </div>
         </div>
     {/if}
