@@ -94,6 +94,9 @@ public class SubGroupService {
         newSubGroup.setSubGroupCharacteristics(subGroupChars);
 
         List<SubGroup> subGroups = group.getSubGroups();
+        if(subGroups == null){
+            subGroups = new ArrayList<>();
+        }
         subGroups.add(newSubGroup);
         group.setSubGroups(subGroups);
 
@@ -166,19 +169,20 @@ public class SubGroupService {
         group.setSubGroups(subGroups);
         groupRepository.save(group);
 
-        List<SubGroupCharacteristic> subGroupChars = subGroup.getSubGroupCharacteristics();
-        List<Characteristic> exclusiveChars = new ArrayList<>();
+        //! Recursive deletion should be done on the db configuration side
+        // List<SubGroupCharacteristic> subGroupChars = subGroup.getSubGroupCharacteristics();
+        // List<Characteristic> exclusiveChars = new ArrayList<>();
 
-        for (SubGroupCharacteristic subGroupChar : subGroupChars){
-            Characteristic characteristic = subGroupChar.getCharacteristic();
-            long charAssociatedWithGroups = subGroupCharRepository.countByCharacteristic(characteristic);
-            if (charAssociatedWithGroups == 1){
-                exclusiveChars.add(characteristic);
-            }
-        }
-        subGroupCharRepository.deleteAll(subGroupChars);
-        charRepository.deleteAll(exclusiveChars);
-        subGroupRepository.delete(subGroup);
+        // for (SubGroupCharacteristic subGroupChar : subGroupChars){
+        //     Characteristic characteristic = subGroupChar.getCharacteristic();
+        //     long charAssociatedWithGroups = subGroupCharRepository.countByCharacteristic(characteristic);
+        //     if (charAssociatedWithGroups == 1){
+        //         exclusiveChars.add(characteristic);
+        //     }
+        // }
+        // subGroupCharRepository.deleteAll(subGroupChars);
+        // charRepository.deleteAll(exclusiveChars);
+        // subGroupRepository.delete(subGroup);
 
         return "Successfully deleted group.";
     }

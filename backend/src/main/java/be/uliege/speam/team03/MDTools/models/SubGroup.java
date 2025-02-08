@@ -27,7 +27,7 @@ public class SubGroup {
     private List<SubGroupCharacteristic> subGroupCharacteristics;
 
     @Transient
-    private Integer instrCount;
+    private Integer instrCount = 0;
 
     @OneToMany(mappedBy = "subGroup")
     private List<Category> categories;

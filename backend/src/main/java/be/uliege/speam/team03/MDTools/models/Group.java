@@ -22,7 +22,7 @@ public class Group {
     private String name;
 
     @Transient
-    private Integer instrCount;
+    private Integer instrCount = 0;
 
     @OneToMany(mappedBy = "group")
     private List<SubGroup> subGroups;
@@ -47,4 +47,3 @@ public class Group {
 
     }
 }
-
