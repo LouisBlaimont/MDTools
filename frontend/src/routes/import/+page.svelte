@@ -213,6 +213,7 @@
     // Handles the final import process after verifying the columns.
     const handleImportFinal = () => {
       console.log("Importation terminée avec les colonnes correctes");
+      sendDataToBackend();
       showModal = false;
     };
 
@@ -228,6 +229,43 @@
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
     });
+
+    const sendDataToBackend = async () => {
+      if (!jsonData || jsonData.length === 0) {
+        alert("Erreur : Aucune donnée à envoyer.");
+        return;
+      }
+
+      // Transformer les données en objets avec des clés correctes
+      const formattedData = jsonData.slice(1).map(row => {
+        return {
+          name: row[0],  // "Nom"
+          description: row[1], // "Description"
+          quantity: parseInt(row[2]), // "Quantité"
+          price: parseFloat(row[3])  // "Prix"
+        };
+      });
+
+      try {
+        const response = await fetch("http://localhost:8080/api/import/excel", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(formattedData)
+        });
+
+        if (!response.ok) {
+          throw new Error("Échec de l'importation des données.");
+        }
+
+        alert("Données importées avec succès !");
+      } catch (error) {
+        console.error("Erreur lors de l'envoi des données :", error);
+        alert("Erreur lors de l'importation des données.");
+      }
+    };
+
   </script>
   
   <main class="w-full flex flex-col items-center">
