@@ -1,28 +1,39 @@
 <script lang="ts">
-  const images: Record<string, {default: string}> = import.meta.glob('$lib/assets/groups/*.png', {eager: true});
+  /*const images = import.meta.glob('/Groups_img/*.png', { as: 'url' });
+  console.log(images);
+
+  let imageUrls: string[] = [];
+  Promise.all(
+    Object.values(images).map(loader => loader())).then(urls => {imageUrls = urls;}
+  );
+  console.log(images);*/
+  const imageUrls = [
+    '/Groups_img/1.png','/Groups_img/2.png','/Groups_img/3.png','/Groups_img/4.png','/Groups_img/5.png','/Groups_img/6.png','/Groups_img/7.png',
+    '/Groups_img/8.png','/Groups_img/9.png','/Groups_img/10.png','/Groups_img/11.png','/Groups_img/12.png','/Groups_img/13.png','/Groups_img/14.png',
+  ];
 </script>
 
 <head><title>Accueil</title></head>
 
-<main class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto">
+<main class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto text-[14px">
   <aside class="w-full md:w-1/4 bg-gray-100 rounded-lg p-8 shadow-md">
     <form class="space-y-6">
       <div class="flex flex-col">
         <label for="id_search_keyword" class="font-semibold text-lg">Recherche par mot(s) clé(s):</label>
         <input type="text" name="search_keyword" id="id_search_keyword" placeholder="Entrez un mot clé"
-               class="p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
       </div>
       
       <div class="flex flex-col">
         <label for="id_search_by_groups" class="font-semibold text-lg">Recherche par groupe ou sous-groupe:</label>
         <input type="text" name="search_by_groups" id="id_search_by_groups" placeholder="Entrez un groupe"
-               class="p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
       </div>
       
       <div class="flex flex-col">
         <label for="id_search_set" class="font-semibold text-lg">Recherche par référence:</label>
         <input list="ref" name="ref" placeholder="Entrez une référence"
-               class="p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-lg">
+               class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
         <datalist id="ref">
           <option value="ref1">
           <option value="ref2">
@@ -31,13 +42,13 @@
           <option value="ref5">
         </datalist>
       </div>
-      
+
       <button type="submit" class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg"><a href="/searches">Rechercher</a></button>
     </form>
   </aside>
 
   <section class="w-full md:w-3/4 grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto">
-    {#each Object.values(images) as { default: imageUrl }}
+    {#each imageUrls as imageUrl}
     <div class="relative group">
       <img class="w-full object-cover rounded-lg" src={imageUrl} alt="group_img"/>
       <div class="absolute bottom-0 left-0 p-2 text-white text-xs">
