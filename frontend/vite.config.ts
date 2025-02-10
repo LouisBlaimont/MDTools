@@ -13,6 +13,7 @@ export default defineConfig({
         include: ['src/**/*.{test,spec}.{js,ts}'],
         coverage: {
             exclude: ['coverage', 'node_modules', '.svelte-kit', '*.config.js', ...coverageConfigDefaults.exclude]
-        }
+        }    
     }
 });
+
