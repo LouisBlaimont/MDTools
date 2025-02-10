@@ -84,9 +84,9 @@ public class CategoryService {
         
         Map<String, String> searchBy = new HashMap<>();
         String function = (String) body.get("function");
-        searchBy.put("function", function);
+        searchBy.put("Function", function);
         String name = (String) body.get("name");
-        searchBy.put("name", name);
+        searchBy.put("Name", name);
         Object characteristics = body.get("characteristics");
 
         if (characteristics instanceof List<?>){
