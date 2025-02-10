@@ -23,10 +23,11 @@
     let jsonData = null;
     let isLoading = false;
     let loadingProgress = 0;
-    const groups = ["Pinces", "Ciseaux"];
-    let subGroups = { "Classique": ["Sous-groupe 1", "Sous-groupe 2"], "Pinces": ["Sous-groupe A", "Sous-groupe B"], "Ciseaux": ["Sous-groupe X", "Sous-groupe Y"]};
-    const requiredColumns = ["Nom", "Description", "Quantité", "Prix"];
-  
+    let groups = [];
+    let subGroups = {};
+    let requiredColumns = []; 
+    let columnMapping = {};
+
     // Handles the drop event for the file drag and drop.
     const handleDrop = (event) => {
       event.preventDefault();
@@ -42,6 +43,71 @@
         }
       }
     };
+
+    // Fonction pour récupérer dynamiquement les groupes et sous-groupes
+    async function fetchGroups() {
+        try {
+            const response = await fetch("http://localhost:8080/api/groups", {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Groupes récupérés :", data);
+            groups = data.map(group => group.name);
+            subGroups = Object.fromEntries(
+                data.map(group => [group.name, group.subGroups.map(sub => sub.name)])
+            );
+        } catch (error) {
+            console.error("Erreur lors de la récupération des groupes :", error);
+        }
+    };
+
+
+    const fetchCharacteristics = async () => {
+      if (!selectedSubGroup || selectedSubGroup.trim() === "") {
+        console.warn("No subgroup selected.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/subgroups/${encodeURIComponent(selectedSubGroup)}`, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch characteristics");
+        }
+
+        const data = await response.json();
+        console.log("Caractéristiques reçues :", data.characteristics);
+
+        // Met à jour la liste des colonnes possibles avec celles de l'API
+        requiredColumns = [
+          "reference",
+          "supplier_name",
+          "sold_by_md",
+          "closed",
+          "group_name",
+          "supplier_description",
+          "price",
+          "obsolete",
+          ...data.characteristics
+        ];
+      } catch (error) {
+        console.error("Erreur lors de la récupération des caractéristiques :", error);
+      }
+    };
+
   
     // Handles the drag-over event to allow a file to be dropped.
     const handleDragOver = (event) => {
@@ -173,6 +239,7 @@
     const handleSubGroupChange = (event) => {
       selectedSubGroup = event.target.value;
       isNextEnabled = selectedGroup !== "" && selectedSubGroup !== "";
+      fetchCharacteristics();
     };
   
     // Verifies the columns in the uploaded Excel file to check if they meet the requirements.
@@ -223,11 +290,20 @@
       loadingProgress = 0;
     };
 
+    const updateColumnMapping = (index) => {
+      if (!columnMapping[index] || columnMapping[index].trim() === "") {
+        delete columnMapping[index]; // Supprime les colonnes non choisies
+      }
+      console.log("🔹 Colonnes sélectionnées :", columnMapping);
+    };
+
+
   
     // Adds event listeners for mouse events when the component is mounted.
     onMount(() => {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
+      fetchGroups();
     });
 
     const sendDataToBackend = async () => {
@@ -236,15 +312,27 @@
         return;
       }
 
-      // Transformer les données en objets avec des clés correctes
+      // Récupérer uniquement les colonnes sélectionnées par l'utilisateur
+      const selectedHeaders = Object.entries(columnMapping)
+        .filter(([index, name]) => name && name.trim() !== "")
+        .map(([index, name]) => ({ index: parseInt(index), name }));
+
+      console.log("✅ Colonnes finales à envoyer :", selectedHeaders);
+
+      // Transformer chaque ligne en objet en ne prenant que les colonnes choisies
       const formattedData = jsonData.slice(1).map(row => {
-        return {
-          name: row[0],  // "Nom"
-          description: row[1], // "Description"
-          quantity: parseInt(row[2]), // "Quantité"
-          price: parseFloat(row[3])  // "Prix"
-        };
+        let instrument = {};
+
+        selectedHeaders.forEach(({ index, name }) => {
+          if (row[index] !== undefined && row[index] !== null && row[index].toString().trim() !== "") {
+            instrument[name] = row[index]; // Associe chaque colonne sélectionnée aux valeurs non vides
+          }
+        });
+
+        return instrument;
       });
+
+      console.log("📤 Données formatées pour envoi :", formattedData);
 
       try {
         const response = await fetch("http://localhost:8080/api/import/excel", {
@@ -261,7 +349,7 @@
 
         alert("Données importées avec succès !");
       } catch (error) {
-        console.error("Erreur lors de l'envoi des données :", error);
+        console.error("❌ Erreur lors de l'envoi des données :", error);
         alert("Erreur lors de l'importation des données.");
       }
     };
@@ -381,7 +469,7 @@
                     <tr>
                       {#each jsonData[0] as header, index}
                         <th class="border border-gray-400 p-2 bg-gray-200">
-                          <select bind:value={jsonData[0][index]} class="w-full">
+                          <select bind:value={columnMapping[index]} class="w-full" on:change={() => updateColumnMapping(index)}>
                             <option value="">vide</option>
                             {#each requiredColumns as column}
                               <option value={column}>{column}</option>

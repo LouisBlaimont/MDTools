@@ -37,7 +37,6 @@ public class ExcelController {
 
         // Afficher le JSON brut dans les logs
         logger.info("✅ JSON brut reçu avec succès : {}", rawJson);
-        System.out.println("✅ JSON brut reçu : " + rawJson);
 
         // Retourner une réponse de confirmation
         return ResponseEntity.ok("Données JSON reçues avec succès !");
