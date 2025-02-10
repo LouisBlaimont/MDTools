@@ -61,43 +61,9 @@ public class CategoryService {
         }
 
         List<Category> categories = categoriesMaybe.get();
-
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
-
         for (Category category : categories){
-            Integer id = category.getId();
-            String gName = subGroup.getGroup().getName();
-            String subgName = subGroup.getName();
-            
-            String name = new String();
-            Optional<String> nameMaybe = categoryRepository.findCharacteristicVal(id, "Name");
-            if (nameMaybe.isPresent()){ 
-                name = nameMaybe.get();
-            }
-            else{
-                name = null;
-            }
-
-            String function = new String();
-            Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
-            if (functionMaybe.isPresent()){
-                function = functionMaybe.get();
-            }
-            else{
-                name = null;
-            }
-
-            String shape = category.getShape();
-
-            String lenAbrv = new String();
-            Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv(id, "Length");
-            if (lenAbrvMaybe.isPresent()){
-                lenAbrv = lenAbrvMaybe.get();
-            }
-            else{
-                lenAbrv = null;
-            }
-            CategoryDTO categoryDTO = new CategoryDTO(gName, subgName, name, function, shape, lenAbrv);
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
