@@ -1,5 +1,7 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
+import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
+import be.uliege.speam.team03.MDTools.services.ExcelImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,34 +13,43 @@ import org.springframework.web.bind.annotation.*;
 public class ExcelController {
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelController.class);
+    private final ExcelImportService excelImportService;
 
-    public ExcelController() {
-        // Constructor if needed later
+    public ExcelController(ExcelImportService excelImportService) {
+        this.excelImportService = excelImportService;
     }
 
     /**
-     * Gère la requête "preflight" OPTIONS pour le CORS.
+     * Handles the "preflight" OPTIONS request for CORS.
      */
     @RequestMapping(value = "/excel", method = RequestMethod.OPTIONS)
     public ResponseEntity<?> handleOptions() {
-        logger.info("✅ Pré-requête OPTIONS reçue !");
+        logger.info("✅ Preflight OPTIONS request received!");
         return ResponseEntity.ok().build();
     }
 
     /**
-     * Endpoint pour recevoir les données JSON depuis Svelte.
+     * Endpoint to receive and process JSON data from Svelte.
+     *
+     * @param importRequest The JSON payload containing the import type and data.
+     * @return HTTP response indicating the result of the import operation.
      */
     @PostMapping("/excel")
-    public ResponseEntity<?> receiveRawJson(@RequestBody String rawJson) {
-        if (rawJson == null || rawJson.isEmpty()) {
-            logger.warn("⚠ Requête reçue avec un JSON vide !");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le JSON reçu est vide.");
+    public ResponseEntity<?> receiveJsonData(@RequestBody ImportRequestDTO importRequest) {
+        if (importRequest == null || importRequest.getData().isEmpty()) {
+            logger.warn("⚠ Received request with empty JSON payload!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The received JSON is empty.");
         }
 
-        // Afficher le JSON brut dans les logs
-        logger.info("✅ JSON brut reçu avec succès : {}", rawJson);
+        logger.info("✅ JSON received with import type: {}, Group: {}, SubGroup: {}", 
+                    importRequest.getImportType(), importRequest.getGroupName(), importRequest.getSubGroupName());
 
-        // Retourner une réponse de confirmation
-        return ResponseEntity.ok("Données JSON reçues avec succès !");
+        try {
+            excelImportService.processImport(importRequest);
+            return ResponseEntity.ok("Data imported successfully!");
+        } catch (Exception e) {
+            logger.error("❌ Error while processing data: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error during import.");
+        }
     }
 }

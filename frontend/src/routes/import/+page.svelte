@@ -44,7 +44,9 @@
       }
     };
 
-    // Fonction pour récupérer dynamiquement les groupes et sous-groupes
+    /**
+    * Fetches groups and their associated sub-groups dynamically from the backend.
+    */
     async function fetchGroups() {
         try {
             const response = await fetch("http://localhost:8080/api/groups", {
@@ -59,54 +61,65 @@
             }
 
             const data = await response.json();
-            console.log("Groupes récupérés :", data);
+            console.log("✅ Groups retrieved:", data);
+
+            // Extracting group names
             groups = data.map(group => group.name);
+
+            // Mapping each group to its respective sub-groups
             subGroups = Object.fromEntries(
                 data.map(group => [group.name, group.subGroups.map(sub => sub.name)])
             );
+
         } catch (error) {
-            console.error("Erreur lors de la récupération des groupes :", error);
+            console.error("❌ Error while retrieving groups:", error);
         }
     };
 
 
+
+    /**
+     * Fetches characteristics related to the selected subgroup from the backend.
+     */
     const fetchCharacteristics = async () => {
-      if (!selectedSubGroup || selectedSubGroup.trim() === "") {
-        console.warn("No subgroup selected.");
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:8080/api/subgroups/${encodeURIComponent(selectedSubGroup)}`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch characteristics");
+        if (!selectedSubGroup || selectedSubGroup.trim() === "") {
+            console.warn("No subgroup selected.");
+            return;
         }
 
-        const data = await response.json();
-        console.log("Caractéristiques reçues :", data.characteristics);
+        try {
+            const response = await fetch(`http://localhost:8080/api/subgroups/${encodeURIComponent(selectedSubGroup)}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
 
-        // Met à jour la liste des colonnes possibles avec celles de l'API
-        requiredColumns = [
-          "reference",
-          "supplier_name",
-          "sold_by_md",
-          "closed",
-          "group_name",
-          "supplier_description",
-          "price",
-          "obsolete",
-          ...data.characteristics
-        ];
-      } catch (error) {
-        console.error("Erreur lors de la récupération des caractéristiques :", error);
-      }
+            if (!response.ok) {
+                throw new Error("Failed to fetch characteristics");
+            }
+
+            const data = await response.json();
+            console.log("✅ Characteristics received:", data.characteristics);
+
+            // Updating the list of available columns with those retrieved from the API
+            requiredColumns = [
+                "reference",
+                "supplier_name",
+                "sold_by_md",
+                "closed",
+                "group_name",
+                "supplier_description",
+                "price",
+                "obsolete",
+                ...data.characteristics
+            ];
+
+        } catch (error) {
+            console.error("❌ Error while retrieving characteristics:", error);
+        }
     };
+
 
   
     // Handles the drag-over event to allow a file to be dropped.
@@ -292,9 +305,9 @@
 
     const updateColumnMapping = (index) => {
       if (!columnMapping[index] || columnMapping[index].trim() === "") {
-        delete columnMapping[index]; // Supprime les colonnes non choisies
+        delete columnMapping[index]; 
       }
-      console.log("🔹 Colonnes sélectionnées :", columnMapping);
+      console.log("🔹 Selected columns:", columnMapping);
     };
 
 
@@ -306,53 +319,75 @@
       fetchGroups();
     });
 
+    /**
+     * Sends the formatted JSON data to the backend for processing.
+     */
     const sendDataToBackend = async () => {
-      if (!jsonData || jsonData.length === 0) {
-        alert("Erreur : Aucune donnée à envoyer.");
-        return;
-      }
-
-      // Récupérer uniquement les colonnes sélectionnées par l'utilisateur
-      const selectedHeaders = Object.entries(columnMapping)
-        .filter(([index, name]) => name && name.trim() !== "")
-        .map(([index, name]) => ({ index: parseInt(index), name }));
-
-      console.log("✅ Colonnes finales à envoyer :", selectedHeaders);
-
-      // Transformer chaque ligne en objet en ne prenant que les colonnes choisies
-      const formattedData = jsonData.slice(1).map(row => {
-        let instrument = {};
-
-        selectedHeaders.forEach(({ index, name }) => {
-          if (row[index] !== undefined && row[index] !== null && row[index].toString().trim() !== "") {
-            instrument[name] = row[index]; // Associe chaque colonne sélectionnée aux valeurs non vides
-          }
-        });
-
-        return instrument;
-      });
-
-      console.log("📤 Données formatées pour envoi :", formattedData);
-
-      try {
-        const response = await fetch("http://localhost:8080/api/import/excel", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(formattedData)
-        });
-
-        if (!response.ok) {
-          throw new Error("Échec de l'importation des données.");
+        if (!jsonData || jsonData.length === 0) {
+            alert("Erreur : Aucune donnée à envoyer.");
+            return;
         }
 
-        alert("Données importées avec succès !");
-      } catch (error) {
-        console.error("❌ Erreur lors de l'envoi des données :", error);
-        alert("Erreur lors de l'importation des données.");
-      }
+        // Ensure an import type is selected before sending data
+        if (!selectedOption || selectedOption.trim() === "") {
+            alert("Erreur : Veuillez sélectionner un type de fichier avant d'importer.");
+            return;
+        }
+
+        // Retrieve only the columns selected by the user
+        const selectedHeaders = Object.entries(columnMapping)
+            .filter(([index, name]) => name && name.trim() !== "")
+            .map(([index, name]) => ({ index: parseInt(index), name }));
+
+        console.log("✅ Final columns to send:", selectedHeaders);
+
+        // Transform each row into an object, only including the selected columns
+        const formattedData = jsonData.slice(1).map(row => {
+            let instrument = {};
+
+            selectedHeaders.forEach(({ index, name }) => {
+                if (row[index] !== undefined && row[index] !== null && row[index].toString().trim() !== "") {
+                    instrument[name] = row[index]; // Associate each selected column with its non-empty value
+                }
+            });
+
+            return instrument;
+        });
+
+        console.log("📤 Formatted data for submission:", formattedData);
+
+        // Determine group and sub-group values based on selected option
+        const groupName = selectedOption === "Importer un sous-groupe" ? selectedGroup : "";
+        const subGroupName = selectedOption === "Importer un sous-groupe" ? selectedSubGroup : "";
+
+        // Construct the request payload with the selected import type
+        const requestData = {
+            importType: selectedOption,
+            groupName: groupName,
+            subGroupName: subGroupName,
+            data: formattedData
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/import/excel", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error("Échec de l'importation des données.");
+            }
+
+            alert("Données importées avec succès !");
+        } catch (error) {
+            console.error("❌ Error while sending data:", error);
+            alert("Erreur lors de l'importation des données.");
+        }
     };
+
 
   </script>
   

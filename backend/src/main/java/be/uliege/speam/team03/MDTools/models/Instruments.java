@@ -1,12 +1,6 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "instruments")
@@ -40,6 +34,11 @@ public class Instruments {
         this.obsolete = obsolete;
     }
 
+    // Getters
+    public Integer getId() {
+        return this.instrument_id;
+    }
+
     public Suppliers getSupplier() {
         return this.supplier;
     }
@@ -62,5 +61,30 @@ public class Instruments {
 
     public Boolean isObsolete() {
         return this.obsolete;
+    }
+
+    // Setters for updating values
+    public void setSupplier(Suppliers supplier) {
+        this.supplier = supplier;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public void setSupplierDescription(String supplierDescription) {
+        this.supplier_description = supplierDescription;
+    }
+
+    public void setPrice(Float price) {
+        this.price = price;
+    }
+
+    public void setObsolete(Boolean obsolete) {
+        this.obsolete = obsolete;
     }
 }
