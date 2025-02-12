@@ -63,4 +63,8 @@ public class Instruments {
     public Boolean isObsolete() {
         return this.obsolete;
     }
+
+    public Integer getId() {
+        return this.instrument_id;
+    }
 }
