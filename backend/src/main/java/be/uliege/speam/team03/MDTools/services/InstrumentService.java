@@ -23,7 +23,7 @@ public class InstrumentService {
     public List<InstrumentDTO> findInstrumentsOfCatergory(Integer categoryId) {
 
         // retrieve category based on categoryId
-        Optional<Category> categoryMaybe = categoryRepository.findByCategoryId(categoryId);
+        Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
         if (categoryMaybe.isPresent() == false) {
             return null;
         }
@@ -49,15 +49,8 @@ public class InstrumentService {
 
             // retrieve alternatives? 
             Integer instrumentId = instrument.getId();
-            List<Alternatives> alternativesMaybe = alternativesRepository.findByInstrumentId(instrumentId);
-            boolean alt = false;
-            if (alternativesMaybe.isPresent() == false) {
-                return null;
-            }
-            List<Alternatives> alternative = alternativesMaybe.get();
-            if (alternative.isEmpty() == false) {
-                alt = true;
-            }
+            List<Alternatives> alternatives = alternativesRepository.findByInstrumentsId1(instrumentId);
+            boolean alt = !alternatives.isEmpty();            
 
             // add to list
             InstrumentDTO instrumentDTO = new InstrumentDTO(reference, supplierName, supplierDescription, price, alt, obsolete);

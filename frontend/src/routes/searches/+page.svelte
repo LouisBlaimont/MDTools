@@ -14,9 +14,18 @@
         currentSuppliers = suppliers[index] || [];
     }
 
+    async function selectTool2(category) {
+        categorygoryId = category.getCategoryId();
+        const response = await fetch('localhost:8080/api/category/${categoryId}');
+        if (!response.ok) throw new Error("Failed to fetch instruments of category");
+        //return response.json();
+        currentSuppliers = response.json();
+    }
+
     let hoveredSupplierIndex = null;
     let hoveredSupplierImageIndex = null;
     let selectedSupplierIndex = null;
+
     function selectSupplier(index) {
         selectedSupplierIndex = index;
     }
@@ -192,7 +201,7 @@
                                 class="cursor-pointer"
                                 class:bg-[cornflowerblue]={selectedToolIndex === index}
                                 class:bg-[lightgray]={hoveredToolIndex === index && selectedToolIndex !== index}
-                                on:click={()=>selectTool(index)}
+                                on:click={()=>selectTool(row)}
                                 on:mouseover={()=> hoveredToolIndex = index}
                                 on:mouseout={() => hoveredToolIndex = null}
                             >
