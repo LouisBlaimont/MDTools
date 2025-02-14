@@ -1,7 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 
 import { checkRoleAndPermissions } from "$lib/rbacUtils";
-import { PERMISSIONS, ROLES } from "../../../constants";
+import { PERMISSIONS, ROLES } from "../constants";
 
 /** @type {import('./$types').LayoutServerLoad} */
 export function load({ locals }) {
