@@ -9,16 +9,20 @@
     let selectedToolIndex = null;
     let currentSuppliers = [];
 
-    function selectTool(index) {
+    function selectTool(index, row) {
         selectedToolIndex = index;
         currentSuppliers = suppliers[index] || [];
     }
 
-    async function selectTool2(category) {
-        categorygoryId = category.getCategoryId();
+    async function selectTool2(index, row) {
+        selectedToolIndex = index;
+
+        // selecting the categoryId
+        const firstKey = Object.keys(row)[0]; 
+        const categoryId = row[firstKey];  
+
         const response = await fetch('localhost:8080/api/category/${categoryId}');
         if (!response.ok) throw new Error("Failed to fetch instruments of category");
-        //return response.json();
         currentSuppliers = response.json();
     }
 
@@ -201,7 +205,7 @@
                                 class="cursor-pointer"
                                 class:bg-[cornflowerblue]={selectedToolIndex === index}
                                 class:bg-[lightgray]={hoveredToolIndex === index && selectedToolIndex !== index}
-                                on:click={()=>selectTool(row)}
+                                on:click={()=>selectTool(index, row)}
                                 on:mouseover={()=> hoveredToolIndex = index}
                                 on:mouseout={() => hoveredToolIndex = null}
                             >

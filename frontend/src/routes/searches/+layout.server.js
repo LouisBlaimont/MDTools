@@ -1,9 +1,8 @@
-import { redirect } from "@sveltejs/kit";
+/*import { redirect } from "@sveltejs/kit";
 
 import { checkRoleAndPermissions } from "$lib/rbacUtils";
-import { PERMISSIONS, ROLES } from "../constants";
+import { PERMISSIONS, ROLES } from "../../constants.js";
 
-/** @type {import('./$types').LayoutServerLoad} */
 export function load({ locals }) {
 	const user = locals.user;
 	const isCustomerAndCanViewProfile = checkRoleAndPermissions(
@@ -15,4 +14,4 @@ export function load({ locals }) {
 	if (!isCustomerAndCanViewProfile) {
 		redirect(307, "/unauthorized");
 	}
-}
+}*/
