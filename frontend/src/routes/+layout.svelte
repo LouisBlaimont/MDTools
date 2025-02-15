@@ -9,7 +9,7 @@
   let { children } = $props();
 
   // simulating user roles
-  let userRole = "simpleUser"; // change to "admin" for admin view
+  let userRole = "admin"; // change to "admin" for admin view
   let userValue;
 
   // Subscribe to store

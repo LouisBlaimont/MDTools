@@ -72,8 +72,8 @@ public class GroupService {
     public GroupDTO addGroup(Map<String, Object> body){
         String groupName = (String) body.get("groupName");
         String subGroupName = (String) body.get("subGroupName");
-        List<String> characteristics = (List<String>)body.get("characteristics");
-
+        String characteristicsStr = (String) body.get("characteristics");
+        List<String> characteristics = Arrays.asList(characteristicsStr.split("\\s*,\\s*"));
         Optional<Group> sameGroup = groupRepository.findByName(groupName);
 
         if (sameGroup.isPresent()){
