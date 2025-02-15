@@ -3,14 +3,16 @@
     import { suppliers } from '../../suppliers.js';
     import { getOrder, addTool } from '../../order.js';
     import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
+    import { preventDefault } from 'svelte/legacy';
 
-    let hoveredToolIndex = null;
-    let hoveredToolImageIndex = null;
-    let selectedToolIndex = null;
+    let hoveredCategoryIndex = null;
+    let hoveredCategoryImageIndex = null;
+    let selectedCategoryIndex = null;
     let currentSuppliers = [];
 
-    function selectTool(index) {
-        selectedToolIndex = index;
+    function selectCategory(index) {
+        selectedCategoryIndex = index;
         currentSuppliers = suppliers[index] || [];
     }
 
@@ -22,15 +24,15 @@
     }
 
     function showBigPicture(img){
-        const pannel = document.getElementById("big-tool-pannel");
+        const pannel = document.getElementById("big-category-pannel");
         const overlay = document.getElementById("overlay");
-        const picture = document.getElementById("big-tool")
+        const picture = document.getElementById("big-category")
         pannel.style.display = "flex";
         overlay.style.display = "block";
         picture.src = img
     }
     function closeBigPicture(){
-        const pannel = document.getElementById("big-tool-pannel");
+        const pannel = document.getElementById("big-category-pannel");
         const overlay = document.getElementById("overlay");
         pannel.style.display = "none";
         overlay.style.display = "none";
@@ -53,18 +55,15 @@
         overlay.style.display = "none";
     }
     function addToOrder(){
-        console.log(selectedToolIndex);
-        console.log(selectedSupplierIndex);
-        console.log(suppliers[selectedToolIndex][selectedSupplierIndex].ref);
-        const tool_ref = suppliers[selectedToolIndex][selectedSupplierIndex].ref;
-        const tool_brand = suppliers[selectedToolIndex][selectedSupplierIndex].brand;
-        const tool_group = tools[selectedToolIndex].group;
-        const tool_fct = tools[selectedToolIndex].fct;
-        const tool_name = tools[selectedToolIndex].name;
-        const tool_form = tools[selectedToolIndex].form;
-        const tool_dim = tools[selectedToolIndex].dim;
+        const tool_ref = suppliers[selectedCategoryIndex][selectedSupplierIndex].ref;
+        const tool_brand = suppliers[selectedCategoryIndex][selectedSupplierIndex].brand;
+        const tool_group = tools[selectedCategoryIndex].group;
+        const tool_fct = tools[selectedCategoryIndex].fct;
+        const tool_name = tools[selectedCategoryIndex].name;
+        const tool_form = tools[selectedCategoryIndex].form;
+        const tool_dim = tools[selectedCategoryIndex].dim;
         const tool_qte = quantity;
-        const tool_pu_htva = suppliers[selectedToolIndex][selectedSupplierIndex].price;
+        const tool_pu_htva = suppliers[selectedCategoryIndex][selectedSupplierIndex].price;
         order = addTool(tool_ref, tool_brand, tool_group, tool_fct, tool_name, tool_form, tool_dim, tool_qte, tool_pu_htva);
         closeAddToOrder();
     }
@@ -72,17 +71,170 @@
         //smth to do with the database I think
     }
     function deleteCharacteristic(id){
+        console.log("delete one")
         const texte = document.getElementById(id);
         texte.value = "";
+        charValues[id] = "";
+        searchByCharacteristics();
     }
     function deleteAllCharacteristics(){
-        let texte = document.getElementById("fct");
-        texte.value = "";
-        texte = document.getElementById("curvature_blade");
-        texte.value = "";
-        //... continue but i think it is faisable with a loop when the data base gives me the name of the characteristics
+        //for (let i = 0; i<characteristics.length; i++){
+            //let texte = document.getElementById(characteristics[i]);
+            //texte.value = "";
+            //if (charValues[characteristics[i]]){
+                //charValues[characteristics[i]]= "";
+            //}
+        //}
+        //searchByCharacteristics();
+    }
+
+    let groups_summary = [];
+    let groups = [];
+    let subGroups = []
+    let characteristics =[];
+    let charValues = {};
+    let categories = [];
+    let selectedGroup ="";
+    let selectedSubGroup = "";
+    let showSubGroups = false;
+    let showCategories = false;
+    let showChars = false;
+    let errorMessage = '';
+
+    onMount(async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/groups/summary');
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch groups: ${response.statusText}`);
+                }
+
+                groups_summary = await response.json();
+            } catch (error) {
+                console.error(error);
+                errorMessage = error.message;
+            }
+        });
+    $: groups = groups_summary.map(group => group.name);
+
+    
+    async function findSubGroups(group){
+        selectedGroup = group;
+        showSubGroups = true;
+        showChars = false;
+        showCategories = true;
+        selectedSubGroup ="";
+        characteristics =[];
+        
+        let subGroups_all_info = [];
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/subgroups/group/${group}`);
+            const response_2 = await fetch(`http://localhost:8080/api/category/group/${group}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch subgroups: ${response.statusText}`);
+            }
+            if (!response_2.ok) {
+                throw new Error(`Failed to fetch categories: ${response_2.statusText}`);
+            }
+
+            subGroups_all_info = await response.json();
+            categories = await response_2.json();
+        } catch (error) {
+            console.error(error);
+            errorMessage = error.message;
+        }
+
+        subGroups = subGroups_all_info.map(subgroup => subgroup.name);
+        return;
+    }
+
+    async function findCharacteristics(subGroup){
+        selectedSubGroup = subGroup;
+        showChars = true;
+        let subgroup = [];
+
+        try {
+            const response = await fetch (`http://localhost:8080/api/subgroups/${subGroup}`);
+            const response_2 = await fetch(`http://localhost:8080/api/category/subgroup/${subGroup}`);
+
+            if (!response.ok){
+                throw new Error(`Failed to fetch characteristics : ${response.statusText}`);
+            }
+            if (!response_2.ok) {
+                throw new Error(`Failed to fetch categories: ${response_2.statusText}`);
+            }
+
+            subgroup = await response.json();
+            categories = await response_2.json();
+        }catch (error){
+            console.log(error);
+            errorMessage = error.message;
+        }
+
+        characteristics = subgroup.characteristics;
+        return;
+    }
+
+    function searchByCharacteristics(){
+        let char_vals = [];
+        for (let i=0; i<characteristics.length; i++){
+            if (characteristics[i] === "Function" || characteristics[i] === "Name"){ continue; }
+            if (characteristics[i] === "Length" && charValues[characteristics[i]]){
+                let char = {
+                    name : characteristics[i],
+                    value : charValues[characteristics[i]]+"cm",
+                    abrev : ""
+                }
+                char_vals.push(char);
+            }
+            else if (charValues[characteristics[i]]){
+                let char = {
+                    name : characteristics[i], 
+                    value : charValues[characteristics[i]], 
+                    abrev : ""
+                };
+                char_vals.push(char);
+            }
+            else{
+                let char = {
+                    name : characteristics[i],
+                    value : "",
+                    abrev : ""
+                };
+                char_vals.push(char);
+            }
+        }
+        const data = { 
+            groupName: selectedGroup,
+            subGroupName : selectedSubGroup,
+            function : charValues["Function"] || "",
+            name : charValues["Name"] || "",
+            characteristics : char_vals
+        }
+
+        return fetch("http://localhost:8080/api/category/search/by-characteristics", {
+            method: "POST",
+            headers:{"Content-type":"application/json"},
+            body : JSON.stringify(data)
+        })
+        .then(response => {
+            if(!response.ok){
+                categories = [];
+                throw new Error(`Failed to search by characteristics : ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            categories = result;
+        })
+        .catch(error => {
+            console.log("Error :", error);
+        });
 
     }
+
     function openModifPage(){
         goto('/searches_admin');
     }
@@ -102,74 +254,42 @@
                     <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
                     <input type="text" class="border border-gray-400 rounded p-0.5 border-solid border-[black]" id="google-search" name="google-search" placeholder="Entrez un mot clé">
                 </form>
-                <form class="flex flex-col w-full gap-2.5">
-                    <label class="font-semibold">Recherche par caractéristiques:</label>
+                
+                <label class="font-semibold">Recherche par caractéristiques:</label>
+                <div class = "flex items-center">
+                    <label class="w-2/5 mt-2 mb-2" for="group">Groupe:</label>
+                    <select id="groupOptions" on:change="{(e) => findSubGroups(e.target.value)}">
+                        <option>---</option>
+                        {#each groups as group}
+                            <option value="{group}">{group}</option>
+                        {/each}
+                    </select>
+                </div>
+
+                {#if showSubGroups}
                     <div class = "flex items-center">
-                        <label class="w-2/5" for="group">Groupe:</label>
-                        <input type ="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="group" name="group">
+                        <label class="w-2/5 mb-2"for="name">Sous gp:</label>
+                        <select id="subGroupOptions" on:change="{(e) => findCharacteristics(e.target.value)}">
+                            <option>---</option>
+                            {#each subGroups as subGroup}
+                                <option value="{subGroup}">{subGroup}</option>
+                            {/each}
+                        </select>
                     </div>
-                    <div class = "flex items-center">
-                        <label class="w-2/5"for="name">Nom:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="name" name="name">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("name")}>&times;</button>
-                    </div>
-                    <button id="clear-all" class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
-                    <div class = "flex items-center">
-                        <label for="fct" class="w-2/5">Fonction:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="fct" name="fct">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("fct")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="curvature_bade" class="w-2/5">Courbure lame:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="curvature_blade" name="curvature_blade">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("curvature_blade")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="tip_blade" class="w-2/5">Pointe lame:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="tip_blade" name="tip_blade">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("tip_blade")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="specific_blade" class="w-2/5">Spécificité lame:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="specific_blade" name="specific_blade">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("specific_blade")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="material" class="w-2/5">Matière:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="material" name="material">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("material")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="thick" class="w-2/5">Épaisseur:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="thick" name="thick">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("thick")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="arm" class="w-2/5">Forme manche:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="arm" name="arm">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("arm")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="rings" class="w-2/5">Anneaux:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="rings" name="rings">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("rings")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="length" class="w-2/5">Longueur:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="length" name="length">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("length")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center">
-                        <label for="tolerance" class="w-2/5">Tolérance:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="tolerance" name="tolerance">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("tolerance")}>&times;</button>
-                    </div>
-                    <div class = "flex items-center mb-2">
-                        <label for="other" class="w-2/5">Autres:</label>
-                        <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]" id="other" name="other">
-                        <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic("other")}>&times;</button>
-                    </div> 
-                </form>    
+                {/if}
+                
+                {#if showChars}
+                    <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
+                        <button id="clear-all" class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm mb-2" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
+                        {#each characteristics as char}
+                            <div class = "flex items-center">
+                                <label for="{char}" class="w-2/5">{char}:</label>
+                                <input type="text" class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black] mb-2" id="{char}" name="{char}" bind:value={charValues[char]}>
+                                <button class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer" on:click={()=>deleteCharacteristic(char)}>&times;</button>
+                            </div>
+                        {/each}
+                    </form>  
+                {/if}  
             </div>
 
             <!-- TABLEAU CORRESPONDANT AUX RECHERCHES -->
@@ -178,32 +298,36 @@
                     <thead class="bg-teal-400">
                         <tr>
                             <th class="text-center border border-solid border-[black]">GROUPE</th>
-                            <th class="text-center border border-solid border-[black]">FONCTION</th>
+                            <th class="text-center border border-solid border-[black]">SOUS GP</th>
+                            <th class="text-center border border-solid border-[black]">FCT</th>
                             <th class="text-center border border-solid border-[black]">NOM</th>
                             <th class="text-center border border-solid border-[black]">FORME</th>
-                            <th class="text-center border border-solid border-[black]">DIMENSION</th>
+                            <th class="text-center border border-solid border-[black]">DIM</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {#each tools as row, index}
+                    {#if showCategories}
+                        <tbody>
+                            {#each categories as row, index}
 
-                            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                            <tr
-                                class="cursor-pointer"
-                                class:bg-[cornflowerblue]={selectedToolIndex === index}
-                                class:bg-[lightgray]={hoveredToolIndex === index && selectedToolIndex !== index}
-                                on:click={()=>selectTool(index)}
-                                on:mouseover={()=> hoveredToolIndex = index}
-                                on:mouseout={() => hoveredToolIndex = null}
-                            >
-                                <td class="text-center border border-solid border-[black]">{row.group}</td>
-                                <td class="text-center border border-solid border-[black]">{row.fct}</td>
-                                <td class="text-center border border-solid border-[black]">{row.name}</td>
-                                <td class="text-center border border-solid border-[black]">{row.form}</td>
-                                <td class="text-center border border-solid border-[black]">{row.dim}</td>
-                            </tr>
-                        {/each}
-                    </tbody>
+                                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                                <tr
+                                    class="cursor-pointer"
+                                    class:bg-[cornflowerblue]={selectedCategoryIndex === index}
+                                    class:bg-[lightgray]={hoveredCategoryIndex === index && selectedCategoryIndex !== index}
+                                    on:click={()=>selectCategory(index)}
+                                    on:mouseover={()=> hoveredCategoryIndex = index}
+                                    on:mouseout={() => hoveredCategoryIndex = null}
+                                >
+                                    <td class="text-center border border-solid border-[black]">{row.groupName}</td>
+                                    <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+                                    <td class="text-center border border-solid border-[black]">{row.function}</td>
+                                    <td class="text-center border border-solid border-[black]">{row.name}</td>
+                                    <td class="text-center border border-solid border-[black]">{row.shape}</td>
+                                    <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    {/if}
                 </table>
 
                 <!-- BOUTON POUR PASSER EN ADMIN -->
@@ -233,9 +357,9 @@
                         alt="tool{row.id}" 
                         src={row.src}
                         on:click={()=>showBigPicture(row.src)} 
-                        on:mouseover={()=>hoveredToolImageIndex = index}
-                        on:mouseout={()=>hoveredToolImageIndex = null}
-                        class="mb-[3px] {selectedToolIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredToolImageIndex === index && selectedToolIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
+                        on:mouseover={()=>hoveredCategoryImageIndex = index}
+                        on:mouseout={()=>hoveredCategoryImageIndex = null}
+                        class="mb-[3px] {selectedCategoryIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {hoveredCategoryImageIndex === index && selectedCategoryIndex !== index ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image' : ''}">
                 {/each}
             </div>
 
@@ -367,11 +491,11 @@
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
-<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="big-tool-pannel">
+<div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4" id="big-category-pannel">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer" on:click={(event)=>{event.stopPropagation(); closeBigPicture();}}>&times;</span>
-    <img class="h-[300px]" id="big-tool" alt="big tool">
+    <img class="h-[300px]" id="big-category" alt="big category">
 </div>
 
 <div class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]" id="add-order-pannel">
