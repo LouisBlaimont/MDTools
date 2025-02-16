@@ -78,14 +78,14 @@
         searchByCharacteristics();
     }
     function deleteAllCharacteristics(){
-        //for (let i = 0; i<characteristics.length; i++){
-            //let texte = document.getElementById(characteristics[i]);
-            //texte.value = "";
-            //if (charValues[characteristics[i]]){
-                //charValues[characteristics[i]]= "";
-            //}
-        //}
-        //searchByCharacteristics();
+        for (let i = 0; i<characteristics.length; i++){
+            let texte = document.getElementById(characteristics[i]);
+            texte.value = "";
+            if (charValues[characteristics[i]]){
+                charValues[characteristics[i]]= "";
+            }
+        }
+        searchByCharacteristics();
     }
 
     let groups_summary = [];
@@ -258,7 +258,7 @@
                 <label class="font-semibold">Recherche par caractéristiques:</label>
                 <div class = "flex items-center">
                     <label class="w-2/5 mt-2 mb-2" for="group">Groupe:</label>
-                    <select id="groupOptions" on:change="{(e) => findSubGroups(e.target.value)}">
+                    <select id="groupOptions" bind:value={localSelectedGroup} on:change="{(e) => handleGroupSelection(e.target.value)}">
                         <option>---</option>
                         {#each groups as group}
                             <option value="{group}">{group}</option>
@@ -279,8 +279,11 @@
                 {/if}
                 
                 {#if showChars}
-                    <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
-                        <button id="clear-all" class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm mb-2" on:click={()=>deleteAllCharacteristics()}>Tout effacer</button>
+                    <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={handleSearch}>
+                        <div class="flex gap-2 mb-2 mt-4">
+                            <button type="submit" class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm">Chercher</button>
+                            <button type="button" class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm" on:click={deleteAllCharacteristics}>Tout effacer</button>
+                        </div>
                         {#each characteristics as char}
                             <div class = "flex items-center">
                                 <label for="{char}" class="w-2/5">{char}:</label>
