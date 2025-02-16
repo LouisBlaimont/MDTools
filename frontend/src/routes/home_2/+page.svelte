@@ -24,7 +24,7 @@
             }
         });
     $: groups = groups_summary.map(group => group.name);
-    $: number_of_tool = groups_summary.map(group => group.nbInstr);
+    $: number_of_tool = groups_summary.map(group => group.instrCount);
 </script>
 
 <head><title>Accueil</title></head>
@@ -69,7 +69,7 @@
     {#each groups as group, index}
     <div class="relative group">
       <img class="w-full object-cover rounded-lg" src='/Groups_img/1.png' alt="group_img"/>
-      <div class="absolute bottom-0 left-0 p-2 text-white text-xs">
+      <div class="absolute bottom-0 left-0 p-4 text-white text-lg">
         {group} ({number_of_tool[index]})
       </div>
     </div>

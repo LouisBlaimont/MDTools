@@ -3,8 +3,10 @@
     import { suppliers } from '../../suppliers.js';
     import { getOrder, addTool } from '../../order.js';
     import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import { preventDefault } from 'svelte/legacy';
+    import { get } from 'svelte/store';
 
     let hoveredCategoryIndex = null;
     let hoveredCategoryImageIndex = null;
@@ -101,21 +103,30 @@
     let showChars = false;
     let errorMessage = '';
 
-    onMount(async () => {
-            try {
-                const response = await fetch('http://localhost:8080/api/groups/summary');
+    async function getGroupsSummary(){
+        try{
+            const response = await fetch('http://localhost:8080/api/groups/summary');
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch groups: ${response.statusText}`);
-                }
+            if (!response.ok) {
+                throw new Error(`Failed to fetch groups: ${response.statusText}`);
+            }
 
-                groups_summary = await response.json();
-            } catch (error) {
+            groups_summary = await response.json();
+            groups = groups_summary.map(group => group.name);
+        }catch (error) {
                 console.error(error);
                 errorMessage = error.message;
+        }
+    }
+
+    onMount(async () => {
+            await getGroupsSummary();
+
+            const group = $page.url.searchParams.get('group');
+            if (group){
+                await findSubGroups(group);
             }
         });
-    $: groups = groups_summary.map(group => group.name);
 
     
     async function findSubGroups(group){
@@ -204,7 +215,7 @@
                     abrev : ""
                 };
                 char_vals.push(char);
-            }
+    }
         }
         const data = { 
             groupName: selectedGroup,
@@ -258,7 +269,7 @@
                 <label class="font-semibold">Recherche par caractéristiques:</label>
                 <div class = "flex items-center">
                     <label class="w-2/5 mt-2 mb-2" for="group">Groupe:</label>
-                    <select id="groupOptions" bind:value={localSelectedGroup} on:change="{(e) => handleGroupSelection(e.target.value)}">
+                    <select id="groupOptions" bind:value={selectedGroup} on:change="{(e) => findSubGroups(e.target.value)}">
                         <option>---</option>
                         {#each groups as group}
                             <option value="{group}">{group}</option>
@@ -279,7 +290,7 @@
                 {/if}
                 
                 {#if showChars}
-                    <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={handleSearch}>
+                    <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
                         <div class="flex gap-2 mb-2 mt-4">
                             <button type="submit" class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm">Chercher</button>
                             <button type="button" class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm" on:click={deleteAllCharacteristics}>Tout effacer</button>

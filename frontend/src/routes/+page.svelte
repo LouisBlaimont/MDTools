@@ -1,4 +1,5 @@
 <script >
+  import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   // const images: Record<string, {default: string}> = import.meta.glob('/groups/*.png', {eager: true});
   const imageUrls = [
@@ -24,7 +25,12 @@
             }
         });
     $: groups = groups_summary.map(group => group.name);
-    $: number_of_tool = groups_summary.map(group => group.nbInstr);
+    $: number_of_tool = groups_summary.map(group => group.instrCount);
+
+    function moveToSearches(group){
+      console.log(group.group);
+      goto(`/searches?group=${encodeURIComponent(group.group)}`);
+    }
 </script>
 
 <head><title>Accueil</title></head>
@@ -64,8 +70,8 @@
   <section class="w-full md:w-3/4 grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto">
     {#each groups as group, index}
     <div class="relative group">
-      <img class="w-full object-cover rounded-lg" src='/Groups_img/1.png' alt="group_img"/>
-      <div class="absolute bottom-0 left-0 p-2 text-white text-xs">
+      <img class="cursor-pointer w-full object-cover rounded-lg" src='/Groups_img/1.png' alt="group_img" on:dblclick={()=>moveToSearches({group})}/>
+      <div class="absolute bottom-0 left-0 p-4 text-white text-lg">
         {group} ({number_of_tool[index]})
       </div>
     </div>
