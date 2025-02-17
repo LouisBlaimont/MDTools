@@ -4,43 +4,32 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.compositeKeys.SubGroupCharacteristicKey;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.mapper.GroupMapper;
+import be.uliege.speam.team03.MDTools.mapper.SubGroupMapper;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.DTOs.*;
 
 @Service
+@AllArgsConstructor
 public class GroupService {
     private GroupRepository groupRepository; 
     private CharacteristicRepository charRepository;
     private SubGroupRepository subGroupRepository;
     private SubGroupCharacteristicRepository subGroupCharRepository;
 
-    public GroupService(GroupRepository groupRepository, CharacteristicRepository charRepository, SubGroupRepository subgroupRepository, SubGroupCharacteristicRepository subGroupCharRepository){
-        this.groupRepository = groupRepository;
-        this.charRepository = charRepository;
-        this.subGroupRepository = subgroupRepository;
-        this.subGroupCharRepository = subGroupCharRepository;
-    }
-
+    private PictureStorageService pictureStorageService;
 
     public List<GroupDTO> findAllGroups(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
         List<GroupDTO> groupsDTO = groups.stream()
-            .map(group -> new GroupDTO(
-                group.getName(), 
-                group.getSubGroups().stream().
-                    map(subgroup -> new SubGroupDTO
-                        (subgroup.getName(), 
-                        subgroup.getSubGroupCharacteristics().stream()
-                            .map(detail-> detail.getCharacteristic().getName())
-                            .collect(Collectors.toList()),
-                        subgroup.getInstrCount()
-                        ))
-                        .collect(Collectors.toList()),
-                group.getInstrCount()
-            ))
+            .map(GroupMapper::toDto)
             .collect(Collectors.toList());
         return groupsDTO;
     }
@@ -51,20 +40,8 @@ public class GroupService {
             return null;
         }
         Group group = groupMaybe.get();
-        List<SubGroup> subGroups = group.getSubGroups();
-        GroupDTO groupDTO = new GroupDTO(
-                    group.getName(), 
-                    subGroups.stream().
-                    map(subgroup -> new SubGroupDTO
-                        (subgroup.getName(), 
-                        subgroup.getSubGroupCharacteristics().stream()
-                            .map(detail-> detail.getCharacteristic().getName())
-                            .collect(Collectors.toList()),
-                        subgroup.getInstrCount()
-                        ))
-                        .collect(Collectors.toList()),
-                    group.getInstrCount()
-                    );
+
+        GroupDTO groupDTO = GroupMapper.toDto(group);
         return groupDTO;
     }
     
@@ -105,7 +82,7 @@ public class GroupService {
                 charRepository.save(newChar);
             }
             
-            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId(), newChar.getId());
+            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId().intValue(), newChar.getId());
             SubGroupCharacteristic subGroupDetail = new SubGroupCharacteristic(newSubGroup, newChar, 1);
             subGroupDetail.setId(key);
             subGroupDetails.add(subGroupDetail); 
@@ -120,15 +97,10 @@ public class GroupService {
         newSubGroup.setCategories(null);
         newSubGroup.setSubGroupCharacteristics(subGroupDetails);
 
-        SubGroupDTO newSubGroupDTO = new SubGroupDTO(
-                    newSubGroup.getName(), 
-                    newSubGroup.getSubGroupCharacteristics().stream()
-                        .map(detail-> detail.getCharacteristic().getName())
-                        .collect(Collectors.toList()), 
-                    newSubGroup.getInstrCount());
-        List<SubGroupDTO> subGroupDTOList = new ArrayList<>();
-        subGroupDTOList.add(newSubGroupDTO);
-        GroupDTO newGroupDTO = new GroupDTO(newGroup.getName(), subGroupDTOList, newGroup.getInstrCount());
+        // SubGroupDTO newSubGroupDTO = SubGroupMapper.toDto(newSubGroup);
+        // List<SubGroupDTO> subGroupDTOList = new ArrayList<>();
+        // subGroupDTOList.add(newSubGroupDTO);
+        GroupDTO newGroupDTO = GroupMapper.toDto(newGroup);
         return newGroupDTO;
     }
     
@@ -162,35 +134,22 @@ public class GroupService {
     }
 
     
-    public GroupDTO updateGroup(Map<String, Object> body, String groupName){
+    public GroupDTO updateGroup(Map<String, Object> body, String groupName) throws ResourceNotFoundException, BadRequestException {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
-            return null;
+            throw new ResourceNotFoundException("Cannot find group with name: " + groupName);
         }
         Group group = groupMaybe.get();
 
         String name = (String) body.get("name");
         Optional<Group> sameGroup = groupRepository.findByName(name);
         if (sameGroup.isPresent()){
-            return null;
+            throw new BadRequestException("Group name already exists.");
         }
         group.setName(name);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
 
-        List<SubGroup> subGroups = group.getSubGroups();
-        GroupDTO groupDTO = new GroupDTO(
-            group.getName(), 
-            subGroups.stream().
-            map(subgroup -> new SubGroupDTO
-                (subgroup.getName(), 
-                subgroup.getSubGroupCharacteristics().stream()
-                    .map(detail-> detail.getCharacteristic().getName())
-                    .collect(Collectors.toList()),
-                subgroup.getInstrCount()
-                ))
-                .collect(Collectors.toList()),
-            group.getInstrCount()
-            );
+        GroupDTO groupDTO = GroupMapper.toDto(savedGroup);
 
         return groupDTO;
     }
@@ -199,5 +158,23 @@ public class GroupService {
         List<Group> groups = (List<Group>) groupRepository.findAll();
         List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount())).collect(Collectors.toList());
         return groupsSummaryDTO;
+    }
+
+    public GroupDTO setGroupPicture(String groupName, MultipartFile picture) throws ResourceNotFoundException {
+        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
+        if (groupMaybe.isEmpty()){
+            throw new ResourceNotFoundException("Group not found.");
+        }
+        Group group = groupMaybe.get();
+
+        if(group.getPictureId() != null){
+            pictureStorageService.deletePicture(group.getPictureId());
+        }
+
+        Picture metadata = pictureStorageService.storePicture(picture, PictureType.GROUP, group.getId());
+
+        group.setPictureId(metadata.getId());
+        Group savedGroup = groupRepository.save(group);
+        return GroupMapper.toDto(savedGroup);
     }
 }

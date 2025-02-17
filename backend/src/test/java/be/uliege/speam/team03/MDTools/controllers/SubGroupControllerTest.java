@@ -40,8 +40,8 @@ class SubGroupControllerTest {
       // Arrange
       String groupName = "group1";
       List<SubGroupDTO> expectedSubGroups = List.of(
-            new SubGroupDTO("subgroup1", null, 4),
-            new SubGroupDTO("subgroup2", null, 2));
+            new SubGroupDTO(1L, "subgroup1", 4L, null, 4, null, 20L),
+            new SubGroupDTO(2L, "subgroup2", 5L, null, 2, null, 30L));
 
       when(subGroupService.findAllSubGroups(groupName)).thenReturn(expectedSubGroups);
 
@@ -68,9 +68,9 @@ class SubGroupControllerTest {
 
 
       assertEquals(expectedSubGroups.get(0).getName(), subGroupDTOList.get(0).getName());
-      assertEquals(expectedSubGroups.get(0).getNbInstr(), subGroupDTOList.get(0).getNbInstr());
+      assertEquals(expectedSubGroups.get(0).getInstrCount(), subGroupDTOList.get(0).getInstrCount());
       assertEquals(expectedSubGroups.get(1).getName(), subGroupDTOList.get(1).getName());
-      assertEquals(expectedSubGroups.get(1).getNbInstr(), subGroupDTOList.get(1).getNbInstr());
+      assertEquals(expectedSubGroups.get(1).getInstrCount(), subGroupDTOList.get(1).getInstrCount());
 
 
       verify(subGroupService, times(1)).findAllSubGroups(groupName);
@@ -98,9 +98,9 @@ class SubGroupControllerTest {
       Map<String, Object> requestBody = Map.of("name", "subgroup1");
 
       List<SubGroupDTO> subGroups = List.of(
-            new SubGroupDTO("subgroup1", null, 2),
-            new SubGroupDTO("subgroup2", null, 4));
-      GroupDTO expectedGroup = new GroupDTO(groupName, subGroups, 4);
+            new SubGroupDTO(1L, "subgroup1", 3L, null, 2, null, 4L),
+            new SubGroupDTO(2L, "subgroup2", 4L, null, 2, null, 5L));
+      GroupDTO expectedGroup = new GroupDTO(1L, groupName, 2, 10L, subGroups);
 
       when(subGroupService.addSubGroup(groupName, requestBody)).thenReturn(expectedGroup);
 
@@ -142,7 +142,7 @@ class SubGroupControllerTest {
    void testGetSubGroup() {
       // Arrange
       String subgroupName = "subgroup1";
-      SubGroupDTO subGroup = new SubGroupDTO(subgroupName, null, 2);
+      SubGroupDTO subGroup = new SubGroupDTO(1L, subgroupName, 2L, null, 2, null, 2L);
       when(subGroupService.findSubGroup(subgroupName)).thenReturn(subGroup);
 
       // Act
@@ -175,7 +175,7 @@ class SubGroupControllerTest {
       String subgroupName = "subgroup1";
       Map<String, Object> body = new HashMap<>();
       body.put("name", "subgroup1_updated");
-      SubGroupDTO subGroupUpdated = new SubGroupDTO(subgroupName, null, 2);
+      SubGroupDTO subGroupUpdated = new SubGroupDTO(1L, subgroupName, 2L, null, 2, null, 2L);
       when(subGroupService.updateSubGroup(subgroupName, body)).thenReturn(subGroupUpdated);
 
       // Act

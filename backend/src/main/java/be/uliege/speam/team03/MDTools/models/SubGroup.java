@@ -14,7 +14,7 @@ public class SubGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sub_group_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "sub_group_name")
     private String name;
@@ -31,6 +31,9 @@ public class SubGroup {
 
     @OneToMany(mappedBy = "subGroup")
     private List<Category> categories;
+
+    @Column(name = "picture_id")
+    private Long pictureId;
 
 
     public SubGroup(String subGroupName, Group group) {

@@ -4,12 +4,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import lombok.AllArgsConstructor;
 
 @Service
 public class CategoryService {
@@ -19,14 +22,16 @@ public class CategoryService {
     private CharacteristicRepository characteristicRepository;
     private CategoryCharacteristicRepository categoryCharRepository;
     private CategoryMapper catMapper;
+    private PictureStorageService pictureStorageService;
 
-    public CategoryService(GroupRepository groupRepo, SubGroupRepository subGroupRepo, CategoryRepository categoryRepo, CharacteristicRepository charRepo, CategoryCharacteristicRepository catCharRepo) {
+    public CategoryService(GroupRepository groupRepo, SubGroupRepository subGroupRepo, CategoryRepository categoryRepo, CharacteristicRepository charRepo, CategoryCharacteristicRepository catCharRepo, PictureStorageService pictureStorageService){ 
         this.groupRepository = groupRepo;
         this.subGroupRepository = subGroupRepo;
         this.categoryRepository = categoryRepo;
         this.characteristicRepository = charRepo;
         this.categoryCharRepository = catCharRepo;
         this.catMapper = new CategoryMapper(categoryRepo);
+        this.pictureStorageService = pictureStorageService;
     }
 
     public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
@@ -147,13 +152,31 @@ public class CategoryService {
     }
 
     public List<CharacteristicDTO> findCategoryById(Integer catId){
-        Optional<Category> categoryMaybe = categoryRepository.findById(catId);
+        Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
         if (categoryMaybe.isEmpty()){
             return null;
         }
         
         List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal())).collect(Collectors.toList());
         return characteristics;
+    }
+
+    public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
+        Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
+        if (categoryMaybe.isEmpty()){
+            throw new ResourceNotFoundException("Group not found.");
+        }
+        Category category = categoryMaybe.get();
+
+        if(category.getPictureId() != null){
+            pictureStorageService.deletePicture(category.getPictureId());
+        }
+
+        Picture metadata = pictureStorageService.storePicture(picture, PictureType.GROUP, categoryId);
+
+        category.setPictureId(metadata.getId());
+        Category savedCategory = categoryRepository.save(category);
+        return catMapper.mapToCategoryDto(savedCategory);
     }
 
 }
