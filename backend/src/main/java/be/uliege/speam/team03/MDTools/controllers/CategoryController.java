@@ -46,7 +46,7 @@ public class CategoryController {
     }
 
      // retrieve all instruments of a certain category 
-    @GetMapping("/{categoryId}")
+    @GetMapping("/instruments/{categoryId}")
     public ResponseEntity<?> getInstrumentsOfCategory(@PathVariable Integer categoryId) {
         // calls the service corresponding with the correct function 
         List<InstrumentDTO> instruments = instrumentService.findInstrumentsOfCatergory(categoryId);
@@ -55,6 +55,5 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for the category " + categoryId);
         }
         return ResponseEntity.status(HttpStatus.OK).body(instruments);
-    }
-    
+    }    
 }
