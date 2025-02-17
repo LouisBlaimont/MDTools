@@ -15,6 +15,7 @@ public class InstrumentDTO {
     private boolean alt;
     private boolean obsolete;
 
+
     public String getSupplierName() {
         return supplier;
     }

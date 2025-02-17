@@ -1,30 +1,41 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
+import be.uliege.speam.team03.MDTools.DTOs.GroupSummaryDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.SubGroupCharacteristicKey;
-import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.GroupMapper;
-import be.uliege.speam.team03.MDTools.mapper.SubGroupMapper;
-import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.repositories.*;
+import be.uliege.speam.team03.MDTools.models.Characteristic;
+import be.uliege.speam.team03.MDTools.models.Group;
+import be.uliege.speam.team03.MDTools.models.Picture;
+import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.models.SubGroup;
+import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
+import be.uliege.speam.team03.MDTools.repositories.CharacteristicRepository;
+import be.uliege.speam.team03.MDTools.repositories.GroupRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupCharacteristicRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 import lombok.AllArgsConstructor;
-import be.uliege.speam.team03.MDTools.DTOs.*;
 
 @Service
 @AllArgsConstructor
 public class GroupService {
-    private GroupRepository groupRepository; 
-    private CharacteristicRepository charRepository;
-    private SubGroupRepository subGroupRepository;
-    private SubGroupCharacteristicRepository subGroupCharRepository;
+    private final GroupRepository groupRepository; 
+    private final CharacteristicRepository charRepository;
+    private final SubGroupRepository subGroupRepository;
+    private final SubGroupCharacteristicRepository subGroupCharRepository;
 
-    private PictureStorageService pictureStorageService;
+    private final PictureStorageService pictureStorageService;
 
     public List<GroupDTO> findAllGroups(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
@@ -47,10 +58,10 @@ public class GroupService {
     
     @SuppressWarnings("unchecked")
     public GroupDTO addGroup(Map<String, Object> body){
-        String groupName = (String) body.get("groupName");
-        String subGroupName = (String) body.get("subGroupName");
+        String groupName = (String)body.get("groupName");
+        String subGroupName = (String)body.get("subGroupName");
         List<String> characteristics = (List<String>)body.get("characteristics");
-
+        
         Optional<Group> sameGroup = groupRepository.findByName(groupName);
 
         if (sameGroup.isPresent()){

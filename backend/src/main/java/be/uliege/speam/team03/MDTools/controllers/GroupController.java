@@ -78,8 +78,7 @@ public class GroupController {
 
     @PostMapping("/{groupName}/picture")
     public ResponseEntity<GroupDTO> setGroupPicture(@PathVariable String groupName, @RequestParam("file") MultipartFile file) throws ResourceNotFoundException {
-        GroupDTO groupUpdated = null;
-        groupUpdated = groupService.setGroupPicture(groupName, file);
+        GroupDTO groupUpdated = groupService.setGroupPicture(groupName, file);
         
         return ResponseEntity.status(HttpStatus.OK).body(groupUpdated);
     }

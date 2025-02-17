@@ -26,6 +26,18 @@
         categories = [cat];
     }
 
+    async function selectTool2(index, row) {
+        selectedCategoryIndex = index;
+
+        // selecting the categoryId
+        const firstKey = Object.keys(row)[0]; 
+        const categoryId = row[firstKey];  
+
+        const response = await fetch('localhost:8080/api/instruments/${categoryId}');
+        if (!response.ok) throw new Error("Failed to fetch instruments of category");
+        currentSuppliers = response.json();
+    }
+
     let hoveredSupplierIndex = null;
     let hoveredSupplierImageIndex = null;
     let selectedSupplierIndex = null;

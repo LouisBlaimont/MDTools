@@ -3,11 +3,7 @@ package be.uliege.speam.team03.MDTools.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
-import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
-import be.uliege.speam.team03.MDTools.mapper.SubGroupMapper;
 import be.uliege.speam.team03.MDTools.models.Group;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import lombok.NonNull;
