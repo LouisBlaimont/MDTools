@@ -16,7 +16,7 @@ public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="group_id")
-    private Integer id;
+    private Long id;
     
     @Column(name="group_name")
     private String name;
@@ -27,8 +27,11 @@ public class Group {
     @OneToMany(mappedBy = "group")
     private List<SubGroup> subGroups;
 
+    @Column(name="picture_id", nullable = true)
+    private Long pictureId;
+
     @PostLoad //happens each time data is fetched, replaced, .. in the DB so I must add cond so that it doesn't change the number when patch and get (post value is manually given)
-    private void calculateInstrumentCount() {
+ void calculateInstrumentCount() {
         this.instrCount = 3;
     }
 

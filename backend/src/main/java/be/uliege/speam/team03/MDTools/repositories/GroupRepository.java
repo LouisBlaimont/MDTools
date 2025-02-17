@@ -6,7 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import be.uliege.speam.team03.MDTools.models.Group;
 
-public interface GroupRepository extends CrudRepository<Group, Integer>{
+public interface GroupRepository extends CrudRepository<Group, Long>{
     Optional<Group> findByName(String name);
 }
-

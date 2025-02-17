@@ -7,9 +7,9 @@ services:
     env_file:
       - .env
     volumes:
-      #- pgdata:/home/postgres_user/data
+      - pgdata:/home/postgres_user/data
       # pgdata is a named volume, which is a persistent volume
-      - pgdata:/var/lib/postgresql/data
+      # - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -54,8 +54,11 @@ services:
     volumes:
       - ./backend:/app/src  # Mount the backend directory for live reload
       - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
+      - pictures:/app/pictures
     ports:
       - "8080:8080"  # Expose the Spring Boot application port
 volumes:
   pgdata:
+    driver: local
+  pictures:
     driver: local

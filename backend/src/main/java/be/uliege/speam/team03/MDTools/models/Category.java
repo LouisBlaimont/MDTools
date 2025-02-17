@@ -27,6 +27,9 @@ public class Category {
     @Column(name="shape")
     private String shape;
 
+    @Column(name="picture_id", nullable = true)
+    private Long pictureId;
+
     public Category(SubGroup subGroup, String shape) { 
         this.subGroup = subGroup;
         this.shape = shape;

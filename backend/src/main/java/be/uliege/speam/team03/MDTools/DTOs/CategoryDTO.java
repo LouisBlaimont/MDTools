@@ -14,4 +14,5 @@ public class CategoryDTO {
     private String function;
     private String shape;
     private String lenAbrv;
+    private Long pictureId;
 }

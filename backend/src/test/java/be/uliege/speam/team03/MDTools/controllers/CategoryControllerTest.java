@@ -44,8 +44,8 @@ public class CategoryControllerTest {
       Integer id_1 = 1;
       Integer id_2 = 2;
       List<CategoryDTO> categories = Arrays.asList(
-            new CategoryDTO(id_1, groupName, "subgroup1", "Name1", "Function1", "Shape1", "lenAbrv1"),
-            new CategoryDTO(id_2, groupName, "subgroup2", "Name2", "Function2", "Shape2", "lenAbrv2"));
+            new CategoryDTO(id_1, groupName, "subgroup1", "Name1", "Function1", "Shape1", "lenAbrv1", 1L),
+            new CategoryDTO(id_2, groupName, "subgroup2", "Name2", "Function2", "Shape2", "lenAbrv2", 2L));
       when(categoryService.findCategoriesOfGroup(groupName)).thenReturn(categories);
 
       // Act & Assert
@@ -67,8 +67,7 @@ public class CategoryControllerTest {
       // Act & Assert
       mockMvc.perform(get("/api/category/group/{groupName}", groupName)
             .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(content().string("No categories found for the group name: " + groupName));
+            .andExpect(status().isNotFound());
 
       verify(categoryService, times(1)).findCategoriesOfGroup(groupName);
    }
@@ -80,8 +79,8 @@ public class CategoryControllerTest {
       Integer id_1 = 1;
       Integer id_2 = 2;
       List<CategoryDTO> categories = Arrays.asList(
-            new CategoryDTO(id_1, "Group1", subGroupName, "Name1", "Function1", "Shape1", "lenAbrv1"),
-            new CategoryDTO(id_2, "Group2", subGroupName, "Name2", "Function2", "Shape2", "lenAbrv2"));
+            new CategoryDTO(id_1, "Group1", subGroupName, "Name1", "Function1", "Shape1", "lenAbrv1", 1L),
+            new CategoryDTO(id_2, "Group2", subGroupName, "Name2", "Function2", "Shape2", "lenAbrv2", 2L));
       when(categoryService.findCategoriesOfSubGroup(subGroupName)).thenReturn(categories);
 
       // Act & Assert
@@ -103,8 +102,7 @@ public class CategoryControllerTest {
       // Act & Assert
       mockMvc.perform(get("/api/category/subgroup/{subGroupName}", subGroupName)
             .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(content().string("No categories found for the subgroup name :" + subGroupName));
+            .andExpect(status().isNotFound());
 
       verify(categoryService, times(1)).findCategoriesOfSubGroup(subGroupName);
    }

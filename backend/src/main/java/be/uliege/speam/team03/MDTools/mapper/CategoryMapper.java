@@ -3,6 +3,8 @@ package be.uliege.speam.team03.MDTools.mapper;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import java.util.Optional;
+
+
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 
 public class CategoryMapper {
@@ -19,7 +21,7 @@ public class CategoryMapper {
         String subgName = category.getSubGroup().getName();
         
         String name = new String();
-        Optional<String> nameMaybe = categoryRepository.findCharacteristicVal(id, "Name");
+        Optional<String> nameMaybe = categoryRepository.findCharacteristicVal((long) id, "Name");
         if (nameMaybe.isPresent()){ 
             name = nameMaybe.get();
         }
@@ -28,7 +30,7 @@ public class CategoryMapper {
         }
 
         String function = new String();
-        Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
+        Optional<String> functionMaybe = categoryRepository.findCharacteristicVal((long) id, "Function");
         if (functionMaybe.isPresent()){
             function = functionMaybe.get();
         }
@@ -39,14 +41,14 @@ public class CategoryMapper {
         String shape = category.getShape();
 
         String lenAbrv = new String();
-        Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv(id, "Length");
+        Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv((long) id, "Length");
         if (lenAbrvMaybe.isPresent()){
             lenAbrv = lenAbrvMaybe.get();
         }
         else{
             lenAbrv = null;
         }
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv);
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, category.getPictureId());
 
         return categoryDTO;
     }
