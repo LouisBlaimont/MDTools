@@ -1,26 +1,37 @@
 <script>
-    import { suppliers } from '../../../suppliers.js';
-    import { onMount } from 'svelte';
+    import { fetchToolById, editTool, deleteTool } from "../../../api.js";
+    import { onMount } from "svelte";
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
 
     let toolId;
     let tool;
 
     $: toolId = $page.params.id;
 
-    console.log('Tool ID:', toolId);
-
-    onMount(() => {
-        tool = suppliers.flat().find(t => t.id == toolId);
-        console.log('Tool:', tool);
+    onMount(async () => {
+        if (toolId) {
+            tool = await fetchToolById(toolId);
+            console.log('Tool:', tool);
+        }
     });
 
-    function saveChanges() {
-        // Logic to save changes to the tool
+    async function saveChanges() {
+        if (tool) {
+            await editTool(toolId, tool);
+            console.log('Tool saved:', tool);
+        }
     }
 
-    function deleteTool() {
-        // Logic to delete the tool
+    async function deleteInstrument() {
+        if (toolId) {
+            const confirmed = window.confirm("Are you sure you want to delete this instrument?");
+            if (confirmed) {
+                await deleteTool(toolId);
+                console.log('Tool deleted:', toolId);
+                goto('/searches_admin');
+            }
+        }
     }
 </script>
 
@@ -60,7 +71,7 @@
                 <button class="bg-green-500 text-white p-2 rounded hover:bg-green-700" 
                     on:click={saveChanges}>Save</button>
                 <button class="bg-red-500 text-white p-2 rounded hover:bg-red-700" 
-                    on:click={deleteTool}>Delete</button>
+                    on:click={deleteInstrument}>Delete</button>
             </div>
         </div>
     {/if}

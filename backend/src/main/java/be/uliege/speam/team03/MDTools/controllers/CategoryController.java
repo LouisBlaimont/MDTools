@@ -16,9 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import lombok.AllArgsConstructor;
+import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final InstrumentService instrumentService;
 
     @GetMapping("/group/{groupName}")
     public ResponseEntity<List<CategoryDTO>> getCategoryFromGroup(@PathVariable String groupName) throws ResourceNotFoundException {
@@ -59,6 +62,18 @@ public class CategoryController {
         categoryUpdated = categoryService.setCategoryPicture(id, file);
         
         return ResponseEntity.status(HttpStatus.OK).body(categoryUpdated);
+    }
+
+     // retrieve all instruments of a certain category 
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<?> getInstrumentsOfCategory(@PathVariable Integer categoryId) {
+        // calls the service corresponding with the correct function 
+        List<InstrumentDTO> instruments = instrumentService.findInstrumentsOfCatergory(categoryId);
+        // checking if we found something 
+        if (instruments == null || instruments.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for the category " + categoryId);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
 
     @PostMapping("/search/by-characteristics")
