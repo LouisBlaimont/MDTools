@@ -264,20 +264,30 @@
 
     // Extracts the data from the Excel file and converts it to JSON format.
     const extractExcelDataToJson = () => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            console.log("Données JSON extraites:", jsonData);
-            isLoading = false;
-            currentView = "verification";
-            verifyColumns();
-        };
-        reader.readAsArrayBuffer(file);
-    };
+      const reader = new FileReader();
+      reader.onload = (e) => {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          const tempJsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          if (!tempJsonData || tempJsonData.length === 0) {
+              console.warn("⚠️ Aucune donnée extraite de l'Excel !");
+              jsonData = []; // Assigne un tableau vide au lieu de `null`
+          } else {
+              jsonData = [...tempJsonData]; // Force la mise à jour
+          }
+
+          console.log("✅ Données JSON extraites:", jsonData);
+
+          isLoading = false;
+          currentView = "verification";
+          verifyColumns();
+      };
+      reader.readAsArrayBuffer(file);
+  };
 
 
     // Handles opening the JSON modal to view the extracted data.
@@ -307,7 +317,6 @@
       if (!columnMapping[index] || columnMapping[index].trim() === "") {
         delete columnMapping[index]; 
       }
-      console.log("🔹 Selected columns:", columnMapping);
     };
 
 
@@ -499,31 +508,36 @@
               </div>
               <p class="text-gray-700 mb-4">Voici un aperçu du fichier Excel importé :</p>
               <div class="overflow-auto" style="max-height: 60vh; max-width: 100%;">
-                <table class="border-collapse border border-gray-400 w-full text-sm">
-                  <thead>
-                    <tr>
-                      {#each jsonData[0] as header, index}
-                        <th class="border border-gray-400 p-2 bg-gray-200">
-                          <select bind:value={columnMapping[index]} class="w-full" on:change={() => updateColumnMapping(index)}>
-                            <option value="">vide</option>
-                            {#each requiredColumns as column}
-                              <option value={column}>{column}</option>
-                            {/each}
-                          </select>
-                        </th>
-                      {/each}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each jsonData.slice(1) as row, rowIndex}
-                      <tr>
-                        {#each row as cell}
-                          <td class="border border-gray-400 p-2 text-center">{cell}</td>
-                        {/each}
-                      </tr>
-                    {/each}
-                  </tbody>
-                </table>
+                {#if jsonData && jsonData.length > 0}
+                  <table class="border-collapse border border-gray-400 w-full text-sm">
+                      <thead>
+                          <tr>
+                              {#each jsonData[0] as header, index}
+                                  <th class="border border-gray-400 p-2 bg-gray-200">
+                                      <select bind:value={columnMapping[index]} class="w-full" on:change={() => updateColumnMapping(index)}>
+                                          <option value="">vide</option>
+                                          {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                              <option value={column}>{column}</option>
+                                          {/each}
+                                      </select>
+                                  </th>
+                              {/each}
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {#each jsonData.slice(1) as row, rowIndex}
+                              <tr>
+                                  {#each row as cell}
+                                      <td class="border border-gray-400 p-2 text-center">{cell}</td>
+                                  {/each}
+                              </tr>
+                          {/each}
+                      </tbody>
+                  </table>
+              {:else}
+                  <p class="text-gray-600">Aucune donnée disponible.</p>
+              {/if}
+
               </div>
               <div class="flex justify-end mt-4">
                 <button 

@@ -2,42 +2,31 @@ package be.uliege.speam.team03.MDTools.services;
 
 import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
-import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
-import be.uliege.speam.team03.MDTools.models.Characteristic;
-import be.uliege.speam.team03.MDTools.models.Instruments;
-import be.uliege.speam.team03.MDTools.models.SubGroup;
-import be.uliege.speam.team03.MDTools.models.Suppliers;
-import be.uliege.speam.team03.MDTools.models.Category;
-import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
-import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
-import be.uliege.speam.team03.MDTools.repositories.SubGroupCharacteristicRepository;
-import be.uliege.speam.team03.MDTools.repositories.CharacteristicRepository;
-import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
-import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
-import be.uliege.speam.team03.MDTools.repositories.CategoryCharacteristicRepository;
+import be.uliege.speam.team03.MDTools.models.*;
+import be.uliege.speam.team03.MDTools.repositories.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
+import java.text.Normalizer;
 
 @Service
 public class ExcelImportService {
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelImportService.class);
+
     private final InstrumentRepository instrumentRepository;
     private final SubGroupRepository subGroupRepository;
-    private final SubGroupCharacteristicRepository subGroupCharacteristicRepository;
     private final CharacteristicRepository characteristicRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryCharacteristicRepository categoryCharacteristicRepository;
 
-
-
     public ExcelImportService(
-        InstrumentRepository instrumentRepository, 
+        InstrumentRepository instrumentRepository,
         SubGroupRepository subGroupRepository,
         SubGroupCharacteristicRepository subGroupCharacteristicRepository,
         CharacteristicRepository characteristicRepository,
@@ -47,47 +36,34 @@ public class ExcelImportService {
     ) {
         this.instrumentRepository = instrumentRepository;
         this.subGroupRepository = subGroupRepository;
-        this.subGroupCharacteristicRepository = subGroupCharacteristicRepository;
         this.characteristicRepository = characteristicRepository;
         this.supplierRepository = supplierRepository;
         this.categoryRepository = categoryRepository;
         this.categoryCharacteristicRepository = categoryCharacteristicRepository;
     }
 
-    /**
-     * Processes the import request based on the selected import type.
-     *
-     * @param request The import request containing data, type, and category info.
-     */
     public void processImport(ImportRequestDTO request) {
         switch (request.getImportType()) {
             case "Importer un sous-groupe":
                 processSubGroupImport(request.getGroupName(), request.getSubGroupName(), request.getData());
                 break;
             case "Importer des instruments non catégorisés":
-                processUncategorizedInstruments(request.getData());
+                //processUncategorizedInstruments(request.getData());
                 break;
             case "Importer un catalogue":
-                processCatalogImport(request.getData());
+                //processCatalogImport(request.getData());
                 break;
             case "Importer des alternatives":
-                processAlternativesImport(request.getData());
+                //processAlternativesImport(request.getData());
                 break;
             case "Importer un crossref":
-                processCrossrefImport(request.getData());
+                //processCrossrefImport(request.getData());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown import type: " + request.getImportType());
         }
     }
 
-    /**
-     * Processes the import of instruments into a sub-group.
-     *
-     * @param groupName     The name of the group.
-     * @param subGroupName  The name of the sub-group.
-     * @param data          The list of instruments to be processed.
-     */
     private void processSubGroupImport(String groupName, String subGroupName, List<Map<String, Object>> data) {
         logger.info("🛠 Importing instruments into sub-group: {} -> {}", groupName, subGroupName);
 
@@ -98,139 +74,259 @@ public class ExcelImportService {
         }
         SubGroup subGroup = subGroupOpt.get();
 
-        // Fetch characteristics using the same approach as in SubGroupService
         List<String> subGroupCharacteristics = subGroup.getSubGroupCharacteristics()
-            .stream()
-            .map(detail -> detail.getCharacteristic().getName())
-            .collect(Collectors.toList());
+                .stream()
+                .map(detail -> detail.getCharacteristic().getName())
+                .collect(Collectors.toList());
 
         logger.info("Characteristics for sub-group '{}': {}", subGroupName, subGroupCharacteristics);
 
         Set<String> availableColumns = data.stream()
-        .flatMap(row -> row.keySet().stream())
-        .collect(Collectors.toSet());
+                .flatMap(row -> row.keySet().stream())
+                .collect(Collectors.toSet());
 
         for (Map<String, Object> row : data) {
-            String reference = (String) row.get("reference");
-            if (reference == null || reference.trim().isEmpty()) {
-                logger.warn("Skipping entry due to missing reference.");
-                continue;
-            }
-
-            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
-            if (existingInstrumentOpt.isPresent()) {
-                logger.info("Instrument with reference {} already exists. Checking for differences...", reference);
-                Instruments existingInstrument = existingInstrumentOpt.get();
-                // TODO: Implement logic to compare and update existing instrument if needed.
-                continue;
-            }
-
-            Instruments newInstrument = new Instruments();
-            newInstrument.setReference(reference);
-            
-            if (availableColumns.contains("supplier_name")) {
-                String supplierName = (String) row.get("supplier_name");
-            
-                Optional<Suppliers> supplierOpt = supplierRepository.findByName(supplierName);
-                
-                supplierOpt.ifPresent(newInstrument::setSupplier);
-            }
-
-            if (availableColumns.contains("supplier_description")) {
-                newInstrument.setSupplierDescription((String) row.get("supplier_description"));
-            }
-            if (availableColumns.contains("price")) {
-                Object priceObj = row.get("price");
-                Float price = (priceObj instanceof Number) ? ((Number) priceObj).floatValue() : 0.0f;
-                newInstrument.setPrice(price);
-            }
-            
-            if (availableColumns.contains("obsolete")) {
-                newInstrument.setObsolete(row.get("obsolete") != null ? (Boolean) row.get("obsolete") : false);
-            }
-
-            // Step 1: Extract characteristic values from JSON
-            Map<String, String> instrumentCharacteristics = new HashMap<>();
-            for (String characteristic : subGroupCharacteristics) {
-                if (row.containsKey(characteristic)) {
-                    instrumentCharacteristics.put(characteristic, row.get(characteristic).toString());
-                } else {
-                    instrumentCharacteristics.put(characteristic, "default"); // Placeholder for missing characteristics
-                }
-            }
-            // Retrieve all existing categories for the given sub-group
-            List<Category> existingCategories = categoryRepository.findBySubGroup(subGroup)
-            .orElse(new ArrayList<>());
-
-            // Step 2: Find an existing category with matching characteristics
-            Category matchedCategory = null;
-            for (Category category : existingCategories) {
-                boolean match = true;
-                for (String characteristic : instrumentCharacteristics.keySet()) {
-                    Optional<String> existingValueOpt = categoryRepository.findCharacteristicVal(category.getId(), characteristic);
-                    if (existingValueOpt.isEmpty() || !existingValueOpt.get().equals(instrumentCharacteristics.get(characteristic))) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) {
-                    matchedCategory = category;
-                    break;
-                }
-            }
-
-            // Step 3: If no existing category matches, create a new one
-            if (matchedCategory == null) {
-                matchedCategory = new Category(subGroup);
-                categoryRepository.save(matchedCategory);
-
-                // Link new characteristics to the category
-                for (Map.Entry<String, String> entry : instrumentCharacteristics.entrySet()) {
-                    String characteristicName = entry.getKey();
-                    String characteristicValue = entry.getValue();
-
-                    Optional<Characteristic> characteristicOpt = characteristicRepository.findByName(characteristicName);
-                    Characteristic characteristic = characteristicOpt.orElseGet(() -> {
-                        Characteristic newCharacteristic = new Characteristic(characteristicName);
-                        characteristicRepository.save(newCharacteristic);
-                        return newCharacteristic;
-                    });
-
-                    // Create composite key for CategoryCharacteristic
-                    CategoryCharacteristicKey key = new CategoryCharacteristicKey(matchedCategory.getId(), characteristic.getId());
-
-                    // Create and save the CategoryCharacteristic with both value and abbreviation
-                    CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(matchedCategory, characteristic, characteristicValue, characteristicValue.substring(0, Math.min(3, characteristicValue.length()))); 
-                    categoryCharacteristic.setId(key);
-                    categoryCharacteristicRepository.save(categoryCharacteristic);
-                }
-                existingCategories.add(matchedCategory);
-            }
-
-            // Step 4: Link the instrument to the determined category
-            newInstrument.setCategory(matchedCategory);
-
-
-            
-            instrumentRepository.save(newInstrument);
-            logger.info("New instrument saved: {}", reference);
+            processInstrumentRow(row, subGroup, availableColumns, subGroupCharacteristics);
         }
     }
 
+    private void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
+        String reference = (String) row.get("reference");
+        if (reference == null || reference.trim().isEmpty()) {
+            logger.warn("Skipping entry due to missing reference.");
+            return;
+        }
 
-    private void processUncategorizedInstruments(List<Map<String, Object>> data) {
-        logger.info("🛠 Importing uncategorized instruments...");
+        Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
+        if (existingInstrumentOpt.isPresent()) {
+            logger.info("Instrument with reference {} already exists. Checking for differences...", reference);
+            Instruments existingInstrument = existingInstrumentOpt.get();
+            
+            // Check differences and update
+            if (updateExistingInstrument(existingInstrument, row, subGroup, availableColumns, subGroupCharacteristics)) {
+                instrumentRepository.save(existingInstrument);
+                logger.info("✅ Instrument {} updated successfully.", reference);
+            }
+            return;
+        }
+
+        Instruments newInstrument = new Instruments();
+        newInstrument.setReference(reference);
+        newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns));
+        newInstrument.setSupplierDescription((String) row.getOrDefault("supplier_description", ""));
+        newInstrument.setPrice(getPrice(row, availableColumns));
+        newInstrument.setObsolete(getObsoleteValue(row, availableColumns));
+        newInstrument.setCategory(getOrCreateCategory(subGroup, row, subGroupCharacteristics));
+
+        instrumentRepository.save(newInstrument);
+        logger.info("New instrument saved: {}", reference);
     }
 
-    private void processCatalogImport(List<Map<String, Object>> data) {
-        logger.info("🛠 Importing a catalog...");
+    private Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns) {
+        // Retrieve supplier name from the provided data or set a default value
+        String supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : "Unknown Supplier";
+        
+        if (supplierName == null || supplierName.trim().isEmpty()) {
+            supplierName = "Unknown Supplier";
+        }
+        
+        // Normalize supplier name for case-insensitive and accent-free comparison
+        String normalizedSupplierName = normalizeString(supplierName);
+    
+        // Fetch all existing suppliers from the database
+        List<Suppliers> existingSuppliers = supplierRepository.findAll();
+        for (Suppliers existingSupplier : existingSuppliers) {
+            // Compare normalized names to check if a similar supplier already exists
+            if (normalizeString(existingSupplier.getSupplierName()).equals(normalizedSupplierName)) {
+                return existingSupplier; // Return the existing supplier to avoid duplicates
+            }
+        }
+    
+        // If no similar supplier exists, create a new one
+        Suppliers newSupplier = new Suppliers();
+        newSupplier.setSupplierName(supplierName);
+        
+        newSupplier.setSoldByMd(getSoldByMdValue(row, availableColumns));
+        newSupplier.setClosed(getClosedValue(row, availableColumns));
+    
+        // Save the new supplier in the database
+        supplierRepository.save(newSupplier);
+        logger.info("Created new supplier: {}", supplierName);
+        
+        return newSupplier;
     }
 
-    private void processAlternativesImport(List<Map<String, Object>> data) {
-        logger.info("🛠 Importing alternatives...");
+    private Float getPrice(Map<String, Object> row, Set<String> availableColumns) {
+        if (!availableColumns.contains("price")) return 0.0f;
+
+        Object priceObj = row.get("price");
+        return (priceObj instanceof Number) ? ((Number) priceObj).floatValue() : 0.0f;
     }
 
-    private void processCrossrefImport(List<Map<String, Object>> data) {
-        logger.info("🛠 Importing cross-reference data...");
+    private Boolean getObsoleteValue(Map<String, Object> row, Set<String> availableColumns) {
+        return getBooleanValue(row, availableColumns, "obsolete");
+    }
+    
+    private Boolean getSoldByMdValue(Map<String, Object> row, Set<String> availableColumns) {
+        if (!availableColumns.contains("sold_by_md") || row.get("sold_by_md") == null || row.get("sold_by_md").toString().trim().isEmpty()) {
+            return false; // Default to false if the column is missing or empty
+        }
+        return getBooleanValue(row, availableColumns, "sold_by_md");
+    }
+    
+    private Boolean getClosedValue(Map<String, Object> row, Set<String> availableColumns) {
+        if (!availableColumns.contains("closed") || row.get("closed") == null || row.get("closed").toString().trim().isEmpty()) {
+            return false; // Default to false if the column is missing or empty
+        }
+        return getBooleanValue(row, availableColumns, "closed");
+    }
+    
+    
+
+    private Boolean getBooleanValue(Map<String, Object> row, Set<String> availableColumns, String key) {
+        if (!availableColumns.contains(key)) return false;
+    
+        Object value = row.get(key);
+        if (value instanceof Boolean) return (Boolean) value;
+    
+        if (value instanceof String) {
+            String strValue = ((String) value).trim().toLowerCase();
+            Set<String> trueValues = Set.of("true", "vrai", "ja", "yes", "oui");
+            Set<String> falseValues = Set.of("false", "faux", "nee", "non", "no");
+    
+            if (trueValues.contains(strValue)) return true;
+            if (falseValues.contains(strValue)) return false;
+        }
+        return false;
+    }
+    
+
+    private Category getOrCreateCategory(SubGroup subGroup, Map<String, Object> row, List<String> subGroupCharacteristics) {
+        Map<String, String> instrumentCharacteristics = extractCharacteristics(row, subGroupCharacteristics);
+
+        List<Category> existingCategories = categoryRepository.findBySubGroup(subGroup).orElse(new ArrayList<>());
+
+        for (Category category : existingCategories) {
+            if (matchCategory(category, instrumentCharacteristics)) return category;
+        }
+        Set<String> availableColumns = row.keySet(); // Extract available columns from row
+
+        return createNewCategory(subGroup, instrumentCharacteristics, availableColumns, row);
+    }
+
+    private Map<String, String> extractCharacteristics(Map<String, Object> row, List<String> subGroupCharacteristics) {
+        Map<String, String> characteristics = new HashMap<>();
+        for (String characteristic : subGroupCharacteristics) {
+            if (row.containsKey(characteristic)) {
+                characteristics.put(characteristic, row.get(characteristic).toString());
+            }
+        }
+        return characteristics;
+    }
+
+    private boolean matchCategory(Category category, Map<String, String> instrumentCharacteristics) {
+        for (String characteristic : instrumentCharacteristics.keySet()) {
+            Optional<String> existingValueOpt = categoryRepository.findCharacteristicVal(category.getId(), characteristic);
+            if (existingValueOpt.isEmpty() || !existingValueOpt.get().equals(instrumentCharacteristics.get(characteristic))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private Category createNewCategory(SubGroup subGroup, Map<String, String> instrumentCharacteristics, Set<String> availableColumns, Map<String, Object> row) {
+        Category newCategory = new Category(subGroup);
+        categoryRepository.save(newCategory);
+    
+        for (Map.Entry<String, String> entry : instrumentCharacteristics.entrySet()) {
+            String characteristicName = entry.getKey();
+            String characteristicValue = entry.getValue();
+    
+            // Normalize characteristic value for comparison
+            String normalizedValue = normalizeString(characteristicValue);
+    
+            // Check if characteristic exists in the database
+            Characteristic characteristic = characteristicRepository.findByName(characteristicName)
+                    .orElseGet(() -> {
+                        Characteristic newChar = new Characteristic(characteristicName);
+                        characteristicRepository.save(newChar);
+                        return newChar;
+                    });
+    
+            // Look for an existing characteristic value in the database
+            Optional<CategoryCharacteristic> existingCategoryCharacteristic = categoryCharacteristicRepository
+                    .findByCharacteristicId(characteristic.getId())
+                    .stream()
+                    .filter(cc -> normalizeString(cc.getVal()).equals(normalizedValue))
+                    .findFirst();
+    
+            String abbreviation;
+            if (existingCategoryCharacteristic.isPresent()) {
+                // If the value already exists, use its abbreviation
+                abbreviation = existingCategoryCharacteristic.get().getValAbrev();
+            } else {
+    
+                // If no abbreviation exists, check if there's a column for abbreviation
+                abbreviation = (availableColumns.contains("abbreviation") && row.get("abbreviation") != null)
+                        ? row.get("abbreviation").toString()
+                        : null;
+            }
+    
+            // Create new CategoryCharacteristic
+            CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(newCategory, characteristic, characteristicValue, abbreviation);
+            categoryCharacteristic.setId(new CategoryCharacteristicKey(newCategory.getId(), characteristic.getId()));
+            categoryCharacteristicRepository.save(categoryCharacteristic);
+        }
+        return newCategory;
+    }
+
+    private boolean updateExistingInstrument(Instruments instrument, Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
+        boolean isUpdated = false;
+    
+        // Check Supplier
+        Suppliers newSupplier = getOrCreateSupplier(row, availableColumns);
+        if (!Objects.equals(instrument.getSupplier(), newSupplier)) {
+            instrument.setSupplier(newSupplier);
+            isUpdated = true;
+        }
+    
+        // Check Supplier Description
+        String newDescription = (String) row.getOrDefault("supplier_description", "");
+        if (!Objects.equals(instrument.getSupplierDescription(), newDescription)) {
+            instrument.setSupplierDescription(newDescription);
+            isUpdated = true;
+        }
+    
+        // Check Price
+        Float newPrice = getPrice(row, availableColumns);
+        if (!Objects.equals(instrument.getPrice(), newPrice)) {
+            instrument.setPrice(newPrice);
+            isUpdated = true;
+        }
+    
+        // Check Obsolete Status
+        Boolean newObsolete = getObsoleteValue(row, availableColumns);
+        if (!Objects.equals(instrument.getObsolete(), newObsolete)) {
+            instrument.setObsolete(newObsolete);
+            isUpdated = true;
+        }
+    
+        // Check Category
+        Category newCategory = getOrCreateCategory(subGroup, row, subGroupCharacteristics);
+        if (!Objects.equals(instrument.getCategory(), newCategory)) {
+            instrument.setCategory(newCategory);
+            isUpdated = true;
+        }
+    
+        return isUpdated;
+    }    
+    
+    
+    private String normalizeString(String input) {
+        if (input == null) return "";
+        
+        return Normalizer.normalize(input.trim().toLowerCase(), Normalizer.Form.NFD)
+                         .replaceAll("\\p{M}", ""); // Remove accents
     }
 }
