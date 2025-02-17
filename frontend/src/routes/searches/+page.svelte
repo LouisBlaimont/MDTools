@@ -29,6 +29,7 @@
     let hoveredSupplierIndex = null;
     let hoveredSupplierImageIndex = null;
     let selectedSupplierIndex = null;
+
     function selectSupplier(index) {
         selectedSupplierIndex = index;
     }
