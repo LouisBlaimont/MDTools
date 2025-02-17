@@ -21,7 +21,7 @@
         const firstKey = Object.keys(row)[0]; 
         const categoryId = row[firstKey];  
 
-        const response = await fetch('localhost:8080/api/category/${categoryId}');
+        const response = await fetch('localhost:8080/api/instruments/${categoryId}');
         if (!response.ok) throw new Error("Failed to fetch instruments of category");
         currentSuppliers = response.json();
     }

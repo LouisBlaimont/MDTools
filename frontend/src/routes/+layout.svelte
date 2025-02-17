@@ -69,7 +69,7 @@
       <a href="/webmaster" class="text-white hover:text-teal-200 transition duration-300">
         Webmaster
       </a>
-      <a href="/import?" class="text-white hover:text-teal-200 transition duration-300">
+      <a href="/import" class="text-white hover:text-teal-200 transition duration-300">
         Import
       </a>
     {/if}

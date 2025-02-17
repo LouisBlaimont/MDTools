@@ -45,18 +45,5 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found for the subgroup name :" + subGroupName);
         }
         return ResponseEntity.status(HttpStatus.OK).body(categories);
-    }
-
-     // retrieve all instruments of a certain category 
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<?> getInstrumentsOfCategory(@PathVariable Integer categoryId) {
-        // calls the service corresponding with the correct function 
-        List<InstrumentDTO> instruments = instrumentService.findInstrumentsOfCatergory(categoryId);
-        // checking if we found something 
-        if (instruments == null || instruments.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for the category " + categoryId);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(instruments);
-    }
-    
+    }    
 }
