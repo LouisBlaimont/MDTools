@@ -41,9 +41,11 @@ public class CategoryControllerTest {
    void getCategoryFromGroup_ShouldReturnCategories_WhenCategoriesExist() throws Exception {
       // Arrange
       String groupName = "TestGroup";
+      Integer id_1 = 1;
+      Integer id_2 = 2;
       List<CategoryDTO> categories = Arrays.asList(
-            new CategoryDTO(groupName, "subgroup1", "Name1", "Function1", "Shape1", "lenAbrv1"),
-            new CategoryDTO(groupName, "subgroup2", "Name2", "Function2", "Shape2", "lenAbrv2"));
+            new CategoryDTO(id_1, groupName, "subgroup1", "Name1", "Function1", "Shape1", "lenAbrv1"),
+            new CategoryDTO(id_2, groupName, "subgroup2", "Name2", "Function2", "Shape2", "lenAbrv2"));
       when(categoryService.findCategoriesOfGroup(groupName)).thenReturn(categories);
 
       // Act & Assert
@@ -75,9 +77,11 @@ public class CategoryControllerTest {
    void getCategoriesFromSubGroup_ShouldReturnCategories_WhenCategoriesExist() throws Exception {
       // Arrange
       String subGroupName = "TestSubGroup";
+      Integer id_1 = 1;
+      Integer id_2 = 2;
       List<CategoryDTO> categories = Arrays.asList(
-            new CategoryDTO("Group1", subGroupName, "Name1", "Function1", "Shape1", "lenAbrv1"),
-            new CategoryDTO("Group2", subGroupName, "Name2", "Function2", "Shape2", "lenAbrv2"));
+            new CategoryDTO(id_1, "Group1", subGroupName, "Name1", "Function1", "Shape1", "lenAbrv1"),
+            new CategoryDTO(id_2, "Group2", subGroupName, "Name2", "Function2", "Shape2", "lenAbrv2"));
       when(categoryService.findCategoriesOfSubGroup(subGroupName)).thenReturn(categories);
 
       // Act & Assert

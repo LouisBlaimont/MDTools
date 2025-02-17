@@ -18,6 +18,15 @@
         currentSuppliers = suppliers[index] || [];
     }
 
+    function selectCategoryWithChar(index){
+        selectedCategoryIndex = index;
+        currentSuppliers = suppliers[index] || [];
+        let cat = categories[selectedCategoryIndex]
+        let catId = cat.id;
+        categories = [cat];
+        console.log(categories);
+    }
+
     let hoveredSupplierIndex = null;
     let hoveredSupplierImageIndex = null;
     let selectedSupplierIndex = null;
@@ -329,6 +338,7 @@
                                     class:bg-[cornflowerblue]={selectedCategoryIndex === index}
                                     class:bg-[lightgray]={hoveredCategoryIndex === index && selectedCategoryIndex !== index}
                                     on:click={()=>selectCategory(index)}
+                                    on:dblclick={()=>selectCategoryWithChar(index)}
                                     on:mouseover={()=> hoveredCategoryIndex = index}
                                     on:mouseout={() => hoveredCategoryIndex = null}
                                 >

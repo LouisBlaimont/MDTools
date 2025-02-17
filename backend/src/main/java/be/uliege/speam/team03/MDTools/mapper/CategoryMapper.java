@@ -46,7 +46,7 @@ public class CategoryMapper {
         else{
             lenAbrv = null;
         }
-        CategoryDTO categoryDTO = new CategoryDTO(gName, subgName, name, function, shape, lenAbrv);
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv);
 
         return categoryDTO;
     }

@@ -7,6 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 public class CategoryDTO {
+    private Integer id;
     private String groupName;
     private String subGroupName;
     private String name;
