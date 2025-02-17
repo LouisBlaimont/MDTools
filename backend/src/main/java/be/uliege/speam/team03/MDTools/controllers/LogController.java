@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping(value = "/api/logs")
 public class LogController {
-   private LogService logService;
+   private final LogService logService;
 
    @PostMapping
    public ResponseEntity<LogDto> createLog(@RequestBody LogDto logDto) {

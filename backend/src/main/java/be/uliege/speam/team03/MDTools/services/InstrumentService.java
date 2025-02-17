@@ -1,19 +1,27 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
-import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.repositories.*;
+import be.uliege.speam.team03.MDTools.models.Alternatives;
+import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.Suppliers;
+import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
+import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
+import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
+import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
 
 @Service
 public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
-    private AlternativesRepository alternativesRepository;
+    private final AlternativesRepository alternativesRepository;
 
     public InstrumentService(CategoryRepository categoryRepo, InstrumentRepository instrumentRepo, AlternativesRepository alternativesRepo, SupplierRepository supplierRepo) {
         this.categoryRepository = categoryRepo;

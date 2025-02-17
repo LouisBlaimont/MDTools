@@ -6,4 +6,4 @@ import { ROLES } from "../../constants.js";
 /** @type {import('./$types').LayoutServerLoad} */
 export function load({ locals }) {
 	const user = locals.user;
-	const isAdmin = checkRole(user, ROLES.ADMIN);
+	const isAdmin = checkRole(user, ROLES.ADMIN);}
