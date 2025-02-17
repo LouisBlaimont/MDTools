@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
@@ -142,12 +143,17 @@ public class CategoryService {
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
+   
+    }
 
-
-
-
-
+    public List<CharacteristicDTO> findCategoryById(Integer catId){
+        Optional<Category> categoryMaybe = categoryRepository.findById(catId);
+        if (categoryMaybe.isEmpty()){
+            return null;
+        }
         
+        List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal())).collect(Collectors.toList());
+        return characteristics;
     }
 
 }

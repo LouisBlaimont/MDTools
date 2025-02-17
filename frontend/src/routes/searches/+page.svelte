@@ -24,7 +24,6 @@
         let cat = categories[selectedCategoryIndex]
         let catId = cat.id;
         categories = [cat];
-        console.log(categories);
     }
 
     let hoveredSupplierIndex = null;

@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -54,9 +57,17 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found for the given characteristics");
         }
         return ResponseEntity.status(HttpStatus.OK).body(categories);
-         
-        
+           
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCategoryFromId(@PathVariable Integer id) {
+        List<CharacteristicDTO> charList = categoryService.findCategoryById(id);
+        if (charList == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No category found for the id :" +id);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(charList);
+    }
+    
     
     
 }
