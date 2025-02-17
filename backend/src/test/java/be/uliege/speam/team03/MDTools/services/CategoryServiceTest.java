@@ -59,9 +59,9 @@ class CategoryServiceTest {
         when(groupRepository.findByName(groupName)).thenReturn(Optional.of(group));
         when(subGroupRepository.findByGroup(group)).thenReturn(List.of(subGroup));
         when(categoryRepository.findBySubGroupIn(List.of(subGroup))).thenReturn(Optional.of(List.of(category)));
-        when(categoryRepository.findCharacteristicVal(1, "Name")).thenReturn(Optional.of("Scalpel"));
-        when(categoryRepository.findCharacteristicVal(1, "Function")).thenReturn(Optional.of("Cutting"));
-        when(categoryRepository.findCharacteristicValAbrv(1, "Length")).thenReturn(Optional.of("L"));
+        when(categoryRepository.findCharacteristicVal(1L, "Name")).thenReturn(Optional.of("Scalpel"));
+        when(categoryRepository.findCharacteristicVal(1L, "Function")).thenReturn(Optional.of("Cutting"));
+        when(categoryRepository.findCharacteristicValAbrv(1L, "Length")).thenReturn(Optional.of("L"));
 
         // When
         List<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName);
@@ -106,9 +106,9 @@ class CategoryServiceTest {
 
         when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
         when(categoryRepository.findBySubGroup(subGroup)).thenReturn(Optional.of(List.of(category)));
-        when(categoryRepository.findCharacteristicVal(1, "Name")).thenReturn(Optional.of("Scalpel"));
-        when(categoryRepository.findCharacteristicVal(1, "Function")).thenReturn(Optional.of("Cutting"));
-        when(categoryRepository.findCharacteristicValAbrv(1, "Length")).thenReturn(Optional.of("L"));
+        when(categoryRepository.findCharacteristicVal(1L, "Name")).thenReturn(Optional.of("Scalpel"));
+        when(categoryRepository.findCharacteristicVal(1L, "Function")).thenReturn(Optional.of("Cutting"));
+        when(categoryRepository.findCharacteristicValAbrv(1L, "Length")).thenReturn(Optional.of("L"));
 
         // When
         List<CategoryDTO> result = categoryService.findCategoriesOfSubGroup(subGroupName);

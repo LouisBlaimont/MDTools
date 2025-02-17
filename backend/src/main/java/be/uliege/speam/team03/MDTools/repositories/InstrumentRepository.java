@@ -14,5 +14,7 @@ public interface InstrumentRepository extends CrudRepository<Instruments, Intege
     
     Optional<Instruments> findByReference(String reference);
     Optional<Instruments> findByCategoryId(Integer id);
-    Optional<List<Instruments>> findByCategory(Category category);  
+    Optional<List<Instruments>> findByCategory(Category category); 
+    Optional<List<Instruments>> findBySupplierId(Integer id); 
+    Optional<Instruments> findById(Integer id);
 }

@@ -21,7 +21,7 @@ public class JwtTokenUtils {
 
    private final SecretKey key;
 
-   public JwtTokenUtils(@Value("${security.jwt.secret}") final String jwtSecret,@Value("${security.jwt.expiration}") long jwtExpirationMs) {
+   public JwtTokenUtils(@Value("${security.jwt.secret}") final String jwtSecret,@Value("${security.token.expiry-hours}") long jwtExpirationMs) {
       this.jwtExpirationMs = jwtExpirationMs;
       this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
    }
