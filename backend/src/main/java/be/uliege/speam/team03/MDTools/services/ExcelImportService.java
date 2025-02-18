@@ -64,7 +64,7 @@ public class ExcelImportService {
         }
     }
 
-    private void processSubGroupImport(String groupName, String subGroupName, List<Map<String, Object>> data) {
+    void processSubGroupImport(String groupName, String subGroupName, List<Map<String, Object>> data) {
         logger.info("🛠 Importing instruments into sub-group: {} -> {}", groupName, subGroupName);
 
         Optional<SubGroup> subGroupOpt = subGroupRepository.findByName(subGroupName);
@@ -90,13 +90,13 @@ public class ExcelImportService {
         }
     }
 
-    private void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
+    void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
         String reference = (String) row.get("reference");
         if (reference == null || reference.trim().isEmpty()) {
             logger.warn("Skipping entry due to missing reference.");
             return;
         }
-
+    
         Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
         if (existingInstrumentOpt.isPresent()) {
             logger.info("Instrument with reference {} already exists. Checking for differences...", reference);
@@ -109,7 +109,7 @@ public class ExcelImportService {
             }
             return;
         }
-
+    
         Instruments newInstrument = new Instruments();
         newInstrument.setReference(reference);
         newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns));
@@ -117,12 +117,12 @@ public class ExcelImportService {
         newInstrument.setPrice(getPrice(row, availableColumns));
         newInstrument.setObsolete(getObsoleteValue(row, availableColumns));
         newInstrument.setCategory(getOrCreateCategory(subGroup, row, subGroupCharacteristics));
-
+    
         instrumentRepository.save(newInstrument);
         logger.info("New instrument saved: {}", reference);
     }
 
-    private Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns) {
+    Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns) {
         // Retrieve supplier name from the provided data or set a default value
         String supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : "Unknown Supplier";
         
@@ -156,25 +156,25 @@ public class ExcelImportService {
         return newSupplier;
     }
 
-    private Float getPrice(Map<String, Object> row, Set<String> availableColumns) {
+    Float getPrice(Map<String, Object> row, Set<String> availableColumns) {
         if (!availableColumns.contains("price")) return 0.0f;
 
         Object priceObj = row.get("price");
         return (priceObj instanceof Number) ? ((Number) priceObj).floatValue() : 0.0f;
     }
 
-    private Boolean getObsoleteValue(Map<String, Object> row, Set<String> availableColumns) {
+    Boolean getObsoleteValue(Map<String, Object> row, Set<String> availableColumns) {
         return getBooleanValue(row, availableColumns, "obsolete");
     }
     
-    private Boolean getSoldByMdValue(Map<String, Object> row, Set<String> availableColumns) {
+    Boolean getSoldByMdValue(Map<String, Object> row, Set<String> availableColumns) {
         if (!availableColumns.contains("sold_by_md") || row.get("sold_by_md") == null || row.get("sold_by_md").toString().trim().isEmpty()) {
             return false; // Default to false if the column is missing or empty
         }
         return getBooleanValue(row, availableColumns, "sold_by_md");
     }
     
-    private Boolean getClosedValue(Map<String, Object> row, Set<String> availableColumns) {
+    Boolean getClosedValue(Map<String, Object> row, Set<String> availableColumns) {
         if (!availableColumns.contains("closed") || row.get("closed") == null || row.get("closed").toString().trim().isEmpty()) {
             return false; // Default to false if the column is missing or empty
         }
@@ -183,7 +183,7 @@ public class ExcelImportService {
     
     
 
-    private Boolean getBooleanValue(Map<String, Object> row, Set<String> availableColumns, String key) {
+    Boolean getBooleanValue(Map<String, Object> row, Set<String> availableColumns, String key) {
         if (!availableColumns.contains(key)) return false;
     
         Object value = row.get(key);
@@ -201,30 +201,28 @@ public class ExcelImportService {
     }
     
 
-    private Category getOrCreateCategory(SubGroup subGroup, Map<String, Object> row, List<String> subGroupCharacteristics) {
+    Category getOrCreateCategory(SubGroup subGroup, Map<String, Object> row, List<String> subGroupCharacteristics) {
         Map<String, String> instrumentCharacteristics = extractCharacteristics(row, subGroupCharacteristics);
-
+    
         List<Category> existingCategories = categoryRepository.findBySubGroup(subGroup).orElse(new ArrayList<>());
-
+    
         for (Category category : existingCategories) {
             if (matchCategory(category, instrumentCharacteristics)) return category;
         }
-        Set<String> availableColumns = row.keySet(); // Extract available columns from row
-
-        return createNewCategory(subGroup, instrumentCharacteristics, availableColumns, row);
+        
+        return createNewCategory(subGroup, instrumentCharacteristics, row.keySet(), row);
     }
 
-    private Map<String, String> extractCharacteristics(Map<String, Object> row, List<String> subGroupCharacteristics) {
+    Map<String, String> extractCharacteristics(Map<String, Object> row, List<String> subGroupCharacteristics) {
         Map<String, String> characteristics = new HashMap<>();
         for (String characteristic : subGroupCharacteristics) {
-            if (row.containsKey(characteristic)) {
-                characteristics.put(characteristic, row.get(characteristic).toString());
-            }
+            Object characteristicValue = row.get(characteristic);
+            characteristics.put(characteristic, (characteristicValue != null) ? characteristicValue.toString() : "");
         }
         return characteristics;
     }
 
-    private boolean matchCategory(Category category, Map<String, String> instrumentCharacteristics) {
+    boolean matchCategory(Category category, Map<String, String> instrumentCharacteristics) {
         for (String characteristic : instrumentCharacteristics.keySet()) {
             Optional<String> existingValueOpt = categoryRepository.findCharacteristicVal(category.getId(), characteristic);
             if (existingValueOpt.isEmpty() || !existingValueOpt.get().equals(instrumentCharacteristics.get(characteristic))) {
@@ -235,7 +233,7 @@ public class ExcelImportService {
     }
 
 
-    private Category createNewCategory(SubGroup subGroup, Map<String, String> instrumentCharacteristics, Set<String> availableColumns, Map<String, Object> row) {
+    Category createNewCategory(SubGroup subGroup, Map<String, String> instrumentCharacteristics, Set<String> availableColumns, Map<String, Object> row) {
         Category newCategory = new Category(subGroup);
         categoryRepository.save(newCategory);
     
@@ -281,7 +279,7 @@ public class ExcelImportService {
         return newCategory;
     }
 
-    private boolean updateExistingInstrument(Instruments instrument, Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
+    boolean updateExistingInstrument(Instruments instrument, Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
         boolean isUpdated = false;
     
         // Check Supplier
@@ -318,12 +316,13 @@ public class ExcelImportService {
             instrument.setCategory(newCategory);
             isUpdated = true;
         }
+        logger.info("📌 Sub-group '{}' updated with {} characteristics.", subGroup.getName(), subGroupCharacteristics.size());
     
         return isUpdated;
     }    
     
     
-    private String normalizeString(String input) {
+    String normalizeString(String input) {
         if (input == null) return "";
         
         return Normalizer.normalize(input.trim().toLowerCase(), Normalizer.Form.NFD)
