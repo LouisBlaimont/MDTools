@@ -8,19 +8,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/category")
@@ -51,21 +55,10 @@ public class CategoryController {
 
     @PostMapping("/{id}/picture")
     public ResponseEntity<CategoryDTO> setGroupPicture(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws ResourceNotFoundException {
-        CategoryDTO categoryUpdated = categoryService.setCategoryPicture(id, file);
+        CategoryDTO categoryUpdated = null;
+        categoryUpdated = categoryService.setCategoryPicture(id, file);
         
         return ResponseEntity.status(HttpStatus.OK).body(categoryUpdated);
-    }
-
-     // retrieve all instruments of a certain category 
-    @GetMapping("/instruments/{categoryId}")
-    public ResponseEntity<?> getInstrumentsOfCategory(@PathVariable Integer categoryId) {
-        // calls the service corresponding with the correct function 
-        List<InstrumentDTO> instruments = instrumentService.findInstrumentsOfCatergory(categoryId);
-        // checking if we found something 
-        if (instruments == null || instruments.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for the category " + categoryId);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
 
     @PostMapping("/search/by-characteristics")

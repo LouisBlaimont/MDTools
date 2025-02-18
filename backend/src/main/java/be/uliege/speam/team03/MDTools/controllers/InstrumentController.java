@@ -1,11 +1,29 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.Picture;
+import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
+import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
+import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.SupplierService;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,11 +33,11 @@ import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/instruments")
+@AllArgsConstructor
 public class InstrumentController {
-    private final InstrumentService instrumentService; 
-    public InstrumentController(InstrumentService instrumentService, SupplierService supplierService) {
-        this.instrumentService = instrumentService;
-    }
+    private final InstrumentService instrumentService;
+    private final PictureRepository pictureRepository;
+    private final PictureStorageService pictureStorageService;
 
     @GetMapping("/all")
     public ResponseEntity<?> findallInstruments(){
@@ -67,4 +85,23 @@ public class InstrumentController {
     // public void deleteInstrument(@PathVariable Integer id) {
     //     instrumentService.delete(id);
     // }
+
+    @GetMapping("/pictures/{instrumentId}")
+    public ResponseEntity<List<Long>> getInstrumentPictureIds(@PathVariable(required = true) Long instrumentId){
+        List<Picture> pictures = this.pictureRepository.findByReferenceIdAndPictureType(instrumentId, PictureType.INSTRUMENT);
+        List<Long> pictureIds = new java.util.ArrayList<Long>();
+        for (Picture picture : pictures) {
+            pictureIds.add(picture.getId());
+        }
+        return ResponseEntity.ok(pictureIds);
+    }
+
+    @PostMapping("/pictures/{instrumentId}")
+    public ResponseEntity<Void> addInstrumentPicture(@PathVariable(required = true) Long instrumentId,@RequestParam("file") MultipartFile file){
+        // store picture
+        pictureStorageService.storePicture(file, PictureType.INSTRUMENT, instrumentId);
+
+        return ResponseEntity.noContent().build();
+    }
+        
 }

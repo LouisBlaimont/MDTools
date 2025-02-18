@@ -167,7 +167,7 @@ public class GroupService {
 
     public List<GroupSummaryDTO> getGroupsSummary(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
-        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount())).collect(Collectors.toList());
+        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount(), group.getPictureId())).collect(Collectors.toList());
         return groupsSummaryDTO;
     }
 
