@@ -154,8 +154,8 @@ public class GroupControllerTest {
     @Test
     void testGetSummaries_Success() throws Exception {
         List<GroupSummaryDTO> summaries = List.of(
-                new GroupSummaryDTO("Group1", 5),
-                new GroupSummaryDTO("Group2", 10)
+                new GroupSummaryDTO("Group1", 5, 1L),
+                new GroupSummaryDTO("Group2", 10, 2L)
         );
 
         when(groupService.getGroupsSummary()).thenReturn(summaries);

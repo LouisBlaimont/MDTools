@@ -25,6 +25,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile-local
     container_name: "svelte"
+    env_file:
+      - .env
     volumes:
       - ./frontend/src:/app/src  # Mount the src directory for live reload
       - ./frontend/static:/app/static # Mount the static directory for live reload

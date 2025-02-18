@@ -15,20 +15,15 @@ import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import lombok.AllArgsConstructor;
 
 @Service
+@AllArgsConstructor
 public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
-
-    public InstrumentService(CategoryRepository categoryRepo, InstrumentRepository instrumentRepo, AlternativesRepository alternativesRepo, SupplierRepository supplierRepo) {
-        this.categoryRepository = categoryRepo;
-        this.instrumentRepository = instrumentRepo;
-        this.alternativesRepository = alternativesRepo;
-        this.supplierRepository = supplierRepo;
-    }
 
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
