@@ -7,9 +7,13 @@ import org.springframework.data.repository.CrudRepository;
 
 import be.uliege.speam.team03.MDTools.models.Suppliers;
 
+import org.springframework.stereotype.Repository;
+
+
+@Repository
 public interface SupplierRepository extends CrudRepository<Suppliers, Integer> {
-    
-    Optional<Suppliers> findBySupplierName(String supplierName);
+    Optional<Suppliers> findByName(String supplierName);
+    Optional<Suppliers> findById(Integer supplierId);
 
     @SuppressWarnings("null")
     List<Suppliers> findAll();

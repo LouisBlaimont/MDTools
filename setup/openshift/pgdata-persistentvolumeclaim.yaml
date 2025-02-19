@@ -8,6 +8,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  securityContext:
+    fsGroup: GROUP_ID
   resources:
     requests:
       storage: 2Gi

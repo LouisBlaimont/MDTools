@@ -12,4 +12,5 @@ import lombok.Setter;
 public class GroupSummaryDTO {
     private String name;
     private int instrCount;
+    private Long pictureId;
 }

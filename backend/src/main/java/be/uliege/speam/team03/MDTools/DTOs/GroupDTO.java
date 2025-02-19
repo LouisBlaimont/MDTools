@@ -2,35 +2,20 @@ package be.uliege.speam.team03.MDTools.DTOs;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class GroupDTO {
+    private Long id;
     private String name;
-    private List<SubGroupDTO> subGroups;
-    private int nbInstr;
-
-    public GroupDTO(String name, List<SubGroupDTO> subgroups, int nbInstr) {
-        this.name = name;
-        this.nbInstr = nbInstr;
-        this.subGroups = subgroups;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getNbInstr(){
-        return nbInstr;
-    }
-    public void setNbInstr(int instr){
-        this.nbInstr = instr;
-    }
-
-    public List<SubGroupDTO> getSubGroups(){
-        return subGroups;
-    }
-    public void setSubGroups(List<SubGroupDTO> subgroups){
-        this.subGroups = subgroups;
-    }
+    private Integer instrCount;
+    private Long pictureId;
+    private List<SubGroupDTO> subGroups; // Added nested DTOs
 }

@@ -1,12 +1,18 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import lombok.AllArgsConstructor;
 
 @Service
 public class CategoryService {
@@ -15,13 +21,17 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
     private CharacteristicRepository characteristicRepository;
     private CategoryCharacteristicRepository categoryCharRepository;
+    private CategoryMapper catMapper;
+    private PictureStorageService pictureStorageService;
 
-    public CategoryService(GroupRepository groupRepo, SubGroupRepository subGroupRepo, CategoryRepository categoryRepo, CharacteristicRepository charRepo, CategoryCharacteristicRepository catCharRepo) {
+    public CategoryService(GroupRepository groupRepo, SubGroupRepository subGroupRepo, CategoryRepository categoryRepo, CharacteristicRepository charRepo, CategoryCharacteristicRepository catCharRepo, PictureStorageService pictureStorageService){ 
         this.groupRepository = groupRepo;
         this.subGroupRepository = subGroupRepo;
         this.categoryRepository = categoryRepo;
         this.characteristicRepository = charRepo;
         this.categoryCharRepository = catCharRepo;
+        this.catMapper = new CategoryMapper(categoryRepo);
+        this.pictureStorageService = pictureStorageService;
     }
 
     public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
@@ -39,39 +49,7 @@ public class CategoryService {
         List<Category> categories = categoriesMaybe.get();
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
         for (Category category : categories){
-            Integer id = category.getId();
-            String gName = group.getName();
-            String subGroupName = category.getSubGroup().getName();
-            
-            String name = new String();
-            Optional<String> nameMaybe = categoryRepository.findCharacteristicVal(id, "Name");
-            if (nameMaybe.isPresent()){ 
-                name = nameMaybe.get();
-            }
-            else{
-                name = null;
-            }
-
-            String function = new String();
-            Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
-            if (functionMaybe.isPresent()){
-                function = functionMaybe.get();
-            }
-            else{
-                name = null;
-            }
-
-            String shape = category.getShape();
-
-            String lenAbrv = new String();
-            Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv(id, "Length");
-            if (lenAbrvMaybe.isPresent()){
-                lenAbrv = lenAbrvMaybe.get();
-            }
-            else{
-                lenAbrv = null;
-            }
-            CategoryDTO categoryDTO = new CategoryDTO(gName, subGroupName, name, function, shape, lenAbrv);
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
@@ -89,46 +67,116 @@ public class CategoryService {
         }
 
         List<Category> categories = categoriesMaybe.get();
-
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
-
         for (Category category : categories){
-            Integer id = category.getId();
-            String gName = subGroup.getGroup().getName();
-            String subgName = subGroup.getName();
-            
-            String name = new String();
-            Optional<String> nameMaybe = categoryRepository.findCharacteristicVal(id, "Name");
-            if (nameMaybe.isPresent()){ 
-                name = nameMaybe.get();
-            }
-            else{
-                name = null;
-            }
-
-            String function = new String();
-            Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
-            if (functionMaybe.isPresent()){
-                function = functionMaybe.get();
-            }
-            else{
-                name = null;
-            }
-
-            String shape = category.getShape();
-
-            String lenAbrv = new String();
-            Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv(id, "Length");
-            if (lenAbrvMaybe.isPresent()){
-                lenAbrv = lenAbrvMaybe.get();
-            }
-            else{
-                lenAbrv = null;
-            }
-            CategoryDTO categoryDTO = new CategoryDTO(gName, subgName, name, function, shape, lenAbrv);
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
+    }
+
+    //ici l'idée c'est que on a tjrs group, subgroup et les autres champs sont soit remplis soit des empty string si on cherche pas par cette char
+    public List<CategoryDTO> findCategoriesByCharacteristics(Map<String, Object> body){
+        String groupName = (String) body.get("groupName");
+        String subGroupName = (String) body.get("subGroupName");
+        
+        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
+        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
+        if (groupMaybe.isEmpty() || subGroupMaybe.isEmpty()){
+            return null;
+        }
+
+        SubGroup subGroup = subGroupMaybe.get();
+        
+        Map<String, String> searchBy = new HashMap<>();
+        String function = (String) body.get("function");
+        searchBy.put("Function", function);
+        String name = (String) body.get("name");
+        searchBy.put("Name", name);
+        Object characteristics = body.get("characteristics");
+
+        if (characteristics instanceof List<?>){
+            for (Object item : (List<?>) characteristics){
+                if (item instanceof Map<?,?> characteristicMap){
+                    Object nameObj = characteristicMap.get("name");
+                    Object valueObj = characteristicMap.get("value");
+
+                    if (nameObj instanceof String charName && valueObj instanceof String charValue){
+                        searchBy.put(charName, charValue);
+                    }
+                }
+            }
+        }
+        
+        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
+        if (categoriesMaybe.isPresent() == false){
+            return null;
+        }
+        List<Category> categories = categoriesMaybe.get();
+
+        //remove characteristics without value
+        Map<String, String> filteredSearchBy = searchBy.entrySet().stream().filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        if (filteredSearchBy.isEmpty()){
+            List<CategoryDTO> categoriesDTO = new ArrayList<>();
+            for (Category category : categories){
+                CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+                categoriesDTO.add(categoryDTO);
+            }
+            return categoriesDTO;
+        }
+
+        List<Integer> categoryIds = categories.stream().map(Category::getId).toList();
+
+        List<CategoryCharacteristic> categoryChars = categoryCharRepository.findByCategoryIds(categoryIds);
+
+        Map<Category, Map<String,String>> categoryToChar = categoryChars.stream()
+        .collect(Collectors.groupingBy(
+            CategoryCharacteristic::getCategory,
+            Collectors.toMap(cc -> cc.getCharacteristic().getName(),
+            CategoryCharacteristic::getVal, (existing, replacement) -> existing)
+        ));
+
+        List<Category> filteredCategories = categoryToChar.entrySet().stream()
+        .filter(entry -> entry.getValue().entrySet().containsAll(filteredSearchBy.entrySet()))
+        .map(Map.Entry::getKey).toList();
+
+        List<CategoryDTO> categoriesDTO = new ArrayList<>();
+        for (Category category : filteredCategories){
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+            categoriesDTO.add(categoryDTO);
+        }
+        return categoriesDTO;
+   
+    }
+
+    public List<CharacteristicDTO> findCategoryById(Integer catId){
+        Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
+        if (categoryMaybe.isEmpty()){
+            return null;
+        }
+        
+        List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal())).collect(Collectors.toList());
+        return characteristics;
+    }
+
+    public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
+        Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
+        if (categoryMaybe.isEmpty()){
+            throw new ResourceNotFoundException("Group not found.");
+        }
+        Category category = categoryMaybe.get();
+
+        if(category.getPictureId() != null){
+            pictureStorageService.deletePicture(category.getPictureId());
+        }
+
+        Picture metadata = pictureStorageService.storePicture(picture, PictureType.GROUP, categoryId);
+
+        category.setPictureId(metadata.getId());
+        Category savedCategory = categoryRepository.save(category);
+        return catMapper.mapToCategoryDto(savedCategory);
     }
 
 }

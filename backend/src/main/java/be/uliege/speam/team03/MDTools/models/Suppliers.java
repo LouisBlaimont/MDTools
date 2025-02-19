@@ -12,12 +12,14 @@ public class Suppliers {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer supplier_id;
+    @Column(name="supplier_id")
+    private Integer id;
 
     @Column(name = "supplier_name")
     private String supplierName;
     @Column(name = "sold_by_md")
     private Boolean soldByMd;
+    @Column(name="closed")
     private Boolean closed;
 
     public Suppliers() {}

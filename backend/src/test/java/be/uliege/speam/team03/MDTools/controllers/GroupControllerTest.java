@@ -47,8 +47,8 @@ public class GroupControllerTest {
     @Test
     void testFindAllGroups_Success() throws Exception {
         List<GroupDTO> groups = List.of(
-                new GroupDTO("Group1", null, 2),
-                new GroupDTO("Group2", null, 3)
+                new GroupDTO(1L, "Group1", 1, 2L, null),
+                new GroupDTO(2L, "Group2", 2, 3L, null)
         );
 
         when(groupService.findAllGroups()).thenReturn(groups);
@@ -58,34 +58,22 @@ public class GroupControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Group1"))
                 .andExpect(jsonPath("$[1].name").value("Group2"))
-                .andExpect(jsonPath("$[0].nbInstr").value(2))
-                .andExpect(jsonPath("$[1].nbInstr").value(3));
-
-        verify(groupService, times(1)).findAllGroups();
-    }
-
-    @Test
-    void testFindAllGroups_InternalServerError() throws Exception {
-        when(groupService.findAllGroups()).thenThrow(new RuntimeException("Database error"));
-
-        mockMvc.perform(get("/api/groups")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Error while retrieving groups."));
+                .andExpect(jsonPath("$[0].instrCount").value(1))
+                .andExpect(jsonPath("$[1].instrCount").value(2));
 
         verify(groupService, times(1)).findAllGroups();
     }
 
     @Test
     void testGetGroupDetailsByName_Success() throws Exception {
-        GroupDTO group = new GroupDTO("Group1", null, 2);
+        GroupDTO group = new GroupDTO(1L, "Group1", 2, 2L, null);
         when(groupService.getGroupDetailsByName("Group1")).thenReturn(group);
 
         mockMvc.perform(get("/api/groups/Group1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Group1"))
-                .andExpect(jsonPath("$.nbInstr").value(2));
+                .andExpect(jsonPath("$.instrCount").value(2));
 
         verify(groupService, times(1)).getGroupDetailsByName("Group1");
     }
@@ -96,8 +84,7 @@ public class GroupControllerTest {
 
         mockMvc.perform(get("/api/groups/NonExistentGroup")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Cannot find group name"));
+                .andExpect(status().isNotFound());
 
         verify(groupService, times(1)).getGroupDetailsByName("NonExistentGroup");
     }
@@ -106,9 +93,9 @@ public class GroupControllerTest {
     void testAddGroup_Success() throws Exception {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", "NewGroup");
-        requestBody.put("nbInstr", 2);
+        requestBody.put("instrCount", 2);
 
-        GroupDTO newGroup = new GroupDTO("NewGroup", null, 2);
+        GroupDTO newGroup = new GroupDTO(1L, "NewGroup", 3, 2L, null);
         when(groupService.addGroup(anyMap())).thenReturn(newGroup);
 
         mockMvc.perform(post("/api/groups")
@@ -116,22 +103,21 @@ public class GroupControllerTest {
                 .content(asJsonString(requestBody)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("NewGroup"))
-                .andExpect(jsonPath("$.nbInstr").value(2));
+                .andExpect(jsonPath("$.instrCount").value(3));
 
         verify(groupService, times(1)).addGroup(anyMap());
     }
 
     @Test
     void testAddGroup_Conflict() throws Exception {
-        Map<String, Object> requestBody = Map.of("name", "ExistingGroup", "nbInstr", 2);
+        Map<String, Object> requestBody = Map.of("name", "ExistingGroup", "instrCount", 2);
 
         when(groupService.addGroup(anyMap())).thenReturn(null);
 
         mockMvc.perform(post("/api/groups")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(requestBody)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Group/subgroup already exists."));
+                .andExpect(status().isBadRequest());
 
         verify(groupService, times(1)).addGroup(anyMap());
     }
@@ -150,9 +136,9 @@ public class GroupControllerTest {
 
     @Test
     void testUpdateGroup_Success() throws Exception {
-        Map<String, Object> requestBody = Map.of("name", "UpdatedGroup", "nbInstr", 2);
+        Map<String, Object> requestBody = Map.of("name", "UpdatedGroup", "instrCount", 2);
 
-        GroupDTO updatedGroup = new GroupDTO("UpdatedGroup", null, 4);
+        GroupDTO updatedGroup = new GroupDTO(1L, "UpdatedGroup", 4, 4L, null);
         when(groupService.updateGroup(anyMap(), eq("Group1"))).thenReturn(updatedGroup);
 
         mockMvc.perform(patch("/api/groups/Group1")
@@ -160,7 +146,7 @@ public class GroupControllerTest {
                 .content(asJsonString(requestBody)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("UpdatedGroup"))
-                .andExpect(jsonPath("$.nbInstr").value(4));
+                .andExpect(jsonPath("$.instrCount").value(4));
 
         verify(groupService, times(1)).updateGroup(anyMap(), eq("Group1"));
     }
@@ -168,8 +154,8 @@ public class GroupControllerTest {
     @Test
     void testGetSummaries_Success() throws Exception {
         List<GroupSummaryDTO> summaries = List.of(
-                new GroupSummaryDTO("Group1", 5),
-                new GroupSummaryDTO("Group2", 10)
+                new GroupSummaryDTO("Group1", 5, 1L),
+                new GroupSummaryDTO("Group2", 10, 2L)
         );
 
         when(groupService.getGroupsSummary()).thenReturn(summaries);

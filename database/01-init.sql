@@ -1,15 +1,25 @@
+-- Table pictures
+CREATE TABLE pictures (
+    id SERIAL PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
+    reference_type VARCHAR(255) NOT NULL,
+    reference_id INTEGER NOT NULL,
+    upload_date TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Table group
 CREATE TABLE "group" (
     group_id SERIAL PRIMARY KEY,
-    group_name VARCHAR(100) UNIQUE NOT NULL
+    group_name VARCHAR(100) UNIQUE NOT NULL,
+    picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
 
 --Table sub_group
 CREATE TABLE sub_group (
     sub_group_id SERIAL PRIMARY KEY,
     sub_group_name VARCHAR(100) NOT NULL,
-    group_id INTEGER REFERENCES "group"(group_id) ON DELETE CASCADE
+    group_id INTEGER REFERENCES "group"(group_id) ON DELETE SET NULL,
+    picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
 
 -- Table users
@@ -47,7 +57,8 @@ CREATE TABLE supplier (
 CREATE TABLE category (
     category_id SERIAL PRIMARY KEY,
     sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
-    shape VARCHAR(255)
+    shape VARCHAR(255),
+    picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
 
 -- Table characteristic

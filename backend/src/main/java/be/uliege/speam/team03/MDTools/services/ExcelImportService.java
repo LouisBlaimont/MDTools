@@ -226,7 +226,7 @@ public class ExcelImportService {
 
     boolean matchCategory(Category category, Map<String, String> instrumentCharacteristics) {
         for (String characteristic : instrumentCharacteristics.keySet()) {
-            Optional<String> existingValueOpt = categoryRepository.findCharacteristicVal(category.getId(), characteristic);
+            Optional<String> existingValueOpt = categoryRepository.findCharacteristicVal(category.getId().longValue(), characteristic);
             if (existingValueOpt.isEmpty() || !existingValueOpt.get().equals(instrumentCharacteristics.get(characteristic))) {
                 return false;
             }

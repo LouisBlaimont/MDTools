@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -47,6 +48,7 @@ class SubGroupServiceTest {
       SubGroup subGroup = new SubGroup("SubGroup1", group);
       subGroup.setSubGroupCharacteristics(new ArrayList<>());
       subGroup.setInstrCount(0);
+      subGroup.setCategories(new ArrayList<>());
       group.setSubGroups(List.of(subGroup));
 
       when(groupRepository.findByName(groupName)).thenReturn(Optional.of(group));
@@ -71,6 +73,8 @@ class SubGroupServiceTest {
       SubGroup subGroup = new SubGroup("TestSubGroup", new Group());
       subGroup.setSubGroupCharacteristics(new ArrayList<>());
       subGroup.setInstrCount(0);
+      List<Category> categories = new ArrayList<>();
+      subGroup.setCategories(categories);
 
       when(subGroupRepository.findByName("TestSubGroup")).thenReturn(Optional.of(subGroup));
 
@@ -99,8 +103,15 @@ class SubGroupServiceTest {
       String groupName = "TestGroup";
       Group group = new Group();
       group.setName(groupName);
+
       when(groupRepository.findByName(groupName)).thenReturn(Optional.of(group));
       when(subGroupRepository.findByName("NewSubGroup")).thenReturn(Optional.empty());
+      when(subGroupRepository.save(any(SubGroup.class)))
+            .thenAnswer(invocation -> {
+               SubGroup savedSubGroup = invocation.getArgument(0); // Get the argument passed to save()
+               savedSubGroup.setId(1L); // Set a unique ID (or use any logic)
+               return savedSubGroup; // Return the modified object
+            });
 
       Map<String, Object> body = new HashMap<>();
       body.put("name", "NewSubGroup");
@@ -120,6 +131,12 @@ class SubGroupServiceTest {
       subGroup.setInstrCount(0);
       when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
       when(subGroupRepository.findByName("UpdatedSubGroup")).thenReturn(Optional.empty());
+      when(subGroupRepository.save(any(SubGroup.class)))
+            .thenAnswer(invocation -> {
+               SubGroup savedSubGroup = invocation.getArgument(0); // Get the argument passed to save()
+               savedSubGroup.setId(1L); // Set a unique ID (or use any logic)
+               return savedSubGroup; // Return the modified object
+            });
 
       Map<String, Object> body = new HashMap<>();
       body.put("name", "UpdatedSubGroup");
@@ -128,21 +145,25 @@ class SubGroupServiceTest {
 
       assertNotNull(result);
       assertEquals("UpdatedSubGroup", result.getName());
+
+      // Verify that the repository's save method was called with the updated subgroup
+      verify(subGroupRepository).save(subGroup);
+      assertEquals("UpdatedSubGroup", subGroup.getName());
    }
 
    @Test
    void testDeleteSubGroup() {
-        String subGroupName = "TestSubGroup";
-        Group group = new Group();
-        SubGroup subGroup = new SubGroup(subGroupName, group);
-        LinkedList<SubGroup> subGroups = new LinkedList<SubGroup>();
-        group.setSubGroups(subGroups);
-        
-        when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
-        when(groupRepository.findByName(anyString())).thenReturn(Optional.of(group));
-        
-        String result = subGroupService.deleteSubGroup(subGroupName);
+      String subGroupName = "TestSubGroup";
+      Group group = new Group();
+      SubGroup subGroup = new SubGroup(subGroupName, group);
+      LinkedList<SubGroup> subGroups = new LinkedList<SubGroup>();
+      group.setSubGroups(subGroups);
 
-        assertEquals("Successfully deleted group.", result);
-    }
+      when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
+      when(groupRepository.findByName(anyString())).thenReturn(Optional.of(group));
+
+      String result = subGroupService.deleteSubGroup(subGroupName);
+
+      assertEquals("Successfully deleted group.", result);
+   }
 }

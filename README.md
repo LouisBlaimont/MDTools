@@ -42,6 +42,14 @@ This command will:
 - Build the Spring Boot backend in /backend
 - Set up the PostgreSQL database with any necessary initialization in /database
 
+### Testing
+
+To test the backend, use the following command in the `/backend` directory.
+
+```bash
+mvn test -Dspring.profiles.active=test
+```
+
 4. **Access the Application**:
 
 ```

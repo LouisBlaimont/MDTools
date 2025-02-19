@@ -7,9 +7,9 @@ services:
     env_file:
       - .env
     volumes:
-      #- pgdata:/home/postgres_user/data
+      - pgdata:/home/postgres_user/data
       # pgdata is a named volume, which is a persistent volume
-      - pgdata:/var/lib/postgresql/data
+      # - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -25,11 +25,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile-local
     container_name: "svelte"
+    env_file:
+      - .env
     volumes:
       - ./frontend/src:/app/src  # Mount the src directory for live reload
       - ./frontend/static:/app/static # Mount the static directory for live reload
     ports:
       - "3000:3000"         # Maps port 3000 on the host to port 3000 in the container
+    depends_on:
+      - springboot
     environment:
       - NODE_ENV=development  
     restart: unless-stopped
@@ -54,8 +58,11 @@ services:
     volumes:
       - ./backend:/app/src  # Mount the backend directory for live reload
       - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
+      - pictures:/app/pictures
     ports:
       - "8080:8080"  # Expose the Spring Boot application port
 volumes:
   pgdata:
+    driver: local
+  pictures:
     driver: local
