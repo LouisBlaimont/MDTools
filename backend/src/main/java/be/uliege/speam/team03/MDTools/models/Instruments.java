@@ -14,7 +14,7 @@ public class Instruments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "instrument_id")
     private Integer id;
-    
+
     @ManyToOne(cascade = CascadeType.ALL) // Cascade the save operation
     @JoinColumn(name = "supplier_id")
     private Suppliers supplier;
@@ -28,10 +28,6 @@ public class Instruments {
 
     @Column(name = "supplier_description")
     private String supplierDescription;
-    
-
-    @Column(name = "supplier_description")
-    private String supplier_description;
 
     @Column(name = "price")
     private Float price;

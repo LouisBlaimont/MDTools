@@ -67,7 +67,7 @@ public class InstrumentService {
     }
 
     public List<InstrumentDTO> findInstrumentsBySupplierName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(supplierName);
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
@@ -111,7 +111,7 @@ public class InstrumentService {
         instrument.setObsolete(instrumentDTO.isObsolete());
 
         // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(instrumentDTO.getSupplier());
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }
@@ -177,7 +177,7 @@ public class InstrumentService {
         instrument.setObsolete(instrumentDTO.isObsolete());
 
         // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(instrumentDTO.getSupplierName());
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplierName());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }

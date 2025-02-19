@@ -43,7 +43,7 @@ public class SupplierService {
     }
 
     public List<SupplierDTO> findSuppliersByName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(supplierName);
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SupplierRepository extends CrudRepository<Suppliers, Integer> {
-    Optional<Suppliers> findByName(String supplierName);
+    Optional<Suppliers> findBySupplierName(String supplierName);
     Optional<Suppliers> findById(Integer supplierId);
 
     @SuppressWarnings("null")
