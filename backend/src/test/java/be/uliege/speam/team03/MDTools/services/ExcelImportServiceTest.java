@@ -81,7 +81,7 @@ class ExcelImportServiceTest {
         when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
 
         // When
-        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"));
+        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true);
 
         // Then
         verify(instrumentRepository, times(1)).save(any(Instruments.class));
@@ -99,7 +99,7 @@ class ExcelImportServiceTest {
         when(instrumentRepository.findByReference("SC123")).thenReturn(Optional.of(existingInstrument));
 
         // When
-        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"));
+        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true);
 
         // Then
         verify(instrumentRepository, times(1)).save(existingInstrument);
@@ -205,7 +205,8 @@ class ExcelImportServiceTest {
                 row, 
                 existingSubGroup, 
                 Set.of("reference", "Blade Size"), 
-                List.of("Blade Size")
+                List.of("Blade Size"),
+                true
         );
     
         // Then
