@@ -23,10 +23,11 @@
     let jsonData = null;
     let isLoading = false;
     let loadingProgress = 0;
-    const groups = ["Pinces", "Ciseaux"];
-    let subGroups = { "Classique": ["Sous-groupe 1", "Sous-groupe 2"], "Pinces": ["Sous-groupe A", "Sous-groupe B"], "Ciseaux": ["Sous-groupe X", "Sous-groupe Y"]};
-    const requiredColumns = ["Nom", "Description", "Quantité", "Prix"];
-  
+    let groups = [];
+    let subGroups = {};
+    let requiredColumns = []; 
+    let columnMapping = {};
+
     // Handles the drop event for the file drag and drop.
     const handleDrop = (event) => {
       event.preventDefault();
@@ -42,6 +43,84 @@
         }
       }
     };
+
+    /**
+    * Fetches groups and their associated sub-groups dynamically from the backend.
+    */
+    async function fetchGroups() {
+        try {
+            const response = await fetch("http://localhost:8080/api/groups", {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("✅ Groups retrieved:", data);
+
+            // Extracting group names
+            groups = data.map(group => group.name);
+
+            // Mapping each group to its respective sub-groups
+            subGroups = Object.fromEntries(
+                data.map(group => [group.name, group.subGroups.map(sub => sub.name)])
+            );
+
+        } catch (error) {
+            console.error("❌ Error while retrieving groups:", error);
+        }
+    };
+
+
+
+    /**
+     * Fetches characteristics related to the selected subgroup from the backend.
+     */
+    const fetchCharacteristics = async () => {
+        if (!selectedSubGroup || selectedSubGroup.trim() === "") {
+            console.warn("No subgroup selected.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/subgroups/${encodeURIComponent(selectedSubGroup)}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch characteristics");
+            }
+
+            const data = await response.json();
+            console.log("✅ Characteristics received:", data.characteristics);
+
+            // Updating the list of available columns with those retrieved from the API
+            requiredColumns = [
+                "reference",
+                "supplier_name",
+                "sold_by_md",
+                "closed",
+                "group_name",
+                "supplier_description",
+                "price",
+                "obsolete",
+                ...data.characteristics
+            ];
+
+        } catch (error) {
+            console.error("❌ Error while retrieving characteristics:", error);
+        }
+    };
+
+
   
     // Handles the drag-over event to allow a file to be dropped.
     const handleDragOver = (event) => {
@@ -173,6 +252,7 @@
     const handleSubGroupChange = (event) => {
       selectedSubGroup = event.target.value;
       isNextEnabled = selectedGroup !== "" && selectedSubGroup !== "";
+      fetchCharacteristics();
     };
   
     // Verifies the columns in the uploaded Excel file to check if they meet the requirements.
@@ -184,20 +264,30 @@
 
     // Extracts the data from the Excel file and converts it to JSON format.
     const extractExcelDataToJson = () => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            console.log("Données JSON extraites:", jsonData);
-            isLoading = false;
-            currentView = "verification";
-            verifyColumns();
-        };
-        reader.readAsArrayBuffer(file);
-    };
+      const reader = new FileReader();
+      reader.onload = (e) => {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          const tempJsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          if (!tempJsonData || tempJsonData.length === 0) {
+              console.warn("⚠️ Aucune donnée extraite de l'Excel !");
+              jsonData = []; // Assigne un tableau vide au lieu de `null`
+          } else {
+              jsonData = [...tempJsonData]; // Force la mise à jour
+          }
+
+          console.log("✅ Données JSON extraites:", jsonData);
+
+          isLoading = false;
+          currentView = "verification";
+          verifyColumns();
+      };
+      reader.readAsArrayBuffer(file);
+  };
 
 
     // Handles opening the JSON modal to view the extracted data.
@@ -223,48 +313,90 @@
       loadingProgress = 0;
     };
 
+    const updateColumnMapping = (index) => {
+      if (!columnMapping[index] || columnMapping[index].trim() === "") {
+        delete columnMapping[index]; 
+      }
+    };
+
+
   
     // Adds event listeners for mouse events when the component is mounted.
     onMount(() => {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
+      fetchGroups();
     });
 
+    /**
+     * Sends the formatted JSON data to the backend for processing.
+     */
     const sendDataToBackend = async () => {
-      if (!jsonData || jsonData.length === 0) {
-        alert("Erreur : Aucune donnée à envoyer.");
-        return;
-      }
-
-      // Transformer les données en objets avec des clés correctes
-      const formattedData = jsonData.slice(1).map(row => {
-        return {
-          name: row[0],  // "Nom"
-          description: row[1], // "Description"
-          quantity: parseInt(row[2]), // "Quantité"
-          price: parseFloat(row[3])  // "Prix"
-        };
-      });
-
-      try {
-        const response = await fetch("http://localhost:8080/api/import/excel", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(formattedData)
-        });
-
-        if (!response.ok) {
-          throw new Error("Échec de l'importation des données.");
+        if (!jsonData || jsonData.length === 0) {
+            alert("Erreur : Aucune donnée à envoyer.");
+            return;
         }
 
-        alert("Données importées avec succès !");
-      } catch (error) {
-        console.error("Erreur lors de l'envoi des données :", error);
-        alert("Erreur lors de l'importation des données.");
-      }
+        // Ensure an import type is selected before sending data
+        if (!selectedOption || selectedOption.trim() === "") {
+            alert("Erreur : Veuillez sélectionner un type de fichier avant d'importer.");
+            return;
+        }
+
+        // Retrieve only the columns selected by the user
+        const selectedHeaders = Object.entries(columnMapping)
+            .filter(([index, name]) => name && name.trim() !== "")
+            .map(([index, name]) => ({ index: parseInt(index), name }));
+
+        console.log("✅ Final columns to send:", selectedHeaders);
+
+        // Transform each row into an object, only including the selected columns
+        const formattedData = jsonData.slice(1).map(row => {
+            let instrument = {};
+
+            selectedHeaders.forEach(({ index, name }) => {
+                if (row[index] !== undefined && row[index] !== null && row[index].toString().trim() !== "") {
+                    instrument[name] = row[index]; // Associate each selected column with its non-empty value
+                }
+            });
+
+            return instrument;
+        });
+
+        console.log("📤 Formatted data for submission:", formattedData);
+
+        // Determine group and sub-group values based on selected option
+        const groupName = selectedOption === "Importer un sous-groupe" ? selectedGroup : "";
+        const subGroupName = selectedOption === "Importer un sous-groupe" ? selectedSubGroup : "";
+
+        // Construct the request payload with the selected import type
+        const requestData = {
+            importType: selectedOption,
+            groupName: groupName,
+            subGroupName: subGroupName,
+            data: formattedData
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/import/excel", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error("Échec de l'importation des données.");
+            }
+
+            alert("Données importées avec succès !");
+        } catch (error) {
+            console.error("❌ Error while sending data:", error);
+            alert("Erreur lors de l'importation des données.");
+        }
     };
+
 
   </script>
   
@@ -376,31 +508,36 @@
               </div>
               <p class="text-gray-700 mb-4">Voici un aperçu du fichier Excel importé :</p>
               <div class="overflow-auto" style="max-height: 60vh; max-width: 100%;">
-                <table class="border-collapse border border-gray-400 w-full text-sm">
-                  <thead>
-                    <tr>
-                      {#each jsonData[0] as header, index}
-                        <th class="border border-gray-400 p-2 bg-gray-200">
-                          <select bind:value={jsonData[0][index]} class="w-full">
-                            <option value="">vide</option>
-                            {#each requiredColumns as column}
-                              <option value={column}>{column}</option>
-                            {/each}
-                          </select>
-                        </th>
-                      {/each}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each jsonData.slice(1) as row, rowIndex}
-                      <tr>
-                        {#each row as cell}
-                          <td class="border border-gray-400 p-2 text-center">{cell}</td>
-                        {/each}
-                      </tr>
-                    {/each}
-                  </tbody>
-                </table>
+                {#if jsonData && jsonData.length > 0}
+                  <table class="border-collapse border border-gray-400 w-full text-sm">
+                      <thead>
+                          <tr>
+                              {#each jsonData[0] as header, index}
+                                  <th class="border border-gray-400 p-2 bg-gray-200">
+                                      <select bind:value={columnMapping[index]} class="w-full" on:change={() => updateColumnMapping(index)}>
+                                          <option value="">vide</option>
+                                          {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                              <option value={column}>{column}</option>
+                                          {/each}
+                                      </select>
+                                  </th>
+                              {/each}
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {#each jsonData.slice(1) as row, rowIndex}
+                              <tr>
+                                  {#each row as cell}
+                                      <td class="border border-gray-400 p-2 text-center">{cell}</td>
+                                  {/each}
+                              </tr>
+                          {/each}
+                      </tbody>
+                  </table>
+              {:else}
+                  <p class="text-gray-600">Aucune donnée disponible.</p>
+              {/if}
+
               </div>
               <div class="flex justify-end mt-4">
                 <button 

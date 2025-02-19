@@ -19,16 +19,16 @@ public class SupplierService {
     private SupplierDTO convertToDTO(Suppliers supplier) {
         return new SupplierDTO(
             supplier.getSupplierName(),
-            supplier.getSupplierId(),
-            supplier.isSoldByMd(),
-            supplier.isClosed()
+            supplier.getId(),
+            supplier.getSoldByMd(),
+            supplier.getClosed()
         );
     }
 
     private Suppliers convertToEntity(SupplierDTO supplierDTO) {
         Suppliers supplier = new Suppliers();
         supplier.setSupplierName(supplierDTO.getName());
-        supplier.setSupplierId(supplierDTO.getId());
+        supplier.setId(supplierDTO.getId());
         supplier.setSoldByMd(supplierDTO.isSoldByMD() != null ? supplierDTO.isSoldByMD() : true);
         supplier.setClosed(supplierDTO.isClosed());
         return supplier;
@@ -43,13 +43,13 @@ public class SupplierService {
     }
 
     public List<SupplierDTO> findSuppliersByName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(supplierName);
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
         Suppliers supplier = supplierMaybe.get();
         List<SupplierDTO> supplierDTOs = new ArrayList<>();
-        supplierDTOs.add(new SupplierDTO(supplier.getSupplierName(), supplier.getSupplierId(), supplier.isSoldByMd(), supplier.isClosed()));
+        supplierDTOs.add(new SupplierDTO(supplier.getSupplierName(), supplier.getId(), supplier.getSoldByMd(), supplier.getClosed()));
         return supplierDTOs;
     }
 

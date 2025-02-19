@@ -38,7 +38,7 @@ public class InstrumentService {
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            instrument.isObsolete(),
+            instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
         ));
         return instrumentDTOs;
@@ -56,7 +56,7 @@ public class InstrumentService {
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            instrument.isObsolete(),
+            instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
         );
     }
@@ -67,12 +67,12 @@ public class InstrumentService {
     }
 
     public List<InstrumentDTO> findInstrumentsBySupplierName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(supplierName);
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
         Suppliers supplier = supplierMaybe.get();
-        List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getSupplierId()).orElse(null);
+        List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
         return convertToDTO(instruments);
     }
 
@@ -82,7 +82,7 @@ public class InstrumentService {
             return null;
         }
         Suppliers supplier = supplierMaybe.get();
-        List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getSupplierId()).orElse(null);
+        List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
         return convertToDTO(instruments);
     }
 
@@ -95,7 +95,7 @@ public class InstrumentService {
                 instrument.getReference(),
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
-                instrument.isObsolete(),
+                instrument.getObsolete(),
                 !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
             );
             instrumentDTOs.add(dto);
@@ -111,7 +111,7 @@ public class InstrumentService {
         instrument.setObsolete(instrumentDTO.isObsolete());
 
         // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(instrumentDTO.getSupplier());
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }
@@ -154,7 +154,7 @@ public class InstrumentService {
             String supplierName = instrument.getSupplier().getSupplierName();
             String supplierDescription = instrument.getSupplierDescription();
             Float price = instrument.getPrice();
-            boolean obsolete = instrument.isObsolete();
+            boolean obsolete = instrument.getObsolete();
 
             // retrieve alternatives? 
             Integer instrumentId = instrument.getId();
@@ -177,7 +177,7 @@ public class InstrumentService {
         instrument.setObsolete(instrumentDTO.isObsolete());
 
         // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findByName(instrumentDTO.getSupplierName());
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplierName());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }
@@ -199,7 +199,7 @@ public class InstrumentService {
             savedInstrument.getReference(),
             savedInstrument.getSupplierDescription(),
             savedInstrument.getPrice(),
-            savedInstrument.isObsolete(),
+            savedInstrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(savedInstrument.getId()).isEmpty()
         );
     }
