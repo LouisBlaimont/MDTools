@@ -27,6 +27,7 @@
     let subGroups = {};
     let requiredColumns = []; 
     let columnMapping = {};
+    let previousView = "main";
 
     // Handles the drop event for the file drag and drop.
     const handleDrop = (event) => {
@@ -76,7 +77,19 @@
         }
     };
 
-
+    const setRequiredColumns = () => {
+      if (selectedOption === "Importer des instruments non catégorisés") {
+        requiredColumns = [
+          "reference", 
+          "supplier_name", 
+          "sold_by_md", 
+          "closed", 
+          "supplier_description", 
+          "price", 
+          "obsolete"
+        ];
+      } 
+    };
 
     /**
      * Fetches characteristics related to the selected subgroup from the backend.
@@ -212,9 +225,23 @@
     // Handles the "Next" button click to move to the next view in the modal.
     const handleNext = async () => {
       if (currentView === "main" && isNextEnabled) {
-        currentView = "sous-groupe";
-        isNextEnabled = false;
-        selectedSubGroup = "";
+        if (selectedOption === "Importer des instruments non catégorisés") {
+          isLoading = true;
+          loadingProgress = 0;
+
+          await simulateLoadingProgress();
+
+          isLoading = false;
+          currentView = "verification";
+          verifyColumns();
+          extractExcelDataToJson();
+          setRequiredColumns();
+        } else {
+          previousView = currentView;
+          currentView = "sous-groupe";
+          isNextEnabled = false;
+          selectedSubGroup = "";
+        }
       } else if (currentView === "sous-groupe" && isNextEnabled) {
         isLoading = true;
         loadingProgress = 0;
@@ -222,6 +249,7 @@
         await simulateLoadingProgress();
 
         isLoading = false;
+        previousView = currentView;
         currentView = "verification";
         verifyColumns();
         extractExcelDataToJson();
@@ -475,7 +503,7 @@
             {:else if currentView === "sous-groupe"}
               <!-- Sub-group Selection View -->
               <div class="flex items-center mb-4">
-                <button class="text-gray-700 mr-4" on:click={() => currentView = "main"}>
+                <button class="text-gray-700 mr-4" on:click={() => currentView = previousView}>
                   ←
                 </button>
                 <h2 class="text-2xl font-bold">Sélectionnez le groupe et sous-groupe</h2>
@@ -501,7 +529,7 @@
             {:else if currentView === "verification"}
               <!-- Column Verification View with Excel-like Table -->
               <div class="flex items-center mb-4">
-                <button class="text-gray-700 mr-4" on:click={() => currentView = "sous-groupe"}>
+                <button class="text-gray-700 mr-4" on:click={() => currentView = previousView}>
                   ←
                 </button>
                 <h2 class="text-2xl font-bold mb-6">Vérification des Colonnes</h2>
