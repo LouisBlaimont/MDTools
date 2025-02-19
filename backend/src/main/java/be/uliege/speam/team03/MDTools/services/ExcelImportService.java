@@ -20,6 +20,7 @@ public class ExcelImportService {
 
     private final InstrumentRepository instrumentRepository;
     private final SubGroupRepository subGroupRepository;
+    private final SubGroupCharacteristicRepository subGroupCharacteristicRepository;
     private final CharacteristicRepository characteristicRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
@@ -36,6 +37,7 @@ public class ExcelImportService {
     ) {
         this.instrumentRepository = instrumentRepository;
         this.subGroupRepository = subGroupRepository;
+        this.subGroupCharacteristicRepository = subGroupCharacteristicRepository;
         this.characteristicRepository = characteristicRepository;
         this.supplierRepository = supplierRepository;
         this.categoryRepository = categoryRepository;
