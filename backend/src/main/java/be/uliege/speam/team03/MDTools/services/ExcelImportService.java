@@ -46,19 +46,19 @@ public class ExcelImportService {
 
     public void processImport(ImportRequestDTO request) {
         switch (request.getImportType()) {
-            case "Importer un sous-groupe":
+            case "SubGroup":
                 processSubGroupImport(request.getGroupName(), request.getSubGroupName(), request.getData());
                 break;
-            case "Importer des instruments non catégorisés":
-                //processUncategorizedInstruments(request.getData());
+            case "NonCategorized":
+                processUncategorizedInstruments(request.getData());
                 break;
-            case "Importer un catalogue":
+            case "Catalogue":
                 //processCatalogImport(request.getData());
                 break;
-            case "Importer des alternatives":
+            case "Alternatives":
                 //processAlternativesImport(request.getData());
                 break;
-            case "Importer un crossref":
+            case "Crossref":
                 //processCrossrefImport(request.getData());
                 break;
             default:
@@ -66,9 +66,39 @@ public class ExcelImportService {
         }
     }
 
+    void processUncategorizedInstruments(List<Map<String, Object>> data) {
+        logger.info("🛠 Importing uncategorized instruments...");
+    
+        Set<String> availableColumns = data.stream()
+                .flatMap(row -> row.keySet().stream())
+                .collect(Collectors.toSet());
+    
+        for (Map<String, Object> row : data) {
+            String reference = (String) row.get("reference");
+            if (reference == null || reference.trim().isEmpty()) {
+                logger.warn("⚠ Skipping entry due to missing reference.");
+                continue;
+            }
+    
+            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
+            if (existingInstrumentOpt.isPresent()) {
+                logger.info("🔄 Instrument {} already exists. Updating...", reference);
+                Instruments existingInstrument = existingInstrumentOpt.get();
+                boolean updated = updateExistingInstrument(existingInstrument, row, null, availableColumns, new ArrayList<>(), false);
+                if (updated) {
+                    instrumentRepository.save(existingInstrument);
+                    logger.info("✅ Instrument {} updated.", reference);
+                }
+            } else {
+                processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false);
+                logger.info("📌 New uncategorized instrument saved: {}", reference);
+            }
+        }
+    }
+    
     void processSubGroupImport(String groupName, String subGroupName, List<Map<String, Object>> data) {
         logger.info("🛠 Importing instruments into sub-group: {} -> {}", groupName, subGroupName);
-
+    
         Optional<SubGroup> subGroupOpt = subGroupRepository.findByName(subGroupName);
         if (subGroupOpt.isEmpty()) {
             logger.warn("⚠ Sub-group '{}' not found. Skipping import.", subGroupName);
@@ -88,11 +118,11 @@ public class ExcelImportService {
                 .collect(Collectors.toSet());
 
         for (Map<String, Object> row : data) {
-            processInstrumentRow(row, subGroup, availableColumns, subGroupCharacteristics);
+            processInstrumentRow(row, subGroup, availableColumns, subGroupCharacteristics, true);
         }
     }
 
-    void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
+    void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics, boolean manageCategories) {
         String reference = (String) row.get("reference");
         if (reference == null || reference.trim().isEmpty()) {
             logger.warn("Skipping entry due to missing reference.");
@@ -103,9 +133,8 @@ public class ExcelImportService {
         if (existingInstrumentOpt.isPresent()) {
             logger.info("Instrument with reference {} already exists. Checking for differences...", reference);
             Instruments existingInstrument = existingInstrumentOpt.get();
-            
-            // Check differences and update
-            if (updateExistingInstrument(existingInstrument, row, subGroup, availableColumns, subGroupCharacteristics)) {
+
+            if (updateExistingInstrument(existingInstrument, row, subGroup, availableColumns, subGroupCharacteristics, manageCategories)) {
                 instrumentRepository.save(existingInstrument);
                 logger.info("✅ Instrument {} updated successfully.", reference);
             }
@@ -118,11 +147,15 @@ public class ExcelImportService {
         newInstrument.setSupplierDescription((String) row.getOrDefault("supplier_description", ""));
         newInstrument.setPrice(getPrice(row, availableColumns));
         newInstrument.setObsolete(getObsoleteValue(row, availableColumns));
-        newInstrument.setCategory(getOrCreateCategory(subGroup, row, subGroupCharacteristics));
+    
+        if (manageCategories) {
+            newInstrument.setCategory(getOrCreateCategory(subGroup, row, subGroupCharacteristics));
+        }
     
         instrumentRepository.save(newInstrument);
         logger.info("New instrument saved: {}", reference);
     }
+    
 
     Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns) {
         // Retrieve supplier name from the provided data or set a default value
@@ -281,7 +314,7 @@ public class ExcelImportService {
         return newCategory;
     }
 
-    boolean updateExistingInstrument(Instruments instrument, Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics) {
+    boolean updateExistingInstrument(Instruments instrument, Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics, Boolean manageCategories) {
         boolean isUpdated = false;
     
         // Check Supplier
@@ -313,12 +346,14 @@ public class ExcelImportService {
         }
     
         // Check Category
-        Category newCategory = getOrCreateCategory(subGroup, row, subGroupCharacteristics);
-        if (!Objects.equals(instrument.getCategory(), newCategory)) {
-            instrument.setCategory(newCategory);
-            isUpdated = true;
+        if (manageCategories) {
+            Category newCategory = getOrCreateCategory(subGroup, row, subGroupCharacteristics);
+            if (!Objects.equals(instrument.getCategory(), newCategory)) {
+                instrument.setCategory(newCategory);
+                isUpdated = true;
+            }
+            logger.info("📌 Sub-group '{}' updated with {} characteristics.", subGroup.getName(), subGroupCharacteristics.size());
         }
-        logger.info("📌 Sub-group '{}' updated with {} characteristics.", subGroup.getName(), subGroupCharacteristics.size());
     
         return isUpdated;
     }    
