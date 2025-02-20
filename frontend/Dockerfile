@@ -1,6 +1,9 @@
 # Stage 1: Build the SvelteKit app
 FROM node:18 AS build
 
+ARG PUBLIC_API_URL
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
+
 # Set working directory in the container
 WORKDIR /app
 
