@@ -13,6 +13,7 @@ variables:
   SVELTE_DIR: frontend
   SPRINGBOOT: springboot
   SPRINGBOOT_DIR: backend
+  API_URL: https://mdtools-backend.apps.speam.montefiore.uliege.be
 
   IMAGE_TAG: latest
   ## for gitlab image registry:
@@ -155,7 +156,7 @@ frontend:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-    PUBLIC_API_URL: "https://mdtools-backend.apps.speam.montefiore.uliege.be/"
+    PUBLIC_API_URL: ${API_URL}
   services:
     - docker:20.10.16-dind
   before_script:
