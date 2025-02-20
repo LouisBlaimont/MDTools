@@ -139,6 +139,8 @@ frontend:
   stage: package
   needs: ['frontend_test']
   rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
@@ -155,6 +157,7 @@ frontend:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    PUBLIC_API_URL: "https://mdtools-backend.apps.speam.montefiore.uliege.be/"
   services:
     - docker:20.10.16-dind
   before_script:
@@ -162,12 +165,15 @@ frontend:
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
   script:
     - echo $REPO_TAG
-    - docker build --network host -t $REPO_TAG -f $SVELTE_DIR/Dockerfile ./$SVELTE_DIR
+    - echo $PUBLIC_API_URL
+    - docker build --network host --build-arg PUBLIC_API_URL=$PUBLIC_API_URL -t $REPO_TAG -f $SVELTE_DIR/Dockerfile ./$SVELTE_DIR
     - docker push $REPO_TAG
 
 backend:
   stage: package
   rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
