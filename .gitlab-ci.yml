@@ -139,8 +139,6 @@ frontend:
   stage: package
   needs: ['frontend_test']
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
@@ -172,8 +170,6 @@ frontend:
 backend:
   stage: package
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
