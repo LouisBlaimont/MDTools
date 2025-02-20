@@ -46,19 +46,19 @@ public class ExcelImportService {
 
     public void processImport(ImportRequestDTO request) {
         switch (request.getImportType()) {
-            case "Importer un sous-groupe":
+            case "SubGroup":
                 processSubGroupImport(request.getGroupName(), request.getSubGroupName(), request.getData());
                 break;
-            case "Importer des instruments non catégorisés":
+            case "NonCategorized":
                 processUncategorizedInstruments(request.getData());
                 break;
-            case "Importer un catalogue":
+            case "Catalogue":
                 //processCatalogImport(request.getData());
                 break;
-            case "Importer des alternatives":
+            case "Alternatives":
                 //processAlternativesImport(request.getData());
                 break;
-            case "Importer un crossref":
+            case "Crossref":
                 //processCrossrefImport(request.getData());
                 break;
             default:
