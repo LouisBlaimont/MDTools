@@ -50,6 +50,11 @@ To test the backend, use the following command in the `/backend` directory.
 mvn test -Dspring.profiles.active=test
 ```
 
+To test the frontend, use the following command in the `/frontend` directory.
+```bash
+npm run test
+```
+
 4. **Access the Application**:
 
 ```
