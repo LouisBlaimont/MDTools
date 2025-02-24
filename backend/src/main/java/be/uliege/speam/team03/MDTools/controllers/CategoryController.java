@@ -7,6 +7,7 @@ import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,6 +87,12 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found for the category id :" +id);
         }
         return ResponseEntity.status(HttpStatus.OK).body(instrList);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<List<CharacteristicDTO>> updateCategory(@PathVariable Integer id, @RequestBody List<CharacteristicDTO> body) {
+        List<CharacteristicDTO> chars = categoryService.updateCategoryCharacteristics(id, body);
+        return ResponseEntity.status(HttpStatus.OK).body(chars);
     }
     
     

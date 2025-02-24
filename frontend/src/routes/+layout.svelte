@@ -1,6 +1,7 @@
 <script>
   import "../app.css";
   import { SvelteToast } from "@zerodevx/svelte-toast";
+  import { Modals } from 'svelte-modals'
   import Loading from "$lib/Loading.svelte";
 	import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
@@ -80,11 +81,36 @@
   </a>
 </header>
 
+<div class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+
 {@render children()}
+
+</div>
 
 <SvelteToast />
 
+<Modals>
+  <!-- shown when any modal is opened -->
+  {#snippet backdrop({ close })}
+    <button
+      class="backdrop"
+      onclick={() => close()}
+      onkeydown={(event) => event.key === 'Escape' && close()}
+      aria-label="Close modal"
+    ></button>
+  {/snippet}
+</Modals>
+
 <style>
+  .backdrop {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: rgba(0,0,0,0.50)
+  }
+
   :root {
     --toastContainerTop: 4.25rem;
     --toastContainerRight: 1rem;

@@ -72,7 +72,6 @@ public class PictureStorageService {
             
             String fileName = metadata.getFileName();
             Path filePath = Paths.get(uploadDir).resolve(fileName);
-            System.out.println(filePath);
             Resource resource = new UrlResource(filePath.toUri());
             
             if (resource.exists() && resource.isReadable()) {
