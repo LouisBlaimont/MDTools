@@ -44,10 +44,16 @@ This command will:
 
 ### Testing
 
-To test the backend, use the following command in the `/backend` directory.
+To test the backend in a Linux environment, use the following command in the `/backend` directory.
 
 ```bash
 mvn test -Dspring.profiles.active=test
+```
+
+To test the backend in a Windows environment, use the following command in the `/backend` directory.
+
+```bash
+mvn --% test -Dspring.profiles.active=test
 ```
 
 To test the frontend, use the following command in the `/frontend` directory.
