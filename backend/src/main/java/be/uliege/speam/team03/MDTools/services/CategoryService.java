@@ -161,6 +161,36 @@ public class CategoryService {
         return characteristics;
     }
 
+    public List<CharacteristicDTO> updateCategoryCharacteristics(Integer catId, List<CharacteristicDTO> updatedCharacteristics) {
+        // Find the category
+        Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
+        if (categoryMaybe.isEmpty()){
+            throw new ResourceNotFoundException("Category not found. Not updating characteristics.");
+        }
+    
+        // Get existing characteristics related to the category
+        List<CategoryCharacteristic> existingCharacteristics = categoryCharRepository.findByCategoryId(catId);
+    
+        // Update the existing characteristics with the new values
+        for (CharacteristicDTO updatedCharacteristic : updatedCharacteristics) {
+            for (CategoryCharacteristic existingCharacteristic : existingCharacteristics) {
+                if (existingCharacteristic.getCharacteristic().getName().equals(updatedCharacteristic.getName())) {
+                    existingCharacteristic.setVal(updatedCharacteristic.getValue());
+                    categoryCharRepository.save(existingCharacteristic); // Save the updated characteristic
+                    break;
+                }
+            }
+        }
+    
+        // Convert the updated characteristics back to DTOs and return
+        List<CharacteristicDTO> updatedCharacteristicDTOs = existingCharacteristics.stream()
+            .map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal(), cc.getValAbrev()))
+            .collect(Collectors.toList());
+    
+        return updatedCharacteristicDTOs;
+    }
+    
+
     public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
         if (categoryMaybe.isEmpty()){

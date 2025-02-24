@@ -153,6 +153,9 @@ public class GroupService {
         Group group = groupMaybe.get();
 
         String name = (String) body.get("name");
+        if (name == null){
+            throw new BadRequestException("Name is required.");
+        }
         Optional<Group> sameGroup = groupRepository.findByName(name);
         if (sameGroup.isPresent()){
             throw new BadRequestException("Group name already exists.");
