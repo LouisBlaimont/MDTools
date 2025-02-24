@@ -9,4 +9,5 @@ import lombok.*;
 public class CharacteristicDTO {
     private String name;
     private String value;
+    private String abrev;
 }

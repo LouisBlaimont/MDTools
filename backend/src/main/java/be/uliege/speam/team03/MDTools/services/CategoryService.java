@@ -157,7 +157,7 @@ public class CategoryService {
             return null;
         }
         
-        List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal())).collect(Collectors.toList());
+        List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal(), cc.getValAbrev())).collect(Collectors.toList());
         return characteristics;
     }
 

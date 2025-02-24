@@ -7,36 +7,65 @@
   import { onMount } from "svelte";
   import { preventDefault } from "svelte/legacy";
   import { get } from "svelte/store";
-  import { PUBLIC_API_URL } from '$env/static/public'
+  import { PUBLIC_API_URL } from '$env/static/public';
 
 
   let hoveredCategoryIndex = null;
   let hoveredCategoryImageIndex = null;
   let selectedCategoryIndex = null;
   let currentSuppliers = [];
+  let charValues = {};
 
-  function selectCategory(index) {
+  async function selectCategoryWithChar(index) {
+    selectCategory(index);
     selectedCategoryIndex = index;
-    currentSuppliers = suppliers[index] || [];
-  }
-
-  function selectCategoryWithChar(index) {
-    selectedCategoryIndex = index;
-    currentSuppliers = suppliers[index] || [];
     let cat = categories[selectedCategoryIndex];
     let catId = cat.id;
     categories = [cat];
+
+    try{
+      const response = await fetch(PUBLIC_API_URL + `/api/category/${catId}`);
+      if(!response.ok){
+        throw new Error("Failed to fetch characteristics of category");
+      }
+      const categoryChars = await response.json();
+      for (let i = 0; i<categoryChars.length ; i++){
+        if (categoryChars[i].name === "Length"){
+          const len_val =  categoryChars[i].value.replace(/[^\d.]/g, "");
+          document.getElementById(categoryChars[i].name).value = len_val;
+          charValues[categoryChars[i].name] = len_val;
+        }
+        else{
+          document.getElementById(categoryChars[i].name).value = categoryChars[i].value;
+          charValues[categoryChars[i].name] = categoryChars[i].value;
+        }
+      }
+    }catch(error){
+      console.error(error)
+      errorMessage = error.message;
+    }
+    return;
+
   }
-  async function selectTool2(index, row) {
-      selectedCategoryIndex = index;
+  async function selectCategory(index) {
+    selectedCategoryIndex = index;
 
-      // selecting the categoryId
-      const firstKey = Object.keys(row)[0]; 
-      const categoryId = row[firstKey];  
+    // selecting the categoryId
+    const cat = categories[selectedCategoryIndex]; 
+    const categoryId = cat.id;  
 
-      const response = await fetch('localhost:8080/api/instruments/${categoryId}');
-      if (!response.ok) throw new Error("Failed to fetch instruments of category");
-      currentSuppliers = response.json();
+    try{
+      const response = await fetch(PUBLIC_API_URL + `/api/category/instruments/${categoryId}`);
+      if (!response.ok){
+        throw new Error("Failed to fetch instruments of category");
+      }
+      const answer = await response.json();
+      currentSuppliers = Array.isArray(answer) ? answer : [answer];
+    }catch (error) {
+      console.error(error);
+      errorMessage = error.message;
+    }
+    return;
   }
 
   let hoveredSupplierIndex = null;
@@ -104,7 +133,6 @@
     //smth to do with the database I think
   }
   function deleteCharacteristic(id) {
-    console.log("delete one");
     const texte = document.getElementById(id);
     texte.value = "";
     charValues[id] = "";
@@ -123,18 +151,17 @@
 
   let groups_summary = [];
   let groups = [];
-  let subGroups = [];
-  let characteristics = [];
-  let charValues = {};
-  let categories = [];
+  export let subGroups = [];
+  export let characteristics = [];
+  export let categories = [];
   let selectedGroup = "";
   let selectedSubGroup = "";
-  let showSubGroups = false;
-  let showCategories = false;
-  let showChars = false;
+  export let showSubGroups = false;
+  export let showCategories = false;
+  export let showChars = false;
   let errorMessage = "";
 
-  async function getGroupsSummary() {
+  export async function getGroupsSummary() {
     try {
       const response = await fetch(PUBLIC_API_URL + "/api/groups/summary");
 
@@ -154,19 +181,33 @@
     if (group == "none") {
       selectedGroup = "";
       selectedSubGroup = "";
+      selectedCategoryIndex = null;
+      selectedSupplierIndex = null;
       showCategories = false;
+      categories=[];
+      showSubGroups = false;
+      subGroups=[];
+      showChars = false;
+      charValues=[];
+      characteristics=[];
+      currentSuppliers = [];
       return;
     }
     const previousGroup = selectedGroup;
     selectedGroup = group;
     showSubGroups = true;
-    showChars = false;
     showCategories = true;
+    
+    currentSuppliers = [];
+    selectedSupplierIndex="";
+    selectedCategoryIndex="";
     // Only reset subgroup if the group has changed
     if (previousGroup !== group) {
       selectedSubGroup = "";
     }
+    showChars = false;
     characteristics = [];
+    charValues=[];
 
     let subGroups_all_info = [];
     try {
@@ -186,7 +227,6 @@
       console.error(error);
       errorMessage = error.message;
     }
-
     subGroups = subGroups_all_info.map((subgroup) => subgroup.name);
     return;
   }
@@ -214,6 +254,11 @@
     }
     selectedSubGroup = subGroup;
     showChars = true;
+
+    charValues = [];
+    selectedCategoryIndex = "";
+    currentSuppliers = [];
+    selectedSupplierIndex = "";
     let subgroup = [];
 
     try {
@@ -321,7 +366,7 @@
 
         <label class="font-semibold">Recherche par caractéristiques:</label>
         <div class="flex items-center">
-          <label class="w-2/5 mt-2 mb-2" for="group">Groupe:</label>
+          <label class="w-2/5 mt-2 mb-2" for="groupOptions">Groupe:</label>
           <select
             id="groupOptions"
             bind:value={selectedGroup}
@@ -336,7 +381,7 @@
 
         {#if showSubGroups}
           <div class="flex items-center">
-            <label class="w-2/5 mb-2" for="name">Sous gp:</label>
+            <label class="w-2/5 mb-2" for="subGroupOptions">Sous gp:</label>
             <select
               id="subGroupOptions"
               bind:value={selectedSubGroup}
@@ -371,10 +416,11 @@
               <div class="flex items-center">
                 <label for={char} class="w-2/5">{char}:</label>
                 <input
-                  type="text"
+                  type={ char === "Length" ? "number" : "text"}
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black] mb-2"
                   id={char}
                   name={char}
+                  data-testid={char}
                   bind:value={charValues[char]}
                 />
                 <button
@@ -389,7 +435,7 @@
 
       <!-- TABLEAU CORRESPONDANT AUX RECHERCHES -->
       <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
-        <table id="tools-table" class="w-full border-collapse">
+        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
           <thead class="bg-teal-400">
             <tr>
               <th class="text-center border border-solid border-[black]">GROUPE</th>
@@ -515,7 +561,7 @@
 
         <!-- TABLEAU DES FOURNISSEURS -->
         <div class="suppliers-table">
-          <table class="w-full border-collapse">
+          <table data-testid = "suppliers-table" class="w-full border-collapse">
             <thead class="bg-teal-400">
               <tr>
                 <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
@@ -543,12 +589,12 @@
                     class="green text-center border border-solid border-[black]"
                     on:click={() => addToOrderPannel(row.ref)}>+</td
                   >
-                  <td class="text-center border border-solid border-[black]">{row.ref}</td>
-                  <td class="text-center border border-solid border-[black]">{row.brand}</td>
-                  <td class="text-center border border-solid border-[black]">{row.description}</td>
+                  <td class="text-center border border-solid border-[black]">{row.reference}</td>
+                  <td class="text-center border border-solid border-[black]">{row.supplier}</td>
+                  <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
                   <td class="text-center border border-solid border-[black]">{row.price}</td>
                   <td class="text-center border border-solid border-[black]">{row.alt}</td>
-                  <td class="text-center border border-solid border-[black]">{row.obs}</td>
+                  <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
                 </tr>
               {/each}
             </tbody>

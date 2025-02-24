@@ -3,6 +3,7 @@ package be.uliege.speam.team03.MDTools.controllers;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,6 +79,15 @@ public class CategoryController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(charList);
     }
+    @GetMapping("/instruments/{id}")
+    public ResponseEntity<?> getInstrumentsFromCategory(@PathVariable Integer id) {
+        List<InstrumentDTO> instrList = instrumentService.findInstrumentsOfCatergory(id);
+        if(instrList == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found for the category id :" +id);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(instrList);
+    }
+    
     
     
     
