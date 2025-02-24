@@ -1,18 +1,6 @@
-# sv
+# Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+The frontend is using Sveltekit using Javascript. Libraries are managed by `npm`.
 
 ## Developing
 
@@ -36,3 +24,10 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Folder Structure
+
+    /src: Contains all source code.
+        /src/routes: Files for page routes. Each .svelte file in this folder represents a route.
+        /src/lib: Utility functions and components that can be shared across the app.
+    /static: Static assets like images, fonts, etc.
