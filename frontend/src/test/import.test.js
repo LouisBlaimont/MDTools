@@ -1,5 +1,5 @@
 import { render, fireEvent } from "@testing-library/svelte";
-import ImportPage from "$routes/import/+page.svelte"; // SvelteKit alias
+import ImportPage from "../routes/import/+page.svelte"; // SvelteKit alias
 import { sendExcelToBackend, fetchGroups, fetchCharacteristics } from "../api.js";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
