@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.SubGroupCharacteristicKey;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.mapper.GroupMapper;
 import be.uliege.speam.team03.MDTools.mapper.SubGroupMapper;
 import be.uliege.speam.team03.MDTools.models.Characteristic;
@@ -38,44 +39,55 @@ public class SubGroupService {
     private PictureStorageService pictureStorageService;
 
     /**
-     * Gets the subgroups of the group given by groupName
-     * @param groupName
-     * @return List of SubGroupDTO
+     * Finds all sub-groups for a given group name.
+     *
+     * @param groupName the name of the group for which to find sub-groups
+     * @return a list of SubGroupDTO objects representing the sub-groups of the specified group,
+     *         or null if the group with the given name does not exist
+     * @throws ResourceNotFoundException if the group with the given name does not exist
      */
-    public List<SubGroupDTO> findAllSubGroups(String groupName) {
+    public List<SubGroupDTO> findAllSubGroups(String groupName) throws ResourceNotFoundException {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false) {
-            return null;
+            throw new ResourceNotFoundException(groupName + " not found.");
         }
         Group group = groupMaybe.get();
         List<SubGroup> subGroups = group.getSubGroups();
         List<SubGroupDTO> subGroupsDTO = new ArrayList<>();
         subGroupsDTO = subGroups.stream()
                     .map(SubGroupMapper::toDto)
-                    .collect(Collectors.toList());
+                    .toList();
         return subGroupsDTO;
     }
 
     /**
-     * Adds a subgroup with the characteristics given in the body to the group given by groupName
-     * @param groupName
-     * @param body
-     * @return Updated GroupDTO
+     * Adds a new sub-group to an existing group.
+     *
+     * @param groupName the name of the group to which the sub-group will be added
+     * @param body a map containing the sub-group details:
+     *             - "name": the name of the sub-group (String)
+     *             - "characteristics": a list of characteristic names (List<String>)
+     * @return a GroupDTO representing the updated group, or null if the group does not exist or the sub-group already exists
+     * @throws BadRequestException if the group name is empty or is already taken
+     * @throws ResourceNotFoundException if the group with the given name does not exist
      */
-    public GroupDTO addSubGroup(String groupName, Map<String, Object> body) {
+    @SuppressWarnings("unchecked")
+    public GroupDTO addSubGroup(String groupName, Map<String, Object> body) throws BadRequestException, ResourceNotFoundException {
+        if(ObjectUtils.isEmpty(groupName))
+            throw new BadRequestException("Group name is required.");
+
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
-        if (groupMaybe.isPresent() == false) {
-            return null;
-        }
+        if (groupMaybe.isEmpty())
+            throw new ResourceNotFoundException(groupName + " not found.");
+
         Group group = groupMaybe.get();
 
         String subGroupName = (String) body.get("name");
         List<String> characteristics = (List<String>) body.get("characteristics");
 
         Optional<SubGroup> sameSubGroup = subGroupRepository.findByName(subGroupName);
-        if (sameSubGroup.isPresent()) {
-            return null;
-        }
+        if (sameSubGroup.isPresent())
+            throw new BadRequestException("Subgroup " + subGroupName + " already exists.");
 
         SubGroup newSubGroup = new SubGroup(subGroupName, group);
         newSubGroup = subGroupRepository.save(newSubGroup);
@@ -118,54 +130,73 @@ public class SubGroupService {
     }
 
     /**
-     * Gets the subgroup given by name
-     * @param name
-     * @return SubGroupDTO
+     * Finds a subgroup by its name.
+     *
+     * @param name the name of the subgroup to find
+     * @return the DTO representation of the found subgroup
+     * @throws BadRequestException if the subgroup name is empty
+     * @throws ResourceNotFoundException if no subgroup with the given name is found
      */
-    public SubGroupDTO findSubGroup(String name) {
+    public SubGroupDTO findSubGroup(String name) throws BadRequestException, ResourceNotFoundException {
+        if(ObjectUtils.isEmpty(name))
+            throw new BadRequestException("Subgroup name is required.");
+
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findByName(name);
-        if (subgroupMaybe.isPresent() == false) {
-            return null;
-        }
+        if (subgroupMaybe.isEmpty())
+            throw new ResourceNotFoundException(name + " not found.");
+
         SubGroup subGroup = subgroupMaybe.get();
         SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);
         return subGroupDTO;
     }
 
     /**
-     * Update the subgroup given by subGroupName with new characteristics found in the body
-     * @param subGroupName
-     * @param body
-     * @return Updated SubGroupDTO
+     * Updates the name of an existing subgroup.
+     *
+     * @param subGroupName the current name of the subgroup to be updated.
+     * @param body a map containing the new name for the subgroup.
+     * @return the updated SubGroupDTO.
+     * @throws BadRequestException if the subgroup name is empty, or if a subgroup with the new name already exists.
+     * @throws ResourceNotFoundException if the subgroup with the given name is not found.
      */
-    public SubGroupDTO updateSubGroup(String subGroupName, Map<String, Object> body) {
+    public SubGroupDTO updateSubGroup(String subGroupName, Map<String, Object> body) throws BadRequestException, ResourceNotFoundException {
+        if(ObjectUtils.isEmpty(subGroupName))
+            throw new BadRequestException("Subgroup name is required.");
+
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (subgroupMaybe.isPresent() == false) {
-            return null;
-        }
+        if (subgroupMaybe.isEmpty())
+            throw new ResourceNotFoundException("Subgroup " + subGroupName + " not found.");
+
         SubGroup subgroup = subgroupMaybe.get();
 
         String name = (String) body.get("name");
         Optional<SubGroup> sameSubGroup = subGroupRepository.findByName(name);
-        if (sameSubGroup.isPresent()) {
-            return null;
-        }
+        if (sameSubGroup.isPresent())
+            throw new BadRequestException("Subgroup " + name + " already exists.");
+
         subgroup.setName(name);
         SubGroup savedSubGroup = subGroupRepository.save(subgroup);
 
         return SubGroupMapper.toDto(savedSubGroup);
     }
 
+
     /**
-     * Deletes the subgroup given by subGroupName
-     * @param subGroupName
-     * @return
+     * Deletes a sub-group by its name.
+     *
+     * @param subGroupName the name of the sub-group to be deleted
+     * @return a message indicating the successful deletion of the sub-group
+     * @throws ResourceNotFoundException if the sub-group with the given name is not found
+     * @throws BadRequestException if the sub-group name is empty
      */
-    public String deleteSubGroup(String subGroupName) {
+    public String deleteSubGroup(String subGroupName) throws ResourceNotFoundException, BadRequestException {
+        if(ObjectUtils.isEmpty(subGroupName))
+            throw new BadRequestException("Subgroup name is required.");
+
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (subGroupMaybe.isPresent() == false) {
-            return null;
-        }
+        if (subGroupMaybe.isEmpty())
+            throw new ResourceNotFoundException(subGroupName + " not found.");
+
         SubGroup subGroup = subGroupMaybe.get();
 
         Group group = subGroup.getGroup();
@@ -173,27 +204,19 @@ public class SubGroupService {
         subGroups.remove(subGroup);
         group.setSubGroups(subGroups);
         groupRepository.save(group);
-
-        // ! Recursive deletion should be done on the db configuration side
-        // List<SubGroupCharacteristic> subGroupChars =
-        // subGroup.getSubGroupCharacteristics();
-        // List<Characteristic> exclusiveChars = new ArrayList<>();
-
-        // for (SubGroupCharacteristic subGroupChar : subGroupChars){
-        // Characteristic characteristic = subGroupChar.getCharacteristic();
-        // long charAssociatedWithGroups =
-        // subGroupCharRepository.countByCharacteristic(characteristic);
-        // if (charAssociatedWithGroups == 1){
-        // exclusiveChars.add(characteristic);
-        // }
-        // }
-        // subGroupCharRepository.deleteAll(subGroupChars);
-        // charRepository.deleteAll(exclusiveChars);
-        // subGroupRepository.delete(subGroup);
-
         return "Successfully deleted group.";
     }
 
+
+    /**
+     * Sets the picture for a subgroup identified by its name.
+     * If the subgroup already has a picture, the existing picture is deleted before storing the new one.
+     *
+     * @param subGroupName the name of the subgroup
+     * @param picture the new picture to be set for the subgroup
+     * @return a Data Transfer Object (DTO) representing the updated subgroup
+     * @throws ResourceNotFoundException if the subgroup with the given name is not found
+     */
     public SubGroupDTO setSubGroupPicture(String subGroupName, MultipartFile picture) throws ResourceNotFoundException {
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
         if (subGroupMaybe.isEmpty()) {

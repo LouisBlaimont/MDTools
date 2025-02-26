@@ -5,6 +5,9 @@ import be.uliege.speam.team03.MDTools.models.Log;
 import be.uliege.speam.team03.MDTools.models.User;
 
 public class LogMapper {
+
+    private LogMapper() {}
+
     public static LogDto mapToLogDto(Log log) {
         User user = log.getUser();
         return new LogDto(log.getLogId(), user.getUserId(), user.getUsername(), log.getAction(), log.getTimestamp());

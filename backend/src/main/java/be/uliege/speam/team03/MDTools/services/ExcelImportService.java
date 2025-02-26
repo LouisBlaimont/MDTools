@@ -109,7 +109,7 @@ public class ExcelImportService {
         List<String> subGroupCharacteristics = subGroup.getSubGroupCharacteristics()
                 .stream()
                 .map(detail -> detail.getCharacteristic().getName())
-                .collect(Collectors.toList());
+                .toList();
 
         logger.info("Characteristics for sub-group '{}': {}", subGroupName, subGroupCharacteristics);
 

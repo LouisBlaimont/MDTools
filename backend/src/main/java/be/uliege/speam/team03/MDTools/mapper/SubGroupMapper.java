@@ -1,7 +1,6 @@
 package be.uliege.speam.team03.MDTools.mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
@@ -10,6 +9,9 @@ import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
 import lombok.NonNull;
 
 public class SubGroupMapper {
+
+   private SubGroupMapper() {
+   }
 
    static public SubGroupDTO toDto(@NonNull SubGroup subGroup) {
       SubGroupDTO dto = new SubGroupDTO();
@@ -21,14 +23,12 @@ public class SubGroupMapper {
          dto.setSubGroupCharacteristics(
                subGroup.getSubGroupCharacteristics().stream()
                      .map(SubGroupCharacteristic::getCharacteristic)
-                     .map(characteristic -> characteristic.getName())
-                     .collect(Collectors.toList()));
+                     .map(characteristic -> characteristic.getName()).toList());
       dto.setInstrCount(subGroup.getInstrCount());
       if (subGroup.getCategories() != null)
          dto.setCategoriesId(
                subGroup.getCategories().stream()
-                     .map(category -> (long) category.getId())
-                     .collect(Collectors.toList()));
+                     .map(category -> (long) category.getId()).toList());
       dto.setPictureId(subGroup.getPictureId());
 
       return dto;
@@ -55,7 +55,7 @@ public class SubGroupMapper {
                Category category = new Category();
                category.setId(Long.valueOf(categoryId).intValue());
                return category;
-            }).collect(Collectors.toList());
+            }).toList();
       entity.setCategories(categories);
 
       return entity;

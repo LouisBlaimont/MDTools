@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import be.uliege.speam.team03.MDTools.DTOs.LogDto;
-import be.uliege.speam.team03.MDTools.mapper.LogMapper;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.Log;
 import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.repositories.LogRepository;
@@ -76,13 +76,10 @@ public class LogServiceTest {
       logDto.setUserId(userId);
 
       when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-      // Act & Assert
-      RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+      
+      assertThrows(ResourceNotFoundException.class, () -> {
          logService.createLog(logDto);
       });
-
-      assertEquals("User does not exist. Received ID: " + userId, exception.getMessage());
 
       verify(userRepository, times(1)).findById(userId);
       verify(logRepository, never()).save(any(Log.class));
@@ -120,12 +117,9 @@ public class LogServiceTest {
 
       when(logRepository.findById(logId)).thenReturn(Optional.empty());
 
-      // Act & Assert
-      RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+      assertThrows(ResourceNotFoundException.class, () -> {
          logService.getLogById(logId);
       });
-
-      assertEquals("Log does not exist. Received ID: " + logId, exception.getMessage());
 
       verify(logRepository, times(1)).findById(logId);
    }

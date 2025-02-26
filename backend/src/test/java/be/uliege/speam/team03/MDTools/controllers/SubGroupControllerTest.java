@@ -2,6 +2,7 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.SubGroupService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,17 +10,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class SubGroupControllerTest {
@@ -30,9 +42,12 @@ class SubGroupControllerTest {
    @InjectMocks
    private SubGroupController subGroupController;
 
+   private MockMvc mockMvc;
+
    @BeforeEach
    void setUp() {
       MockitoAnnotations.openMocks(this);
+      mockMvc = MockMvcBuilders.standaloneSetup(subGroupController).build();
    }
 
    @Test
@@ -59,40 +74,35 @@ class SubGroupControllerTest {
       assertNotNull(actualSubGroups);
       List<SubGroupDTO> subGroupDTOList = actualSubGroups.stream()
             .map(element -> (SubGroupDTO) element)
-            .collect(Collectors.toList());
+            .toList();
       assertInstanceOf(SubGroupDTO.class, actualSubGroups.get(0), "List elements should be of type SubGroupDTO");
-      
-      
+
       assertEquals(expectedSubGroups.size(), actualSubGroups.size(), "Subgroup list sizes should match");
       assertEquals(expectedSubGroups, actualSubGroups, "Subgroup lists should match");
-
 
       assertEquals(expectedSubGroups.get(0).getName(), subGroupDTOList.get(0).getName());
       assertEquals(expectedSubGroups.get(0).getInstrCount(), subGroupDTOList.get(0).getInstrCount());
       assertEquals(expectedSubGroups.get(1).getName(), subGroupDTOList.get(1).getName());
       assertEquals(expectedSubGroups.get(1).getInstrCount(), subGroupDTOList.get(1).getInstrCount());
 
-
       verify(subGroupService, times(1)).findAllSubGroups(groupName);
    }
 
    @Test
-   void testGetSubGroupsOfAGroup_NotFound() {
+   void testGetSubGroupsOfAGroup_NotFound() throws Exception {
       // Arrange
       String groupName = "group1";
-      when(subGroupService.findAllSubGroups(groupName)).thenReturn(null);
 
-      // Act
-      ResponseEntity<?> response = subGroupController.getSubGroupsOfAGroup(groupName);
+      when(subGroupService.findAllSubGroups(groupName))
+            .thenThrow(new ResourceNotFoundException(groupName + " not found."));
 
-      // Assert
-      assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-      assertEquals("Cannot find group name", response.getBody());
-      verify(subGroupService, times(1)).findAllSubGroups(groupName);
+      // Act & Assert
+      mockMvc.perform(get("/api/subgroups/group/" + groupName))
+            .andExpect(status().isNotFound());
    }
 
    @Test
-   void testAddSubGroup() {
+   void testAddSubGroup() throws Exception {
       // Arrange
       String groupName = "group1";
       Map<String, Object> requestBody = Map.of("name", "subgroup1");
@@ -102,75 +112,71 @@ class SubGroupControllerTest {
             new SubGroupDTO(2L, "subgroup2", 4L, null, 2, null, 5L));
       GroupDTO expectedGroup = new GroupDTO(1L, groupName, 2, 10L, subGroups);
 
-      when(subGroupService.addSubGroup(groupName, requestBody)).thenReturn(expectedGroup);
+      when(subGroupService.addSubGroup(eq(groupName), any())).thenReturn(expectedGroup);
 
-      // Act
-      ResponseEntity<?> response = subGroupController.addSubGroup(groupName, requestBody);
+      // Act & Assert
+      mockMvc.perform(post("/api/subgroups/group/{groupName}", groupName)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(requestBody)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.name").value(expectedGroup.getName()))
+            .andExpect(jsonPath("$.subGroups", hasSize(expectedGroup.getSubGroups().size())));
 
-      // Assert
-      assertNotNull(response);
-      assertEquals(HttpStatus.OK, response.getStatusCode());
-      assertInstanceOf(GroupDTO.class, response.getBody());
-
-      GroupDTO responseBody = (GroupDTO) response.getBody();
-      assertNotNull(responseBody);
-      assertEquals(expectedGroup.getName(), responseBody.getName());
-      assertEquals(expectedGroup.getSubGroups().size(), responseBody.getSubGroups().size());
-      assertEquals(expectedGroup.getSubGroups(), responseBody.getSubGroups());
-
-      verify(subGroupService, times(1)).addSubGroup(groupName, requestBody);
+      verify(subGroupService, times(1)).addSubGroup(eq(groupName), any());
    }
 
    @Test
-   void testAddSubGroup_NotFound() {
+   void testAddSubGroup_NotFound() throws Exception {
       // Arrange
       String groupName = "group1";
       Map<String, Object> body = new HashMap<>();
       body.put("name", "subgroup1");
-      when(subGroupService.addSubGroup(groupName, body)).thenReturn(null);
 
-      // Act
-      ResponseEntity<?> response = subGroupController.addSubGroup(groupName, body);
+      when(subGroupService.addSubGroup(groupName, body))
+            .thenThrow(new ResourceNotFoundException(groupName + " not found."));
 
-      // Assert
-      assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-      assertEquals("Cannot find group name or subgroup already exists", response.getBody());
-      verify(subGroupService, times(1)).addSubGroup(groupName, body);
+      // Act & Assert
+      mockMvc.perform(MockMvcRequestBuilders.post("/api/subgroups/group/{groupName}", groupName)
+            .contentType("application/json")
+            .content("{\"name\":\"subgroup1\"}"))
+            .andExpect(status().isNotFound());
    }
 
    @Test
-   void testGetSubGroup() {
+   void testGetSubGroup() throws Exception {
       // Arrange
       String subgroupName = "subgroup1";
       SubGroupDTO subGroup = new SubGroupDTO(1L, subgroupName, 2L, null, 2, null, 2L);
       when(subGroupService.findSubGroup(subgroupName)).thenReturn(subGroup);
 
-      // Act
-      ResponseEntity<?> response = subGroupController.getSubGroup(subgroupName);
+      // Act & Assert
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/subgroups/{subgroupName}", subgroupName))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.name").value(subGroup.getName()))
+            .andExpect(jsonPath("$.instrCount").value(subGroup.getInstrCount()));
 
-      // Assert
-      assertEquals(HttpStatus.OK, response.getStatusCode());
-      assertEquals(subGroup, response.getBody());
       verify(subGroupService, times(1)).findSubGroup(subgroupName);
    }
 
    @Test
-   void testGetSubGroup_NotFound() {
+   void testGetSubGroup_NotFound() throws Exception {
       // Arrange
       String subgroupName = "subgroup1";
-      when(subGroupService.findSubGroup(subgroupName)).thenReturn(null);
 
-      // Act
-      ResponseEntity<?> response = subGroupController.getSubGroup(subgroupName);
+      when(subGroupService.findSubGroup(subgroupName))
+            .thenThrow(new ResourceNotFoundException("Cannot find subgroup name"));
 
-      // Assert
-      assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-      assertEquals("Cannot find subgroup name", response.getBody());
+      // Act & Assert
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/subgroups/{subgroupName}", subgroupName))
+            .andExpect(status().isNotFound());
+
       verify(subGroupService, times(1)).findSubGroup(subgroupName);
    }
 
    @Test
-   void testUpdateSubGroup() {
+   void testUpdateSubGroup() throws Exception {
       // Arrange
       String subgroupName = "subgroup1";
       Map<String, Object> body = new HashMap<>();
@@ -188,24 +194,25 @@ class SubGroupControllerTest {
    }
 
    @Test
-   void testUpdateSubGroup_NotFound() {
+   void testUpdateSubGroup_NotFound() throws Exception {
       // Arrange
       String subgroupName = "subgroup1";
       Map<String, Object> body = new HashMap<>();
       body.put("name", "subgroup1_updated");
-      when(subGroupService.updateSubGroup(subgroupName, body)).thenReturn(null);
 
-      // Act
-      ResponseEntity<?> response = subGroupController.updateSubGroup(subgroupName, body);
+      when(subGroupService.updateSubGroup(subgroupName, body))
+            .thenThrow(new ResourceNotFoundException("Cannot find subgroup or already existing subgroup name"));
 
-      // Assert
-      assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-      assertEquals("Cannot find subgroup or already existing subgroup name", response.getBody());
+      // Act & Assert
+      ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+         subGroupController.updateSubGroup(subgroupName, body);
+      });
+
       verify(subGroupService, times(1)).updateSubGroup(subgroupName, body);
    }
 
    @Test
-   void testDeleteSubGroup() {
+   void testDeleteSubGroup() throws Exception {
       // Arrange
       String subGroupName = "subgroup1";
       when(subGroupService.deleteSubGroup(subGroupName)).thenReturn(subGroupName);
@@ -220,17 +227,16 @@ class SubGroupControllerTest {
    }
 
    @Test
-   void testDeleteSubGroup_NotFound() {
+   void testDeleteSubGroup_NotFound() throws Exception {
       // Arrange
       String subGroupName = "subgroup1";
-      when(subGroupService.deleteSubGroup(subGroupName)).thenReturn(null);
 
-      // Act
-      ResponseEntity<String> response = subGroupController.deleteSubGroup(subGroupName);
+      when(subGroupService.deleteSubGroup(subGroupName))
+            .thenThrow(new ResourceNotFoundException("Cannot find subgroup."));
 
-      // Assert
-      assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-      assertEquals("Cannot find subgroup.", response.getBody());
-      verify(subGroupService, times(1)).deleteSubGroup(subGroupName);
+      // Act & Assert
+      mockMvc.perform(delete("/subgroups/" + subGroupName).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
    }
+
 }

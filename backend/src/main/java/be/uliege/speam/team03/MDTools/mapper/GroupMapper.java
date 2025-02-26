@@ -1,17 +1,16 @@
 package be.uliege.speam.team03.MDTools.mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.models.Group;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+
 public class GroupMapper {
 
+    private GroupMapper() {}
 
     public static GroupDTO toDto(@NonNull Group group) {
         GroupDTO dto = new GroupDTO();
@@ -21,8 +20,7 @@ public class GroupMapper {
         dto.setPictureId(group.getPictureId());
         dto.setSubGroups(
             group.getSubGroups().stream()
-                .map(SubGroupMapper::toDto)
-                .collect(Collectors.toList())
+                .map(SubGroupMapper::toDto).toList()
         );
 
         return dto;
@@ -35,8 +33,7 @@ public class GroupMapper {
         entity.setInstrCount(dto.getInstrCount());
         entity.setPictureId(dto.getPictureId());
         List<SubGroup> subGroups = dto.getSubGroups().stream()
-            .map(subGroupDTO -> SubGroupMapper.toEntity(subGroupDTO))
-            .collect(Collectors.toList());
+            .map(subGroupDTO -> SubGroupMapper.toEntity(subGroupDTO)).toList();
         entity.setSubGroups(subGroups);
 
         return entity;

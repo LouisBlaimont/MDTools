@@ -12,7 +12,6 @@ import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
-import lombok.AllArgsConstructor;
 
 @Service
 public class CategoryService {
@@ -179,7 +178,7 @@ public class CategoryService {
             return null;
         }
         
-        List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal(), cc.getValAbrev())).collect(Collectors.toList());
+        List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId).stream().map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal(), cc.getValAbrev())).toList();
         return characteristics;
     }
 
@@ -213,7 +212,7 @@ public class CategoryService {
         // Convert the updated characteristics back to DTOs and return
         List<CharacteristicDTO> updatedCharacteristicDTOs = existingCharacteristics.stream()
             .map(cc -> new CharacteristicDTO(cc.getCharacteristic().getName(), cc.getVal(), cc.getValAbrev()))
-            .collect(Collectors.toList());
+            .toList();
     
         return updatedCharacteristicDTOs;
     }
