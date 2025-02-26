@@ -1,7 +1,10 @@
 <script>
+  //Mockup scripts
   import { tools } from "../../tools.js";
   import { suppliers } from "../../suppliers.js";
   import { getOrder, addTool } from "../../order.js";
+
+
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
@@ -19,6 +22,11 @@
   let currentSuppliers = [];
   let charValues = {};
 
+  /**
+   * Display the characteristic values of the category at line index in the table.
+   * Update categories to have only the selected one.
+   * @param index
+   */
   async function selectCategoryWithChar(index) {
     selectCategory(index);
     selectedCategoryIndex = index;
@@ -50,6 +58,11 @@
     return;
 
   }
+
+  /**
+   * Gets the suppliers of the category given by the line index in the table
+   * @param index
+   */
   async function selectCategory(index) {
     selectedCategoryIndex = index;
 
@@ -74,6 +87,7 @@
   let hoveredSupplierIndex = null;
   let hoveredSupplierImageIndex = null;
   let selectedSupplierIndex = null;
+
   function selectSupplier(index) {
     selectedSupplierIndex = index;
   }
@@ -135,6 +149,11 @@
   function exportOrderToExcel() {
     //smth to do with the database I think
   }
+
+  /**
+   * Delete the characteristic value given by id.
+   * @param id
+   */
   function deleteCharacteristic(id) {
     const texte = document.getElementById(id);
     texte.value = "";
@@ -164,7 +183,10 @@
   export let showChars = false;
   let errorMessage = "";
 
-  export async function getGroupsSummary() {
+  /**
+   * Fetches the group summary.
+   */
+  async function getGroupsSummary() {
     try {
       const response = await fetch(PUBLIC_API_URL + "/api/groups/summary");
 
@@ -180,6 +202,10 @@
     }
   }
 
+  /**
+   * Gets subgroups of group and their categories
+   * @param group
+   */
   async function findSubGroups(group) {
     if (group == "none") {
       selectedGroup = "";
@@ -234,6 +260,9 @@
     return;
   }
 
+  /**
+   * Fetch when page is rendered.
+   */
   async function fetchData() {
     await getGroupsSummary();
 
@@ -259,7 +288,10 @@
     }
   });
 
-
+  /**
+   * Gets characteristics and categories of subgroup with the name subGroup
+   * @param subGroup
+   */
   async function findCharacteristics(subGroup) {
     if (subGroup == "none") {
       selectedSubGroup = "";
@@ -297,6 +329,9 @@
     return;
   }
 
+  /**
+   * Filters the categories depending on the input of the user.
+   */
   function searchByCharacteristics() {
     let char_vals = [];
     for (let i = 0; i < characteristics.length; i++) {
@@ -362,9 +397,9 @@
 
 <div id="container" class="text-[14px]">
   <div class="flex flex-col gap-[5px] box-border w-full">
-    <!-- PARTIE DU DESSUS -->
+    <!-- TOP PART -->
     <div class="flex-[5] flex flex-row mt-3 h-max-[50vh]">
-      <!-- FORM DES RECHERCHES -->
+      <!-- FORM OF SEARCHES -->
       <div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
         <form class="flex flex-col w-[90%] mb-2.5">
           <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
@@ -446,7 +481,7 @@
         {/if}
       </div>
 
-      <!-- TABLEAU CORRESPONDANT AUX RECHERCHES -->
+      <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
       <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
         <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
           <thead class="bg-teal-400">
@@ -490,11 +525,11 @@
           {/if}
         </table>
 
-        <!-- BOUTON POUR PASSER EN ADMIN -->
+        <!-- PASS IN ADMIN MODE -->
         <EditButton />
       </div>
 
-      <!-- PHOTOS CORRESPONDANTES AUX RECHERCHERS -->
+      <!-- PCITURES CORRESPONDING TO THE CATEGORIES -->
       <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
         {#each categories as row, index}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -523,7 +558,7 @@
       </div>
 
       <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
-        <!-- PHOTOS DES FOURNISSEURS -->
+        <!-- PCITURES OF THE SUPPLIERS -->
         <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
           <span class="p-1">Photos fournisseurs</span>
         </div>
@@ -550,7 +585,7 @@
           {/each}
         </div>
 
-        <!-- TABLEAU DES FOURNISSEURS -->
+        <!-- TABLE OF THE SUPPLIERS -->
         <div class="suppliers-table">
           <table data-testid = "suppliers-table" class="w-full border-collapse">
             <thead class="bg-teal-400">
@@ -594,10 +629,10 @@
       </div>
     </div>
 
-    <!-- PARTIE DU DESSOUS -->
+    <!-- BOTTOM PART -->
     <div class="flex-[1] flex flex-col gap-[15px] h-full pl-3 bg-gray-50">
       <div>
-        <!-- RECHERCHE PAR COMMANDE ET BOUTTON EXPORTER -->
+        <!-- SEARCH BY ORDER AND EXPORT ORDERS -->
         <div class="flex flex-row justify-between">
           <div class="w-1/2 mr-0">
             <form class="mt-2.5">
@@ -628,7 +663,7 @@
           </div>
         </div>
 
-        <!-- TABLEAU DES COMMANDES -->
+        <!-- TABLE OF ORDERS -->
         <div class="w-[80%] mb-[50px]">
           <table class="w-full border-collapse">
             <thead class="bg-teal-400">

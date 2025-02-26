@@ -15,6 +15,9 @@ import be.uliege.speam.team03.MDTools.DTOs.LogDto;
 import be.uliege.speam.team03.MDTools.services.LogService;
 import lombok.AllArgsConstructor;
 
+/**
+ * This controller implements the API endpoints relative to the logs of the users. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @AllArgsConstructor
 @RestController
 @RequestMapping(value = "/api/logs")

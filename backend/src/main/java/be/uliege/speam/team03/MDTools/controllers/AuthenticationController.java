@@ -23,6 +23,9 @@ import be.uliege.speam.team03.MDTools.services.UserDetailsServiceImpl;
 import be.uliege.speam.team03.MDTools.utils.JwtTokenUtils;
 import lombok.AllArgsConstructor;
 
+/**
+ * This controller implements the API endpoints relative to the authentication. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @AllArgsConstructor
 @RestController
 @RequestMapping(value = "/api/auth")

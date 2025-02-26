@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * This controller implements the  API endpoints relative to the categories of instruments. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @RequestMapping("/api/category")
 @AllArgsConstructor
@@ -94,8 +97,5 @@ public class CategoryController {
         List<CharacteristicDTO> chars = categoryService.updateCategoryCharacteristics(id, body);
         return ResponseEntity.status(HttpStatus.OK).body(chars);
     }
-    
-    
-    
     
 }

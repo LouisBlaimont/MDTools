@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * This controller implements the API endpoints relative to the import and export of excel. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @RequestMapping("/api/import")
 public class ExcelController {

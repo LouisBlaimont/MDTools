@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent, cleanup, within } from '@testing-library/svelte';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import  SearchPage  from './routes/searches/+page.svelte';
+import  SearchPage  from '../routes/searches/+page.svelte';
 import { page } from '$app/stores';
 
 global.fetch = vi.fn();

@@ -34,6 +34,11 @@ public class CategoryService {
         this.pictureStorageService = pictureStorageService;
     }
 
+    /**
+     * Gets the categories of the group given by groupName
+     * @param groupName
+     * @return List of categoryDTO
+     */
     public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
@@ -55,6 +60,11 @@ public class CategoryService {
         return categoriesDTO;
     }
 
+    /**
+     * Gets the categories of the subgroup given by subGroupName
+     * @param subGroupName
+     * @return List of categoryDTO
+     */
     public List<CategoryDTO> findCategoriesOfSubGroup(String subGroupName){
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
         if (subGroupMaybe.isPresent() == false){
@@ -75,7 +85,14 @@ public class CategoryService {
         return categoriesDTO;
     }
 
-    //ici l'idée c'est que on a tjrs group, subgroup et les autres champs sont soit remplis soit des empty string si on cherche pas par cette char
+    /**
+     * Gets the categories given a set of characteristics given in the body. 
+     * The body contains every field corresponding to each characteristic of the particular subgroup, 
+     * even the one where no conditions is requested. The function looks for the non-empty field 
+     * and filter the categories by their input value.
+     * @param body
+     * @return List of categoryDTO
+     */
     public List<CategoryDTO> findCategoriesByCharacteristics(Map<String, Object> body){
         String groupName = (String) body.get("groupName");
         String subGroupName = (String) body.get("subGroupName");
@@ -151,6 +168,11 @@ public class CategoryService {
    
     }
 
+    /**
+     * Gets the characteristics (with their value) of the category given by catId
+     * @param catId
+     * @return List of CharacteristicDTO
+     */
     public List<CharacteristicDTO> findCategoryById(Integer catId){
         Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
         if (categoryMaybe.isEmpty()){
@@ -161,6 +183,12 @@ public class CategoryService {
         return characteristics;
     }
 
+    /**
+     * Updates the characteristics of a category given by catId
+     * @param catId
+     * @param updatedCharacteristics
+     * @return
+     */
     public List<CharacteristicDTO> updateCategoryCharacteristics(Integer catId, List<CharacteristicDTO> updatedCharacteristics) {
         // Find the category
         Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
@@ -191,6 +219,13 @@ public class CategoryService {
     }
     
 
+    /**
+     * Set the picture of the category
+     * @param categoryId
+     * @param picture
+     * @return
+     * @throws ResourceNotFoundException
+     */
     public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
         if (categoryMaybe.isEmpty()){

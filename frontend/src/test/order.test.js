@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getOrder, addTool } from "./order"; // Adjust path to where the code is
+import { getOrder, addTool } from "../order"; // Adjust path to where the code is
 
 describe("Order management functions", () => {
   // Test for getOrder function

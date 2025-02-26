@@ -31,6 +31,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * This controller implements the API endpoints relative to the instruments. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @RequestMapping("/api/instruments")
 @AllArgsConstructor

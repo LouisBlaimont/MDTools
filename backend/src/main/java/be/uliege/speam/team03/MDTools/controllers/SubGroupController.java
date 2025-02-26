@@ -21,6 +21,9 @@ import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.SubGroupService;
 
+/**
+ * This controller implements the API endpoints relative to the subgroups of instruments. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @RequestMapping("/api/subgroups")
 public class SubGroupController {

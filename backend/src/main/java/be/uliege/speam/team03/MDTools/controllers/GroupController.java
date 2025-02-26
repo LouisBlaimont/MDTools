@@ -23,6 +23,9 @@ import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.GroupService;
 import lombok.AllArgsConstructor;
 
+/**
+ * This controller implements the API endpoints relative to the groups of instruments. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/groups")

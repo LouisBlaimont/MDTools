@@ -10,6 +10,10 @@ import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.SupplierService;
+
+/**
+ * This controller implements the API endpoints relative to the suppliers. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @RequestMapping("/api/supplier")
 public class SupplierController {

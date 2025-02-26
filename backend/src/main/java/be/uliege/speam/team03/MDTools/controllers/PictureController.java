@@ -17,6 +17,9 @@ import be.uliege.speam.team03.MDTools.models.Picture;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 
+/**
+ * This controller implements the API endpoints relative to the pictures of the groups/categories/instruments/... See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @RestController
 @RequestMapping("/api/pictures")
 public class PictureController {

@@ -31,7 +31,7 @@ public class Group {
     private Long pictureId;
 
     @PostLoad //happens each time data is fetched, replaced, .. in the DB so I must add cond so that it doesn't change the number when patch and get (post value is manually given)
- void calculateInstrumentCount() {
+    void calculateInstrumentCount() {
         this.instrCount = 3;
     }
 

@@ -22,6 +22,9 @@ import be.uliege.speam.team03.MDTools.services.EmailService;
 import be.uliege.speam.team03.MDTools.services.UserService;
 import lombok.AllArgsConstructor;
 
+/**
+ * This controller implements the API endpoints relative to the users. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ */
 @AllArgsConstructor
 @RestController
 @RequestMapping(value = "/api/user")

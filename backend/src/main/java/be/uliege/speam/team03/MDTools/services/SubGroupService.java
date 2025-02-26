@@ -37,6 +37,11 @@ public class SubGroupService {
 
     private PictureStorageService pictureStorageService;
 
+    /**
+     * Gets the subgroups of the group given by groupName
+     * @param groupName
+     * @return List of SubGroupDTO
+     */
     public List<SubGroupDTO> findAllSubGroups(String groupName) {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false) {
@@ -51,7 +56,12 @@ public class SubGroupService {
         return subGroupsDTO;
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Adds a subgroup with the characteristics given in the body to the group given by groupName
+     * @param groupName
+     * @param body
+     * @return Updated GroupDTO
+     */
     public GroupDTO addSubGroup(String groupName, Map<String, Object> body) {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false) {
@@ -107,6 +117,11 @@ public class SubGroupService {
         return groupDTO;
     }
 
+    /**
+     * Gets the subgroup given by name
+     * @param name
+     * @return SubGroupDTO
+     */
     public SubGroupDTO findSubGroup(String name) {
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findByName(name);
         if (subgroupMaybe.isPresent() == false) {
@@ -117,6 +132,12 @@ public class SubGroupService {
         return subGroupDTO;
     }
 
+    /**
+     * Update the subgroup given by subGroupName with new characteristics found in the body
+     * @param subGroupName
+     * @param body
+     * @return Updated SubGroupDTO
+     */
     public SubGroupDTO updateSubGroup(String subGroupName, Map<String, Object> body) {
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findByName(subGroupName);
         if (subgroupMaybe.isPresent() == false) {
@@ -135,6 +156,11 @@ public class SubGroupService {
         return SubGroupMapper.toDto(savedSubGroup);
     }
 
+    /**
+     * Deletes the subgroup given by subGroupName
+     * @param subGroupName
+     * @return
+     */
     public String deleteSubGroup(String subGroupName) {
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
         if (subGroupMaybe.isPresent() == false) {

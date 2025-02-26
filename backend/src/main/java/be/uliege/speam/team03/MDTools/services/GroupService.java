@@ -37,6 +37,10 @@ public class GroupService {
 
     private final PictureStorageService pictureStorageService;
 
+    /**
+     * Gets all groups of instruments
+     * @return List of GroupDTO
+     */
     public List<GroupDTO> findAllGroups(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
         List<GroupDTO> groupsDTO = groups.stream()
@@ -45,6 +49,11 @@ public class GroupService {
         return groupsDTO;
     }
 
+    /**
+     * Gets the details of the group given by groupname
+     * @param groupName
+     * @return GroupDTO
+     */
     public GroupDTO getGroupDetailsByName(String groupName){
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
@@ -56,7 +65,11 @@ public class GroupService {
         return groupDTO;
     }
     
-    @SuppressWarnings("unchecked")
+    /**
+     * Adds a group whose details are given the body parameters
+     * @param body
+     * @return GroupDTO
+     */
     public GroupDTO addGroup(Map<String, Object> body){
         String groupName = (String)body.get("groupName");
         String subGroupName = (String)body.get("subGroupName");
@@ -115,6 +128,11 @@ public class GroupService {
         return newGroupDTO;
     }
     
+    /**
+     * Deletes group given by groupName
+     * @param groupName
+     * @return
+     */
     public String deleteGroup(String groupName){
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
@@ -145,6 +163,14 @@ public class GroupService {
     }
 
     
+    /**
+     * Update group given by groupName with the characteristics given in the body
+     * @param body
+     * @param groupName
+     * @return GroupDTO
+     * @throws ResourceNotFoundException
+     * @throws BadRequestException
+     */
     public GroupDTO updateGroup(Map<String, Object> body, String groupName) throws ResourceNotFoundException, BadRequestException {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
@@ -168,12 +194,23 @@ public class GroupService {
         return groupDTO;
     }
 
+    /**
+     * Gets the group and makes a summary containing their name, picture, and number of instruments.
+     * @return
+     */
     public List<GroupSummaryDTO> getGroupsSummary(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
         List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount(), group.getPictureId())).collect(Collectors.toList());
         return groupsSummaryDTO;
     }
 
+    /**
+     * 
+     * @param groupName
+     * @param picture
+     * @return
+     * @throws ResourceNotFoundException
+     */
     public GroupDTO setGroupPicture(String groupName, MultipartFile picture) throws ResourceNotFoundException {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isEmpty()){
