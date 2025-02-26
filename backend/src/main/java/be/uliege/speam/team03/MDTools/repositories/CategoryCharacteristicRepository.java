@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
-import java.util.List;
 
 
 public interface CategoryCharacteristicRepository extends CrudRepository<CategoryCharacteristic, CategoryCharacteristicKey> {

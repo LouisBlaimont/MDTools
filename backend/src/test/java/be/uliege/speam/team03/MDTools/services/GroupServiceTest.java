@@ -2,7 +2,6 @@ package be.uliege.speam.team03.MDTools.services;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.GroupSummaryDTO;
-import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.*;

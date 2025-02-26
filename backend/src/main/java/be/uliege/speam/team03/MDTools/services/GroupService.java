@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
@@ -27,6 +27,28 @@ import be.uliege.speam.team03.MDTools.repositories.SubGroupCharacteristicReposit
 import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 import lombok.AllArgsConstructor;
 
+/**
+ * Service class for managing groups.
+ * 
+ * This service provides methods for retrieving, adding, updating, and deleting groups,
+ * as well as managing group characteristics and pictures.
+ * 
+ * Dependencies:
+ * - GroupRepository: Repository for accessing group data.
+ * - CharacteristicRepository: Repository for accessing characteristic data.
+ * - SubGroupRepository: Repository for accessing subgroup data.
+ * - SubGroupCharacteristicRepository: Repository for accessing subgroup characteristic data.
+ * - PictureStorageService: Service for managing picture storage.
+ * 
+ * Methods:
+ * - findAllGroups: Retrieves all groups.
+ * - getGroupDetailsByName: Retrieves the details of a group by its name.
+ * - addGroup: Adds a new group.
+ * - deleteGroup: Deletes a group by its name.
+ * - updateGroup: Updates the details of a group.
+ * - getGroupsSummary: Retrieves a summary of all groups.
+ * - setGroupPicture: Sets the picture for a group.
+ */
 @Service
 @AllArgsConstructor
 public class GroupService {
@@ -38,21 +60,23 @@ public class GroupService {
     private final PictureStorageService pictureStorageService;
 
     /**
-     * Gets all groups of instruments
-     * @return List of GroupDTO
+     * Retrieves all groups.
+     * 
+     * @return a list of GroupDTO objects representing all groups.
      */
     public List<GroupDTO> findAllGroups(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
         List<GroupDTO> groupsDTO = groups.stream()
             .map(GroupMapper::toDto)
-            .collect(Collectors.toList());
+            .toList();
         return groupsDTO;
     }
 
     /**
-     * Gets the details of the group given by groupname
-     * @param groupName
-     * @return GroupDTO
+     * Retrieves the details of a group by its name.
+     * 
+     * @param groupName the name of the group.
+     * @return a GroupDTO object representing the group details, or null if the group is not found.
      */
     public GroupDTO getGroupDetailsByName(String groupName){
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
@@ -66,10 +90,12 @@ public class GroupService {
     }
     
     /**
-     * Adds a group whose details are given the body parameters
-     * @param body
-     * @return GroupDTO
+     * Adds a new group.
+     * 
+     * @param body a map containing the group details.
+     * @return a GroupDTO object representing the newly added group, or null if a group with the same name already exists.
      */
+    @SuppressWarnings("unchecked")
     public GroupDTO addGroup(Map<String, Object> body){
         String groupName = (String)body.get("groupName");
         String subGroupName = (String)body.get("subGroupName");
@@ -121,17 +147,15 @@ public class GroupService {
         newSubGroup.setCategories(null);
         newSubGroup.setSubGroupCharacteristics(subGroupDetails);
 
-        // SubGroupDTO newSubGroupDTO = SubGroupMapper.toDto(newSubGroup);
-        // List<SubGroupDTO> subGroupDTOList = new ArrayList<>();
-        // subGroupDTOList.add(newSubGroupDTO);
         GroupDTO newGroupDTO = GroupMapper.toDto(newGroup);
         return newGroupDTO;
     }
     
     /**
-     * Deletes group given by groupName
-     * @param groupName
-     * @return
+     * Deletes a group by its name.
+     * 
+     * @param groupName the name of the group to be deleted.
+     * @return a string message indicating the result of the deletion.
      */
     public String deleteGroup(String groupName){
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
@@ -162,16 +186,20 @@ public class GroupService {
         return "Successfully deleted group.";
     }
 
-    
     /**
-     * Update group given by groupName with the characteristics given in the body
-     * @param body
-     * @param groupName
-     * @return GroupDTO
-     * @throws ResourceNotFoundException
-     * @throws BadRequestException
+     * Updates the details of a group.
+     * 
+     * @param body a map containing the updated group details.
+     * @param groupName the name of the group to be updated.
+     * @return a GroupDTO object representing the updated group.
+     * @throws ResourceNotFoundException if the group is not found.
+     * @throws BadRequestException if the name of the group is not provided or if a group with the same name already exists.
      */
     public GroupDTO updateGroup(Map<String, Object> body, String groupName) throws ResourceNotFoundException, BadRequestException {
+        if(ObjectUtils.isEmpty(groupName)){
+            throw new BadRequestException("Group name is required.");
+        }
+        
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
             throw new ResourceNotFoundException("Cannot find group with name: " + groupName);
@@ -195,21 +223,28 @@ public class GroupService {
     }
 
     /**
-     * Gets the group and makes a summary containing their name, picture, and number of instruments.
-     * @return
+     * Retrieves a summary of all groups.
+     *
+     * This method fetches all groups from the repository and maps them to a list of
+     * GroupSummaryDTO objects, which contain the group's name, instrument count, and picture ID.
+     *
+     * @return a list of GroupSummaryDTO objects representing the summary of all groups.
      */
     public List<GroupSummaryDTO> getGroupsSummary(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
-        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount(), group.getPictureId())).collect(Collectors.toList());
+        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount(), group.getPictureId())).toList();
         return groupsSummaryDTO;
     }
 
+    
     /**
-     * 
-     * @param groupName
-     * @param picture
-     * @return
-     * @throws ResourceNotFoundException
+     * Sets the picture for a group identified by its name.
+     * If the group already has a picture, the existing picture is deleted before storing the new one.
+     *
+     * @param groupName the name of the group whose picture is to be set
+     * @param picture the new picture to be set for the group
+     * @return a GroupDTO object representing the updated group
+     * @throws ResourceNotFoundException if the group with the specified name is not found
      */
     public GroupDTO setGroupPicture(String groupName, MultipartFile picture) throws ResourceNotFoundException {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);

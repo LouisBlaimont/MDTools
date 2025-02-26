@@ -1,6 +1,10 @@
 # Backend
 This is a Spring Boot application designed to be used as a backend API for a web application. Spring Boot simplifies the setup and development of Java-based applications by providing built-in features like embedded servers, dependency injection, and production-ready metrics.
 
+## Notes
+
+- Everything related to authentication is WIP and will greatly be modified with the introduction of DeX and the necessity to support OIDC.
+
 ## Features
 
 - RESTful API with support for various HTTP methods (GET, POST, PUT, DELETE, PATCH).

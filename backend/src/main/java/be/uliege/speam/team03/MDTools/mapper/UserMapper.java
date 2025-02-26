@@ -4,6 +4,9 @@ import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.models.User;
 
 public class UserMapper {
+
+   private UserMapper() {
+   }
    public static UserDto mapToUserDto(User user) {
       return new UserDto(user.getUserId(), user.getUsername(), user.getEmail(), user.getPassword(), user.getCreatedAt(),
             user.getUpdatedAt(), user.getRoleName(), user.getJobPosition(), user.getWorkplace());

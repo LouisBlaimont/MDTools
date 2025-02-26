@@ -9,6 +9,8 @@ import java.util.*;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,14 +64,17 @@ class SubGroupServiceTest {
 
    @Test
    void testFindAllSubGroups_WhenGroupDoesNotExist() {
+      // Simulate that the Group does not exist
       when(groupRepository.findByName("NonExistentGroup")).thenReturn(Optional.empty());
 
-      List<SubGroupDTO> result = subGroupService.findAllSubGroups("NonExistentGroup");
-      assertNull(result);
+      // Assert that ResourceNotFoundException is thrown when the Group is not found
+      assertThrows(ResourceNotFoundException.class, () -> {
+         subGroupService.findAllSubGroups("NonExistentGroup");
+      });
    }
 
    @Test
-   void testFindSubGroup_WhenExists() {
+   void testFindSubGroup_WhenExists() throws Exception {
       SubGroup subGroup = new SubGroup("TestSubGroup", new Group());
       subGroup.setSubGroupCharacteristics(new ArrayList<>());
       subGroup.setInstrCount(0);
@@ -83,29 +88,41 @@ class SubGroupServiceTest {
       assertNotNull(result);
       assertEquals("TestSubGroup", result.getName());
 
-      result = subGroupService.findSubGroup(null);
-      assertNull(result);
+      // Modify this part to assert a BadRequestException when null is passed
+      assertThrows(BadRequestException.class, () -> {
+         subGroupService.findSubGroup(null);
+      });
    }
 
    @Test
-   void testFindSubGroup_WhenDoesNotExist() {
+   void testFindSubGroup_WhenDoesNotExist() throws Exception {
+      // When the SubGroup doesn't exist
       when(subGroupRepository.findByName("NonExistentSubGroup")).thenReturn(Optional.empty());
 
-      SubGroupDTO result = subGroupService.findSubGroup("NonExistentSubGroup");
-      assertNull(result);
+      // Assert that ResourceNotFoundException is thrown when trying to find a
+      // non-existent SubGroup
+      assertThrows(ResourceNotFoundException.class, () -> {
+         subGroupService.findSubGroup("NonExistentSubGroup");
+      });
 
-      result = subGroupService.findSubGroup(null);
-      assertNull(result);
+      // Assert that BadRequestException is thrown when null is passed
+      assertThrows(BadRequestException.class, () -> {
+         subGroupService.findSubGroup(null);
+      });
    }
 
    @Test
-   void testAddSubGroup() {
+   void testAddSubGroup() throws Exception {
       String groupName = "TestGroup";
       Group group = new Group();
       group.setName(groupName);
 
+      // When the Group is not found
       when(groupRepository.findByName(groupName)).thenReturn(Optional.of(group));
+      // When the SubGroup does not exist
       when(subGroupRepository.findByName("NewSubGroup")).thenReturn(Optional.empty());
+
+      // Mock saving the SubGroup and assigning it an ID
       when(subGroupRepository.save(any(SubGroup.class)))
             .thenAnswer(invocation -> {
                SubGroup savedSubGroup = invocation.getArgument(0); // Get the argument passed to save()
@@ -117,14 +134,33 @@ class SubGroupServiceTest {
       body.put("name", "NewSubGroup");
       body.put("characteristics", List.of("Char1", "Char2"));
 
+      // Test valid addition of SubGroup
       GroupDTO result = subGroupService.addSubGroup(groupName, body);
 
       assertNotNull(result);
       assertEquals(groupName, result.getName());
+
+      // Now add a case where a ResourceNotFoundException is thrown
+      when(groupRepository.findByName(groupName)).thenReturn(Optional.empty()); // Simulate group not found
+
+      // Assert that ResourceNotFoundException is thrown when the Group is not found
+      assertThrows(ResourceNotFoundException.class, () -> {
+         subGroupService.addSubGroup(groupName, body);
+      });
+
+      // Simulate the SubGroup already exists
+      when(groupRepository.findByName(groupName)).thenReturn(Optional.of(group));
+      when(subGroupRepository.findByName("NewSubGroup")).thenReturn(Optional.of(new SubGroup()));
+
+      // Assert that BadRequestException is thrown when the SubGroup already
+      // exists
+      assertThrows(BadRequestException.class, () -> {
+         subGroupService.addSubGroup(groupName, body);
+      });
    }
 
    @Test
-   void testUpdateSubGroup() {
+   void testUpdateSubGroup() throws Exception {
       String subGroupName = "OldSubGroup";
       SubGroup subGroup = new SubGroup(subGroupName, new Group());
       subGroup.setSubGroupCharacteristics(new ArrayList<>());
@@ -152,7 +188,7 @@ class SubGroupServiceTest {
    }
 
    @Test
-   void testDeleteSubGroup() {
+   void testDeleteSubGroup() throws Exception {
       String subGroupName = "TestSubGroup";
       Group group = new Group();
       SubGroup subGroup = new SubGroup(subGroupName, group);
