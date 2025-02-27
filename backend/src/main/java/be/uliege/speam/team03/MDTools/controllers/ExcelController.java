@@ -40,18 +40,15 @@ public class ExcelController {
     @PostMapping("/excel")
     public ResponseEntity<?> receiveJsonData(@RequestBody ImportRequestDTO importRequest) {
         if (importRequest == null || importRequest.getData().isEmpty()) {
-            logger.warn("⚠ Received request with empty JSON payload!");
+            logger.warn("Received request with empty JSON payload!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The received JSON is empty.");
         }
-
-        logger.info("✅ JSON received with import type: {}, Group: {}, SubGroup: {}", 
-                    importRequest.getImportType(), importRequest.getGroupName(), importRequest.getSubGroupName());
 
         try {
             excelImportService.processImport(importRequest);
             return ResponseEntity.ok("Data imported successfully!");
         } catch (Exception e) {
-            logger.error("❌ Error while processing data: ", e);
+            logger.error("Error while processing data: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error during import.");
         }
     }

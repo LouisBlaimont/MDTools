@@ -15,6 +15,9 @@ describe("Import functionality", () => {
   let sampleJsonData;
   let sampleColumnMapping;
 
+  /**
+   * Resets mocks and initializes sample data before each test.
+   */
   beforeEach(() => {
     vi.clearAllMocks(); // Reset mocks before each test
 
@@ -33,6 +36,9 @@ describe("Import functionality", () => {
     };
   });
 
+  /**
+   * Tests sending formatted data to the backend.
+   */
   it("should send formatted data to the backend", async () => {
     const selectedOption = "SubGroup";
     const groupName = "Test Group";
@@ -50,16 +56,20 @@ describe("Import functionality", () => {
     // Verify payload structure
     const requestBody = JSON.parse(fetch.mock.calls[0][1].body);
     expect(requestBody).toEqual({
-      importType: selectedOption,
-      groupName: groupName,
-      subGroupName: subGroupName,
-      data: [
-        { reference: "REF123", supplier_name: "Supplier A", price: "100" },
-        { reference: "REF456", supplier_name: "Supplier B", price: "200" },
-      ],
-    });
+        importType: selectedOption,
+        groupName: groupName,
+        subGroupName: subGroupName,
+        supplier: "", // Ensure this is passed correctly, update if needed
+        data: [
+          { reference: "REF123", supplier_name: "Supplier A", price: "100" },
+          { reference: "REF456", supplier_name: "Supplier B", price: "200" },
+        ],
+      });
   });
 
+  /**
+   * Tests that no data is sent when jsonData is empty.
+   */
   it("should not send data if jsonData is empty", async () => {
     sampleJsonData = [];
 
@@ -69,6 +79,9 @@ describe("Import functionality", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  /**
+   * Tests that no data is sent if no import type is selected.
+   */
   it("should not send data if no import type is selected", async () => {
     await expect(sendExcelToBackend(sampleJsonData, sampleColumnMapping, "", "", ""))
       .rejects.toThrow("No file type selected.");
@@ -76,6 +89,9 @@ describe("Import functionality", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  /**
+   * Tests handling of fetch failure.
+   */
   it("should handle fetch failure gracefully", async () => {
     fetch.mockImplementationOnce(() => Promise.resolve({ ok: false }));
 
@@ -85,6 +101,9 @@ describe("Import functionality", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * Tests that fetching groups from the backend works correctly.
+   */
   it("should fetch groups correctly", async () => {
     fetch.mockImplementationOnce(() =>
       Promise.resolve({
@@ -109,6 +128,9 @@ describe("Import functionality", () => {
     }));
   });
 
+  /**
+   * Tests that fetching characteristics for a subgroup works correctly.
+   */
   it("should fetch characteristics correctly", async () => {
     fetch.mockImplementationOnce(() =>
       Promise.resolve({

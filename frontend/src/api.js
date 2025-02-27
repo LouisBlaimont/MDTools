@@ -37,6 +37,13 @@ export async function addTool(tool) {
   return res.json();
 }
 
+export async function fetchSuppliers() {
+  const res = await fetch(`${BASE_URL}/supplier/all`);
+  if (!res.ok) throw new Error("Failed to fetch suppliers");
+  return res.json();
+}
+
+
 /**
  * Fetches groups and their associated sub-groups dynamically from the backend.
  */
@@ -76,14 +83,20 @@ export async function fetchCharacteristics(subGroup) {
 }
 
 /**
- * Sends the formatted JSON data to the backend for processing.
- * @param {Array} jsonData - The raw JSON data.
- * @param {Object} columnMapping - The mapping of column indices to names.
- * @param {string} selectedOption - The selected import type.
- * @param {string} selectedGroup - The selected group name (if applicable).
- * @param {string} selectedSubGroup - The selected sub-group name (if applicable).
+ * Sends the formatted JSON data to the backend for processing and storage.
+ *
+ * @export
+ * @async
+ * @param {Array} jsonData - The raw JSON data extracted from the Excel file.
+ * @param {Object} columnMapping - The mapping of column indices to their respective column names.
+ * @param {string} selectedOption - The selected import type (e.g., "SubGroup", "NonCategorized", "Catalogue").
+ * @param {string} selectedGroup - The selected group name, applicable if `selectedOption` is "SubGroup".
+ * @param {string} selectedSubGroup - The selected sub-group name, applicable if `selectedOption` is "SubGroup".
+ * @param {string} selectedSupplier - The supplier name, applicable if `selectedOption` is "Catalogue".
+ * @returns {Promise<string>} A success message indicating that the data has been successfully imported.
+ * @throws {Error} If no data is provided, if no file type is selected, or if the backend request fails.
  */
-export async function sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup) {
+export async function sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier) {
   if (!jsonData || jsonData.length === 0) {
     throw new Error("No data to send.");
   }
@@ -96,8 +109,6 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
     .filter(([index, name]) => name && name.trim() !== "")
     .map(([index, name]) => ({ index: parseInt(index), name }));
 
-  console.log("✅ Final columns to send:", selectedHeaders);
-
   const formattedData = jsonData.slice(1).map(row => {
     let instrument = {};
     selectedHeaders.forEach(({ index, name }) => {
@@ -108,15 +119,15 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
     return instrument;
   });
 
-  console.log("📤 Formatted data for submission:", formattedData);
-
   const groupName = selectedOption === "SubGroup" ? selectedGroup : "";
   const subGroupName = selectedOption === "SubGroup" ? selectedSubGroup : "";
+  const supplier = selectedOption === "Catalogue" ? selectedSupplier : "";
 
   const requestData = {
     importType: selectedOption,
     groupName: groupName,
     subGroupName: subGroupName,
+    supplier : supplier,
     data: formattedData,
   };
 
