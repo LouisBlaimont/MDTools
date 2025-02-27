@@ -1,34 +1,46 @@
 <script>
-   import { onMount } from 'svelte';
-   
-   let logs = [];
- 
-   // Fetch logs when the component is mounted
-   onMount(async () => {
-     // Replace this with actual API call for fetching logs
-     logs = [
-       { id: 1, type: "Login Failed", user: "user1@example.com", timestamp: "2024-11-18T12:00:00Z" },
-       { id: 2, type: "Account Created", user: "user2@example.com", timestamp: "2024-11-17T08:30:00Z" }
-     ];
-   });
- </script>
- 
- <div class="p-6 space-y-8">
-   <!-- Logs Section -->
-   <section class="bg-white shadow rounded-lg p-6">
-     <h2 class="text-lg font-semibold mb-4">Logs</h2>
-     <ul class="space-y-2">
-       {#each logs as log}
-         <li class="p-2 bg-gray-100 rounded border">
-           <p><strong>Type:</strong> {log.type}</p>
-           <p><strong>User:</strong> {log.user}</p>
-           <p><strong>Timestamp:</strong> {new Date(log.timestamp).toLocaleString()}</p>
-         </li>
-       {/each}
-       {#if logs.length === 0}
-         <p class="text-gray-500">No logs available.</p>
-       {/if}
-     </ul>
-   </section>
- </div>
- 
+  import { onMount } from 'svelte';
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import LogCard from "./LogCard.svelte";
+
+  let logsPromise = []; // Store the promise itself
+
+  async function fetchLogs() {
+    try {
+      const response = await fetch(PUBLIC_API_URL + "/api/logs/list");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch logs: ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error(error);
+      throw error; // Let the error be caught in the #await block
+    }
+  }
+
+  onMount(() => {
+    logsPromise = new Promise(resolve => {
+      resolve(fetchLogs());
+    });
+  });
+</script>
+
+<div class="p-6 space-y-8">
+  <section class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold mb-4">Logs</h2>
+    {#await logsPromise}
+      <p>Loading...</p>
+    {:then logs}
+      <ul class="space-y-2">
+        {#each logs as log}
+          <LogCard {log} />
+        {/each}
+        {#if logs.length === 0}
+          <p class="text-gray-500">No logs available.</p>
+        {/if}
+      </ul>
+    {:catch error}
+      <p class="text-red-500">{error.message}</p>
+    {/await}
+  </section>
+</div>
