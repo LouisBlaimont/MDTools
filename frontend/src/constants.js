@@ -2,6 +2,7 @@
 export const ROLES = {
 	ADMIN: "admin",
 	CUSTOMER: "customer",
+	WEBMASTER: "webmaster",
 };
 
 export const PERMISSIONS = {
