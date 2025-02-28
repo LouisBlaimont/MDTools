@@ -3,8 +3,6 @@
   import { tools } from "../../tools.js";
   import { suppliers } from "../../suppliers.js";
   import { getOrder, addTool } from "../../order.js";
-
-
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
@@ -409,6 +407,34 @@
       goto('/admin/add_instrument');
   }  
 
+  let resizing = null;
+  let startX, startY, startWidth, startHeight;
+  let div1, div2, div3, div4, div5;
+  
+  function startResize(event, div) {
+      resizing = div;
+      startX = event.clientX;
+      startY = event.clientY;
+      startWidth = div.offsetWidth;
+      startHeight = div.offsetHeight;
+      document.addEventListener('mousemove', resize);
+      document.addEventListener('mouseup', stopResize);
+  }
+  
+  function resize(event) {
+      if (!resizing) return;
+      const deltaX = event.clientX - startX;
+      const deltaY = event.clientY - startY;
+      resizing.style.width = `${startWidth + deltaX}px`;
+      resizing.style.height = `${startHeight + deltaY}px`;
+  }
+  
+  function stopResize() {
+      resizing = null;
+      document.removeEventListener('mousemove', resize);
+      document.removeEventListener('mouseup', stopResize);
+  }
+
 </script>
 
 <svelte:head>
@@ -420,7 +446,7 @@
     <!-- TOP PART -->
     <div class="flex-[5] flex flex-row mt-3 h-max-[50vh]">
       <!-- FORM OF SEARCHES -->
-      <div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
+      <div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md resizable" bind:this={div1}>
         <form class="flex flex-col w-[90%] mb-2.5">
           <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
           <input
@@ -499,60 +525,63 @@
             {/each}
           </form>
         {/if}
+        <div class="resize-handle" on:mousedown={(e) => startResize(e, div1)}></div>
       </div>
 
       <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-      <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
-        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
-          <thead class="bg-teal-400">
-            <tr>
-              {#if $isEditing}
-                <th class="text-center border border-solid border-[black]"></th>
-              {/if}
-              <th class="text-center border border-solid border-[black]">GROUPE</th>
-              <th class="text-center border border-solid border-[black]">SOUS GP</th>
-              <th class="text-center border border-solid border-[black]">FCT</th>
-              <th class="text-center border border-solid border-[black]">NOM</th>
-              <th class="text-center border border-solid border-[black]">FORME</th>
-              <th class="text-center border border-solid border-[black]">DIM</th>
-            </tr>
-          </thead>
-          {#if showCategories}
-            <tbody>
-              {#each categories as row, index}
-                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                <tr
-                  class:bg-[cornflowerblue]={selectedCategoryIndex === index}
-                  class:bg-[lightgray]={hoveredCategoryIndex === index &&
-                    selectedCategoryIndex !== index}
-                  on:click={() => selectCategory(index)}
-                  on:dblclick={() => selectCategoryWithChar(index)}
-                  on:mouseover={() => (hoveredCategoryIndex = index)}
-                  on:mouseout={() => (hoveredCategoryIndex = null)}
-                >
-                  {#if $isEditing}
-                    <EditCategoryButton category={row}/>
-                  {/if}
-                  <td class="text-center border border-solid border-[black]">{row.groupName}</td>
-                  <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
-                  <td class="text-center border border-solid border-[black]">{row.function}</td>
-                  <td class="text-center border border-solid border-[black]">{row.name}</td>
-                  <td class="text-center border border-solid border-[black]">{row.shape}</td>
-                  <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
-                </tr>
-              {/each}
-            </tbody>
-          {/if}
-        </table>
+      <div class="flex-[3] h-full overflow-y-auto box-border ml-3 resizable" bind:this={div2}>
+          <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
+            <thead class="bg-teal-400">
+              <tr>
+                {#if $isEditing}
+                  <th class="text-center border border-solid border-[black]"></th>
+                {/if}
+                <th class="text-center border border-solid border-[black]">GROUPE</th>
+                <th class="text-center border border-solid border-[black]">SOUS GP</th>
+                <th class="text-center border border-solid border-[black]">FCT</th>
+                <th class="text-center border border-solid border-[black]">NOM</th>
+                <th class="text-center border border-solid border-[black]">FORME</th>
+                <th class="text-center border border-solid border-[black]">DIM</th>
+              </tr>
+            </thead>
+            {#if showCategories}
+              <tbody>
+                {#each categories as row, index}
+                  <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                  <tr
+                    class:bg-[cornflowerblue]={selectedCategoryIndex === index}
+                    class:bg-[lightgray]={hoveredCategoryIndex === index &&
+                      selectedCategoryIndex !== index}
+                    on:click={() => selectCategory(index)}
+                    on:dblclick={() => selectCategoryWithChar(index)}
+                    on:mouseover={() => (hoveredCategoryIndex = index)}
+                    on:mouseout={() => (hoveredCategoryIndex = null)}
+                  >
+                    {#if $isEditing}
+                      <EditCategoryButton category={row}/>
+                    {/if}
+                    <td class="text-center border border-solid border-[black]">{row.groupName}</td>
+                    <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+                    <td class="text-center border border-solid border-[black]">{row.function}</td>
+                    <td class="text-center border border-solid border-[black]">{row.name}</td>
+                    <td class="text-center border border-solid border-[black]">{row.shape}</td>
+                    <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            {/if}
+          </table>
+     
 
         <!-- PASS IN ADMIN MODE -->
         {#if isAdmin}
           <EditButton />
         {/if}
+        <div class="resize-handle" on:mousedown={(e) => startResize(e, div2)}></div>
       </div>
 
       <!-- PCITURES CORRESPONDING TO THE CATEGORIES -->
-      <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
+      <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px] resizable" bind:this={div3}>
         {#each categories as row, index}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -584,45 +613,49 @@
             {/if}
           {/if}
         {/each}
+        <div class="resize-handle" on:mousedown={(e) => startResize(e, div3)}></div>
       </div>
 
       <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
         <!-- PCITURES OF THE SUPPLIERS -->
-        <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-          <span class="p-1">Photos fournisseurs</span>
-        </div>
-        <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
-          {#each currentSuppliers as row, index}
-            <div
-              class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
-              on:click={() => showBigPicture(row.src)}
-            >
-              <img
-                alt="supplier{row.id}"
-                src={row.src}
+        <div class = "resizable" bind:this={div4}>
+          <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
+            <span class="p-1">Photos fournisseurs</span>
+          </div>
+          <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
+            {#each currentSuppliers as row, index}
+              <div
+                class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
                 on:click={() => showBigPicture(row.src)}
-                on:mouseover={() => (hoveredSupplierImageIndex = index)}
-                on:mouseout={() => (hoveredSupplierImageIndex = null)}
-                class="h-4/5 {selectedSupplierIndex === index
-                  ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-                  : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index
-                  ? 'cursor-pointer border-2 border-solid border-[lightgray]'
-                  : ''}"
-              />
-              <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
-            </div>
-            {#if $isEditing}
-              {#if isAdmin}
-                <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
-                    +
-                </button> 
+              >
+                <img
+                  alt="supplier{row.id}"
+                  src={row.src}
+                  on:click={() => showBigPicture(row.src)}
+                  on:mouseover={() => (hoveredSupplierImageIndex = index)}
+                  on:mouseout={() => (hoveredSupplierImageIndex = null)}
+                  class="h-4/5 {selectedSupplierIndex === index
+                    ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
+                    : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index
+                    ? 'cursor-pointer border-2 border-solid border-[lightgray]'
+                    : ''}"
+                />
+                <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
+              </div>
+              {#if $isEditing}
+                {#if isAdmin}
+                  <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                      +
+                  </button> 
+                {/if}
               {/if}
-            {/if}
-          {/each}
+            {/each}
+          </div>
+          <div class="resize-handle" on:mousedown={(e) => startResize(e, div4)}></div>
         </div>
 
         <!-- TABLE OF THE SUPPLIERS -->
-        <div class="suppliers-table">
+        <div class="suppliers-table resizable" bind:this={div5}>
           <table data-testid = "suppliers-table" class="w-full border-collapse">
             <thead class="bg-teal-400">
               <tr>
@@ -676,6 +709,8 @@
               </div>
             {/if}
           {/if}
+          <div class="resize-handle" on:mousedown={(e) => startResize(e, div5)}></div>
+        
         </div>
       </div>
     </div>
@@ -816,3 +851,20 @@
     <button class="cursor-pointer" pointer on:click={() => addToOrder()}>AJOUT</button>
   </div>
 </div>
+
+<style>
+  .resizable {
+      position: relative;
+      resize: both;
+      overflow: auto;
+  }
+  .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: gray;
+      bottom: 0;
+      right: 0;
+      cursor: nwse-resize;
+  }
+</style>
