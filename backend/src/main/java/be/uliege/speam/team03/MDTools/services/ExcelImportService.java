@@ -20,16 +20,17 @@ public class ExcelImportService {
 
     private final InstrumentRepository instrumentRepository;
     private final SubGroupRepository subGroupRepository;
-    private final SubGroupCharacteristicRepository subGroupCharacteristicRepository;
     private final CharacteristicRepository characteristicRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryCharacteristicRepository categoryCharacteristicRepository;
 
+    /**
+     * Constructs an instance of ExcelImportService.
+     */
     public ExcelImportService(
         InstrumentRepository instrumentRepository,
         SubGroupRepository subGroupRepository,
-        SubGroupCharacteristicRepository subGroupCharacteristicRepository,
         CharacteristicRepository characteristicRepository,
         SupplierRepository supplierRepository,
         CategoryRepository categoryRepository,
@@ -37,13 +38,16 @@ public class ExcelImportService {
     ) {
         this.instrumentRepository = instrumentRepository;
         this.subGroupRepository = subGroupRepository;
-        this.subGroupCharacteristicRepository = subGroupCharacteristicRepository;
         this.characteristicRepository = characteristicRepository;
         this.supplierRepository = supplierRepository;
         this.categoryRepository = categoryRepository;
         this.categoryCharacteristicRepository = categoryCharacteristicRepository;
     }
 
+    /**
+     * Processes an import request based on its type.
+     * @param request The import request containing data and type.
+     */
     public void processImport(ImportRequestDTO request) {
         switch (request.getImportType()) {
             case "SubGroup":
@@ -53,22 +57,24 @@ public class ExcelImportService {
                 processUncategorizedInstruments(request.getData());
                 break;
             case "Catalogue":
-                //processCatalogImport(request.getData());
+                processCatalogImport(request.getSupplier(), request.getData());
                 break;
             case "Alternatives":
                 //processAlternativesImport(request.getData());
                 break;
             case "Crossref":
-                //processCrossrefImport(request.getData());
+                processCrossrefImport(request.getData());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown import type: " + request.getImportType());
         }
     }
 
-    void processUncategorizedInstruments(List<Map<String, Object>> data) {
-        logger.info("🛠 Importing uncategorized instruments...");
-    
+    /**
+     * Processes uncategorized instruments and updates or inserts them into the database.
+     * @param data The list of instrument data.
+     */
+    void processUncategorizedInstruments(List<Map<String, Object>> data) {    
         Set<String> availableColumns = data.stream()
                 .flatMap(row -> row.keySet().stream())
                 .collect(Collectors.toSet());
@@ -76,32 +82,50 @@ public class ExcelImportService {
         for (Map<String, Object> row : data) {
             String reference = (String) row.get("reference");
             if (reference == null || reference.trim().isEmpty()) {
-                logger.warn("⚠ Skipping entry due to missing reference.");
+                logger.warn("Skipping entry due to missing reference.");
                 continue;
             }
     
             Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
             if (existingInstrumentOpt.isPresent()) {
-                logger.info("🔄 Instrument {} already exists. Updating...", reference);
                 Instruments existingInstrument = existingInstrumentOpt.get();
                 boolean updated = updateExistingInstrument(existingInstrument, row, null, availableColumns, new ArrayList<>(), false);
                 if (updated) {
                     instrumentRepository.save(existingInstrument);
-                    logger.info("✅ Instrument {} updated.", reference);
                 }
             } else {
-                processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false);
-                logger.info("📌 New uncategorized instrument saved: {}", reference);
+                processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false, null);
             }
         }
     }
+
+    /**
+     * Processes catalog import by inserting instruments linked to a supplier.
+     * @param supplierName The supplier's name.
+     * @param data The list of instrument data.
+     */
+    void processCatalogImport(String supplierName, List<Map<String, Object>> data) {
+        
+        // Retrieve all available columns from the data
+        Set<String> availableColumns = data.stream()
+                .flatMap(row -> row.keySet().stream())
+                .collect(Collectors.toSet());
     
+        for (Map<String, Object> row : data) {
+            processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false, supplierName);
+        }   
+    }    
+    
+    /**
+     * Processes subgroup import and associates instruments with the subgroup.
+     * @param groupName The name of the group.
+     * @param subGroupName The name of the subgroup.
+     * @param data The list of instrument data.
+     */
     void processSubGroupImport(String groupName, String subGroupName, List<Map<String, Object>> data) {
-        logger.info("🛠 Importing instruments into sub-group: {} -> {}", groupName, subGroupName);
     
         Optional<SubGroup> subGroupOpt = subGroupRepository.findByName(subGroupName);
         if (subGroupOpt.isEmpty()) {
-            logger.warn("⚠ Sub-group '{}' not found. Skipping import.", subGroupName);
             return;
         }
         SubGroup subGroup = subGroupOpt.get();
@@ -111,18 +135,25 @@ public class ExcelImportService {
                 .map(detail -> detail.getCharacteristic().getName())
                 .toList();
 
-        logger.info("Characteristics for sub-group '{}': {}", subGroupName, subGroupCharacteristics);
-
         Set<String> availableColumns = data.stream()
                 .flatMap(row -> row.keySet().stream())
                 .collect(Collectors.toSet());
 
         for (Map<String, Object> row : data) {
-            processInstrumentRow(row, subGroup, availableColumns, subGroupCharacteristics, true);
+            processInstrumentRow(row, subGroup, availableColumns, subGroupCharacteristics, true, null);
         }
     }
 
-    void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics, boolean manageCategories) {
+    /**
+     * Processes a single instrument row and adds or updates it in the database.
+     * @param row The data of the instrument.
+     * @param subGroup The subgroup of the instrument.
+     * @param availableColumns The available columns in the dataset.
+     * @param subGroupCharacteristics The characteristics of the subgroup.
+     * @param manageCategories Whether to manage categories.
+     * @param supplier The supplier of the instrument.
+     */
+    void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics, boolean manageCategories, String supplier) {
         String reference = (String) row.get("reference");
         if (reference == null || reference.trim().isEmpty()) {
             logger.warn("Skipping entry due to missing reference.");
@@ -131,19 +162,17 @@ public class ExcelImportService {
     
         Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
         if (existingInstrumentOpt.isPresent()) {
-            logger.info("Instrument with reference {} already exists. Checking for differences...", reference);
             Instruments existingInstrument = existingInstrumentOpt.get();
 
             if (updateExistingInstrument(existingInstrument, row, subGroup, availableColumns, subGroupCharacteristics, manageCategories)) {
                 instrumentRepository.save(existingInstrument);
-                logger.info("✅ Instrument {} updated successfully.", reference);
             }
             return;
         }
     
         Instruments newInstrument = new Instruments();
         newInstrument.setReference(reference);
-        newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns));
+        newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns, supplier));
         newInstrument.setSupplierDescription((String) row.getOrDefault("supplier_description", ""));
         newInstrument.setPrice(getPrice(row, availableColumns));
         newInstrument.setObsolete(getObsoleteValue(row, availableColumns));
@@ -153,18 +182,26 @@ public class ExcelImportService {
         }
     
         instrumentRepository.save(newInstrument);
-        logger.info("New instrument saved: {}", reference);
     }
     
-
-    Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns) {
-        // Retrieve supplier name from the provided data or set a default value
-        String supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : "Unknown Supplier";
-        
+    /**
+     * Retrieves an existing supplier or creates a new one.
+     * @param row The row data containing supplier information.
+     * @param availableColumns The available columns in the dataset.
+     * @param supplierName The supplier's name.
+     * @return The supplier object.
+     */
+    Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
+        // Use the provided supplier name if not null, otherwise extract from available columns
         if (supplierName == null || supplierName.trim().isEmpty()) {
-            supplierName = "Unknown Supplier";
+            supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : null;
         }
-        
+
+        // If still null or empty after extraction, return null (do not create an "Unknown Supplier")
+        if (supplierName == null || supplierName.trim().isEmpty()) {
+            return null;
+        }
+
         // Normalize supplier name for case-insensitive and accent-free comparison
         String normalizedSupplierName = normalizeString(supplierName);
     
@@ -186,11 +223,15 @@ public class ExcelImportService {
     
         // Save the new supplier in the database
         supplierRepository.save(newSupplier);
-        logger.info("Created new supplier: {}", supplierName);
         
         return newSupplier;
     }
-
+    /**
+     * Extracts the price from the given data.
+     * @param row The instrument data.
+     * @param availableColumns The available columns in the data.
+     * @return The extracted price, or 0.0 if not available.
+     */
     Float getPrice(Map<String, Object> row, Set<String> availableColumns) {
         if (!availableColumns.contains("price")) return 0.0f;
 
@@ -198,10 +239,23 @@ public class ExcelImportService {
         return (priceObj instanceof Number) ? ((Number) priceObj).floatValue() : 0.0f;
     }
 
+    /**
+     * Determines whether an instrument is obsolete.
+     * @param row The instrument data.
+     * @param availableColumns The available columns in the data.
+     * @return True if the instrument is obsolete, false otherwise.
+     */
     Boolean getObsoleteValue(Map<String, Object> row, Set<String> availableColumns) {
         return getBooleanValue(row, availableColumns, "obsolete");
     }
     
+
+    /**
+     * Determines whether the instrument is sold by MD.
+     * @param row The instrument data.
+     * @param availableColumns The available columns in the data.
+     * @return True if the instrument is sold by MD, false otherwise.
+     */
     Boolean getSoldByMdValue(Map<String, Object> row, Set<String> availableColumns) {
         if (!availableColumns.contains("sold_by_md") || row.get("sold_by_md") == null || row.get("sold_by_md").toString().trim().isEmpty()) {
             return false; // Default to false if the column is missing or empty
@@ -209,6 +263,12 @@ public class ExcelImportService {
         return getBooleanValue(row, availableColumns, "sold_by_md");
     }
     
+    /**
+     * Determines whether the supplier is closed.
+     * @param row The instrument data.
+     * @param availableColumns The available columns in the data.
+     * @return True if the supplier is closed, false otherwise.
+     */
     Boolean getClosedValue(Map<String, Object> row, Set<String> availableColumns) {
         if (!availableColumns.contains("closed") || row.get("closed") == null || row.get("closed").toString().trim().isEmpty()) {
             return false; // Default to false if the column is missing or empty
@@ -216,8 +276,13 @@ public class ExcelImportService {
         return getBooleanValue(row, availableColumns, "closed");
     }
     
-    
-
+    /**
+     * Extracts a boolean value from the given data.
+     * @param row The instrument data.
+     * @param availableColumns The available columns in the data.
+     * @param key The key for the boolean value.
+     * @return The extracted boolean value, or false if not found.
+     */
     Boolean getBooleanValue(Map<String, Object> row, Set<String> availableColumns, String key) {
         if (!availableColumns.contains(key)) return false;
     
@@ -235,7 +300,13 @@ public class ExcelImportService {
         return false;
     }
     
-
+    /**
+     * Retrieves or creates a category based on subgroup characteristics.
+     * @param subGroup The subgroup associated with the category.
+     * @param row The instrument data.
+     * @param subGroupCharacteristics The list of subgroup characteristics.
+     * @return The category entity.
+     */
     Category getOrCreateCategory(SubGroup subGroup, Map<String, Object> row, List<String> subGroupCharacteristics) {
         Map<String, String> instrumentCharacteristics = extractCharacteristics(row, subGroupCharacteristics);
     
@@ -248,6 +319,12 @@ public class ExcelImportService {
         return createNewCategory(subGroup, instrumentCharacteristics, row.keySet(), row);
     }
 
+    /**
+     * Extracts instrument characteristics based on the given subgroup characteristics.
+     * @param row The instrument data.
+     * @param subGroupCharacteristics The list of subgroup characteristics.
+     * @return A map of characteristic names and values.
+     */
     Map<String, String> extractCharacteristics(Map<String, Object> row, List<String> subGroupCharacteristics) {
         Map<String, String> characteristics = new HashMap<>();
         for (String characteristic : subGroupCharacteristics) {
@@ -257,6 +334,12 @@ public class ExcelImportService {
         return characteristics;
     }
 
+    /**
+     * Checks if the given instrument characteristics match an existing category.
+     * @param category The category to compare against.
+     * @param instrumentCharacteristics The characteristics of the instrument.
+     * @return True if the category matches, false otherwise.
+     */
     boolean matchCategory(Category category, Map<String, String> instrumentCharacteristics) {
         for (String characteristic : instrumentCharacteristics.keySet()) {
             Optional<String> existingValueOpt = categoryRepository.findCharacteristicVal(category.getId().longValue(), characteristic);
@@ -267,7 +350,14 @@ public class ExcelImportService {
         return true;
     }
 
-
+    /**
+     * Creates a new category with the given characteristics.
+     * @param subGroup The subgroup associated with the category.
+     * @param instrumentCharacteristics The characteristics of the instrument.
+     * @param availableColumns The available columns in the data.
+     * @param row The instrument data.
+     * @return The created category entity.
+     */
     Category createNewCategory(SubGroup subGroup, Map<String, String> instrumentCharacteristics, Set<String> availableColumns, Map<String, Object> row) {
         Category newCategory = new Category(subGroup);
         categoryRepository.save(newCategory);
@@ -314,33 +404,43 @@ public class ExcelImportService {
         return newCategory;
     }
 
+    /**
+     * Updates an existing instrument with new data.
+     * @param instrument The existing instrument.
+     * @param row The new instrument data.
+     * @param subGroup The subgroup associated with the instrument.
+     * @param availableColumns The available columns in the data.
+     * @param subGroupCharacteristics Characteristics associated with the subgroup.
+     * @param manageCategories Whether to manage category creation.
+     * @return True if the instrument was updated, false otherwise.
+     */
     boolean updateExistingInstrument(Instruments instrument, Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics, Boolean manageCategories) {
         boolean isUpdated = false;
     
         // Check Supplier
-        Suppliers newSupplier = getOrCreateSupplier(row, availableColumns);
-        if (!Objects.equals(instrument.getSupplier(), newSupplier)) {
+        Suppliers newSupplier = getOrCreateSupplier(row, availableColumns, null);
+        if (newSupplier != null && !Objects.equals(instrument.getSupplier(), newSupplier)) {
             instrument.setSupplier(newSupplier);
             isUpdated = true;
         }
     
         // Check Supplier Description
-        String newDescription = (String) row.getOrDefault("supplier_description", "");
-        if (!Objects.equals(instrument.getSupplierDescription(), newDescription)) {
+        String newDescription = (String) row.get("supplier_description");
+        if (newDescription != null && !Objects.equals(instrument.getSupplierDescription(), newDescription)) {
             instrument.setSupplierDescription(newDescription);
             isUpdated = true;
         }
     
         // Check Price
         Float newPrice = getPrice(row, availableColumns);
-        if (!Objects.equals(instrument.getPrice(), newPrice)) {
+        if (newPrice != null && !Objects.equals(instrument.getPrice(), newPrice)) {
             instrument.setPrice(newPrice);
             isUpdated = true;
         }
     
         // Check Obsolete Status
         Boolean newObsolete = getObsoleteValue(row, availableColumns);
-        if (!Objects.equals(instrument.getObsolete(), newObsolete)) {
+        if (newObsolete != null && !Objects.equals(instrument.getObsolete(), newObsolete)) {
             instrument.setObsolete(newObsolete);
             isUpdated = true;
         }
@@ -348,21 +448,103 @@ public class ExcelImportService {
         // Check Category
         if (manageCategories) {
             Category newCategory = getOrCreateCategory(subGroup, row, subGroupCharacteristics);
-            if (!Objects.equals(instrument.getCategory(), newCategory)) {
+            if (newCategory != null && !Objects.equals(instrument.getCategory(), newCategory)) {
                 instrument.setCategory(newCategory);
                 isUpdated = true;
             }
-            logger.info("📌 Sub-group '{}' updated with {} characteristics.", subGroup.getName(), subGroupCharacteristics.size());
         }
     
         return isUpdated;
-    }    
-    
-    
+    }
+       
+    /**
+     * Normalizes a string by converting to lowercase and removing accents.
+     * @param input The input string.
+     * @return The normalized string.
+     */
     String normalizeString(String input) {
         if (input == null) return "";
         
         return Normalizer.normalize(input.trim().toLowerCase(), Normalizer.Form.NFD)
                          .replaceAll("\\p{M}", ""); // Remove accents
     }
+
+    /**
+     * Processes the Crossref import by ensuring instruments in the same row
+     * share the same category and updating missing suppliers.
+     * 
+     * @param data The list of instrument data rows.
+     */
+    void processCrossrefImport(List<Map<String, Object>> data) {
+        Set<String> availableColumns = data.stream()
+                .flatMap(row -> row.keySet().stream())
+                .collect(Collectors.toSet());
+    
+        for (Map<String, Object> row : data) {
+            processCrossrefRow(row, availableColumns);
+        }
+    }
+    
+    /**
+     * Processes a single row of the Crossref import, ensuring all instruments
+     * in the row are linked to the same category and updating suppliers if needed.
+     * 
+     * @param row The instrument data row.
+     * @param availableColumns The available columns in the dataset.
+     */
+    void processCrossrefRow(Map<String, Object> row, Set<String> availableColumns) {
+        List<String> references = row.entrySet().stream()
+                .filter(entry -> entry.getValue() != null && !entry.getValue().toString().trim().isEmpty())
+                .map(Map.Entry::getValue)
+                .map(Object::toString)
+                .collect(Collectors.toList());
+    
+        if (references.isEmpty()) {
+            logger.warn("Skipping row due to no valid references.");
+            return;
+        }
+    
+        // Step 1: Find an existing instrument with a category
+        Category sharedCategory = null;
+        for (String reference : references) {
+            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
+            if (existingInstrumentOpt.isPresent()) {
+                Instruments existingInstrument = existingInstrumentOpt.get();
+                if (existingInstrument.getCategory() != null) {
+                    sharedCategory = existingInstrument.getCategory();
+                    break; // Found an instrument with a category, use this for all
+                }
+            }
+        }
+    
+        // Step 2: Process each reference
+        for (String reference : references) {
+            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
+            if (existingInstrumentOpt.isPresent()) {
+                Instruments existingInstrument = existingInstrumentOpt.get();
+    
+                // Update category if null and a shared category exists
+                if (existingInstrument.getCategory() == null && sharedCategory != null) {
+                    existingInstrument.setCategory(sharedCategory);
+                    instrumentRepository.save(existingInstrument);
+                }
+    
+                // Update supplier if missing but do not change if different
+                Suppliers newSupplier = getOrCreateSupplier(row, availableColumns, null);
+                if (existingInstrument.getSupplier() == null && newSupplier != null) {
+                    existingInstrument.setSupplier(newSupplier);
+                    instrumentRepository.save(existingInstrument);
+                }
+    
+            } else {
+                // Create a new instrument with the shared category and supplier
+                Instruments newInstrument = new Instruments();
+                newInstrument.setReference(reference);
+                newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns, null));
+                newInstrument.setCategory(sharedCategory);
+                newInstrument.setPrice (getPrice(row, availableColumns));
+                instrumentRepository.save(newInstrument);
+            }
+        }
+    }    
 }

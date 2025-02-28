@@ -15,6 +15,7 @@
   let offset = { x: 0, y: 0 };
   let isDraggingModal = false;
   let currentView = "main";
+  let viewHistory = [];
   let selectedGroup = "";
   let selectedSubGroup = "";
   let isNextEnabled = false;
@@ -28,9 +29,26 @@
   let subGroups = {};
   let requiredColumns = []; 
   let columnMapping = {};
-  let previousView = "main";
+  let suppliers = [];
+  let selectedSupplier = "";
+  let isSupplierModalOpen = false;
 
-  // Handles the drop event for the file drag and drop.
+
+  /**
+   * Fetches the list of suppliers from the backend.
+   */
+  async function loadSuppliers() {
+    try {
+      suppliers = await fetchSuppliers();
+    } catch (error) {
+      console.error("Error while retrieving suppliers:", error);
+    }
+  }
+
+  /**
+   * Handles the drop event for the file drag and drop.
+   * @param {DragEvent} event The drag event.
+   */
   const handleDrop = (event) => {
     event.preventDefault();
     dragging = false;
@@ -41,16 +59,17 @@
         file = null;
       } else {
         errorMessage = "";
-        console.log('Fichier importé:', file.name);
       }
     }
   };
 
+  /**
+   * Loads groups and their respective sub-groups from the backend.
+   * @returns {Promise<{groups: string[], subGroups: object}>} A promise resolving to groups and subGroups.
+   */
   async function loadGroups() {
     try {
       const data = await fetchGroups();
-      console.log("✅ Groups retrieved:", data);
-
       // Extracting group names
       groups = data.map(group => group.name);
 
@@ -61,12 +80,15 @@
 
       return { groups, subGroups };
     } catch (error) {
-      console.error("❌ Error while retrieving groups:", error);
+      console.error("Error while retrieving groups:", error);
       return { groups: [], subGroups: {} };
     }
   }
 
-  const setRequiredColumns = () => {
+  /**
+   * Sets the required columns based on the selected option.
+   */
+  const setRequiredColumns = async () => {
     if (selectedOption === "NonCategorized") {
       requiredColumns = [
         "reference", 
@@ -78,13 +100,35 @@
         "obsolete"
       ];
     } 
+    else if (selectedOption === "Catalogue") {
+      requiredColumns = [
+        "reference", 
+        "sold_by_md", 
+        "closed", 
+        "supplier_description", 
+        "price", 
+        "obsolete"
+      ];
+    } 
+    else if (selectedOption === "Crossref") {
+      try {
+        const supplierList = await fetchSuppliers();
+        requiredColumns = supplierList.map(supplier => supplier.name);
+      } catch (error) {
+        console.error("Error loading suppliers:", error);
+        requiredColumns = []; 
+      }
+    }
   };
 
+  /**
+   * Fetches characteristics for the selected subgroup.
+   * @param {string} selectedSubGroup The selected subgroup.
+   * @returns {Promise<string[]>} A promise resolving to the list of required columns.
+   */
   async function loadCharacteristics(selectedSubGroup) {
     try {
       const characteristics = await fetchCharacteristics(selectedSubGroup);
-      console.log("✅ Characteristics received:", characteristics);
-
       // Updating the list of available columns with those retrieved from the API
       requiredColumns = [
         "reference",
@@ -100,25 +144,31 @@
 
       return requiredColumns;
     } catch (error) {
-      console.error("❌ Error while retrieving characteristics:", error);
+      console.error("Error while retrieving characteristics:", error);
       return [];
     }
   }
 
-
-
-  // Handles the drag-over event to allow a file to be dropped.
+  /**
+   * Handles the drag-over event to allow a file to be dropped.
+   * @param {DragEvent} event The drag event.
+   */
   const handleDragOver = (event) => {
     event.preventDefault();
     dragging = true;
   };
 
-  // Handles when the drag leaves the drop area.
+  /**
+   * Handles when the drag leaves the drop area.
+   */
   const handleDragLeave = () => {
     dragging = false;
   };
 
-  // Handles file selection through the file input element.
+  /**
+   * Handles file selection through the file input element.
+   * @param {Event} event The change event from the file input.
+   */
   const handleFileSelection = (event) => {
     if (event.target.files.length) {
       file = event.target.files[0];
@@ -127,25 +177,28 @@
         file = null;
       } else {
         errorMessage = "";
-        console.log('Fichier sélectionné:', file.name);
       }
     }
   };
 
-  // Removes the selected file.
+  /**
+   * Removes the selected file.
+   */
   const removeFile = () => {
     file = null;
     errorMessage = "";
   };
 
-  // Handles the import button click and opens the modal if the file is valid.
+  /**
+   * Handles the import button click and opens the modal if the file is valid.
+   * @param {Event} event The event from the button click.
+   */
   const handleImport = (event) => {
     event.preventDefault();
     if (!file || !isValidExcelFile(file)) {
       errorMessage = "Erreur : Le fichier sélectionné n'est pas un fichier Excel valide.";
     } else {
       errorMessage = "";
-      console.log('Importation du fichier:', file.name);
       showModal = true;
       currentView = "main";
       isNextEnabled = false;
@@ -153,13 +206,20 @@
     }
   };
 
-  // Checks if the selected file is a valid Excel file based on its extension.
+  /**
+   * Checks if the selected file is a valid Excel file based on its extension.
+   * @param {File} file The file to be checked.
+   * @returns {boolean} True if the file is valid, otherwise false.
+   */
   const isValidExcelFile = (file) => {
     const validExtensions = [".xlsx", ".xls"];
     return validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
   };
 
-  // Handles the mouse down event to begin dragging the modal.
+  /**
+   * Handles the mouse down event to begin dragging the modal.
+   * @param {MouseEvent} event The mouse event.
+   */
   const handleMouseDown = (event) => {
     isDraggingModal = true;
     offset = {
@@ -168,7 +228,10 @@
     };
   };
 
-  // Handles mouse movement to reposition the modal if it is being dragged.
+  /**
+   * Handles mouse movement to reposition the modal if it is being dragged.
+   * @param {MouseEvent} event The mouse event.
+   */
   const handleMouseMove = (event) => {
     if (isDraggingModal) {
       modalPosition = {
@@ -178,56 +241,89 @@
     }
   };
 
-  // Handles mouse up event to stop dragging the modal.
+  /**
+   * Handles mouse up event to stop dragging the modal.
+   */
   const handleMouseUp = () => {
     isDraggingModal = false;
   };
 
-  // Handles selecting an option in the modal for importing.
+  /**
+   * Handles selecting an option in the modal for importing.
+   * @param {string} option The selected option.
+   */
   const handleSelectGroup = (option) => {
     selectedOption = option;
     isNextEnabled = true;
   };
 
-  // Handles finishing the import process.
+  /**
+   * Handles finishing the import process.
+   */
   const handleFinishImport = () => {
     showModal = false;
   };
 
-  // Handles the "Next" button click to move to the next view in the modal.
+  /**
+   * Handles the "Next" button click to move to the next view in the modal.
+   */
   const handleNext = async () => {
+    viewHistory.push(currentView); 
     if (currentView === "main" && isNextEnabled) {
-      if (selectedOption === "NonCategorized") {
+      if (selectedOption === "Catalogue") {
+        currentView = "Supplier";
+        isNextEnabled = false;
+        selectedSupplier = "";
+
+      } else if (selectedOption === "Crossref") {
         isLoading = true;
         loadingProgress = 0;
-
         await simulateLoadingProgress();
-
         isLoading = false;
+
+        currentView = "verification";
+        extractExcelDataToJson();
+        setRequiredColumns();
+      }else if (selectedOption === "NonCategorized") {
+        isLoading = true;
+        loadingProgress = 0;
+        await simulateLoadingProgress();
+        isLoading = false;
+        
         currentView = "verification";
         verifyColumns();
         extractExcelDataToJson();
         setRequiredColumns();
       } else {
-        previousView = currentView;
         currentView = "SubGroup";
         isNextEnabled = false;
         selectedSubGroup = "";
       }
-    } else if (currentView === "SubGroup" && isNextEnabled) {
+    }  else if (currentView === "Supplier" && isNextEnabled) {
       isLoading = true;
       loadingProgress = 0;
-
       await simulateLoadingProgress();
-
       isLoading = false;
-      previousView = currentView;
+
+      currentView = "verification";
+      verifyColumns();
+      extractExcelDataToJson();
+    }else if (currentView === "SubGroup" && isNextEnabled) {
+      isLoading = true;
+      loadingProgress = 0;
+      await simulateLoadingProgress();
+      isLoading = false;
+
       currentView = "verification";
       verifyColumns();
       extractExcelDataToJson();
     }
   };
 
+  /**
+   * Simulates a loading progress bar.
+   * @returns {Promise<void>} A promise that resolves when loading is complete.
+   */
   const simulateLoadingProgress = () => {
     return new Promise((resolve) => {
       const loadingInterval = setInterval(() => {
@@ -241,28 +337,48 @@
     });
   };
 
-  // Handles changing the selected group.
+  /**
+   * Handles changing the selected group.
+   * @param {Event} event The change event.
+   */
   const handleGroupChange = (event) => {
     selectedGroup = event.target.value;
     selectedSubGroup = "";
     isNextEnabled = false;
   };
 
-  // Handles changing the selected sub-group.
+  /**
+   * Handles changing the selected sub-group.
+   * @param {Event} event The change event.
+   */
   const handleSubGroupChange = (event) => {
     selectedSubGroup = event.target.value;
     isNextEnabled = selectedGroup !== "" && selectedSubGroup !== "";
     loadCharacteristics(selectedSubGroup);
   };
 
-  // Verifies the columns in the uploaded Excel file to check if they meet the requirements.
+  /**
+   * Handles changing the selected supplier.
+   * @param {Event} event The change event.
+   */
+  const handleSupplierChange = (event) => {
+    selectedSupplier = event.target.value;
+    isNextEnabled = selectedSupplier !== "";
+    setRequiredColumns();
+  };
+
+  /**
+   * Verifies the columns in the uploaded Excel file to check if they meet the requirements.
+   */
   const verifyColumns = () => {
     const uploadedColumns = ["Nom", "Quantité", "Prix"]; // Example logic for verifying columns - placeholder
     presentColumns = uploadedColumns.filter(col => requiredColumns.includes(col));
     missingColumns = requiredColumns.filter(col => !uploadedColumns.includes(col));
   };
 
-  // Extracts the data from the Excel file and converts it to JSON format.
+  /**
+   * Extracts the data from the Excel file and converts it to JSON format.
+   */
   const extractExcelDataToJson = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -280,8 +396,6 @@
             jsonData = [...tempJsonData]; // Force la mise à jour
         }
 
-        console.log("✅ Données JSON extraites:", jsonData);
-
         isLoading = false;
         currentView = "verification";
         verifyColumns();
@@ -290,50 +404,74 @@
 };
 
 
-  // Handles opening the JSON modal to view the extracted data.
+  /**
+   * Handles opening the JSON modal to view the extracted data.
+   */
   const handleViewJson = () => {
     showJsonModal = true;
   };
 
-  // Handles closing the JSON modal.
+  /**
+   * Handles closing the JSON modal.
+   */
   const handleCloseJsonModal = () => {
     showJsonModal = false;
   };
 
-  // Handles the final import process after verifying the columns.
+  /**
+   * Handles the final import process after verifying the columns.
+   */
   const handleImportFinal = () => {
-    console.log("Importation terminée avec les colonnes correctes");
-    handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup)
+    handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier)
     showModal = false;
   };
 
+  /**
+   * Closes the import modal.
+   */
   const handleCloseModal = () => {
     showModal = false;
     isLoading = false;
     loadingProgress = 0;
   };
 
+  /**
+   * Updates the column mapping when a column is changed.
+   * @param {number} index The index of the column.
+   */
   const updateColumnMapping = (index) => {
     if (!columnMapping[index] || columnMapping[index].trim() === "") {
       delete columnMapping[index]; 
     }
   };
 
-  async function handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup) {
+  /**
+   * Sends the extracted Excel data to the backend for processing.
+   * @param {Array} jsonData The extracted JSON data.
+   * @param {Object} columnMapping The column mapping.
+   * @param {string} selectedOption The selected import option.
+   * @param {string} selectedGroup The selected group.
+   * @param {string} selectedSubGroup The selected subgroup.
+   * @param {string} selectedSupplier The selected supplier.
+   */
+  async function handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier) {
     try {
-      const message = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup);
+      const message = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
       alert(message);
     } catch (error) {
-      console.error("❌ Error while sending data:", error);
+      console.error("Error while sending data:", error);
       alert(error.message);
     }
   }
 
-  // Adds event listeners for mouse events when the component is mounted.
+  /**
+   * Adds event listeners for mouse events when the component is mounted.
+   */
   onMount(() => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     loadGroups();
+    loadSuppliers();
   });
 
 </script>
@@ -413,7 +551,10 @@
           {:else if currentView === "SubGroup"}
             <!-- Sub-group Selection View -->
             <div class="flex items-center mb-4">
-              <button class="text-gray-700 mr-4" on:click={() => currentView = previousView}>
+              <button class="text-gray-700 mr-4" on:click={() => {
+                currentView = viewHistory[viewHistory.length - 1];
+                viewHistory.pop(); 
+              }}>
                 ←
               </button>
               <h2 class="text-2xl font-bold">Sélectionnez le groupe et sous-groupe</h2>
@@ -436,10 +577,33 @@
                 {/each}
               </datalist>
             </div>
+            {:else if currentView === "Supplier"}
+            <!-- Sub-group Selection View -->
+            <div class="flex items-center mb-4">
+              <button class="text-gray-700 mr-4" on:click={() => {
+                currentView = viewHistory[viewHistory.length - 1];
+                viewHistory.pop();                  
+              }}>
+                ←
+              </button>
+              <h2 class="text-2xl font-bold">Sélectionnez le fournisseur</h2>
+            </div>
+            <div class="mb-6">
+              <label for="supplier-select" class="block mb-2 text-gray-700">Fournisseur :</label>
+              <input id="supplier-select" type="text" bind:value={selectedSupplier} class="w-full p-3 border rounded" placeholder="Entrez un fournisseur" on:input={handleSupplierChange} list="supplier-options" />
+              <datalist id="supplier-options">
+                {#each suppliers.filter(s => s.name.toLowerCase().includes(selectedSupplier.toLowerCase())) as supplier}
+                  <option value={supplier.name}>{supplier.name}</option>
+                {/each}
+              </datalist>
+            </div>
           {:else if currentView === "verification"}
             <!-- Column Verification View with Excel-like Table -->
             <div class="flex items-center mb-4">
-              <button class="text-gray-700 mr-4" on:click={() => currentView = previousView}>
+              <button class="text-gray-700 mr-4" on:click={() => {
+                currentView = viewHistory[viewHistory.length - 1];
+                viewHistory.pop(); 
+              }}>
                 ←
               </button>
               <h2 class="text-2xl font-bold mb-6">Vérification des Colonnes</h2>

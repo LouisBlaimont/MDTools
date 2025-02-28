@@ -12,8 +12,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
+/**
+ * Unit tests for the ExcelImportService class.
+ */import static org.mockito.Mockito.*;
 class ExcelImportServiceTest {
 
     @Mock
@@ -42,6 +43,9 @@ class ExcelImportServiceTest {
     private Suppliers existingSupplier;
     private Instruments existingInstrument;
 
+    /**
+     * Initializes mocks and sets up test data before each test.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -59,6 +63,9 @@ class ExcelImportServiceTest {
         existingInstrument = new Instruments(existingSupplier, null, "SC123", "Old description", 100.0f, false);
     }
 
+    /**
+     * Tests the processing of a subgroup import when the subgroup already exists.
+     */
     @Test
     void testProcessSubGroupImport_WithExistingSubGroup() {
         // Given
@@ -73,6 +80,9 @@ class ExcelImportServiceTest {
         verify(subGroupRepository, times(1)).findByName("Scalpels");
     }
 
+    /**
+     * Tests processing an instrument row when an existing subgroup is provided.
+     */
     @Test
     void testProcessInstrumentRow_WithExistingSubGroup() {
         // Given
@@ -81,13 +91,16 @@ class ExcelImportServiceTest {
         when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
 
         // When
-        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true);
+        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true, null);
 
         // Then
         verify(instrumentRepository, times(1)).save(any(Instruments.class));
         verify(categoryRepository, atMost(1)).save(any());
     }
 
+    /**
+     * Tests updating an existing instrument during the processing of an instrument row.
+     */
     @Test
     void testProcessInstrumentRow_UpdateExistingInstrument() {
         // Given
@@ -99,12 +112,15 @@ class ExcelImportServiceTest {
         when(instrumentRepository.findByReference("SC123")).thenReturn(Optional.of(existingInstrument));
 
         // When
-        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true);
+        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true, null);
 
         // Then
         verify(instrumentRepository, times(1)).save(existingInstrument);
     }
 
+    /**
+     * Tests retrieving an existing supplier instead of creating a new one.
+     */
     @Test
     void testGetOrCreateSupplier_ExistingSupplier() {
         // Given
@@ -112,13 +128,16 @@ class ExcelImportServiceTest {
         Map<String, Object> row = Map.of("supplier_name", "newmed");
 
         // When
-        Suppliers supplier = excelImportService.getOrCreateSupplier(row, Set.of("supplier_name"));
+        Suppliers supplier = excelImportService.getOrCreateSupplier(row, Set.of("supplier_name"), null);
 
         // Then
         assertEquals(existingSupplier, supplier);
         verify(supplierRepository, never()).save(any());
     }
 
+    /**
+     * Tests creating a new category while using an existing characteristic.
+     */
     @Test
     void testCreateNewCategory_UsesExistingCharacteristic() {
         // Given
@@ -138,6 +157,9 @@ class ExcelImportServiceTest {
         verify(categoryRepository, atMost(1)).save(any());
     }
 
+    /**
+     * Tests string normalization by removing accents and converting to lowercase.
+     */
     @Test
     void testNormalizeString() {
         // Given
@@ -150,6 +172,9 @@ class ExcelImportServiceTest {
         assertEquals("example test", normalized);
     }
 
+    /**
+     * Tests extracting a boolean value from a map when the key exists.
+     */
     @Test
     void testGetBooleanValue() {
         // Given
@@ -162,6 +187,9 @@ class ExcelImportServiceTest {
         assertTrue(result);
     }
 
+    /**
+     * Tests returning false when the boolean value is not found in the map.
+     */
     @Test
     void testGetBooleanValue_DefaultFalse() {
         // Given
@@ -174,6 +202,9 @@ class ExcelImportServiceTest {
         assertFalse(result);
     }
 
+    /**
+     * Tests the complete processing of subgroup import, ensuring all instruments are saved.
+     */
     @Test
     void testProcessSubGroupImport_Complete() {
         List<Map<String, Object>> data = List.of(
@@ -190,6 +221,9 @@ class ExcelImportServiceTest {
         verify(instrumentRepository, times(2)).save(any(Instruments.class));
     }
 
+    /**
+     * Tests processing an instrument row with null values to ensure no errors occur.
+     */
     @Test
     void testProcessInstrumentRow_NullValues() {
         // Given
@@ -206,7 +240,8 @@ class ExcelImportServiceTest {
                 existingSubGroup, 
                 Set.of("reference", "Blade Size"), 
                 List.of("Blade Size"),
-                true
+                true,
+                null
         );
     
         // Then
