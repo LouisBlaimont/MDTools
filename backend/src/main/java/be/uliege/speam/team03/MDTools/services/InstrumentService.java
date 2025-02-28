@@ -15,6 +15,7 @@ import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -24,6 +25,7 @@ public class InstrumentService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
+    private final InstrumentMapper instrumentMapper;
 
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
@@ -39,7 +41,8 @@ public class InstrumentService {
             instrument.getSupplierDescription(),
             instrument.getPrice(),
             instrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            instrument.getId()
         ));
         return instrumentDTOs;
     }
@@ -57,13 +60,14 @@ public class InstrumentService {
             instrument.getSupplierDescription(),
             instrument.getPrice(),
             instrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            instrument.getId()
         );
     }
 
     public List<InstrumentDTO> findAll() {
         List<Instruments> instruments = (List<Instruments>) instrumentRepository.findAll();
-        return convertToDTO(instruments);
+        return instrumentMapper.convertToDTO(instruments);
     }
 
     public List<InstrumentDTO> findInstrumentsBySupplierName(String supplierName) {
@@ -73,7 +77,7 @@ public class InstrumentService {
         }
         Suppliers supplier = supplierMaybe.get();
         List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
-        return convertToDTO(instruments);
+        return instrumentMapper.convertToDTO(instruments);
     }
 
     public List<InstrumentDTO> findInstrumentsBySupplierId(Integer supplierId) {
@@ -83,51 +87,9 @@ public class InstrumentService {
         }
         Suppliers supplier = supplierMaybe.get();
         List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
-        return convertToDTO(instruments);
+        return instrumentMapper.convertToDTO(instruments);
     }
 
-    private List<InstrumentDTO> convertToDTO(List<Instruments> instruments) {
-        List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
-        for (Instruments instrument : instruments) {
-            InstrumentDTO dto = new InstrumentDTO(
-                instrument.getSupplier().getSupplierName(),
-                instrument.getCategory().getId(),
-                instrument.getReference(),
-                instrument.getSupplierDescription(),
-                instrument.getPrice(),
-                instrument.getObsolete(),
-                !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
-            );
-            instrumentDTOs.add(dto);
-        }
-        return instrumentDTOs;
-    }
-
-    public Instruments convertToEntity(InstrumentDTO instrumentDTO) {
-        Instruments instrument = new Instruments();
-        instrument.setReference(instrumentDTO.getReference());
-        instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
-        instrument.setPrice(instrumentDTO.getPrice());
-        instrument.setObsolete(instrumentDTO.isObsolete());
-
-        // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
-        if (supplierMaybe.isPresent() == false) {
-            return null;
-        }
-        Suppliers supplier = supplierMaybe.get();
-        instrument.setSupplier(supplier);
-
-        // retrieve category based on category id
-        Optional<Category> categoryMaybe = categoryRepository.findById(instrumentDTO.getCategoryId());
-        if (categoryMaybe.isPresent() == false) {
-            return null;
-        }
-        Category category = categoryMaybe.get();
-        instrument.setCategory(category);
-
-        return instrument;
-    }
 
     public List<InstrumentDTO> findInstrumentsOfCatergory(Integer categoryId) {
 
@@ -161,11 +123,15 @@ public class InstrumentService {
             List<Alternatives> alternatives = alternativesRepository.findByInstrumentsId1(instrumentId);
             boolean alt = !alternatives.isEmpty();            
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt, instrumentId);
 
             instrumentsDTO.add(instrumentDTO);
         }
         return instrumentsDTO;
+    }
+
+    public Integer findMaxInstrumentId() {
+        return instrumentRepository.findMaxInstrumentId();
     }
 
 
@@ -200,7 +166,8 @@ public class InstrumentService {
             savedInstrument.getSupplierDescription(),
             savedInstrument.getPrice(),
             savedInstrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(savedInstrument.getId()).isEmpty()
+            !alternativesRepository.findByInstrumentsId1(savedInstrument.getId()).isEmpty(),
+            savedInstrument.getId()
         );
     }
 

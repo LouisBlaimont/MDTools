@@ -1,5 +1,7 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.*;
 
 @NoArgsConstructor
@@ -14,6 +16,9 @@ public class InstrumentDTO {
     private Float price;
     private boolean alt;
     private boolean obsolete;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Integer id;
 
 
     public String getSupplierName() {
@@ -62,5 +67,9 @@ public class InstrumentDTO {
 
     public void setAlt(boolean alt) {
         this.alt = alt;
+    }
+
+    public Integer getId() {
+        return id;
     }
 }

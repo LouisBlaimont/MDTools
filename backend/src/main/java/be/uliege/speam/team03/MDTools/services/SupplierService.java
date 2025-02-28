@@ -20,20 +20,6 @@ public class SupplierService {
     }
 
     /**
-     * Convert a list of Suppliers entities to a list of SupplierDTOs.
-     * 
-     * @param suppliers the list of Suppliers entities to convert
-     * @return the converted list of SupplierDTOs
-     */
-    private List<SupplierDTO> convertToDTOList(List<Suppliers> suppliers) {
-        List<SupplierDTO> supplierDTOs = new ArrayList<>();
-        for (Suppliers supplier : suppliers) {
-            supplierDTOs.add(supplierMapper.convertToDTO(supplier));
-        }
-        return supplierDTOs;
-    }
-
-    /**
      * Find suppliers by their name.
      * 
      * @param supplierName the name of the supplier to find
@@ -102,6 +88,6 @@ public class SupplierService {
     public List<SupplierDTO> findAllSuppliers() {
         List<Suppliers> suppliers = new ArrayList<>();
         supplierRepository.findAll().forEach(suppliers::add);
-        return suppliers.isEmpty() ? null : convertToDTOList(suppliers);
+        return suppliers.isEmpty() ? null : supplierMapper.convertToDTOList(suppliers);
     }
 }
