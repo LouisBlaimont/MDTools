@@ -70,8 +70,34 @@ public class InstrumentController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID already exists");
             }
         }
+        List<InstrumentDTO> existingInstruments = instrumentService.findAll();
+        for (InstrumentDTO instrument : existingInstruments) {
+            if (instrument.getReference().equals(newInstrument.getReference())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists.\n");
+            }
+        }
         InstrumentDTO savedInstrument = instrumentService.save(newInstrument);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedInstrument);
+    }
+
+    /**
+     * Update an instrument.
+     * 
+     * @param updatedInstrument the instrument to update
+     * @return the updated instrument
+     */
+    @PutMapping("/update")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> updateInstrument(@RequestBody InstrumentDTO updatedInstrument) {
+        if (updatedInstrument.getId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID is required");
+        }
+        InstrumentDTO instrument = instrumentService.findById(updatedInstrument.getId());
+        if (instrument == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + updatedInstrument.getId());
+        }
+        InstrumentDTO savedInstrument = instrumentService.save(updatedInstrument);
+        return ResponseEntity.status(HttpStatus.OK).body(savedInstrument);
     }
     
     // @DeleteMapping("/delete/{id}")
