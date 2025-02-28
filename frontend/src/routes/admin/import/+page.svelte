@@ -1,5 +1,5 @@
 <script>
-  import { fetchGroups, fetchCharacteristics, sendExcelToBackend, fetchSuppliers } from "../../api.js";
+  import { fetchGroups, fetchCharacteristics, sendExcelToBackend   } from "../../../api.js";
   import { onMount } from "svelte";
   import * as XLSX from "xlsx";
 

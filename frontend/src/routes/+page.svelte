@@ -1,12 +1,22 @@
 <script>
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  // const images: Record<string, {default: string}> = import.meta.glob('/groups/*.png', {eager: true});
   import { PUBLIC_API_URL } from "$env/static/public";
   import { toast } from "@zerodevx/svelte-toast";
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { modals } from "svelte-modals";
+  import { checkRole } from "$lib/rbacUtils";
+	import { ROLES } from "../constants";
+	import { user } from "$lib/stores/user_stores"; 
+
+  // RBAC 
+  let userValue;
+  user.subscribe(value => {
+    userValue = value;
+  });
+  // returns true if user is admin
+  let isAdmin = checkRole(userValue, ROLES.ADMIN);
 
   let groups_summary = $state([]);
 
@@ -156,6 +166,11 @@
         class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg"
         ><a href="/searches">Rechercher</a></button
       >
+      {#if isAdmin}
+        <div class="flex flex-col">
+          <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_group">Ajouter un groupe</a></button>
+        </div>
+      {/if}
     </form>
   </aside>
 
@@ -184,27 +199,31 @@
           </svg>
         </button>
       {/if}
-      <button
-        class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
-        aria-label="edit groups"
-        id="editGroupsButton"
-        onclick={() => startEditing()}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+
+      {#if isAdmin}
+        <button
+          class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
+          aria-label="edit groups"
+          id="editGroupsButton"
+          onclick={() => startEditing()}
         >
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L6 20l-4 1 1-4L16.5 3.5z" />
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L6 20l-4 1 1-4L16.5 3.5z" />
+          </svg>
+        </button>
+      {/if}
     </div>
+  
 
     <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
       {#if !selectedGroup}
