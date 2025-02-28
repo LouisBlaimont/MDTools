@@ -15,6 +15,17 @@
   import EditButton from "./EditButton.svelte";
   import EditCategoryButton from "./EditCategoryButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
+  import { checkRole } from "$lib/rbacUtils";
+	import { ROLES } from "../../constants";
+	import { user } from "$lib/stores/user_stores"; 
+
+  // RBAC 
+  let userValue;
+  user.subscribe(value => {
+    userValue = value;
+  });
+  // returns true if user is admin
+  let isAdmin = checkRole(userValue, ROLES.ADMIN);
 
   let hoveredCategoryIndex = null;
   let hoveredCategoryImageIndex = null;
@@ -389,6 +400,15 @@
         console.log("Error :", error);
       });
   }
+
+  function openEditPage(toolId) {
+      goto(`/admin/instrument_edit/${toolId}`);
+  }
+
+  function openAddInstrumentPage() {
+      goto('/admin/add_instrument');
+  }  
+
 </script>
 
 <svelte:head>
@@ -526,7 +546,9 @@
         </table>
 
         <!-- PASS IN ADMIN MODE -->
-        <EditButton />
+        {#if isAdmin}
+          <EditButton />
+        {/if}
       </div>
 
       <!-- PCITURES CORRESPONDING TO THE CATEGORIES -->
@@ -554,6 +576,13 @@
               ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
               : ''}"
           />
+          {#if $isEditing}
+            {#if isAdmin}
+              <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                  +
+              </button> 
+            {/if}
+          {/if}
         {/each}
       </div>
 
@@ -582,6 +611,13 @@
               />
               <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
             </div>
+            {#if $isEditing}
+              {#if isAdmin}
+                <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                    +
+                </button> 
+              {/if}
+            {/if}
           {/each}
         </div>
 
@@ -590,6 +626,9 @@
           <table data-testid = "suppliers-table" class="w-full border-collapse">
             <thead class="bg-teal-400">
               <tr>
+                {#if $isEditing}
+                  <th class="text-center border border-solid border-[black]"></th>
+                {/if}
                 <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
                 <th class="text-center border border-solid border-[black] w-24">REF</th>
                 <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
@@ -611,6 +650,9 @@
                   on:mouseover={() => (hoveredSupplierIndex = index)}
                   on:mouseout={() => (hoveredSupplierIndex = null)}
                 >
+                  {#if $isEditing}
+                    <EditCategoryButton category={row}/>
+                  {/if}
                   <td
                     class="green text-center border border-solid border-[black]"
                     on:click={() => addToOrderPannel(row.ref)}>+</td
@@ -625,6 +667,15 @@
               {/each}
             </tbody>
           </table>
+          {#if $isEditing}
+            {#if isAdmin}
+              <div class="flex justify-center">
+                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
+                    Add an instrument
+                </button>
+              </div>
+            {/if}
+          {/if}
         </div>
       </div>
     </div>

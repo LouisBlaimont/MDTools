@@ -1,12 +1,18 @@
 import { redirect } from "@sveltejs/kit";
-import { checkRole } from "$lib/rbacUtils";
-import { ROLES } from "../../constants.js";
 
+import { checkRole } from "$lib/rbacUtils";
+import { ROLES } from "../../constants";
+import { user } from "$lib/stores/user_stores"; 
+
+/** @type {import('./$types').LayoutServerLoad} */
 export function load({ locals }) {
-	const user = locals.user;
-	const isAdmin = checkRole(user, ROLES.ADMIN);
+	let userValue;
+	user.subscribe(value => {
+		userValue = value;
+	});
+	let isAdmin = checkRole(userValue, ROLES.ADMIN);
 
 	if (!isAdmin) {
-	 	redirect(403, "/unauthorized");
- 	}
+		throw redirect(307, "/unauthorized");
+	}
 }
