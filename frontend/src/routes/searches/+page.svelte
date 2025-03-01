@@ -3,6 +3,7 @@
   import { tools } from "../../tools.js";
   import { suppliers } from "../../suppliers.js";
   import { getOrder, addTool } from "../../order.js";
+
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
@@ -16,6 +17,11 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../../constants";
 	import { user } from "$lib/stores/user_stores"; 
+  /*import CategoryComponent from "$lib/components/category_component.svelte";
+  import InstrumentComponent from "$lib/components/instrument_component.svelte";
+  import OrderComponent from "$lib/components/order_component.svelte";
+  import SearchComponent from "$lib/components/search_component.svelte";*/
+
 
   // RBAC 
   let userValue;
@@ -25,11 +31,30 @@
   // returns true if user is admin
   let isAdmin = checkRole(userValue, ROLES.ADMIN);
 
-  let hoveredCategoryIndex = null;
-  let hoveredCategoryImageIndex = null;
+  // writable
   let selectedCategoryIndex = null;
   let currentSuppliers = [];
   let charValues = {};
+  let groups = [];
+  export let subGroups = [];
+  export let characteristics = [];
+  export let categories = [];
+  let hoveredSupplierIndex = null;
+  let hoveredSupplierImageIndex = null;
+  let selectedSupplierIndex = null;
+  let groups_summary = [];  
+  let hoveredCategoryIndex = null;
+  let hoveredCategoryImageIndex = null;  
+  let selectedGroup = "";
+  let selectedSubGroup = "";
+  export let showSubGroups = false;
+  export let showCategories = false;
+  export let showChars = false;
+  let errorMessage = "";
+  let toolToAddRef = "";
+  let quantity = "";
+  let order = getOrder();
+
 
   /**
    * Display the characteristic values of the category at line index in the table.
@@ -93,9 +118,6 @@
     return;
   }
 
-  let hoveredSupplierIndex = null;
-  let hoveredSupplierImageIndex = null;
-  let selectedSupplierIndex = null;
 
   function selectSupplier(index) {
     selectedSupplierIndex = index;
@@ -109,6 +131,7 @@
     overlay.style.display = "block";
     picture.src = img;
   }
+  
   function closeBigPicture() {
     const pannel = document.getElementById("big-category-pannel");
     const overlay = document.getElementById("overlay");
@@ -116,9 +139,7 @@
     overlay.style.display = "none";
   }
 
-  let toolToAddRef = "";
-  let quantity = "";
-  let order = getOrder();
+
   function addToOrderPannel(ref) {
     const pannel = document.getElementById("add-order-pannel");
     const overlay = document.getElementById("overlay");
@@ -180,17 +201,7 @@
     searchByCharacteristics();
   }
 
-  let groups_summary = [];
-  let groups = [];
-  export let subGroups = [];
-  export let characteristics = [];
-  export let categories = [];
-  let selectedGroup = "";
-  let selectedSubGroup = "";
-  export let showSubGroups = false;
-  export let showCategories = false;
-  export let showChars = false;
-  let errorMessage = "";
+  
 
   /**
    * Fetches the group summary.
@@ -580,7 +591,7 @@
         <div class="resize-handle" on:mousedown={(e) => startResize(e, div2)}></div>
       </div>
 
-      <!-- PCITURES CORRESPONDING TO THE CATEGORIES -->
+      <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
       <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px] resizable" bind:this={div3}>
         {#each categories as row, index}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
