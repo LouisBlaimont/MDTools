@@ -1,14 +1,15 @@
 <script> 
+    import { tools } from "../../tools.js";
+    import { suppliers } from "../../suppliers.js";
+    import { getOrder, addTool } from "../../order.js";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload } from "$lib/stores/searches";
-    import EditButton from "./EditButton.svelte";
-    import EditCategoryButton from "./EditCategoryButton.svelte";
-
+    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity } from "$lib/stores/searches";
+  
   
     function closeAddToOrder() {
         const pannel = document.getElementById("add-order-pannel");
@@ -17,16 +18,16 @@
         overlay.style.display = "none";
     }
     function addToOrder() {
-        const tool_ref = suppliers[selectedCategoryIndex][selectedSupplierIndex].ref;
-        const tool_brand = suppliers[selectedCategoryIndex][selectedSupplierIndex].brand;
-        const tool_group = tools[selectedCategoryIndex].group;
-        const tool_fct = tools[selectedCategoryIndex].fct;
-        const tool_name = tools[selectedCategoryIndex].name;
-        const tool_form = tools[selectedCategoryIndex].form;
-        const tool_dim = tools[selectedCategoryIndex].dim;
-        const tool_qte = quantity;
-        const tool_pu_htva = suppliers[selectedCategoryIndex][selectedSupplierIndex].price;
-        order = addTool(
+        const tool_ref = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].ref;
+        const tool_brand = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].brand;
+        const tool_group = tools[$selectedCategoryIndex].group;
+        const tool_fct = tools[$selectedCategoryIndex].fct;
+        const tool_name = tools[$selectedCategoryIndex].name;
+        const tool_form = tools[$selectedCategoryIndex].form;
+        const tool_dim = tools[$selectedCategoryIndex].dim;
+        const tool_qte = $quantity;
+        const tool_pu_htva = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].price;
+        order.set(addTool(
         tool_ref,
         tool_brand,
         tool_group,
@@ -36,7 +37,7 @@
         tool_dim,
         tool_qte,
         tool_pu_htva
-        );
+        ));
         closeAddToOrder();
     }
     function exportOrderToExcel() {
