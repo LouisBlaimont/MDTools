@@ -1,5 +1,7 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
+import java.util.List;
+
 import lombok.*;
 
 @NoArgsConstructor
@@ -7,6 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 public class InstrumentDTO {
+    private Integer id;
     private String supplier;
     private Integer categoryId;
     private String reference;
@@ -14,6 +17,7 @@ public class InstrumentDTO {
     private Float price;
     private boolean alt;
     private boolean obsolete;
+    private List<Long> picturesId;
 
 
     public String getSupplierName() {

@@ -172,7 +172,8 @@ describe('search page functions', () => {
                 "price": 10,
                 "alt": false,
                 "obsolete": false,
-                "supplierName": "Supplier1"
+                "supplierName": "Supplier1",
+                "picturesId": [1, 2]
              }
         ];
         const mockCategoryChars = [
@@ -207,7 +208,7 @@ describe('search page functions', () => {
         await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/category/instruments/')));
 
         await waitFor(() => expect(screen.getByText('Supplier1')).toBeTruthy());
-        await waitFor(() => expect(screen.getByText('SP1-INSTR1')).toBeTruthy());
+        await waitFor(() => expect(screen.getAllByText('SP1-INSTR1')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('Instrument1')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('10')).toBeTruthy());
 

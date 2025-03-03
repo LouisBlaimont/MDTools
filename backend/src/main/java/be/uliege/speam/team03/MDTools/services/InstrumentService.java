@@ -10,6 +10,7 @@ import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.Suppliers;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
@@ -24,6 +25,7 @@ public class InstrumentService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
+    private final PictureStorageService pictureStorageService;
 
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
@@ -33,13 +35,15 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         instrumentDTOs.add(new InstrumentDTO(
+            instrument.getId(),
             instrument.getSupplier().getSupplierName(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
             instrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            null
         ));
         return instrumentDTOs;
     }
@@ -51,13 +55,15 @@ public class InstrumentService {
         }
         Instruments instrument = instrumentMaybe.get();
         return new InstrumentDTO(
+            instrument.getId(),
             instrument.getSupplier().getSupplierName(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
             instrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            null
         );
     }
 
@@ -90,13 +96,15 @@ public class InstrumentService {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         for (Instruments instrument : instruments) {
             InstrumentDTO dto = new InstrumentDTO(
+                instrument.getId(),
                 instrument.getSupplier().getSupplierName(),
                 instrument.getCategory().getId(),
                 instrument.getReference(),
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
                 instrument.getObsolete(),
-                !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty()
+                !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+                null
             );
             instrumentDTOs.add(dto);
         }
@@ -159,9 +167,12 @@ public class InstrumentService {
             // retrieve alternatives? 
             Integer instrumentId = instrument.getId();
             List<Alternatives> alternatives = alternativesRepository.findByInstrumentsId1(instrumentId);
-            boolean alt = !alternatives.isEmpty();            
+            boolean alt = !alternatives.isEmpty();
+            
+            // get pictures of the instrument
+            List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(instrument.getId(), supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt, pictures);
 
             instrumentsDTO.add(instrumentDTO);
         }
@@ -194,13 +205,15 @@ public class InstrumentService {
 
         Instruments savedInstrument = instrumentRepository.save(instrument);
         return new InstrumentDTO(
+            savedInstrument.getId(),
             savedInstrument.getSupplier().getSupplierName(),
             savedInstrument.getCategory().getId(),
             savedInstrument.getReference(),
             savedInstrument.getSupplierDescription(),
             savedInstrument.getPrice(),
             savedInstrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(savedInstrument.getId()).isEmpty()
+            !alternativesRepository.findByInstrumentsId1(savedInstrument.getId()).isEmpty(),
+            null
         );
     }
 
