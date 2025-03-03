@@ -83,9 +83,9 @@ public class PictureStorageService {
      * @param pictureType the type of pictures to retrieve
      * @return a list of picture file names that match the given reference ID and picture type
      */
-    public List<String> getPicturesIdByReferenceIdAndPictureType(Long referenceId, PictureType pictureType) {
+    public List<Long> getPicturesIdByReferenceIdAndPictureType(Long referenceId, PictureType pictureType) {
         List<Picture> pictures = pictureRepository.findByReferenceIdAndPictureType(referenceId, pictureType);
-        return pictures.stream().map(picture -> picture.getFileName()).toList();
+        return pictures.stream().map(picture -> picture.getId()).toList();
     }
 
     /**
