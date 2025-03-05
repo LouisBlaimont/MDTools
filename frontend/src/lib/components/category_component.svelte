@@ -1,13 +1,17 @@
 <script>
+    import { tools } from "../../tools.js";
+    import { suppliers } from "../../suppliers.js";
+    import { getOrder, addTool } from "../../order.js";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload } from "$lib/stores/searches";
-    import EditButton from "./EditButton.svelte";
-    import EditCategoryButton from "./EditCategoryButton.svelte";
+    import { isEditing, reload, selectedCategoryIndex, hoveredCategoryIndex, isAdmin,
+     charValues, categories, currentSuppliers, showCategories } from "$lib/stores/searches";
+    import EditButton from "../../routes/searches/EditButton.svelte";
+    import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
 
 
 
@@ -18,10 +22,10 @@
      */
     async function selectCategoryWithChar(index) {
         selectCategory(index);
-        selectedCategoryIndex = index;
-        let cat = categories[selectedCategoryIndex];
+        selectedCategoryIndex.set(index);
+        let cat = $categories[selectedCategoryIndex];
         let catId = cat.id;
-        categories = [cat];
+        categories.set([cat]);
 
         try{
         const response = await fetch(PUBLIC_API_URL + `/api/category/${catId}`);
@@ -33,11 +37,11 @@
             if (categoryChars[i].name === "Length"){
             const len_val =  categoryChars[i].value.replace(/[^\d.]/g, "");
             document.getElementById(categoryChars[i].name).value = len_val;
-            charValues[categoryChars[i].name] = len_val;
+            charValues[categoryChars[i].name].set(len_val);
             }
             else{
             document.getElementById(categoryChars[i].name).value = categoryChars[i].value;
-            charValues[categoryChars[i].name] = categoryChars[i].value;
+            charValues[categoryChars[i].name].set(categoryChars[i].value);
             }
         }
         }catch(error){
@@ -53,10 +57,10 @@
      * @param index
      */
     async function selectCategory(index) {
-        selectedCategoryIndex = index;
+        selectedCategoryIndex.set(index);
 
         // selecting the categoryId
-        const cat = categories[selectedCategoryIndex]; 
+        const cat = $categories[selectedCategoryIndex]; 
         const categoryId = cat.id;  
 
         try{
@@ -65,7 +69,7 @@
             throw new Error("Failed to fetch instruments of category");
         }
         const answer = await response.json();
-        currentSuppliers = Array.isArray(answer) ? answer : [answer];
+        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
         }catch (error) {
         console.error(error);
         errorMessage = error.message;
@@ -100,21 +104,21 @@
             <th class="text-center border border-solid border-[black]">DIM</th>
         </tr>
         </thead>
-        {#if showCategories}
+        {#if $showCategories}
         <tbody>
-            {#each categories as row, index}
+            {#each $categories as row, index}
             <!-- svelte-ignore a11y_mouse_events_have_key_events -->
             <tr
-                class:bg-[cornflowerblue]={selectedCategoryIndex === index}
-                class:bg-[lightgray]={hoveredCategoryIndex === index &&
-                selectedCategoryIndex !== index}
+                class:bg-[cornflowerblue]={globalThis.$selectedCategoryIndex === index}
+                class:bg-[lightgray]={globalThis.$hoveredCategoryIndex === index &&
+                    globalThis.$selectedCategoryIndex !== index}
                 on:click={() => selectCategory(index)}
                 on:dblclick={() => selectCategoryWithChar(index)}
-                on:mouseover={() => (hoveredCategoryIndex = index)}
-                on:mouseout={() => (hoveredCategoryIndex = null)}
+                on:mouseover={() => (hoveredCategoryIndex.set(index))}
+                on:mouseout={() => (hoveredCategoryIndex.set(null))}
             >
                 {#if $isEditing}
-                <EditCategoryButton category={row}/>
+                    <EditCategoryButton category={row}/>
                 {/if}
                 <td class="text-center border border-solid border-[black]">{row.groupName}</td>
                 <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
@@ -130,7 +134,7 @@
 
 
     <!-- PASS IN ADMIN MODE -->
-    {#if isAdmin}
+    {#if $isAdmin}
         <EditButton />
     {/if}
     <div class="resize-handle" on:mousedown={(e) => startResize(e, div2)}></div>
@@ -138,7 +142,7 @@
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
 <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px] resizable" bind:this={div3}>
-    {#each categories as row, index}
+    {#each $categories as row, index}
         <!-- svelte-ignore a11yå_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -153,16 +157,16 @@
                 ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
                 : "/default/no_picture.png"
             )}
-            on:mouseover={() => (hoveredCategoryImageIndex = index)}
-            on:mouseout={() => (hoveredCategoryImageIndex = null)}
-            class="mb-[3px] {selectedCategoryIndex === index
+            on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
+            on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
+            class="mb-[3px] {globalThis.$selectedCategoryIndex === index
             ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-            : ''} {hoveredCategoryImageIndex === index && selectedCategoryIndex !== index
+            : ''} {globalThis.$hoveredCategoryImageIndex === index && globalThis.$selectedCategoryIndex !== index
             ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
             : ''}"
         />
         {#if $isEditing}
-            {#if isAdmin}
+            {#if $isAdmin}
             <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
                 +
             </button> 
@@ -171,3 +175,21 @@
     {/each}
     <div class="resize-handle" on:mousedown={(e) => startResize(e, div3)}></div>
 </div>
+
+
+<style>
+    .resizable {
+        position: relative;
+        resize: both;
+        overflow: auto;
+    }
+    .resize-handle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: gray;
+        bottom: 0;
+        right: 0;
+        cursor: nwse-resize;
+    }
+  </style>

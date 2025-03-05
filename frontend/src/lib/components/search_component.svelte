@@ -5,7 +5,17 @@
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
-
+    import { tools } from "../../tools.js";
+    import { suppliers } from "../../suppliers.js";
+    import { getOrder, addTool } from "../../order.js";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
+    import { onMount } from "svelte";
+    import { preventDefault } from "svelte/legacy";
+    import { get } from "svelte/store";
+    import { PUBLIC_API_URL } from "$env/static/public";
+    import { isEditing, order, reload, selectedCategoryIndex, 
+        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, showChars, charValues, selectedCategoryIndex, currentSuppliers, selectedSupplierIndex, categories, characteristics, showSubGroups, showCategories, subGroups } from "$lib/stores/searches";    
     
 
     /**
@@ -14,17 +24,17 @@
      */
     async function findCharacteristics(subGroup) {
         if (subGroup == "none") {
-        selectedSubGroup = "";
-        findSubGroups(selectedGroup);
+        selectedSubGroup.set("");
+        findSubGroups($selectedGroup);
         return;
         }
-        selectedSubGroup = subGroup;
-        showChars = true;
+        selectedSubGroup.set(subGroup);
+        showChars.set(true);
 
-        charValues = [];
-        selectedCategoryIndex = "";
-        currentSuppliers = [];
-        selectedSupplierIndex = "";
+        charValues.set([]);
+        selectedCategoryIndex.set("");
+        currentSuppliers.set([]);
+        selectedSupplierIndex.set("");
         let subgroup = [];
 
         try {
@@ -39,13 +49,13 @@
         }
 
         subgroup = await response.json();
-        categories = await response_2.json();
+        categories.set(await response_2.json());
         } catch (error) {
         console.log(error);
         errorMessage = error.message;
         }
 
-        characteristics = subgroup.subGroupCharacteristics;
+        characteristics.set(subgroup.subGroupCharacteristics);
         return;
     }
 
@@ -54,27 +64,27 @@
      */
     function searchByCharacteristics() {
         let char_vals = [];
-        for (let i = 0; i < characteristics.length; i++) {
-        if (characteristics[i] === "Function" || characteristics[i] === "Name") {
+        for (let i = 0; i < $characteristics.length; i++) {
+        if ($characteristics[i] === "Function" || $characteristics[i] === "Name") {
             continue;
         }
-        if (characteristics[i] === "Length" && charValues[characteristics[i]]) {
+        if ($characteristics[i] === "Length" && $charValues[$characteristics[i]]) {
             let char = {
-            name: characteristics[i],
-            value: charValues[characteristics[i]] + "cm",
+            name: $characteristics[i],
+            value: $charValues[$characteristics[i]] + "cm",
             abrev: "",
             };
             char_vals.push(char);
-        } else if (charValues[characteristics[i]]) {
+        } else if ($charValues[$characteristics[i]]) {
             let char = {
-            name: characteristics[i],
-            value: charValues[characteristics[i]],
+            name: $characteristics[i],
+            value: $charValues[$characteristics[i]],
             abrev: "",
             };
             char_vals.push(char);
         } else {
             let char = {
-            name: characteristics[i],
+            name: $characteristics[i],
             value: "",
             abrev: "",
             };
@@ -82,11 +92,11 @@
         }
         }
         const data = {
-        groupName: selectedGroup,
-        subGroupName: selectedSubGroup,
-        function: charValues["Function"] || "",
-        name: charValues["Name"] || "",
-        characteristics: char_vals,
+            groupName: $selectedGroup,
+            subGroupName: $selectedSubGroup,
+            function: $charValues["Function"] || "",
+            name: $charValues["Name"] || "",
+            characteristics: char_vals,
         };
 
         return fetch(PUBLIC_API_URL + "/api/category/search/by-characteristics", {
@@ -96,14 +106,14 @@
         })
         .then((response) => {
             if (!response.ok) {
-            categories = [];
+            categories.set([]);
             toast.push("Aucun résultat trouvé");
             throw new Error(`Failed to search by characteristics : ${response.status}`);
             }
             return response.json();
         })
         .then((result) => {
-            categories = result;
+            categories.set(result);
         })
         .catch((error) => {
             console.log("Error :", error);
@@ -121,11 +131,11 @@
         searchByCharacteristics();
     }
     function deleteAllCharacteristics() {
-        for (let i = 0; i < characteristics.length; i++) {
-        let texte = document.getElementById(characteristics[i]);
+        for (let i = 0; i < $characteristics.length; i++) {
+        let texte = document.getElementById($characteristics[i]);
         texte.value = "";
-        if (charValues[characteristics[i]]) {
-            charValues[characteristics[i]] = "";
+        if ($charValues[$characteristics[i]]) {
+            charValues[$characteristics[i]].set("");
         }
         }
         searchByCharacteristics();
@@ -137,35 +147,35 @@
      */
     async function findSubGroups(group) {
         if (group == "none") {
-        selectedGroup = "";
-        selectedSubGroup = "";
-        selectedCategoryIndex = null;
-        selectedSupplierIndex = null;
-        showCategories = false;
-        categories=[];
-        showSubGroups = false;
-        subGroups=[];
-        showChars = false;
-        charValues=[];
-        characteristics=[];
-        currentSuppliers = [];
+        selectedGroup.set("");
+        selectedSubGroup.set("");
+        selectedCategoryIndex.set(null);
+        selectedSupplierIndex.set(null);
+        showCategories.set(false);
+        categories.set([]);
+        showSubGroups.set(false);
+        subGroups.set([]);
+        showChars.set(false);
+        charValues.set([]);
+        characteristics.set([]);
+        currentSuppliers.set([]);
         return;
         }
         const previousGroup = selectedGroup;
-        selectedGroup = group;
-        showSubGroups = true;
-        showCategories = true;
+        selectedGroup.set(group);
+        showSubGroups.set(true);
+        showCategories.set(true);
         
-        currentSuppliers = [];
-        selectedSupplierIndex="";
-        selectedCategoryIndex="";
+        currentSuppliers.set([]);
+        selectedSupplierIndex.set("");
+        selectedCategoryIndex.set("");
         // Only reset subgroup if the group has changed
         if (previousGroup !== group) {
-        selectedSubGroup = "";
+        selectedSubGroup.set("");
         }
-        showChars = false;
-        characteristics = [];
-        charValues=[];
+        showChars.set(false);
+        characteristics.set([]);
+        charValues.set([]);
 
         let subGroups_all_info = [];
         try {
@@ -180,12 +190,12 @@
         }
 
         subGroups_all_info = await response.json();
-        categories = await response_2.json();
+        categories;set(await response_2.json());
         } catch (error) {
         console.error(error);
         errorMessage = error.message;
         }
-        subGroups = subGroups_all_info.map((subgroup) => subgroup.name);
+        subGroups.set(subGroups_all_info.map((subgroup) => subgroup.name));
         return;
     }
 

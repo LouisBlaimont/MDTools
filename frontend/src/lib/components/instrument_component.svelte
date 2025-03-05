@@ -1,18 +1,19 @@
 <script> 
+    import { tools } from "../../tools.js";
+    import { suppliers } from "../../suppliers.js";
+    import { getOrder } from "../../order.js"; 
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload } from "$lib/stores/searches";
-    import EditButton from "./EditButton.svelte";
-    import EditCategoryButton from "./EditCategoryButton.svelte";    
-
-    
+    import EditCategoryButton from "$lib/assets/EditCategoryButton.svelte";    
+    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, toolToAddRef, isAdmin
+     } from "$lib/stores/searches";    
 
     function selectSupplier(index) {
-        selectedSupplierIndex = index;
+        selectedSupplierIndex.set(index);
     }
 
     function showBigPicture(img) {
@@ -27,7 +28,7 @@
     function addToOrderPannel(ref) {
         const pannel = document.getElementById("add-order-pannel");
         const overlay = document.getElementById("overlay");
-        toolToAddRef = ref;
+        toolToAddRef.set(ref);
         pannel.style.display = "flex";
         overlay.style.display = "block";
     }
@@ -35,18 +36,61 @@
     function openAddInstrumentPage() {
         goto('/admin/add_instrument');
     }  
+  
+    function closeAddToOrder() {
+        const pannel = document.getElementById("add-order-pannel");
+        const overlay = document.getElementById("overlay");
+        pannel.style.display = "none";
+        overlay.style.display = "none";
+    }
 
+    function addToOrder() {
+        const tool_ref = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].ref;
+        const tool_brand = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].brand;
+        const tool_group = tools[$selectedCategoryIndex].group;
+        const tool_fct = tools[$selectedCategoryIndex].fct;
+        const tool_name = tools[$selectedCategoryIndex].name;
+        const tool_form = tools[$selectedCategoryIndex].form;
+        const tool_dim = tools[$selectedCategoryIndex].dim;
+        const tool_qte = Number($quantity);
+        const tool_pu_htva = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].price;
+
+        order.update(currentOrder => {
+            return addTool(currentOrder, tool_ref, tool_brand, tool_group, tool_fct, tool_name, tool_form, tool_dim, tool_qte, tool_pu_htva);
+        });
+
+        closeAddToOrder();
+    }
+
+    function addTool(currentOrder, tool_ref, tool_brand, tool_group, tool_fct, tool_name, tool_form, tool_dim, tool_qte, tool_pu_htva) {
+        const newTool = {
+            id: currentOrder.length + 1, 
+            ref: tool_ref, 
+            brand: tool_brand, 
+            group: tool_group,
+            fct: tool_fct, 
+            name: tool_name, 
+            form: tool_form, 
+            dim: tool_dim, 
+            qte: tool_qte || 1, 
+            pu_htva: tool_pu_htva, 
+            total_htva: qte * pu_htva, // You may need to compute this based on qte and pu_htva
+        }; 
+        return [...currentOrder, newTool]; // Return a new array with the new tool appended
+    }
+
+    console.log($order);
 
 </script>
-
-<div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
-<!-- PCITURES OF THE SUPPLIERS -->
-    <div class = "resizable" bind:this={div4}>
+<div class = "resizable" bind:this={div4}></div>
+    <div>
+    <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
+    <!-- PICTURES OF THE SUPPLIERS -->
         <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
             <span class="p-1">Photos fournisseurs</span>
         </div>
         <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
-            {#each currentSuppliers as row, index}
+            {#each $currentSuppliers as row, index}
                 <div
                 class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
                 on:click={() => showBigPicture(row.src)}
@@ -55,18 +99,18 @@
                     alt="supplier{row.id}"
                     src={row.src}
                     on:click={() => showBigPicture(row.src)}
-                    on:mouseover={() => (hoveredSupplierImageIndex = index)}
-                    on:mouseout={() => (hoveredSupplierImageIndex = null)}
-                    class="h-4/5 {selectedSupplierIndex === index
+                    on:mouseover={() => (hoveredSupplierImageIndex.set(index))}
+                    on:mouseout={() => (hoveredSupplierImageIndex.set(null))}
+                    class="h-4/5 {$selectedSupplierIndex === index
                     ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-                    : ''} {hoveredSupplierImageIndex === index && selectedSupplierIndex !== index
+                    : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index
                     ? 'cursor-pointer border-2 border-solid border-[lightgray]'
                     : ''}"
                 />
                 <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
                 </div>
                 {#if $isEditing}
-                    {#if isAdmin}
+                    {#if $isAdmin}
                         <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
                             +
                         </button> 
@@ -74,64 +118,111 @@
                 {/if}
             {/each}
         </div>
-        <div class="resize-handle" on:mousedown={(e) => startResize(e, div4)}></div>
-    </div>
+   
 
-<!-- TABLE OF THE SUPPLIERS -->
-    <div class="suppliers-table resizable" bind:this={div5}>
-        <table data-testid = "suppliers-table" class="w-full border-collapse">
-            <thead class="bg-teal-400">
-                <tr>
-                {#if $isEditing}
-                    <th class="text-center border border-solid border-[black]"></th>
-                {/if}
-                <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
-                <th class="text-center border border-solid border-[black] w-24">REF</th>
-                <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
-                <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-                <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-                <th class="text-center border border-solid border-[black] w-16">ALT</th>
-                <th class="text-center border border-solid border-[black] w-16">OBS</th>
-                </tr>
-            </thead>
-            <tbody>
-                {#each currentSuppliers as row, index}
-                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                    <tr
-                        class="cursor-pointer"
-                        class:bg-[cornflowerblue]={selectedSupplierIndex === index}
-                        class:bg-[lightgray]={hoveredSupplierIndex === index &&
-                        selectedSupplierIndex !== index}
-                        on:click={() => selectSupplier(index)}
-                        on:mouseover={() => (hoveredSupplierIndex = index)}
-                        on:mouseout={() => (hoveredSupplierIndex = null)}
-                    >
+        <!-- TABLE OF THE SUPPLIERS -->
+        <div class="suppliers-table resizable" bind:this={div5}>
+            <table data-testid = "suppliers-table" class="w-full border-collapse">
+                <thead class="bg-teal-400">
+                    <tr>
                     {#if $isEditing}
-                    <EditCategoryButton category={row}/>
+                        <th class="text-center border border-solid border-[black]"></th>
                     {/if}
-                    <td
-                    class="green text-center border border-solid border-[black]"
-                    on:click={() => addToOrderPannel(row.ref)}>+</td
-                    >
-                    <td class="text-center border border-solid border-[black]">{row.reference}</td>
-                    <td class="text-center border border-solid border-[black]">{row.supplier}</td>
-                    <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
-                    <td class="text-center border border-solid border-[black]">{row.price}</td>
-                    <td class="text-center border border-solid border-[black]">{row.alt}</td>
-                    <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
+                    <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
+                    <th class="text-center border border-solid border-[black] w-24">REF</th>
+                    <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
+                    <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
+                    <th class="text-center border border-solid border-[black] w-16">PRIX</th>
+                    <th class="text-center border border-solid border-[black] w-16">ALT</th>
+                    <th class="text-center border border-solid border-[black] w-16">OBS</th>
                     </tr>
-                {/each}
-            </tbody>
-        </table>
-        {#if $isEditing}
-            {#if isAdmin}
-                <div class="flex justify-center">
-                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
-                    Add an instrument
-                </button>
-                </div>
+                </thead>
+                <tbody>
+                    {#each $currentSuppliers as row, index}
+                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                        <tr
+                            class="cursor-pointer"
+                            class:bg-[cornflowerblue]={selectedSupplierIndex === index}
+                            class:bg-[lightgray]={hoveredSupplierIndex === index &&
+                            selectedSupplierIndex !== index}
+                            on:click={() => selectSupplier(index)}
+                            on:mouseover={() => (hoveredSupplierIndex.set(index))}
+                            on:mouseout={() => (hoveredSupplierIndex.set(null))}
+                        >
+                        {#if $isEditing}
+                            <EditCategoryButton category={row}/>
+                        {/if}
+                        <td
+                        class="green text-center border border-solid border-[black]"
+                        on:click={() => addToOrderPannel(row.ref)}>+</td
+                        >
+                        <td class="text-center border border-solid border-[black]">{row.reference}</td>
+                        <td class="text-center border border-solid border-[black]">{row.supplier}</td>
+                        <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
+                        <td class="text-center border border-solid border-[black]">{row.price}</td>
+                        <td class="text-center border border-solid border-[black]">{row.alt}</td>
+                        <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+            {#if $isEditing}
+                {#if $isAdmin}
+                    <div class="flex justify-center">
+                    <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
+                        Add an instrument
+                    </button>
+                    </div>
+                {/if}
             {/if}
-        {/if}
-        <div class="resize-handle" on:mousedown={(e) => startResize(e, div5)}></div>
+            <div class="resize-handle" on:mousedown={(e) => startResize(e, div5)}></div>
+        </div>
     </div>
+    </div>
+    <div class="resize-handle" on:mousedown={(e) => startResize(e, div4)}></div>
+<div class = "resizable" bind:this={div4}></div>
+
+<div
+  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]"
+  id="add-order-pannel"
+>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <span
+    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5"
+    on:click={(event) => {
+      event.stopPropagation();
+      closeAddToOrder();
+    }}>&times;</span
+  >
+  <div>AJOUTER référence à la commande:</div>
+  <div>
+    <label for="qte" class="w-2/5">QUANTITE:</label>
+    <input
+      type="number"
+      id="qte"
+      name="qte"
+      class="border border-black rounded p-2 text-black bg-white"
+      bind:value={$quantity}
+    />
+    <button class="cursor-pointer" pointer on:click={() => addToOrder()}>AJOUT</button>
+  </div>
 </div>
+
+
+<style>
+    .resizable {
+        position: relative;
+        resize: both;
+        overflow: auto;
+    }
+    .resize-handle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: gray;
+        bottom: 0;
+        right: 0;
+        cursor: nwse-resize;
+    }
+  </style>

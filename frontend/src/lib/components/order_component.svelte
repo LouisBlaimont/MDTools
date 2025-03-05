@@ -8,42 +8,14 @@
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity } from "$lib/stores/searches";
-  
-  
-    function closeAddToOrder() {
-        const pannel = document.getElementById("add-order-pannel");
-        const overlay = document.getElementById("overlay");
-        pannel.style.display = "none";
-        overlay.style.display = "none";
-    }
-    function addToOrder() {
-        const tool_ref = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].ref;
-        const tool_brand = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].brand;
-        const tool_group = tools[$selectedCategoryIndex].group;
-        const tool_fct = tools[$selectedCategoryIndex].fct;
-        const tool_name = tools[$selectedCategoryIndex].name;
-        const tool_form = tools[$selectedCategoryIndex].form;
-        const tool_dim = tools[$selectedCategoryIndex].dim;
-        const tool_qte = $quantity;
-        const tool_pu_htva = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].price;
-        order.set(addTool(
-        tool_ref,
-        tool_brand,
-        tool_group,
-        tool_fct,
-        tool_name,
-        tool_form,
-        tool_dim,
-        tool_qte,
-        tool_pu_htva
-        ));
-        closeAddToOrder();
-    }
+    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity } from "$lib/stores/searches";    
+
+
     function exportOrderToExcel() {
         //smth to do with the database I think
     }
 
+    console.log($order);
 
 </script>
 
@@ -98,7 +70,7 @@
             </tr>
             </thead>
             <tbody>
-            {#each order as row, index}
+            {#each $order as row, index}
                 <tr>
                 <td class="text-center border border-solid border-[black]">{row.ref}</td>
                 <td class="text-center border border-solid border-[black]">{row.brand}</td>
@@ -118,7 +90,7 @@
                 >
                 <td
                     ><button
-                    class="text-gray-900 rounded text-sm bg-gray-400 w-[20px] h-[20px border-[none] cursor-pointer"
+                    class="text-gray-900 rounded text-sm bg-gray-400 w-[20px] h-[20px] border-[none] cursor-pointer"
                     >-</button
                     ></td
                 >
