@@ -281,9 +281,9 @@ INSERT INTO alternatives (instruments_id_1, instruments_id_2) VALUES
 (1, 2);
 
 -- Insert into orders table
-INSERT INTO orders (user_id) VALUES 
-(1), 
-(2);
+INSERT INTO orders (user_id, order_name) VALUES 
+(1, 'Base Maxillo'), 
+(2, 'Complementaire Maxillo');
 
 -- Insert into order_items table
 INSERT INTO order_items (order_id, instrument_id, quantity) VALUES 
