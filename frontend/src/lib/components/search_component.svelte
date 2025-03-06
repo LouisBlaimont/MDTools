@@ -218,7 +218,7 @@
 </script>
 
 
-<div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md relative resize overflow-auto border border-gray-300" bind:this={div1}>
+<div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
     <form class="flex flex-col w-[90%] mb-2.5">
         <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
         <input
@@ -297,6 +297,5 @@
             {/each}
         </form>
     {/if}
-    <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div1)}></div>
 </div>
 
