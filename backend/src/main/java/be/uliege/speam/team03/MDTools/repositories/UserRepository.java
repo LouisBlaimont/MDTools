@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import be.uliege.speam.team03.MDTools.models.User;
+import java.util.List;
+
 
 /**
  * Repository interface for User entity.
@@ -17,6 +19,7 @@ import be.uliege.speam.team03.MDTools.models.User;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
+   public Optional<User> findByUserId(Integer id);
 
    /**
     * Retrieves an Optional containing a User entity that matches the given email.

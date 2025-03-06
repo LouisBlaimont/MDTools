@@ -1,38 +1,42 @@
 package be.uliege.speam.team03.MDTools.models;
 
+import be.uliege.speam.team03.MDTools.compositeKeys.OrderItemsKey;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="order_items")
+@NoArgsConstructor
+@Getter
+@Setter
 public class OrderItems {
+    @EmbeddedId
+    OrderItemsKey id;
+
+    @ManyToOne
+    @MapsId("orderId")
+    @JoinColumn(name = "order_id")
+    Orders order;
+
+    @ManyToOne
+    @MapsId("instrumentId")
+    @JoinColumn(name = "instrument_id")
+    Instruments instrument;
+
+    @Column(name ="quantity")
+    private Integer quantity;
     
-    @Id
-    Integer order_id;
-
-    @Id
-    Integer instrument_id;
-
-    Integer quantity;
-
-    public OrderItems(){}
-
-    public OrderItems(Integer orderId, Integer instrID, Integer quantity){
-        this.order_id = orderId;
-        this.instrument_id = instrID;
+    public OrderItems(Orders order, Instruments instrument, Integer quantity){
+        this.order = order;
+        this.instrument = instrument;
         this.quantity = quantity;
-    }
-
-    public Integer getOrderId(){
-        return this.order_id;
-    }
-
-    public Integer getInstrId(){
-        return this.instrument_id;
-    }
-
-    public Integer getQuantity(){
-        return this.quantity;
     }
 }
