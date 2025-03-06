@@ -188,7 +188,7 @@ public class InstrumentService {
         instrument.setObsolete(instrumentDTO.isObsolete());
 
         // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplierName());
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }
