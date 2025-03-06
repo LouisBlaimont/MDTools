@@ -8,16 +8,15 @@
     import { tools } from "../../tools.js";
     import { suppliers } from "../../suppliers.js";
     import { getOrder, addTool } from "../../order.js";
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
-    import { PUBLIC_API_URL } from "$env/static/public";
     import { isEditing, order, reload, selectedCategoryIndex, 
-        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, showChars, charValues, selectedCategoryIndex, currentSuppliers, selectedSupplierIndex, categories, characteristics, showSubGroups, showCategories, subGroups } from "$lib/stores/searches";    
+        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, showChars, charValues, currentSuppliers, categories, characteristics, showSubGroups, showCategories, subGroups, groups, errorMessage } from "$lib/stores/searches";    
+    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     
-
+    let resizing = null;
+    let startX, startY, startWidth, startHeight;
+    let div1;
+  
+  
     /**
      * Gets characteristics and categories of subgroup with the name subGroup
      * @param subGroup
@@ -52,7 +51,7 @@
         categories.set(await response_2.json());
         } catch (error) {
         console.log(error);
-        errorMessage = error.message;
+        errorMessage.set(error.message);
         }
 
         characteristics.set(subgroup.subGroupCharacteristics);
@@ -125,18 +124,33 @@
      * @param id
      */
     function deleteCharacteristic(id) {
-        const texte = document.getElementById(id);
-        texte.value = "";
-        charValues[id] = "";
+        const inputElement = document.getElementById(id);
+        if (inputElement) {
+            inputElement.value = "";
+        }
+
+        charValues.update(currentValues => {
+            const updatedValues = { ...currentValues }; 
+            updatedValues[id] = ""; 
+            return updatedValues;
+        });
+
         searchByCharacteristics();
     }
     function deleteAllCharacteristics() {
         for (let i = 0; i < $characteristics.length; i++) {
-        let texte = document.getElementById($characteristics[i]);
-        texte.value = "";
-        if ($charValues[$characteristics[i]]) {
-            charValues[$characteristics[i]].set("");
-        }
+            const characteristic = $characteristics[i];
+
+            const inputElement = document.getElementById(characteristic);
+            if (inputElement) {
+                inputElement.value = "";
+            }
+
+            charValues.update(currentValues => {
+                const updatedValues = { ...currentValues };
+                updatedValues[characteristic] = ""; 
+                return updatedValues;
+            });
         }
         searchByCharacteristics();
     }
@@ -190,10 +204,10 @@
         }
 
         subGroups_all_info = await response.json();
-        categories;set(await response_2.json());
+        categories.set(await response_2.json());
         } catch (error) {
         console.error(error);
-        errorMessage = error.message;
+        errorMessage.set(error.message);
         }
         subGroups.set(subGroups_all_info.map((subgroup) => subgroup.name));
         return;
@@ -204,9 +218,7 @@
 </script>
 
 
-
-
-<div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md resizable" bind:this={div1}>
+<div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md relative resize overflow-auto border border-gray-300" bind:this={div1}>
     <form class="flex flex-col w-[90%] mb-2.5">
         <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
         <input
@@ -223,33 +235,33 @@
         <label class="w-2/5 mt-2 mb-2" for="groupOptions">Groupe:</label>
         <select
         id="groupOptions"
-        bind:value={selectedGroup}
+        bind:value={$selectedGroup}
         on:change={(e) => findSubGroups(e.target.value)}
         >
         <option value="none">---</option>
-        {#each groups as group}
+        {#each $groups as group}
             <option value={group}>{group}</option>
         {/each}
         </select>
     </div>
 
-    {#if showSubGroups}
+    {#if $showSubGroups}
         <div class="flex items-center">
         <label class="w-2/5 mb-2" for="subGroupOptions">Sous gp:</label>
         <select
             id="subGroupOptions"
-            bind:value={selectedSubGroup}
+            bind:value={$selectedSubGroup}
             on:change={(e) => findCharacteristics(e.target.value)}
         >
             <option value="none">---</option>
-            {#each subGroups as subGroup}
+            {#each $subGroups as subGroup}
             <option value={subGroup}>{subGroup}</option>
             {/each}
         </select>
         </div>
     {/if}
 
-    {#if showChars}
+    {#if $showChars}
         <form
         class="flex flex-col w-full gap-2.5"
         on:submit|preventDefault={searchByCharacteristics}
@@ -266,7 +278,7 @@
                 on:click={deleteAllCharacteristics}>Tout effacer</button
                 >
             </div>
-            {#each characteristics as char}
+            {#each $characteristics as char}
                 <div class="flex items-center">
                 <label for={char} class="w-2/5">{char}:</label>
                 <input
@@ -275,7 +287,7 @@
                     id={char}
                     name={char}
                     data-testid={char}
-                    bind:value={charValues[char]}
+                    bind:value={$charValues[char]}
                 />
                 <button
                     class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
@@ -285,5 +297,6 @@
             {/each}
         </form>
     {/if}
-    <div class="resize-handle" on:mousedown={(e) => startResize(e, div1)}></div>
+    <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div1)}></div>
 </div>
+

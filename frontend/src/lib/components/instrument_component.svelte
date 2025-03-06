@@ -9,8 +9,13 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditCategoryButton from "$lib/assets/EditCategoryButton.svelte";    
-    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, toolToAddRef, isAdmin
+    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
      } from "$lib/stores/searches";    
+    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+    
+    let resizing = null;
+    let startX, startY, startWidth, startHeight;
+    let div3;
 
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
@@ -23,6 +28,13 @@
         pannel.style.display = "flex";
         overlay.style.display = "block";
         picture.src = img;
+    }
+
+    function closeBigPicture() {
+        const pannel = document.getElementById("big-category-pannel");
+        const overlay = document.getElementById("overlay");
+        pannel.style.display = "none";
+        overlay.style.display = "none";
     }
 
     function addToOrderPannel(ref) {
@@ -74,7 +86,7 @@
             dim: tool_dim, 
             qte: tool_qte || 1, 
             pu_htva: tool_pu_htva, 
-            total_htva: qte * pu_htva, // You may need to compute this based on qte and pu_htva
+            total_htva: 3, // You may need to compute this based on qte and pu_htva
         }; 
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
@@ -82,32 +94,37 @@
     console.log($order);
 
 </script>
-<div class = "resizable" bind:this={div4}></div>
-    <div>
+<div class = "relative resize overflow-auto border border-gray-300" bind:this={div3}>
     <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
-    <!-- PICTURES OF THE SUPPLIERS -->
+        <!-- PICTURES OF THE SUPPLIERS -->
         <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-            <span class="p-1">Photos fournisseurs</span>
+            <span class="p-1">Photos des fournisseurs</span>
         </div>
         <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
             {#each $currentSuppliers as row, index}
                 <div
                 class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
-                on:click={() => showBigPicture(row.src)}
+                on:click={() => showBigPicture(row.src? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+                    : "/default/no_picture.png"
+                )}
                 >
-                <img
-                    alt="supplier{row.id}"
-                    src={row.src}
-                    on:click={() => showBigPicture(row.src)}
-                    on:mouseover={() => (hoveredSupplierImageIndex.set(index))}
-                    on:mouseout={() => (hoveredSupplierImageIndex.set(null))}
-                    class="h-4/5 {$selectedSupplierIndex === index
-                    ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-                    : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index
-                    ? 'cursor-pointer border-2 border-solid border-[lightgray]'
-                    : ''}"
-                />
-                <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
+                    <img
+                        alt="supplier{row.id}"
+                        src={row.src
+                        ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+                        : "/default/no_picture.png"}
+                        on:click={() => showBigPicture(row.src? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+                            : "/default/no_picture.png"
+                        )}
+                        on:mouseover={() => (hoveredSupplierImageIndex.set(index))}
+                        on:mouseout={() => (hoveredSupplierImageIndex.set(null))}
+                        class="h-4/5 {$selectedSupplierIndex === index
+                        ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
+                        : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index
+                        ? 'cursor-pointer border-2 border-solid border-[lightgray]'
+                        : ''}"
+                    />
+                    <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
                 </div>
                 {#if $isEditing}
                     {#if $isAdmin}
@@ -121,66 +138,65 @@
    
 
         <!-- TABLE OF THE SUPPLIERS -->
-        <div class="suppliers-table resizable" bind:this={div5}>
-            <table data-testid = "suppliers-table" class="w-full border-collapse">
-                <thead class="bg-teal-400">
-                    <tr>
+        <table data-testid = "suppliers-table" class="w-full border-collapse">
+            <thead class="bg-teal-400">
+                <tr>
+                {#if $isEditing}
+                    <th class="text-center border border-solid border-[black]"></th>
+                {/if}
+                <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
+                <th class="text-center border border-solid border-[black] w-24">REF</th>
+                <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
+                <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
+                <th class="text-center border border-solid border-[black] w-16">PRIX</th>
+                <th class="text-center border border-solid border-[black] w-16">ALT</th>
+                <th class="text-center border border-solid border-[black] w-16">OBS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each $currentSuppliers as row, index}
+                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                    <tr
+                        class="cursor-pointer"
+                        class:bg-[cornflowerblue]={$selectedSupplierIndex === index}
+                        class:bg-[lightgray]={$hoveredSupplierIndex === index &&
+                        $selectedSupplierIndex !== index}
+                        on:click={() => selectedSupplierIndex.set(index)}
+                        on:mouseover={() => (hoveredSupplierIndex.set(index))}
+                        on:mouseout={() => (hoveredSupplierIndex.set(null))}
+                    >
                     {#if $isEditing}
-                        <th class="text-center border border-solid border-[black]"></th>
+                        <EditCategoryButton category={row}/>
                     {/if}
-                    <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
-                    <th class="text-center border border-solid border-[black] w-24">REF</th>
-                    <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
-                    <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-                    <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-                    <th class="text-center border border-solid border-[black] w-16">ALT</th>
-                    <th class="text-center border border-solid border-[black] w-16">OBS</th>
+                    <td
+                    class="green text-center border border-solid border-[black]"
+                    on:click={() => addToOrderPannel(row.ref)}>+</td
+                    >
+                    <td class="text-center border border-solid border-[black]">{row.reference}</td>
+                    <td class="text-center border border-solid border-[black]">{row.supplier}</td>
+                    <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
+                    <td class="text-center border border-solid border-[black]">{row.price}</td>
+                    <td class="text-center border border-solid border-[black]">{row.alt}</td>
+                    <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {#each $currentSuppliers as row, index}
-                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                        <tr
-                            class="cursor-pointer"
-                            class:bg-[cornflowerblue]={selectedSupplierIndex === index}
-                            class:bg-[lightgray]={hoveredSupplierIndex === index &&
-                            selectedSupplierIndex !== index}
-                            on:click={() => selectSupplier(index)}
-                            on:mouseover={() => (hoveredSupplierIndex.set(index))}
-                            on:mouseout={() => (hoveredSupplierIndex.set(null))}
-                        >
-                        {#if $isEditing}
-                            <EditCategoryButton category={row}/>
-                        {/if}
-                        <td
-                        class="green text-center border border-solid border-[black]"
-                        on:click={() => addToOrderPannel(row.ref)}>+</td
-                        >
-                        <td class="text-center border border-solid border-[black]">{row.reference}</td>
-                        <td class="text-center border border-solid border-[black]">{row.supplier}</td>
-                        <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
-                        <td class="text-center border border-solid border-[black]">{row.price}</td>
-                        <td class="text-center border border-solid border-[black]">{row.alt}</td>
-                        <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-            {#if $isEditing}
-                {#if $isAdmin}
-                    <div class="flex justify-center">
+                {/each}
+            </tbody>
+        </table>
+        {#if $isEditing}
+            {#if $isAdmin}
+                <div class="flex justify-center">
                     <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
                         Add an instrument
                     </button>
-                    </div>
-                {/if}
+                </div>
             {/if}
-            <div class="resize-handle" on:mousedown={(e) => startResize(e, div5)}></div>
-        </div>
+        {/if}
     </div>
-    </div>
-    <div class="resize-handle" on:mousedown={(e) => startResize(e, div4)}></div>
-<div class = "resizable" bind:this={div4}></div>
+    <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div3)}></div>
+</div>
+
+<div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
+
 
 <div
   class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]"
@@ -210,19 +226,18 @@
 </div>
 
 
-<style>
-    .resizable {
-        position: relative;
-        resize: both;
-        overflow: auto;
-    }
-    .resize-handle {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background: gray;
-        bottom: 0;
-        right: 0;
-        cursor: nwse-resize;
-    }
-  </style>
+<div
+  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
+  id="big-category-pannel"
+>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <span
+    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
+    on:click={(event) => {
+      event.stopPropagation();
+      closeBigPicture();
+    }}>&times;</span
+  >
+  <img class="h-[300px]" id="big-category" alt="big category" />
+</div>
