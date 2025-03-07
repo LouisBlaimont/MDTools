@@ -101,8 +101,6 @@
     }
   });
 
- 
-
   function openEditPage(toolId) {
       goto(`/admin/instrument_edit/${toolId}`);
   }

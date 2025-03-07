@@ -10,16 +10,10 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity } from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
-    
-    let resizing = null;
-    let startX, startY, startWidth, startHeight;
-    let div4;
 
     function exportOrderToExcel() {
         //smth to do with the database I think
     }
-
-    console.log($order);
 
 </script>
 

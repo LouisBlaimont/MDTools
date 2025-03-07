@@ -13,11 +13,7 @@
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
-    
-    let resizing = null;
-    let startX, startY, startWidth, startHeight;
-    let div2;
-
+  
     /**
      * Display the characteristic values of the category at line index in the table.
      * Update categories to have only the selected one.
@@ -114,7 +110,7 @@
         <thead class="bg-teal-400">
         <tr>
             {#if $isEditing}
-            <th class="text-center border border-solid border-[black]"></th>
+                <th class="text-center border border-solid border-[black]"></th>
             {/if}
             <th class="text-center border border-solid border-[black]">GROUPE</th>
             <th class="text-center border border-solid border-[black]">SOUS GP</th>
@@ -125,29 +121,29 @@
         </tr>
         </thead>
         {#if $showCategories}
-        <tbody>
-            {#each $categories as row, index}
-            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-            <tr
-                class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
-                class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
-                on:click={() => selectCategory(index)}
-                on:dblclick={() => selectCategoryWithChar(index)}
-                on:mouseover={() => (hoveredCategoryIndex.set(index))}
-                on:mouseout={() => (hoveredCategoryIndex.set(null))}
-            >
-                {#if $isEditing}
-                    <EditCategoryButton category={row}/>
-                {/if}
-                <td class="text-center border border-solid border-[black]">{row.groupName}</td>
-                <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
-                <td class="text-center border border-solid border-[black]">{row.function}</td>
-                <td class="text-center border border-solid border-[black]">{row.name}</td>
-                <td class="text-center border border-solid border-[black]">{row.shape}</td>
-                <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
-            </tr>
-            {/each}
-        </tbody>
+            <tbody>
+                {#each $categories as row, index}
+                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                    <tr
+                        class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
+                        class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
+                        on:click={() => selectCategory(index)}
+                        on:dblclick={() => selectCategoryWithChar(index)}
+                        on:mouseover={() => (hoveredCategoryIndex.set(index))}
+                        on:mouseout={() => (hoveredCategoryIndex.set(null))}
+                    >
+                        {#if $isEditing}
+                            <EditCategoryButton category={row}/>
+                        {/if}
+                        <td class="text-center border border-solid border-[black]">{row.groupName}</td>
+                        <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+                        <td class="text-center border border-solid border-[black]">{row.function}</td>
+                        <td class="text-center border border-solid border-[black]">{row.name}</td>
+                        <td class="text-center border border-solid border-[black]">{row.shape}</td>
+                        <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+                    </tr>
+                {/each}
+            </tbody>
         {/if}
     </table>
 
@@ -160,6 +156,9 @@
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
 <div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
+    <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
+        <span class="p-1">Photos des catégories</span>
+    </div>
     {#each $categories as row, index}
         <!-- svelte-ignore a11yå_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->

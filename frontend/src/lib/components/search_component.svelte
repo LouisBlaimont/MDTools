@@ -14,12 +14,7 @@
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
     findSubGroupsStore, findCharacteristicsStore} from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
-    
-    let resizing = null;
-    let startX, startY, startWidth, startHeight;
-    let div1;
-  
-  
+
     /**
      * Gets characteristics and categories of subgroup with the name subGroup
      * @param subGroup

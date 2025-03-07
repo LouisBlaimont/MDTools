@@ -12,10 +12,7 @@
     import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
      } from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
-    
-    let resizing = null;
-    let startX, startY, startWidth, startHeight;
-    let div3;
+ 
 
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
@@ -90,8 +87,6 @@
         }; 
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
-
-    console.log($order);
 
 </script>
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
