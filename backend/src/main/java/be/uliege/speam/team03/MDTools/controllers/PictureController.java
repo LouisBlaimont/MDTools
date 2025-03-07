@@ -1,5 +1,8 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,22 @@ import lombok.AllArgsConstructor;
 public class PictureController {
    private PictureStorageService storageService;
 
+
+   /**
+    * Uploads a single picture file to the storage service.
+    *
+    * @param file the picture file to be uploaded
+    * @param pictureType the type of the picture (e.g., "INSTRUMENT", "GROUP")
+    * @param referenceId the reference ID associated with the picture
+    * @return the metadata of the uploaded picture
+    */
+   private Picture uploadSinglePicture(MultipartFile file, String pictureType, Long referenceId) {
+      pictureType = pictureType.toUpperCase();
+      PictureType type = PictureType.valueOf(pictureType);
+      Picture metadata = storageService.storePicture(file, type, referenceId);
+      return metadata;
+   }
+
    /**
     * Handles the HTTP POST request for uploading a picture.
     *
@@ -41,10 +60,28 @@ public class PictureController {
          @RequestParam("type") String pictureType,
          @RequestParam("referenceId") Long referenceId) {
       
-      pictureType = pictureType.toUpperCase();
-      PictureType type = PictureType.valueOf(pictureType);
-      Picture metadata = storageService.storePicture(file, type, referenceId);
-      return ResponseEntity.ok(metadata);
+      return ResponseEntity.ok(this.uploadSinglePicture(file, pictureType, referenceId));
+   }
+
+   /**
+    * Handles the HTTP POST request for uploading a picture.
+    *
+    * @param files the multipe picture files to be uploaded
+    * @param pictureType the type of the picture (e.g., "JPEG", "PNG")
+    * @param referenceId the reference ID associated with the picture
+    * @return a ResponseEntity containing the metadata of the uploaded picture
+    */
+   @PostMapping("/multiple")
+   public ResponseEntity<List<Picture>> uploadPictures(
+         @RequestParam("files") List<MultipartFile> files,
+         @RequestParam("type") String pictureType,
+         @RequestParam("referenceId") Long referenceId) {
+
+      List<Picture> metadataList = new ArrayList<>();
+      for(MultipartFile file : files) {
+         metadataList.add(this.uploadSinglePicture(file, pictureType, referenceId));
+      }
+      return ResponseEntity.ok(metadataList);
    }
 
    /**
@@ -69,7 +106,7 @@ public class PictureController {
     * @return a ResponseEntity with no content if the deletion is successful
     */
    @DeleteMapping("/{id}")
-   public ResponseEntity<?> deletePicture(@PathVariable Long id) {
+   public ResponseEntity<Void> deletePicture(@PathVariable Long id) {
       storageService.deletePicture(id);
       return ResponseEntity.noContent().build();
    }

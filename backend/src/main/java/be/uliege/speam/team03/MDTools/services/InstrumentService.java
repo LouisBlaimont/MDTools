@@ -10,6 +10,7 @@ import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.Suppliers;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
@@ -26,6 +27,7 @@ public class InstrumentService {
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
     private final InstrumentMapper instrumentMapper;
+    private final PictureStorageService pictureStorageService;
 
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
@@ -35,6 +37,7 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         instrumentDTOs.add(new InstrumentDTO(
+            instrument.getId(),
             instrument.getSupplier().getSupplierName(),
             instrument.getCategory().getId(),
             instrument.getReference(),
@@ -43,6 +46,8 @@ public class InstrumentService {
             instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
             instrument.getId()
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            null
         ));
         return instrumentDTOs;
     }
@@ -65,13 +70,14 @@ public class InstrumentService {
         );
     }
 
-    public InstrumentDTO findById(Integer id) {
-        Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
+    public InstrumentDTO findByReference(String reference) {
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
         if (!instrumentMaybe.isPresent()) {
             return null;
         }
         Instruments instrument = instrumentMaybe.get();
         return new InstrumentDTO(
+            instrument.getId(),
             instrument.getSupplier().getSupplierName(),
             instrument.getCategory().getId(),
             instrument.getReference(),
@@ -80,6 +86,27 @@ public class InstrumentService {
             instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
             instrument.getId()
+        );
+    }
+
+    public InstrumentDTO findById(Integer id) {
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
+        if (!instrumentMaybe.isPresent()) {
+            return null;
+        }
+        Instruments instrument = instrumentMaybe.get();
+        return new InstrumentDTO(
+            instrument.getId(),
+            instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getId(),
+            instrument.getReference(),
+            instrument.getSupplierDescription(),
+            instrument.getPrice(),
+            instrument.getObsolete(),
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            instrument.getId()
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            null
         );
     }
 
@@ -108,6 +135,34 @@ public class InstrumentService {
         return instrumentMapper.convertToDTO(instruments);
     }
 
+        return convertToDTO(instruments);
+    }
+
+    public Instruments convertToEntity(InstrumentDTO instrumentDTO) {
+        Instruments instrument = new Instruments();
+        instrument.setReference(instrumentDTO.getReference());
+        instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
+        instrument.setPrice(instrumentDTO.getPrice());
+        instrument.setObsolete(instrumentDTO.isObsolete());
+
+        // retrieve supplier based on supplier name
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
+        if (supplierMaybe.isPresent() == false) {
+            return null;
+        }
+        Suppliers supplier = supplierMaybe.get();
+        instrument.setSupplier(supplier);
+
+        // retrieve category based on category id
+        Optional<Category> categoryMaybe = categoryRepository.findById(instrumentDTO.getCategoryId());
+        if (categoryMaybe.isPresent() == false) {
+            return null;
+        }
+        Category category = categoryMaybe.get();
+        instrument.setCategory(category);
+
+        return instrument;
+    }
 
     public List<InstrumentDTO> findInstrumentsOfCatergory(Integer categoryId) {
 
@@ -139,9 +194,12 @@ public class InstrumentService {
             // retrieve alternatives? 
             Integer instrumentId = instrument.getId();
             List<Alternatives> alternatives = alternativesRepository.findByInstrumentsId1(instrumentId);
-            boolean alt = !alternatives.isEmpty();            
+            boolean alt = !alternatives.isEmpty();
+            
+            // get pictures of the instrument
+            List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt, instrumentId);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(instrument.getId(), supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt, instrumentId, pictures);
 
             instrumentsDTO.add(instrumentDTO);
         }
@@ -162,6 +220,7 @@ public class InstrumentService {
 
         // retrieve supplier based on supplier name
         Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }
@@ -178,6 +237,7 @@ public class InstrumentService {
 
         Instruments savedInstrument = instrumentRepository.save(instrument);
         return new InstrumentDTO(
+            savedInstrument.getId(),
             savedInstrument.getSupplier().getSupplierName(),
             savedInstrument.getCategory().getId(),
             savedInstrument.getReference(),

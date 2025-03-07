@@ -106,7 +106,8 @@ CREATE TABLE alternatives (
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(user_id),
-    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_name TEXT
 );
 
 -- Table order_items

@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:8080/api"; // Ensure this matches your backend URL
+import { PUBLIC_API_URL } from "$env/static/public";
+const BASE_URL = PUBLIC_API_URL + "/api";
+
 
 export async function fetchTools() {
   const res = await fetch(`${BASE_URL}/instruments`);

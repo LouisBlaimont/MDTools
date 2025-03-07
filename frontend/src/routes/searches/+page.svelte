@@ -4,7 +4,6 @@
   import { suppliers } from "../../suppliers.js";
   import { getOrder, addTool } from "../../order.js";
 
-
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
@@ -15,6 +14,19 @@
   import EditButton from "./EditButton.svelte";
   import EditCategoryButton from "./EditCategoryButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
+  import { checkRole } from "$lib/rbacUtils";
+  import { ROLES } from "../../constants";
+  import { user } from "$lib/stores/user_stores";
+  import { modals } from "svelte-modals";
+  import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
+
+  // RBAC
+  let userValue;
+  user.subscribe((value) => {
+    userValue = value;
+  });
+  // returns true if user is admin
+  let isAdmin = checkRole(userValue, ROLES.ADMIN);
 
   let hoveredCategoryIndex = null;
   let hoveredCategoryImageIndex = null;
@@ -34,29 +46,27 @@
     let catId = cat.id;
     categories = [cat];
 
-    try{
+    try {
       const response = await fetch(PUBLIC_API_URL + `/api/category/${catId}`);
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("Failed to fetch characteristics of category");
       }
       const categoryChars = await response.json();
-      for (let i = 0; i<categoryChars.length ; i++){
-        if (categoryChars[i].name === "Length"){
-          const len_val =  categoryChars[i].value.replace(/[^\d.]/g, "");
+      for (let i = 0; i < categoryChars.length; i++) {
+        if (categoryChars[i].name === "Length") {
+          const len_val = categoryChars[i].value.replace(/[^\d.]/g, "");
           document.getElementById(categoryChars[i].name).value = len_val;
           charValues[categoryChars[i].name] = len_val;
-        }
-        else{
+        } else {
           document.getElementById(categoryChars[i].name).value = categoryChars[i].value;
           charValues[categoryChars[i].name] = categoryChars[i].value;
         }
       }
-    }catch(error){
-      console.error(error)
+    } catch (error) {
+      console.error(error);
       errorMessage = error.message;
     }
     return;
-
   }
 
   /**
@@ -67,17 +77,17 @@
     selectedCategoryIndex = index;
 
     // selecting the categoryId
-    const cat = categories[selectedCategoryIndex]; 
-    const categoryId = cat.id;  
+    const cat = categories[selectedCategoryIndex];
+    const categoryId = cat.id;
 
-    try{
+    try {
       const response = await fetch(PUBLIC_API_URL + `/api/category/instruments/${categoryId}`);
-      if (!response.ok){
+      if (!response.ok) {
         throw new Error("Failed to fetch instruments of category");
       }
       const answer = await response.json();
       currentSuppliers = Array.isArray(answer) ? answer : [answer];
-    }catch (error) {
+    } catch (error) {
       console.error(error);
       errorMessage = error.message;
     }
@@ -98,6 +108,7 @@
     const picture = document.getElementById("big-category");
     pannel.style.display = "flex";
     overlay.style.display = "block";
+    console.log("a " + img);
     picture.src = img;
   }
   function closeBigPicture() {
@@ -213,12 +224,12 @@
       selectedCategoryIndex = null;
       selectedSupplierIndex = null;
       showCategories = false;
-      categories=[];
+      categories = [];
       showSubGroups = false;
-      subGroups=[];
+      subGroups = [];
       showChars = false;
-      charValues=[];
-      characteristics=[];
+      charValues = [];
+      characteristics = [];
       currentSuppliers = [];
       return;
     }
@@ -226,17 +237,17 @@
     selectedGroup = group;
     showSubGroups = true;
     showCategories = true;
-    
+
     currentSuppliers = [];
-    selectedSupplierIndex="";
-    selectedCategoryIndex="";
+    selectedSupplierIndex = "";
+    selectedCategoryIndex = "";
     // Only reset subgroup if the group has changed
     if (previousGroup !== group) {
       selectedSubGroup = "";
     }
     showChars = false;
     characteristics = [];
-    charValues=[];
+    charValues = [];
 
     let subGroups_all_info = [];
     try {
@@ -278,10 +289,9 @@
     }
   }
 
-  
   onMount(() => fetchData());
 
-  reload.subscribe( (v) => {
+  reload.subscribe((v) => {
     if (v) {
       fetchData();
       reload.set(false);
@@ -389,6 +399,14 @@
         console.log("Error :", error);
       });
   }
+
+  function openEditPage(toolId) {
+    goto(`/admin/instrument_edit/${toolId}`);
+  }
+
+  function openAddInstrumentPage() {
+    goto("/admin/add_instrument");
+  }
 </script>
 
 <svelte:head>
@@ -464,7 +482,7 @@
               <div class="flex items-center">
                 <label for={char} class="w-2/5">{char}:</label>
                 <input
-                  type={ char === "Length" ? "number" : "text"}
+                  type={char === "Length" ? "number" : "text"}
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black] mb-2"
                   id={char}
                   name={char}
@@ -511,7 +529,7 @@
                   on:mouseout={() => (hoveredCategoryIndex = null)}
                 >
                   {#if $isEditing}
-                    <EditCategoryButton category={row}/>
+                    <EditCategoryButton category={row} />
                   {/if}
                   <td class="text-center border border-solid border-[black]">{row.groupName}</td>
                   <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
@@ -526,7 +544,9 @@
         </table>
 
         <!-- PASS IN ADMIN MODE -->
-        <EditButton />
+        {#if isAdmin}
+          <EditButton />
+        {/if}
       </div>
 
       <!-- PCITURES CORRESPONDING TO THE CATEGORIES -->
@@ -554,6 +574,15 @@
               ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
               : ''}"
           />
+          {#if $isEditing}
+            {#if isAdmin}
+              <button
+                class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer"
+              >
+                +
+              </button>
+            {/if}
+          {/if}
         {/each}
       </div>
 
@@ -566,12 +595,13 @@
           {#each currentSuppliers as row, index}
             <div
               class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
-              on:click={() => showBigPicture(row.src)}
             >
               <img
                 alt="supplier{row.id}"
-                src={row.src}
-                on:click={() => showBigPicture(row.src)}
+                src={row.picturesId.length > 0
+                  ? `${PUBLIC_API_URL}/api/pictures/${row.picturesId[0]}`
+                  : "/default/no_picture.png"}
+                on:click={() => modals.open(BigPicturesModal, { initInstrument: row })}
                 on:mouseover={() => (hoveredSupplierImageIndex = index)}
                 on:mouseout={() => (hoveredSupplierImageIndex = null)}
                 class="h-4/5 {selectedSupplierIndex === index
@@ -580,16 +610,28 @@
                   ? 'cursor-pointer border-2 border-solid border-[lightgray]'
                   : ''}"
               />
-              <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
+              <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.reference}</div>
             </div>
+            {#if $isEditing}
+              {#if isAdmin}
+                <button
+                  class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer"
+                >
+                  +
+                </button>
+              {/if}
+            {/if}
           {/each}
         </div>
 
         <!-- TABLE OF THE SUPPLIERS -->
         <div class="suppliers-table">
-          <table data-testid = "suppliers-table" class="w-full border-collapse">
+          <table data-testid="suppliers-table" class="w-full border-collapse">
             <thead class="bg-teal-400">
               <tr>
+                {#if $isEditing}
+                  <th class="text-center border border-solid border-[black]"></th>
+                {/if}
                 <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
                 <th class="text-center border border-solid border-[black] w-24">REF</th>
                 <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
@@ -611,13 +653,18 @@
                   on:mouseover={() => (hoveredSupplierIndex = index)}
                   on:mouseout={() => (hoveredSupplierIndex = null)}
                 >
+                  {#if $isEditing}
+                    <EditCategoryButton category={row} />
+                  {/if}
                   <td
                     class="green text-center border border-solid border-[black]"
                     on:click={() => addToOrderPannel(row.ref)}>+</td
                   >
                   <td class="text-center border border-solid border-[black]">{row.reference}</td>
                   <td class="text-center border border-solid border-[black]">{row.supplier}</td>
-                  <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
+                  <td class="text-center border border-solid border-[black]"
+                    >{row.supplierDescription}</td
+                  >
                   <td class="text-center border border-solid border-[black]">{row.price}</td>
                   <td class="text-center border border-solid border-[black]">{row.alt}</td>
                   <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
@@ -625,6 +672,18 @@
               {/each}
             </tbody>
           </table>
+          {#if $isEditing}
+            {#if isAdmin}
+              <div class="flex justify-center">
+                <button
+                  class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
+                  on:click={() => openAddInstrumentPage()}
+                >
+                  Add an instrument
+                </button>
+              </div>
+            {/if}
+          {/if}
         </div>
       </div>
     </div>

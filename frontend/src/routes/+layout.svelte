@@ -5,80 +5,60 @@
   import Loading from "$lib/Loading.svelte";
 	import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
-	import { user } from "../stores"; 
+	import { user } from "$lib/stores/user_stores"; 
 
   let { children } = $props();
 
-  // simulating user roles
-  let userRole = "simpleUser"; // change to "admin" for admin view
+  // RBAC implementation
+  let userRole = "admin"; // change to "admin" for admin view
   let userValue;
-
-  // Subscribe to store
   user.subscribe(value => {
     userValue = value;
   });
-
-  // Use reactive declarations
+  let isLoggedIn = !!userValue; // check if user is connected when login is implemented
   let isAdmin = checkRole(userValue, ROLES.ADMIN);
-  let isCustomer = checkRole(userValue, ROLES.CUSTOMER);
+  let isWebmaster = checkRole(userValue, ROLES.WEBMASTER);
+
+  // handle user authentication (changing it when correct login implementation)
+  function handleAuth() {
+    if (isLoggedIn) {
+      // Log out logic to do when login ok
+      user.set(null);
+    } else {
+      window.location.href = "/login";
+    }
+  } 
 </script>
 
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
   <!-- Logo -->
   <a href="/">
-    <img alt="Logo MD" src="logo-blanc.png" class="h-full" />
+    <img alt="Logo MD" src="logo-blanc.png" class="h-10" />
   </a>
 
   <!-- Navigation Bar -->
-  <nav class="space-x-6 hidden md:flex">
-    <a href="/login" class="text-white hover:text-teal-200 transition duration-300">
-      Login
-    </a>
-    <!--{#if isCustomer}-->
-    {#if userRole == "simpleUser"}
-      <a href="/" class="text-white hover:text-teal-200 transition duration-300">
-        Home Client
-      </a>
-      <a href="/login" class="text-white hover:text-teal-200 transition duration-300">
-        Login
-      </a>
-      <a href="/psw_forgot" class="text-white hover:text-teal-200 transition duration-300">
-        Password Forgot
-      </a>
-      <a href="/sign_up" class="text-white hover:text-teal-200 transition duration-300">
-        Sign Up
-      </a>
-      <a href="/searches" class="text-white hover:text-teal-200 transition duration-300">
-        Searches Client
-      </a>
+  <nav class="hidden md:flex space-x-6">
+    <!-- add here pages to see them easily for developing -->
+
+    <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
+    <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
+
+    {#if isAdmin || isWebmaster}
+      <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
     {/if}
 
-    <!--{#if isAdmin}-->
-    {#if userRole == "admin"}
-      <a href="/home_2" class="text-white hover:text-teal-200 transition duration-300">
-        Home Admin
-      </a>
-      <a href="/add_group" class="text-white hover:text-teal-200 transition duration-300">
-        Add Group
-      </a>
-      <a href="/login" class="text-white hover:text-teal-200 transition duration-300">
-        Login
-      </a>
-      <a href="/searches_admin" class="text-white hover:text-teal-200 transition duration-300">
-        Searches Admin
-      </a>
-      <a href="/webmaster" class="text-white hover:text-teal-200 transition duration-300">
-        Webmaster
-      </a>
-      <a href="/import?" class="text-white hover:text-teal-200 transition duration-300">
-        Import
-      </a>
+    {#if isWebmaster}
+      <a href="/webmaster" class="text-white hover:text-teal-300 transition">Webmaster</a>
     {/if}
   </nav>
 
-  <a class="mr-6" href="/login">
-    <button class="text-black bg-gray-300 rounded hover:bg-gray-700" type="submit">Log out</button>
-  </a>
+  <!-- Bouton Login / Logout -->
+  <button
+    onclick={handleAuth}
+    class="px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
+  >
+    {isLoggedIn ? "Log out" : "Login"}
+  </button>
 </header>
 
 <div class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">

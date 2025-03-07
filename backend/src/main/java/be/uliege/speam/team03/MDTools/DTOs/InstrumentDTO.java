@@ -9,6 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 public class InstrumentDTO {
+    private Integer id;
     private String supplier;
     private Integer categoryId;
     private String reference;

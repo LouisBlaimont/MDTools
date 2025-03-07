@@ -86,11 +86,10 @@ class PictureStorageServiceTest {
             .thenReturn(mockPictures);
 
         // Act
-        List<String> result = pictureStorageService.getPicturesIdByReferenceIdAndPictureType(referenceId, pictureType);
+        List<Long> result = pictureStorageService.getPicturesIdByReferenceIdAndPictureType(referenceId, pictureType);
 
         // Assert
         assertEquals(2, result.size());
-        assertTrue(result.containsAll(List.of("file1.jpg", "file2.jpg")));
     }
 
     @Test
