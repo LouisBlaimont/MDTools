@@ -3,13 +3,13 @@ package be.uliege.speam.team03.MDTools.DTOs;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class InstrumentDTO {
-    private Integer id;
     private String supplier;
     private Integer categoryId;
     private String reference;
@@ -17,6 +17,7 @@ public class InstrumentDTO {
     private Float price;
     private boolean alt;
     private boolean obsolete;
+    private List<Long> picturesId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;
