@@ -8,7 +8,9 @@ import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
 import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
+import be.uliege.speam.team03.MDTools.services.SupplierService;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public class InstrumentController {
     private final InstrumentService instrumentService;
+    private final SupplierService supplierService;
     private final PictureRepository pictureRepository;
     private final PictureStorageService pictureStorageService;
 
@@ -34,6 +37,7 @@ public class InstrumentController {
     @GetMapping("/all")
     public ResponseEntity<?> findallInstruments(){
         List<InstrumentDTO> instruments = instrumentService.findAll();
+        // Check if the list of instruments is empty
         if (instruments == null || instruments.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found");
         }
@@ -49,6 +53,7 @@ public class InstrumentController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findInstrumentById(@PathVariable Integer id){
         InstrumentDTO instrument = instrumentService.findById(id);
+        // Check if the instrument exists
         if (instrument == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + id);
         }
@@ -64,6 +69,7 @@ public class InstrumentController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> addInstrument(@RequestBody InstrumentDTO newInstrument) {
+        // Check if the instrument already exists
         if (newInstrument.getId() != null) {
             InstrumentDTO instrument = instrumentService.findById(newInstrument.getId());
             if (instrument != null) {
@@ -72,9 +78,19 @@ public class InstrumentController {
         }
         List<InstrumentDTO> existingInstruments = instrumentService.findAll();
         for (InstrumentDTO instrument : existingInstruments) {
+            // Check if the reference already exists
             if (instrument.getReference().equals(newInstrument.getReference())) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists.\n");
             }
+        }
+        // Check if the reference is not empty
+        if (newInstrument.getReference().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Reference is required to identify an instrument");
+        }
+        // Check if the supplier exists
+        SupplierDTO supplier = supplierService.findSupplierByName(newInstrument.getSupplier());
+        if (supplier == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier does not exist. Please add the supplier first.");
         }
         InstrumentDTO savedInstrument = instrumentService.save(newInstrument);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedInstrument);
@@ -86,15 +102,21 @@ public class InstrumentController {
      * @param updatedInstrument the instrument to update
      * @return the updated instrument
      */
-    @PutMapping("/update")
+    @PatchMapping("/edit/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updateInstrument(@RequestBody InstrumentDTO updatedInstrument) {
-        if (updatedInstrument.getId() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID is required");
+        // Check if the instrument can be identified
+        if (updatedInstrument.getId() == null| updatedInstrument.getReference().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID or reference is required to identify an instrument");
         }
-        InstrumentDTO instrument = instrumentService.findById(updatedInstrument.getId());
+        InstrumentDTO instrument = (updatedInstrument.getId() != null) ? instrumentService.findById(updatedInstrument.getId()) : instrumentService.findByReference(updatedInstrument.getReference());
+        // Check if the instrument exists
         if (instrument == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + updatedInstrument.getId());
+        } else if (instrument.getReference().equals(updatedInstrument.getReference())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists.\n");
+        } else if (instrument.getId() != updatedInstrument.getId()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("ID already exists for another instrument");
         }
         InstrumentDTO savedInstrument = instrumentService.save(updatedInstrument);
         return ResponseEntity.status(HttpStatus.OK).body(savedInstrument);

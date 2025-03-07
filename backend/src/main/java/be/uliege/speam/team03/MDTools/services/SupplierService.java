@@ -20,6 +20,21 @@ public class SupplierService {
     }
 
     /**
+     * Find a supplier by his name.
+     * 
+     * @param supplierName the name of the supplier to find
+     * @return a SupplierDTO matching the supplier name, or null if no supplier is found
+     */
+    public SupplierDTO findSupplierByName(String supplierName) {
+        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
+        if (!supplierMaybe.isPresent()) {
+            return null;
+        }
+        Suppliers supplier = supplierMaybe.get();
+        return new SupplierDTO(supplier.getSupplierName(), supplier.getId(), supplier.getSoldByMd(), supplier.getClosed());
+    }
+
+    /**
      * Find suppliers by their name.
      * 
      * @param supplierName the name of the supplier to find
