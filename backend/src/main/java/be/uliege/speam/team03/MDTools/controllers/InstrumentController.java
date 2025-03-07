@@ -21,7 +21,7 @@ import org.springframework.http.HttpStatus;
  * This controller implements the API endpoints relative to the instruments. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
  */
 @RestController
-@RequestMapping("/api/instruments")
+@RequestMapping("/api/instrument")
 @AllArgsConstructor
 public class InstrumentController {
     private final InstrumentService instrumentService;

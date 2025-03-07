@@ -13,6 +13,7 @@
   import { isEditing, reload } from "$lib/stores/searches";
   import EditButton from "./EditButton.svelte";
   import EditCategoryButton from "./EditCategoryButton.svelte";
+  import EditInstrumentButton from "./EditInstrumentButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { checkRole } from "$lib/rbacUtils";
   import { ROLES } from "../../constants";
@@ -654,7 +655,7 @@
                   on:mouseout={() => (hoveredSupplierIndex = null)}
                 >
                   {#if $isEditing}
-                    <EditCategoryButton category={row} />
+                    <EditInstrumentButton instrument={row}/>
                   {/if}
                   <td
                     class="green text-center border border-solid border-[black]"

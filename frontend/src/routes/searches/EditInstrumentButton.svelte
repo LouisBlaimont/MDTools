@@ -1,6 +1,6 @@
 <script>
     import { modals } from "svelte-modals";
-    import editInstrumentModal from "$lib/modals/editCategoryModal.svelte";
+    import editInstrumentModal from "$lib/modals/editInstrumentModal.svelte";
   
     export let instrument;
   
