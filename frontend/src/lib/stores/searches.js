@@ -29,3 +29,5 @@ export let toolToAddRef = writable(null);
 export let quantity = writable(null);
 export let order = writable([]);
 export let isAdmin = writable(true);
+export let findSubGroupsStore = writable(null);
+export let findCharacteristicsStore = writable(null);

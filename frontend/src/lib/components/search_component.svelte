@@ -9,7 +9,10 @@
     import { suppliers } from "../../suppliers.js";
     import { getOrder, addTool } from "../../order.js";
     import { isEditing, order, reload, selectedCategoryIndex, 
-        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, showChars, charValues, currentSuppliers, categories, characteristics, showSubGroups, showCategories, subGroups, groups, errorMessage } from "$lib/stores/searches";    
+        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
+        showChars, charValues, currentSuppliers, categories, characteristics, 
+        showSubGroups, showCategories, subGroups, groups, errorMessage, 
+    findSubGroupsStore, findCharacteristicsStore} from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     
     let resizing = null;
@@ -21,11 +24,11 @@
      * Gets characteristics and categories of subgroup with the name subGroup
      * @param subGroup
      */
-    async function findCharacteristics(subGroup) {
+    export async function findCharacteristics(subGroup) {
         if (subGroup == "none") {
-        selectedSubGroup.set("");
-        findSubGroups($selectedGroup);
-        return;
+            selectedSubGroup.set("");
+            findSubGroups($selectedGroup);
+            return;
         }
         selectedSubGroup.set(subGroup);
         showChars.set(true);
@@ -159,23 +162,23 @@
      * Gets subgroups of group and their categories
      * @param group
      */
-    async function findSubGroups(group) {
+    export async function findSubGroups(group) {
         if (group == "none") {
-        selectedGroup.set("");
-        selectedSubGroup.set("");
-        selectedCategoryIndex.set(null);
-        selectedSupplierIndex.set(null);
-        showCategories.set(false);
-        categories.set([]);
-        showSubGroups.set(false);
-        subGroups.set([]);
-        showChars.set(false);
-        charValues.set([]);
-        characteristics.set([]);
-        currentSuppliers.set([]);
-        return;
+            selectedGroup.set("");
+            selectedSubGroup.set("");
+            selectedCategoryIndex.set(null);
+            selectedSupplierIndex.set(null);
+            showCategories.set(false);
+            categories.set([]);
+            showSubGroups.set(false);
+            subGroups.set([]);
+            showChars.set(false);
+            charValues.set([]);
+            characteristics.set([]);
+            currentSuppliers.set([]);
+            return;
         }
-        const previousGroup = selectedGroup;
+        const previousGroup = $selectedGroup;
         selectedGroup.set(group);
         showSubGroups.set(true);
         showCategories.set(true);
@@ -213,7 +216,8 @@
         return;
     }
 
-
+    findSubGroupsStore.set(findSubGroups);
+    findCharacteristicsStore.set(findCharacteristics);
 
 </script>
 

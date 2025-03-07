@@ -10,7 +10,8 @@
   import { preventDefault } from "svelte/legacy";
   import { get } from "svelte/store";
   import { PUBLIC_API_URL } from "$env/static/public";
-  import { isEditing, reload, isAdmin, groups_summary, groups, errorMessage } from "$lib/stores/searches";
+  import { isEditing, reload, isAdmin, groups_summary, groups, 
+    errorMessage, findSubGroupsStore, findCharacteristicsStore } from "$lib/stores/searches";
   import EditButton from "./EditButton.svelte";
   import EditCategoryButton from "./EditCategoryButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
@@ -50,7 +51,9 @@
     }
   }
 
-  
+  let findSubGroups = null;
+  let findCharacteristics = null;
+  let initialized = false;
   /**
    * Fetch when page is rendered.
    */
@@ -69,8 +72,27 @@
     }
   }
 
-  
-  onMount(() => fetchData());
+  function tryFetchData() {
+    if (findSubGroups && findCharacteristics && !initialized) {
+      initialized = true; 
+      fetchData();
+    }
+  }
+
+  onMount(() => {
+    findSubGroupsStore.subscribe(value => {
+      if (value) {
+        findSubGroups = value;
+        tryFetchData(); 
+      }
+    });
+    findCharacteristicsStore.subscribe(value => {
+      if (value) {
+        findCharacteristics = value;
+        tryFetchData();
+      }
+    });
+  });
 
   reload.subscribe( (v) => {
     if (v) {
