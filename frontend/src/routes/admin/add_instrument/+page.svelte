@@ -1,49 +1,91 @@
 <script>
-    function save() {
-        // Logic to save the tool
+    import { createEventDispatcher } from "svelte";
+    import { goto } from "$app/navigation";
+    import { PUBLIC_API_URL } from "$env/static/public";
+
+    let reference = "";
+    let supplier = "";
+    let supplierDescription = "";
+    let price = "";
+    let alt = "";
+    let obsolete = "";
+    let id = "";
+    const dispatch = createEventDispatcher();
+
+    async function submitForm() {
+        const response = await fetch('http://localhost:8080/api/instrument/add', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                reference, 
+                supplier, 
+                supplierDescription, 
+                price, 
+                alt, 
+                obsolete, 
+                id 
+            })
+        });
+        
+        if (response.ok) {
+            dispatch("success", { message: "Instrument added successfully!" });
+        } else {
+            dispatch("error", { message: "Failed to add instrument." });
+        }
     }
 
     function cancel() {
-        // Logic to cancel the tool creation
+        dispatch("cancel");
+        goto("../../searches");
+    }
+
+    function erase() {
+        reference = "";
+        supplier = "";
+        supplierDescription = "";
+        price = "";
+        alt = "";
+        obsolete = "";
+        id = "";
     }
 </script>
 
-<div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Add Instrument</h1>
-        <div class="flex flex-col gap-4">
-            <div>
-                <label class="block font-semibold">Reference:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div>
-                <label class="block font-semibold">Brand:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div>
-                <label class="block font-semibold">Description:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div>
-                <label class="block font-semibold">Price:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div>
-                <label class="block font-semibold">Alternatives:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div>
-                <label class="block font-semibold">Obsolete:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div>
-                <label class="block font-semibold">Image Source:</label>
-                <input type="text" class="border p-2 rounded w-full">
-            </div>
-            <div class="flex gap-4">
-                <button class="bg-green-500 text-white p-2 rounded hover:bg-green-700" 
-                    on:click={save}>Save</button>
-                <button class="bg-red-500 text-white p-2 rounded hover:bg-red-700" 
-                    on:click={cancel}>Cancel</button>
-            </div>
+<main class="flex flex-col items-center w-full p-6 mt-3">
+    <form on:submit|preventDefault={submitForm} class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Add Instrument</h2>
+        
+        <label for="reference" class="font-semibold text-lg">Reference:</label>
+        <input type="text" bind:value={reference} placeholder="Enter the reference"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+
+        <label for="brand" class="font-semibold text-lg">Supplier:</label>
+        <input type="text" bind:value={supplier} placeholder="Enter the brand"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+        
+        <label for="supplierDescription" class="font-semibold text-lg">Description of supplier:</label>
+        <input type="text" bind:value={supplierDescription} placeholder="Enter the description"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+
+        <label for="price" class="font-semibold text-lg">Price:</label>
+        <input type="text" bind:value={price} placeholder="Enter the price"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+
+        <label for="alt" class="font-semibold text-lg">Alternatives:</label>
+        <input type="text" bind:value={alt} placeholder="Enter the alt"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+
+        <label for="obsolete" class="font-semibold text-lg">Obsolete:</label>
+        <input type="text" bind:value={obsolete} placeholder="Enter if obsolete"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+
+        <label for="id" class="font-semibold text-lg">Image Source:</label>
+        <input type="text" bind:value={id} placeholder="Enter the image source"
+            class="w-full p-2 mt-1 mb-3 border rounded">
+
+        <div class="flex gap-4 mt-4">
+            <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-700">Save</button>
+            <button type="button" class="bg-red-500 text-white p-2 rounded hover:bg-red-700" on:click={erase}>Erase</button>
+            <button type="button" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-700" on:click={cancel}>Cancel</button>
         </div>
-</div>
+    </form>
+</main>

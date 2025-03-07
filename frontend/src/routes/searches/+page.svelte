@@ -401,10 +401,6 @@
       });
   }
 
-  function openEditPage(toolId) {
-    goto(`/admin/instrument_edit/${toolId}`);
-  }
-
   function openAddInstrumentPage() {
     goto("/admin/add_instrument");
   }
