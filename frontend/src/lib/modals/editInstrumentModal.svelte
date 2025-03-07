@@ -11,6 +11,8 @@
     } = $props();
   
     let file; // Variable to store the selected file
+
+
     let reference = $state(instrument.reference); // State for the instrument reference
     let characteristics = $state([]); // State for the instrument characteristics
   
@@ -84,7 +86,8 @@
     let characteristicsEdited = false; // Flag to track if characteristics are edited
     console.log(characteristics);
     console.log("caractéristiques ou pas ?");
-    let promise = fetchCharacteristics(); // Fetch characteristics on component mount
+    //let promise = fetch(PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)).then(characteristics => characteristics.json()); // Fetch characteristics on component mount
+    let promise = fetchCharacteristics();
     console.log(characteristics);
     console.log("Toujours pas ?");
 </script>
