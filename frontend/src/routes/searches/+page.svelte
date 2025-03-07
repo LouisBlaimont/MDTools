@@ -16,17 +16,19 @@
   import EditCategoryButton from "./EditCategoryButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { checkRole } from "$lib/rbacUtils";
-	import { ROLES } from "../../constants";
-	import { user } from "$lib/stores/user_stores"; 
+  import { ROLES } from "../../constants";
+  import { user } from "$lib/stores/user_stores";
   import CategoryComponent from "$lib/components/category_component.svelte";
   import InstrumentComponent from "$lib/components/instrument_component.svelte";
   import OrderComponent from "$lib/components/order_component.svelte";
   import SearchComponent from "$lib/components/search_component.svelte";
 
+  import { modals } from "svelte-modals";
+  import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
 
-  // RBAC 
+  // RBAC
   let userValue;
-  user.subscribe(value => {
+  user.subscribe((value) => {
     userValue = value;
   });
   // returns true if user is admin
@@ -94,7 +96,7 @@
     });
   });
 
-  reload.subscribe( (v) => {
+  reload.subscribe((v) => {
     if (v) {
       fetchData();
       reload.set(false);
