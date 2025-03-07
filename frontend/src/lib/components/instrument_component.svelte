@@ -12,6 +12,8 @@
     import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
      } from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+    import { modals } from "svelte-modals";
+    import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
  
 
     function selectSupplier(index) {
@@ -90,7 +92,7 @@
 
 </script>
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
-    <!-- PICTURES OF THE SUPPLIERS -->
+    <!-- PICTURES OF THE INSTRUMENTS -->
     <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
         <span class="p-1">Photos des fournisseurs</span>
     </div>
@@ -107,9 +109,7 @@
                     src={row.src
                     ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
                     : "/default/no_picture.png"}
-                    on:click={() => showBigPicture(row.src? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                        : "/default/no_picture.png"
-                    )}
+                    on:click= {() => modals.open(BigPicturesModal, { initInstrument: row})}
                     on:mouseover={() => (hoveredSupplierImageIndex.set(index))}
                     on:mouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index
