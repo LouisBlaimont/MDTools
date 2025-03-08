@@ -103,6 +103,8 @@
         overlay.style.display = "none";
     }
 
+    let div2;
+
 </script>
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
     <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
@@ -191,7 +193,6 @@
         {/if}
     {/each}
 </div>    
-
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 

@@ -23,8 +23,8 @@
   import OrderComponent from "$lib/components/order_component.svelte";
   import SearchComponent from "$lib/components/search_component.svelte";
 
-  import { modals } from "svelte-modals";
-  import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
+  import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+
 
   // RBAC
   let userValue;
@@ -106,6 +106,7 @@
   function openEditPage(toolId) {
       goto(`/admin/instrument_edit/${toolId}`);
   }
+  let div2, div1;
 
 </script>
 
@@ -116,21 +117,27 @@
 <div id="container" class="text-[14px]">
   <div class="flex flex-col gap-[5px] box-border w-full">
     <!-- TOP PART -->
-    <div class="flex-[5] flex flex-row mt-3 h-max-[50vh]">
-      <!-- FORM OF SEARCHES -->
-      <SearchComponent />
+    <div class="relative resize overflow-auto border border-gray-300" bind:this={div2}>
+      <div class="flex-[5] flex flex-row mt-3 h-max-[50vh]">
+        <!-- FORM OF SEARCHES -->
+        <SearchComponent />
 
-      <!-- TABLE AND PICTURES OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-      <CategoryComponent />
-      
-      <!-- TABLE AND PICTURES OF THE SUPPLIERS -->
-      <InstrumentComponent />
+        <!-- TABLE AND PICTURES OF CATEGORIES CORRESPONDING TO RESEARCH  -->
+        <CategoryComponent />
+        
+        <!-- TABLE AND PICTURES OF THE SUPPLIERS -->
+        <InstrumentComponent />
 
+      </div>
+      <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div2)}></div>
     </div>
 
     <!-- BOTTOM PART -->
     <!-- ORDERS  -->
-    <OrderComponent />
+    <div class="relative resize overflow-auto border border-gray-300" bind:this={div1}>
+      <OrderComponent />
+    <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div1)}></div>
+    </div>
 
   </div>
 </div>
