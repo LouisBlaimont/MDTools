@@ -50,7 +50,9 @@
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(characteristics),
+              body: JSON.stringify(
+            Object.fromEntries(characteristics.map(c => [c.name, c.value])) // Convert array back to object
+          ),
             }
           );
           console.log(response);
@@ -67,21 +69,27 @@
   
     // Function to fetch the characteristics of the instrument
     async function fetchCharacteristics() {
-      try {
-        const response = await fetch(
-          PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch characteristics: ${response.statusText}`);
-        }
-        characteristics = await response.json();
-        console.log(characteristics);
-        console.log("Ce sont les caractéristiques");
-      } catch (error) {
-        console.error(error);
-      }
-      return;
+  try {
+    const response = await fetch(
+      PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch characteristics: ${response.statusText}`);
     }
+
+    const data = await response.json();
+
+    // Convert object to an array of { name, value }
+    characteristics = Object.entries(data).map(([key, value]) => ({
+      name: key,
+      value: value
+    }));
+
+    console.log(characteristics);
+  } catch (error) {
+    console.error(error);
+  }
+}
   
     let characteristicsEdited = false; // Flag to track if characteristics are edited
     console.log(characteristics);
