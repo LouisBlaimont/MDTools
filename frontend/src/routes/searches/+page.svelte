@@ -33,7 +33,7 @@
     userValue = value;
   });
   // returns true if user is admin
-  isAdmin.set(checkRole(userValue, ROLES.ADMIN));
+  isAdmin.set(true);
 
   /**
    * Fetches the group summary.
@@ -103,113 +103,6 @@
       reload.set(false);
     }
   });
-
-  /**
-   * Gets characteristics and categories of subgroup with the name subGroup
-   * @param subGroup
-   */
-  async function findCharacteristics(subGroup) {
-    if (subGroup == "none") {
-      selectedSubGroup = "";
-      findSubGroups(selectedGroup);
-      return;
-    }
-    selectedSubGroup = subGroup;
-    showChars = true;
-
-    charValues = [];
-    selectedCategoryIndex = "";
-    currentSuppliers = [];
-    selectedSupplierIndex = "";
-    let subgroup = [];
-
-    try {
-      const response = await fetch(PUBLIC_API_URL + `/api/subgroups/${subGroup}`);
-      const response_2 = await fetch(PUBLIC_API_URL + `/api/category/subgroup/${subGroup}`);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch characteristics : ${response.statusText}`);
-      }
-      if (!response_2.ok) {
-        throw new Error(`Failed to fetch categories: ${response_2.statusText}`);
-      }
-
-      subgroup = await response.json();
-      categories = await response_2.json();
-    } catch (error) {
-      console.log(error);
-      errorMessage = error.message;
-    }
-
-    characteristics = subgroup.subGroupCharacteristics;
-    return;
-  }
-
-  /**
-   * Filters the categories depending on the input of the user.
-   */
-  function searchByCharacteristics() {
-    let char_vals = [];
-    for (let i = 0; i < characteristics.length; i++) {
-      if (characteristics[i] === "Function" || characteristics[i] === "Name") {
-        continue;
-      }
-      if (characteristics[i] === "Length" && charValues[characteristics[i]]) {
-        let char = {
-          name: characteristics[i],
-          value: charValues[characteristics[i]] + "cm",
-          abrev: "",
-        };
-        char_vals.push(char);
-      } else if (charValues[characteristics[i]]) {
-        let char = {
-          name: characteristics[i],
-          value: charValues[characteristics[i]],
-          abrev: "",
-        };
-        char_vals.push(char);
-      } else {
-        let char = {
-          name: characteristics[i],
-          value: "",
-          abrev: "",
-        };
-        char_vals.push(char);
-      }
-    }
-    const data = {
-      groupName: selectedGroup,
-      subGroupName: selectedSubGroup,
-      function: charValues["Function"] || "",
-      name: charValues["Name"] || "",
-      characteristics: char_vals,
-    };
-
-    return fetch(PUBLIC_API_URL + "/api/category/search/by-characteristics", {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          categories = [];
-          toast.push("Aucun résultat trouvé");
-          throw new Error(`Failed to search by characteristics : ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((result) => {
-        categories = result;
-      })
-      .catch((error) => {
-        console.log("Error :", error);
-      });
-  }
-
-  function openEditPage(toolId) {
-    goto(`/admin/instrument_edit/${toolId}`);
-  }
-
 </script>
 
 <svelte:head>

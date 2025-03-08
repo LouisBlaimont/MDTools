@@ -12,6 +12,7 @@ export let charValues = writable({});
 export let groups = writable([]);
 export let subGroups = writable([]);
 export let characteristics = writable([]);
+export let instrumentCharacteristics = writable([]);
 export let categories = writable([]);
 export let hoveredSupplierIndex = writable(null);
 export let hoveredSupplierImageIndex = writable(null);
