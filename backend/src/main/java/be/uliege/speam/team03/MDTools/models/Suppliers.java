@@ -22,8 +22,20 @@ public class Suppliers {
     @Column(name="closed")
     private Boolean closed;
 
+    /**
+     * Constructor for the Suppliers class.
+     */
     public Suppliers() {}
 
+    /**
+     * Constructor for the Suppliers class.
+     * 
+     * @param supplierName the name of the supplier
+     * @param soldByMd whether the supplier is sold by MD
+     * @param closed whether the supplier is closed
+     * 
+     * @return a new Suppliers object
+     */
     public Suppliers(String supplierName, Boolean soldByMd, Boolean closed) {
         this.supplierName = supplierName;
         this.soldByMd = soldByMd;

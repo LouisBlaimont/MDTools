@@ -84,8 +84,14 @@ public class InstrumentController {
             }
         }
         // Check if the reference is not empty
-        if (newInstrument.getReference().isEmpty()) {
+        if (newInstrument.getReference() == null || newInstrument.getReference().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Reference is required to identify an instrument");
+        }
+        if(newInstrument.getSupplier() == null || newInstrument.getSupplier().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Supplier is required to identify an instrument");
+        }
+        if(newInstrument.getPrice() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price is required to identify an instrument");
         }
         // Check if the supplier exists
         SupplierDTO supplier = supplierService.findSupplierByName(newInstrument.getSupplier());

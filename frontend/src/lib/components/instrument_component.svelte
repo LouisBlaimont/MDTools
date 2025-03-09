@@ -86,6 +86,10 @@
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
 
+    function openAddInstrumentPage() {
+        goto("../../admin/add_instrument");
+    }
+
 </script>
 <!-- <div
     class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
