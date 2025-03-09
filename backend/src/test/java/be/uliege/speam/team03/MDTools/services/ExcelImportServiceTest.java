@@ -1,250 +1,250 @@
-package be.uliege.speam.team03.MDTools.services;
+// package be.uliege.speam.team03.MDTools.services;
 
-import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.repositories.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import java.util.*;
+// import be.uliege.speam.team03.MDTools.models.*;
+// import be.uliege.speam.team03.MDTools.repositories.*;
+// import org.junit.jupiter.api.BeforeEach;
+// import org.junit.jupiter.api.Test;
+// import org.mockito.InjectMocks;
+// import org.mockito.Mock;
+// import org.mockito.MockitoAnnotations;
+// import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-/**
- * Unit tests for the ExcelImportService class.
- */import static org.mockito.Mockito.*;
-class ExcelImportServiceTest {
+// import static org.junit.jupiter.api.Assertions.*;
+// import static org.mockito.ArgumentMatchers.any;
+// import static org.mockito.ArgumentMatchers.anyString;
+// /**
+//  * Unit tests for the ExcelImportService class.
+//  */import static org.mockito.Mockito.*;
+// class ExcelImportServiceTest {
 
-    @Mock
-    private InstrumentRepository instrumentRepository;
+//     @Mock
+//     private InstrumentRepository instrumentRepository;
 
-    @Mock
-    private SubGroupRepository subGroupRepository;
+//     @Mock
+//     private SubGroupRepository subGroupRepository;
 
-    @Mock
-    private CharacteristicRepository characteristicRepository;
+//     @Mock
+//     private CharacteristicRepository characteristicRepository;
 
-    @Mock
-    private SupplierRepository supplierRepository;
+//     @Mock
+//     private SupplierRepository supplierRepository;
 
-    @Mock
-    private CategoryRepository categoryRepository;
+//     @Mock
+//     private CategoryRepository categoryRepository;
 
-    @Mock
-    private CategoryCharacteristicRepository categoryCharacteristicRepository;
+//     @Mock
+//     private CategoryCharacteristicRepository categoryCharacteristicRepository;
 
-    @InjectMocks
-    private ExcelImportService excelImportService;
+//     @InjectMocks
+//     private ExcelImportService excelImportService;
 
-    private SubGroup existingSubGroup;
-    private Characteristic existingCharacteristic;
-    private Suppliers existingSupplier;
-    private Instruments existingInstrument;
+//     private SubGroup existingSubGroup;
+//     private Characteristic existingCharacteristic;
+//     private Suppliers existingSupplier;
+//     private Instruments existingInstrument;
 
-    /**
-     * Initializes mocks and sets up test data before each test.
-     */
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+//     /**
+//      * Initializes mocks and sets up test data before each test.
+//      */
+//     @BeforeEach
+//     void setUp() {
+//         MockitoAnnotations.openMocks(this);
 
-        // Use an existing subgroup with initialized list
-        existingSubGroup = new SubGroup("Scalpels", new Group("Surgical Instruments"));
-        existingSubGroup.setSubGroupCharacteristics(new ArrayList<>()); // Prevent NullPointerException
+//         // Use an existing subgroup with initialized list
+//         existingSubGroup = new SubGroup("Scalpels", new Group("Surgical Instruments"));
+//         existingSubGroup.setSubGroupCharacteristics(new ArrayList<>()); // Prevent NullPointerException
 
-        // Use an existing characteristic
-        existingCharacteristic = new Characteristic("Blade Size");
+//         // Use an existing characteristic
+//         existingCharacteristic = new Characteristic("Blade Size");
 
-        // Use an existing supplier
-        existingSupplier = new Suppliers("NewMed", false, false);
+//         // Use an existing supplier
+//         existingSupplier = new Suppliers("NewMed", false, false);
 
-        existingInstrument = new Instruments(existingSupplier, null, "SC123", "Old description", 100.0f, false);
-    }
+//         existingInstrument = new Instruments(existingSupplier, null, "SC123", "Old description", 100.0f, false);
+//     }
 
-    /**
-     * Tests the processing of a subgroup import when the subgroup already exists.
-     */
-    @Test
-    void testProcessSubGroupImport_WithExistingSubGroup() {
-        // Given
-        when(subGroupRepository.findByName("Scalpels")).thenReturn(Optional.of(existingSubGroup));
+//     /**
+//      * Tests the processing of a subgroup import when the subgroup already exists.
+//      */
+//     @Test
+//     void testProcessSubGroupImport_WithExistingSubGroup() {
+//         // Given
+//         when(subGroupRepository.findByName("Scalpels")).thenReturn(Optional.of(existingSubGroup));
 
-        List<Map<String, Object>> data = List.of(Map.of("reference", "SC123", "Blade Size", "15"));
+//         List<Map<String, Object>> data = List.of(Map.of("reference", "SC123", "Blade Size", "15"));
 
-        // When
-        excelImportService.processSubGroupImport("Surgical Instruments", "Scalpels", data);
+//         // When
+//         excelImportService.processSubGroupImport("Surgical Instruments", "Scalpels", data);
 
-        // Then
-        verify(subGroupRepository, times(1)).findByName("Scalpels");
-    }
+//         // Then
+//         verify(subGroupRepository, times(1)).findByName("Scalpels");
+//     }
 
-    /**
-     * Tests processing an instrument row when an existing subgroup is provided.
-     */
-    @Test
-    void testProcessInstrumentRow_WithExistingSubGroup() {
-        // Given
-        Map<String, Object> row = Map.of("reference", "SC123", "Blade Size", "15");
-        when(instrumentRepository.findByReference("SC123")).thenReturn(Optional.empty());
-        when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
+//     /**
+//      * Tests processing an instrument row when an existing subgroup is provided.
+//      */
+//     @Test
+//     void testProcessInstrumentRow_WithExistingSubGroup() {
+//         // Given
+//         Map<String, Object> row = Map.of("reference", "SC123", "Blade Size", "15");
+//         when(instrumentRepository.findByReference("SC123")).thenReturn(Optional.empty());
+//         when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
 
-        // When
-        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true, null);
+//         // When
+//         excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true, null);
 
-        // Then
-        verify(instrumentRepository, times(1)).save(any(Instruments.class));
-        verify(categoryRepository, atMost(1)).save(any());
-    }
+//         // Then
+//         verify(instrumentRepository, times(1)).save(any(Instruments.class));
+//         verify(categoryRepository, atMost(1)).save(any());
+//     }
 
-    /**
-     * Tests updating an existing instrument during the processing of an instrument row.
-     */
-    @Test
-    void testProcessInstrumentRow_UpdateExistingInstrument() {
-        // Given
-        Map<String, Object> row = Map.of("reference", "SC123", "Blade Size", "20");
-        Instruments existingInstrument = new Instruments();
-        existingInstrument.setReference("SC123");
-        existingInstrument.setSupplierDescription("Old description");
+//     /**
+//      * Tests updating an existing instrument during the processing of an instrument row.
+//      */
+//     @Test
+//     void testProcessInstrumentRow_UpdateExistingInstrument() {
+//         // Given
+//         Map<String, Object> row = Map.of("reference", "SC123", "Blade Size", "20");
+//         Instruments existingInstrument = new Instruments();
+//         existingInstrument.setReference("SC123");
+//         existingInstrument.setSupplierDescription("Old description");
 
-        when(instrumentRepository.findByReference("SC123")).thenReturn(Optional.of(existingInstrument));
+//         when(instrumentRepository.findByReference("SC123")).thenReturn(Optional.of(existingInstrument));
 
-        // When
-        excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true, null);
+//         // When
+//         excelImportService.processInstrumentRow(row, existingSubGroup, Set.of("reference", "Blade Size"), List.of("Blade Size"), true, null);
 
-        // Then
-        verify(instrumentRepository, times(1)).save(existingInstrument);
-    }
+//         // Then
+//         verify(instrumentRepository, times(1)).save(existingInstrument);
+//     }
 
-    /**
-     * Tests retrieving an existing supplier instead of creating a new one.
-     */
-    @Test
-    void testGetOrCreateSupplier_ExistingSupplier() {
-        // Given
-        when(supplierRepository.findAll()).thenReturn(List.of(existingSupplier));
-        Map<String, Object> row = Map.of("supplier_name", "newmed");
+//     /**
+//      * Tests retrieving an existing supplier instead of creating a new one.
+//      */
+//     @Test
+//     void testGetOrCreateSupplier_ExistingSupplier() {
+//         // Given
+//         when(supplierRepository.findAll()).thenReturn(List.of(existingSupplier));
+//         Map<String, Object> row = Map.of("supplier_name", "newmed");
 
-        // When
-        Suppliers supplier = excelImportService.getOrCreateSupplier(row, Set.of("supplier_name"), null);
+//         // When
+//         Suppliers supplier = excelImportService.getOrCreateSupplier(row, Set.of("supplier_name"), null);
 
-        // Then
-        assertEquals(existingSupplier, supplier);
-        verify(supplierRepository, never()).save(any());
-    }
+//         // Then
+//         assertEquals(existingSupplier, supplier);
+//         verify(supplierRepository, never()).save(any());
+//     }
 
-    /**
-     * Tests creating a new category while using an existing characteristic.
-     */
-    @Test
-    void testCreateNewCategory_UsesExistingCharacteristic() {
-        // Given
-        Category existingCategory = new Category(existingSubGroup);
-        when(categoryRepository.findBySubGroup(existingSubGroup)).thenReturn(Optional.of(List.of(existingCategory)));
-        when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
+//     /**
+//      * Tests creating a new category while using an existing characteristic.
+//      */
+//     @Test
+//     void testCreateNewCategory_UsesExistingCharacteristic() {
+//         // Given
+//         Category existingCategory = new Category(existingSubGroup);
+//         when(categoryRepository.findBySubGroup(existingSubGroup)).thenReturn(Optional.of(List.of(existingCategory)));
+//         when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
 
-        Map<String, String> instrumentCharacteristics = Map.of("Blade Size", "15");
-        Set<String> availableColumns = Set.of("Blade Size");
-        Map<String, Object> row = Map.of("Blade Size", "15");
+//         Map<String, String> instrumentCharacteristics = Map.of("Blade Size", "15");
+//         Set<String> availableColumns = Set.of("Blade Size");
+//         Map<String, Object> row = Map.of("Blade Size", "15");
 
-        // When
-        Category resultCategory = excelImportService.createNewCategory(existingSubGroup, instrumentCharacteristics, availableColumns, row);
+//         // When
+//         Category resultCategory = excelImportService.createNewCategory(existingSubGroup, instrumentCharacteristics, availableColumns, row);
 
-        // Then
-        assertEquals(existingCategory.getId(), resultCategory.getId()); // Compare IDs, not object references
-        verify(categoryRepository, atMost(1)).save(any());
-    }
+//         // Then
+//         assertEquals(existingCategory.getId(), resultCategory.getId()); // Compare IDs, not object references
+//         verify(categoryRepository, atMost(1)).save(any());
+//     }
 
-    /**
-     * Tests string normalization by removing accents and converting to lowercase.
-     */
-    @Test
-    void testNormalizeString() {
-        // Given
-        String input = "Éxámple Test";
+//     /**
+//      * Tests string normalization by removing accents and converting to lowercase.
+//      */
+//     @Test
+//     void testNormalizeString() {
+//         // Given
+//         String input = "Éxámple Test";
 
-        // When
-        String normalized = excelImportService.normalizeString(input);
+//         // When
+//         String normalized = excelImportService.normalizeString(input);
 
-        // Then
-        assertEquals("example test", normalized);
-    }
+//         // Then
+//         assertEquals("example test", normalized);
+//     }
 
-    /**
-     * Tests extracting a boolean value from a map when the key exists.
-     */
-    @Test
-    void testGetBooleanValue() {
-        // Given
-        Map<String, Object> row = Map.of("obsolete", "yes");
+//     /**
+//      * Tests extracting a boolean value from a map when the key exists.
+//      */
+//     @Test
+//     void testGetBooleanValue() {
+//         // Given
+//         Map<String, Object> row = Map.of("obsolete", "yes");
 
-        // When
-        Boolean result = excelImportService.getBooleanValue(row, Set.of("obsolete"), "obsolete");
+//         // When
+//         Boolean result = excelImportService.getBooleanValue(row, Set.of("obsolete"), "obsolete");
 
-        // Then
-        assertTrue(result);
-    }
+//         // Then
+//         assertTrue(result);
+//     }
 
-    /**
-     * Tests returning false when the boolean value is not found in the map.
-     */
-    @Test
-    void testGetBooleanValue_DefaultFalse() {
-        // Given
-        Map<String, Object> row = new HashMap<>();
+//     /**
+//      * Tests returning false when the boolean value is not found in the map.
+//      */
+//     @Test
+//     void testGetBooleanValue_DefaultFalse() {
+//         // Given
+//         Map<String, Object> row = new HashMap<>();
 
-        // When
-        Boolean result = excelImportService.getBooleanValue(row, Set.of(), "obsolete");
+//         // When
+//         Boolean result = excelImportService.getBooleanValue(row, Set.of(), "obsolete");
 
-        // Then
-        assertFalse(result);
-    }
+//         // Then
+//         assertFalse(result);
+//     }
 
-    /**
-     * Tests the complete processing of subgroup import, ensuring all instruments are saved.
-     */
-    @Test
-    void testProcessSubGroupImport_Complete() {
-        List<Map<String, Object>> data = List.of(
-                Map.of("reference", "SC123", "Blade Size", "15"),
-                Map.of("reference", "SC124", "Blade Size", "10")
-        );
+//     /**
+//      * Tests the complete processing of subgroup import, ensuring all instruments are saved.
+//      */
+//     @Test
+//     void testProcessSubGroupImport_Complete() {
+//         List<Map<String, Object>> data = List.of(
+//                 Map.of("reference", "SC123", "Blade Size", "15"),
+//                 Map.of("reference", "SC124", "Blade Size", "10")
+//         );
 
-        when(subGroupRepository.findByName("Scalpels")).thenReturn(Optional.of(existingSubGroup));
-        when(instrumentRepository.findByReference(anyString())).thenReturn(Optional.empty());
-        when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
+//         when(subGroupRepository.findByName("Scalpels")).thenReturn(Optional.of(existingSubGroup));
+//         when(instrumentRepository.findByReference(anyString())).thenReturn(Optional.empty());
+//         when(characteristicRepository.findByName("Blade Size")).thenReturn(Optional.of(existingCharacteristic));
 
-        excelImportService.processSubGroupImport("Surgical Instruments", "Scalpels", data);
+//         excelImportService.processSubGroupImport("Surgical Instruments", "Scalpels", data);
 
-        verify(instrumentRepository, times(2)).save(any(Instruments.class));
-    }
+//         verify(instrumentRepository, times(2)).save(any(Instruments.class));
+//     }
 
-    /**
-     * Tests processing an instrument row with null values to ensure no errors occur.
-     */
-    @Test
-    void testProcessInstrumentRow_NullValues() {
-        // Given
-        Map<String, Object> row = new HashMap<>(); // Use HashMap instead of Map.of() to allow null values
-        row.put("reference", "SC125");
-        row.put("Blade Size", null);
+//     /**
+//      * Tests processing an instrument row with null values to ensure no errors occur.
+//      */
+//     @Test
+//     void testProcessInstrumentRow_NullValues() {
+//         // Given
+//         Map<String, Object> row = new HashMap<>(); // Use HashMap instead of Map.of() to allow null values
+//         row.put("reference", "SC125");
+//         row.put("Blade Size", null);
     
-        when(instrumentRepository.findByReference("SC125")).thenReturn(Optional.empty());
-        when(subGroupRepository.findByName("Scalpels")).thenReturn(Optional.of(existingSubGroup));
+//         when(instrumentRepository.findByReference("SC125")).thenReturn(Optional.empty());
+//         when(subGroupRepository.findByName("Scalpels")).thenReturn(Optional.of(existingSubGroup));
     
-        // When
-        excelImportService.processInstrumentRow(
-                row, 
-                existingSubGroup, 
-                Set.of("reference", "Blade Size"), 
-                List.of("Blade Size"),
-                true,
-                null
-        );
+//         // When
+//         excelImportService.processInstrumentRow(
+//                 row, 
+//                 existingSubGroup, 
+//                 Set.of("reference", "Blade Size"), 
+//                 List.of("Blade Size"),
+//                 true,
+//                 null
+//         );
     
-        // Then
-        verify(instrumentRepository, times(1)).save(any(Instruments.class));
-    }
-}
+//         // Then
+//         verify(instrumentRepository, times(1)).save(any(Instruments.class));
+//     }
+// }

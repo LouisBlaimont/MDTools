@@ -62,7 +62,9 @@ public class SupplierService {
         if (supplier.getName() == null || supplier.getName().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
         }
+        System.out.println("In SupplierService, supplierDTO before saving : " + supplier.getId());
         Suppliers savedSupplier = supplierRepository.save(supplierMapper.convertToEntity(supplier));
+        System.out.println("In SupplierService, saved supplier : " + savedSupplier.getId());
         return supplierMapper.convertToDTO(savedSupplier);
     }
 

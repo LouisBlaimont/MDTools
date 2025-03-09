@@ -44,7 +44,7 @@
       if (characteristicsEdited) {
         try {
           const response = await fetch(
-            PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id),
+            PUBLIC_API_URL + "/api/instrument/edit" + encodeURIComponent(instrument.id),
             {
               method: "PATCH",
               headers: {
@@ -69,35 +69,29 @@
   
     // Function to fetch the characteristics of the instrument
     async function fetchCharacteristics() {
-  try {
-    const response = await fetch(
-      PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)
-    );
-    if (!response.ok) {
-      throw new Error(`Failed to fetch characteristics: ${response.statusText}`);
+      try {
+        const response = await fetch(
+          PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch characteristics: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Convert object to an array of { name, value }
+        characteristics = Object.entries(data).map(([key, value]) => ({
+          name: key,
+          value: value
+        }));
+
+        console.log(characteristics);
+      } catch (error) {
+        console.error(error);
+      }
     }
 
-    const data = await response.json();
-
-    // Convert object to an array of { name, value }
-    characteristics = Object.entries(data).map(([key, value]) => ({
-      name: key,
-      value: value
-    }));
-
-    console.log(characteristics);
-  } catch (error) {
-    console.error(error);
-  }
-}
-  
-    let characteristicsEdited = false; // Flag to track if characteristics are edited
-    console.log(characteristics);
-    console.log("caractéristiques ou pas ?");
-    //let promise = fetch(PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)).then(characteristics => characteristics.json()); // Fetch characteristics on component mount
     let promise = fetchCharacteristics();
-    console.log(characteristics);
-    console.log("Toujours pas ?");
 </script>
   
 {#if isOpen}

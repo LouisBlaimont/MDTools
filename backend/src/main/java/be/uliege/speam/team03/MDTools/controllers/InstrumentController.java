@@ -104,21 +104,45 @@ public class InstrumentController {
      */
     @PatchMapping("/edit/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> updateInstrument(@RequestBody InstrumentDTO updatedInstrument) {
-        // Check if the instrument can be identified
-        if (updatedInstrument.getId() == null| updatedInstrument.getReference().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID or reference is required to identify an instrument");
-        }
-        InstrumentDTO instrument = (updatedInstrument.getId() != null) ? instrumentService.findById(updatedInstrument.getId()) : instrumentService.findByReference(updatedInstrument.getReference());
+    public ResponseEntity<?> updateInstrument(@PathVariable Integer id, @RequestBody InstrumentDTO updatedInstrument) {
+        InstrumentDTO existingInstrument = instrumentService.findById(id);
         // Check if the instrument exists
-        if (instrument == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + updatedInstrument.getId());
-        } else if (instrument.getReference().equals(updatedInstrument.getReference())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists.\n");
-        } else if (instrument.getId() != updatedInstrument.getId()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("ID already exists for another instrument");
+        if (existingInstrument == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + id);
+        } 
+        if (existingInstrument.getReference().equals(updatedInstrument.getReference()) && id != updatedInstrument.getId()) {
+            Integer updatedInstrumentId = instrumentService.findByReference(updatedInstrument.getReference()).getId();
+            if (updatedInstrumentId != id) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists for another instrument. Existing instrument id: " + updatedInstrumentId + " - Instrument being edited: " + id);
+            }
         }
-        InstrumentDTO savedInstrument = instrumentService.save(updatedInstrument);
+        if (updatedInstrument.getSupplier() != null) {
+            existingInstrument.setSupplier(updatedInstrument.getSupplier());
+        }
+        if (updatedInstrument.getCategoryId() != null) {
+            existingInstrument.setCategoryId(updatedInstrument.getCategoryId());
+        }
+        if (updatedInstrument.getReference() != null) {
+            existingInstrument.setReference(updatedInstrument.getReference());
+        }
+        if (updatedInstrument.getSupplierDescription() != null) {
+            existingInstrument.setSupplierDescription(updatedInstrument.getSupplierDescription());
+        }
+        if (updatedInstrument.getPrice() != null) {
+            existingInstrument.setPrice(updatedInstrument.getPrice());
+        }
+        if (updatedInstrument.isObsolete()) {
+            existingInstrument.setObsolete(updatedInstrument.isObsolete());
+        }
+        if (updatedInstrument.isAlt()) {
+            existingInstrument.setAlt(updatedInstrument.isAlt());
+        }
+        if (updatedInstrument.getPicturesId() != null) {
+            existingInstrument.setPicturesId(updatedInstrument.getPicturesId());
+        }
+        System.out.println("Updated instrument before saving: " + existingInstrument.getId());
+        InstrumentDTO savedInstrument = instrumentService.save(existingInstrument);
+        System.out.println("Updated instrument after saving: " + savedInstrument.getId());
         return ResponseEntity.status(HttpStatus.OK).body(savedInstrument);
     }
     

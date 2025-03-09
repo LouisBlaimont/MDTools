@@ -23,6 +23,32 @@ public class InstrumentMapper {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
 
+    /**
+     * Convert an instrument to a DTO.
+     * 
+     * @param instrument the instrument to convert
+     * @return the converted instrument DTO
+     */
+    public InstrumentDTO convertToDTO(Instruments instrument) {
+        InstrumentDTO dto = new InstrumentDTO(
+            instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getId(),
+            instrument.getReference(),
+            instrument.getSupplierDescription(),
+            instrument.getPrice(),
+            instrument.getObsolete(),
+            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            null,
+            instrument.getId()
+        );
+        return dto;
+    }
+    /**
+     * Convert a list of instruments to DTOs.
+     * 
+     * @param instruments the list of instruments to convert
+     * @return the converted list of instrument DTOs
+     */
     public List<InstrumentDTO> convertToDTO(List<Instruments> instruments) {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         for (Instruments instrument : instruments) {
@@ -42,9 +68,17 @@ public class InstrumentMapper {
         return instrumentDTOs;
     }
 
+    /**
+     * Convert an instrument DTO to an entity.
+     * 
+     * @param instrumentDTO the instrument DTO to convert
+     * @return the converted instrument entity
+     * @throws IllegalArgumentException if the supplier name is null or empty
+     */
     public Instruments convertToEntity(InstrumentDTO instrumentDTO) {
         Instruments instrument = new Instruments();
         instrument.setReference(instrumentDTO.getReference());
+        instrument.setId(instrumentDTO.getId());
         instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
         instrument.setPrice(instrumentDTO.getPrice());
         instrument.setObsolete(instrumentDTO.isObsolete());

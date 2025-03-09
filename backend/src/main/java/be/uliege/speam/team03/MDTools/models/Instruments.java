@@ -1,9 +1,10 @@
 package be.uliege.speam.team03.MDTools.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 @Getter
 @Setter
 @Entity
@@ -34,17 +35,18 @@ public class Instruments {
 
     @Column(name = "obsolete")
     private Boolean obsolete;
-    //private Boolean alt;
+    
+    // private Boolean alt;
 
-    public Instruments() {}
-
-    public Instruments(Suppliers supplier, Category category, String reference, String supplierDescription, Float price, Boolean obsolete){//, Boolean alt) {
+    // private List<Long> picturesId;
+    public Instruments(Suppliers supplier, Category category, String reference, String supplierDescription, Float price, Boolean obsolete) {
         this.supplier = supplier;
         this.category = category;
         this.reference = reference;
         this.supplierDescription = supplierDescription;
         this.price = price;
         this.obsolete = obsolete;
-        //this.alt = alt;
     }
+
+    public Instruments() {}
 }
