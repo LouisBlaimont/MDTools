@@ -140,9 +140,7 @@ public class InstrumentController {
         if (updatedInstrument.getPicturesId() != null) {
             existingInstrument.setPicturesId(updatedInstrument.getPicturesId());
         }
-        System.out.println("Updated instrument before saving: " + existingInstrument.getId());
         InstrumentDTO savedInstrument = instrumentService.save(existingInstrument);
-        System.out.println("Updated instrument after saving: " + savedInstrument.getId());
         return ResponseEntity.status(HttpStatus.OK).body(savedInstrument);
     }
     

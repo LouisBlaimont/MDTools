@@ -118,9 +118,7 @@ public class SupplierController {
             if (updatedSupplier.isClosed() != null) {
                 existingSupplier.setClosed(updatedSupplier.isClosed());
             }
-            System.out.println("Updated supplier before saving: " + existingSupplier.getId());
             SupplierDTO savedSupplier = supplierService.saveSupplier(existingSupplier);
-            System.out.println("Updated supplier after saving: " + savedSupplier.getId());
             return ResponseEntity.status(HttpStatus.OK).body(savedSupplier);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier does not exist with id: " + id);

@@ -226,9 +226,7 @@ public class InstrumentService {
         if (instrumentDTO.getCategoryId() == null) {
             throw new IllegalArgumentException("Category ID is required to identify an instrument");
         }
-        System.out.println("In IntrumentService, instrumentDTO before saving: " + instrumentDTO.getId());
         Instruments savedInstrument = instrumentRepository.save(instrumentMapper.convertToEntity(instrumentDTO));
-        System.out.println("In IntrumentService, instrumentDTO after saving: " + savedInstrument.getId());
         return instrumentMapper.convertToDTO(savedInstrument);
     }
 

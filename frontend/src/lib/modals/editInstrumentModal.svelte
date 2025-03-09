@@ -2,6 +2,7 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import { onMount, getContext } from "svelte";
     import { reload } from "$lib/stores/searches";
+    import { goto } from "$app/navigation";
   
     // Destructure the props provided by <Modals />
     const {
@@ -43,8 +44,9 @@
       // If characteristics are edited, update them
       if (characteristicsEdited) {
         try {
+          const filteredCharacteristics = characteristics.filter(c => c.name !== 'id');
           const response = await fetch(
-            PUBLIC_API_URL + "/api/instrument/edit" + encodeURIComponent(instrument.id),
+            PUBLIC_API_URL + "/api/instrument/edit/" + encodeURIComponent(instrument.id),
             {
               method: "PATCH",
               headers: {
@@ -65,6 +67,7 @@
       }
       reload.set(true); // Trigger a reload
       close(); // Close the modal
+      goto("../../searches"); // Navigate to the searches page
     }
   
     // Function to fetch the characteristics of the instrument
@@ -90,7 +93,7 @@
         console.error(error);
       }
     }
-
+    let characteristicsEdited = false;
     let promise = fetchCharacteristics();
 </script>
   
@@ -125,7 +128,7 @@
                 </div>
                 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                   <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                    Edit an instrument
+                    Modifier un instrument
                   </h3>
                   {#await promise}
                     <div role="status" class="my-6 flex items-center justify-center">
@@ -145,12 +148,12 @@
                           fill="currentFill"
                         />
                       </svg>
-                      <span class="sr-only">Loading...</span>
+                      <span class="sr-only">Chargement...</span>
                     </div>
                   {:then}
                     <div class="mt-2">
                       <label class="block my-2 text-sm font-medium text-gray-900" for="user_avatar"
-                        >Reference</label
+                        >Référence</label
                       >
                       <input
                         type="text"
@@ -168,7 +171,7 @@
                       />
                       {#if !instrument.pictureId}
                         <div class="mt-1 text-sm text-red-500">
-                          An image already exists for this instrument, by indicating an image above, the current image will be deleted.
+                          Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.
                         </div>
                       {/if}
                     </div>
@@ -176,16 +179,18 @@
                       <h3 class="text-base text-gray-900">Characteristics</h3>
                       <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
-                          <div>
-                            <label class="text-sm font-medium text-gray-900" for="user_avatar"
-                              >{characteristic.name}</label
-                            >
-                            <input
-                              type="text"
-                              bind:value={characteristic.value} onchange={() => (characteristicsEdited = true)}
-                              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            />
-                          </div>
+                          {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'categoryId'} 
+                            <div>
+                              <label class="text-sm font-medium text-gray-900" for="user_avatar"
+                                >{characteristic.name}</label
+                              >
+                              <input
+                                type="text"
+                                bind:value={characteristic.value} onchange={() => (characteristicsEdited = true)}
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                              />
+                            </div>
+                          {/if}
                         {/each}
                       </div>
                     </div>
@@ -196,12 +201,12 @@
                 <button
                   type="submit"
                   class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                  >Save</button
+                  >Enregistrer</button
                 >
                 <button
                   type="button"
                   class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                  onclick={() => close()}>Cancel</button
+                  onclick={() => close()}>Annuler</button
                 >
               </div>
             </div>
