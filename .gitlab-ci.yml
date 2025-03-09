@@ -32,8 +32,6 @@ stages: # List of stages for grouping and sequencing jobs, and their order of ex
 postgres_init:
   stage: prepare
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
     - if: $CI_COMMIT_BRANCH != "main"
       when: never
     - changes:
@@ -107,9 +105,13 @@ frontend_test:
     - openshift 
     - docker
   image: node:18
+  variables:
+    PUBLIC_API_URL: ${API_URL}
+    PUBLIC_OIDC_ENDPOINT: "dex" # doesn't matter
   script:
     - cd frontend
     - npm install
+    - npm run build
     - npm run test:unit -- --run --coverage
   coverage: '/All\s+files\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+(\d+(?:\.\d+)?)\s+\|/'
 

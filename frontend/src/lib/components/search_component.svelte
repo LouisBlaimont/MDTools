@@ -4,7 +4,6 @@
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
-    import { PUBLIC_API_URL } from "$env/static/public";
     import { tools } from "../../tools.js";
     import { suppliers } from "../../suppliers.js";
     import { getOrder, addTool } from "../../order.js";
@@ -14,6 +13,7 @@
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
     findSubGroupsStore, findCharacteristicsStore} from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+    import { apiFetch } from "$lib/utils/fetch";
 
     /**
      * Gets characteristics and categories of subgroup with the name subGroup
@@ -35,8 +35,8 @@
         let subgroup = [];
 
         try {
-        const response = await fetch(PUBLIC_API_URL + `/api/subgroups/${subGroup}`);
-        const response_2 = await fetch(PUBLIC_API_URL + `/api/category/subgroup/${subGroup}`);
+        const response = await apiFetch(`/api/subgroups/${subGroup}`);
+        const response_2 = await apiFetch(`/api/category/subgroup/${subGroup}`);
 
         if (!response.ok) {
             throw new Error(`Failed to fetch characteristics : ${response.statusText}`);
@@ -96,7 +96,7 @@
             characteristics: char_vals,
         };
 
-        return fetch(PUBLIC_API_URL + "/api/category/search/by-characteristics", {
+        return apiFetch("/api/category/search/by-characteristics", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify(data),
@@ -191,8 +191,8 @@
 
         let subGroups_all_info = [];
         try {
-        const response = await fetch(PUBLIC_API_URL + `/api/subgroups/group/${group}`);
-        const response_2 = await fetch(PUBLIC_API_URL + `/api/category/group/${group}`);
+        const response = await apiFetch(`/api/subgroups/group/${group}`);
+        const response_2 = await apiFetch(`/api/category/group/${group}`);
 
         if (!response.ok) {
             throw new Error(`Failed to fetch subgroups: ${response.statusText}`);
@@ -297,4 +297,3 @@
         </form>
     {/if}
 </div>
-

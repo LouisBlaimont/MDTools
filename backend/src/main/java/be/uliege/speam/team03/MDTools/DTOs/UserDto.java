@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,24 +16,14 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDto {
    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-   private Long userId;
+   private Long id;
 
    private String username;
    private String email;
-   private String password;
+
+   private List<String> roles;
+   private boolean enabled;
+
    private Timestamp createdAt;
    private Timestamp updatedAt;
-   private String roleName;
-   private String jobPosition;
-   private String workplace;
-
-   public UserDto(Long userId, String username, String email,
-         String roleName, String jobPosition, String workplace) {
-      this.userId = userId;
-      this.username = username;
-      this.email = email;
-      this.roleName = roleName;
-      this.jobPosition = jobPosition;
-      this.workplace = workplace;
-   }
 }
