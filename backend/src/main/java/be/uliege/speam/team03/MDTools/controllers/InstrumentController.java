@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.models.Picture;
+import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
 import be.uliege.speam.team03.MDTools.services.PictureStorageService;
@@ -96,5 +97,9 @@ public class InstrumentController {
 
         return ResponseEntity.noContent().build();
     }
-        
+    
+    @GetMapping("/search")
+    public List<Instruments> searchInstrument(@RequestParam String keyword) {
+        return instrumentService.searchInstrument(keyword);
+    }
 }

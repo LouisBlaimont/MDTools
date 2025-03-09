@@ -9,6 +9,7 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
 	import { user } from "$lib/stores/user_stores"; 
+  import { errorMessage, keywords } from "$lib/stores/searches";
 
   // RBAC 
   let userValue;
@@ -110,6 +111,16 @@
     }
     moveToSearches(group.name, subgroup.name);
   }
+
+  async function searchByKeywords() {
+    console.log($keywords);
+    try {
+      const foundElements = await fetch(PUBLIC_API_URL + `api/instruments/search`);
+    } catch (error) {
+      console.log(error);
+      errorMessage.set(error.message);
+    }
+}
 </script>
 
 <svelte:head>
@@ -117,9 +128,9 @@
 </svelte:head>
 
 <main
-  class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto text-[14px"
+  class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-10 max-w-screen-xl mx-auto text-[14px"
 >
-  <aside class="w-full md:w-1/4 bg-gray-100 rounded-lg p-8 shadow-md">
+  <aside class="w-full md:w-1/3 bg-gray-100 rounded-lg p-8 shadow-md">
     <form class="space-y-6">
       <div class="flex flex-col">
         <label for="id_search_keyword" class="font-semibold text-lg"
@@ -131,6 +142,7 @@
           id="id_search_keyword"
           placeholder="Entrez un mot clé"
           class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+          bind:value={$keywords}
         />
       </div>
 
@@ -163,8 +175,8 @@
 
       <button
         type="submit"
-        class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg"
-        ><a href="/searches">Rechercher</a></button
+        class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg" onclick={searchByKeywords}
+        >Rechercher</button
       >
       {#if isAdmin}
         <div class="flex flex-col">
@@ -175,7 +187,7 @@
   </aside>
 
   <section
-    class="w-full bg-white md:w-3/4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
+    class="w-full bg-white md:w-1/3 lg:min-w-[800px] xl:min-w-[1100px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[400px] overflow-y-auto"
   >
     <div class="flex gap-2">
       <!-- Buttons div -->

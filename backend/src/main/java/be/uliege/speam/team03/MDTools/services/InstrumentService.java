@@ -220,4 +220,8 @@ public class InstrumentService {
     public void delete(Integer id) {
         instrumentRepository.deleteById(id);
     }
+
+    public List<Instruments> searchInstrument(String keyword) {
+        return instrumentRepository.searchByKeyword(keyword);
+    }
 }
