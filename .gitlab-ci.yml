@@ -14,6 +14,7 @@ variables:
   SPRINGBOOT: springboot
   SPRINGBOOT_DIR: backend
   API_URL: https://mdtools-backend.apps.speam.montefiore.uliege.be
+  PUBLIC_OIDC_ENDPOINT: dex
 
   IMAGE_TAG: latest
   ## for gitlab image registry:
@@ -107,7 +108,7 @@ frontend_test:
   image: node:18
   variables:
     PUBLIC_API_URL: ${API_URL}
-    PUBLIC_OIDC_ENDPOINT: "dex" # doesn't matter
+    PUBLIC_OIDC_ENDPOINT: ${PUBLIC_OIDC_ENDPOINT}
   script:
     - cd frontend
     - npm install
@@ -159,6 +160,7 @@ frontend:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
     PUBLIC_API_URL: ${API_URL}
+    PUBLIC_OIDC_ENDPOINT: ${PUBLIC_OIDC_ENDPOINT} # doesn't matter
   services:
     - docker:20.10.16-dind
   before_script:
@@ -166,8 +168,8 @@ frontend:
     - echo $PUSH_TOKEN | docker login $REGISTRY_HOST -u $PUSH_USER --password-stdin
   script:
     - echo $REPO_TAG
-    - echo $PUBLIC_API_URL
-    - docker build --network host --build-arg PUBLIC_API_URL=$PUBLIC_API_URL -t $REPO_TAG -f $SVELTE_DIR/Dockerfile ./$SVELTE_DIR
+    - echo $PUBLIC_API_URL $PUBLIC_OIDC_ENDPOINT
+    - docker build --network host --build-arg PUBLIC_API_URL=$PUBLIC_API_URL --build-arg PUBLIC_OIDC_ENDPOINT=$PUBLIC_OIDC_ENDPOINT -t $REPO_TAG -f $SVELTE_DIR/Dockerfile ./$SVELTE_DIR
     - docker push $REPO_TAG
 
 backend:
