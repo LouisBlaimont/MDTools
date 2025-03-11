@@ -25,16 +25,24 @@ CREATE TABLE sub_group (
 -- Table users
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_fingerprint VARCHAR(100),
+    username VARCHAR(100) UNIQUE,
+    email VARCHAR(255) UNIQUE,
+    enabled BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    role_name VARCHAR(50) NOT NULL, -- Note: 'admin or user'
+    role_name VARCHAR(50),
     job_position VARCHAR(100),
-    workplace VARCHAR(100),
-    reset_token VARCHAR(40),
-    reset_token_expiration TIMESTAMPTZ
+    workplace VARCHAR(100)
+);
+
+CREATE TABLE authorities (
+    authority TEXT PRIMARY KEY
+);
+
+CREATE TABLE user_authorities (
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    authority TEXT NOT NULL REFERENCES authorities(authority) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, authority)
 );
 
 -- Table logs

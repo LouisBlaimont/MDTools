@@ -5,14 +5,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.exception.UserAlreadyExistsException;
 import be.uliege.speam.team03.MDTools.mapper.UserMapper;
+import be.uliege.speam.team03.MDTools.models.Authority;
 import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +27,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -40,31 +47,9 @@ public class UserServiceTest {
         user = new User();
         user.setUserId(1L);
         user.setEmail("test@example.com");
-        user.setPassword("password");
+        user.setAuthorities(Set.of(new Authority("USER")));
 
-        userDto = UserMapper.mapToUserDto(user);
-    }
-
-    @Test
-    void createUser_ShouldReturnUserDto_WhenUserDoesNotExist() throws MailException, UserAlreadyExistsException {
-        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        UserDto result = userService.createUser(userDto);
-
-        assertNotNull(result);
-        assertEquals(userDto.getEmail(), result.getEmail());
-        verify(userRepository, times(1)).findByEmail(userDto.getEmail());
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    void createUser_ShouldThrowUserAlreadyExistsException_WhenUserExists() {
-        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
-
-        assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(userDto));
-        verify(userRepository, times(1)).findByEmail(userDto.getEmail());
-        verify(userRepository, never()).save(any(User.class));
+        userDto = UserMapper.toDto(user);
     }
 
     @Test
@@ -119,50 +104,66 @@ public class UserServiceTest {
     }
 
     @Test
-    void updatePassword_ShouldUpdatePassword_WhenUserExists() {
-        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+    void updateUserRoles_whenUserExists_updatesRolesAndReturnsDto() {
+        // Given
+        Long userId = 1L;
+        List<String> roles = List.of("ROLE_ADMIN", "ROLE_USER");
+        User user = new User();
+        user.setUserId(userId);
 
-        userService.updatePassword(user.getUserId(), "newPassword");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
 
-        assertEquals("newPassword", user.getPassword());
-        verify(userRepository, times(1)).findById(user.getUserId());
-        verify(userRepository, times(1)).save(user);
+        // When
+        UserDto result = userService.updateUserRoles(userId, roles);
+
+        // Then
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(user);
+
+        assertTrue(user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        assertTrue(user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER")));
+        assertEquals(2, user.getAuthorities().size());
+        assertTrue(result.getRoles().contains("ROLE_ADMIN"));
+        assertTrue(result.getRoles().contains("ROLE_USER"));
+        assertEquals(2, result.getRoles().size());
     }
 
     @Test
-    void updatePassword_ShouldThrowResourceNotFoundException_WhenUserDoesNotExist() {
-        when(userRepository.findById(user.getUserId())).thenReturn(Optional.empty());
+    void updateUserRoles_whenUserNotFound_throwsResourceNotFoundException() {
+        // Given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userService.updatePassword(user.getUserId(), "newPassword"));
-        verify(userRepository, times(1)).findById(user.getUserId());
-        verify(userRepository, never()).save(any(User.class));
+        // When & Then
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.updateUserRoles(userId, List.of("ADMIN")));
+
+        verify(userRepository).findById(userId);
+        verifyNoMoreInteractions(userRepository);
     }
 
     @Test
-    void setResetToken_ShouldSetResetTokenAndExpiration_WhenUserExists() {
-        String resetToken = "resetToken";
-        LocalDateTime resetTokenExpiration = LocalDateTime.now();
+    void updateUserRoles_withEmptyRoles_clearsAuthorities() {
+        // Given
+        Long userId = 1L;
+        List<String> roles = Collections.emptyList();
+        User user = new User();
+        user.setUserId(userId);
+        user.setAuthorities(UserMapper.toAuthorities(List.of("ROLE_ADMIN, ROLE_USER"))); // Initial roles
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
 
-        User result = userService.setResetToken(user.getEmail(), resetToken, resetTokenExpiration);
+        // When
+        UserDto result = userService.updateUserRoles(userId, roles);
 
-        assertNotNull(result);
-        assertEquals(resetToken, result.getResetToken());
-        assertEquals(resetTokenExpiration, result.getResetTokenExpiration());
-        verify(userRepository, times(1)).findByEmail(user.getEmail());
-        verify(userRepository, times(1)).save(user);
-    }
-
-    @Test
-    void setResetToken_ShouldThrowResourceNotFoundException_WhenUserDoesNotExist() {
-        String resetToken = "resetToken";
-        LocalDateTime resetTokenExpiration = LocalDateTime.now();
-
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> userService.setResetToken(user.getEmail(), resetToken, resetTokenExpiration));
-        verify(userRepository, times(1)).findByEmail(user.getEmail());
-        verify(userRepository, never()).save(any(User.class));
+        // Then
+        // expected is ROLE_USER
+        GrantedAuthority expected = new SimpleGrantedAuthority("ROLE_USER");
+        assertTrue(user.getAuthorities().contains(expected));
+        assertEquals(1, user.getAuthorities().size());
+        assertEquals(roles, result.getRoles());
+        verify(userRepository).save(user);
     }
 }

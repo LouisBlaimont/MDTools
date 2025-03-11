@@ -18,7 +18,7 @@
   <!-- svelte-ignore a11y_consider_explicit_label -->
   <button
     class="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-yellow-500 rounded-full cursor-pointer"
-    on:click={edit}
+    onclick={edit}
   >
     <!-- Custom Edit Icon SVG -->
     <svg

@@ -25,9 +25,18 @@ INSERT INTO sub_group (sub_group_name, group_id) VALUES
 ('Non-Locking Forceps', 3);
 
 -- Insert into users table
-INSERT INTO users (username, email, password_fingerprint, role_name, job_position, workplace) VALUES 
-('john_doe', 'john@example.com', '$2y$10$umwMQdPProLsXUBJWLSLaeGMt3WjM4Sp6C6Unxh38YZOsEnSzzWOm', 'ROLE_USER', 'Surgeon', 'City Hospital'),
-('jane_admin', 'jane@example.com', 'hashed_password_456', 'ROLE_ADMIN', 'IT Manager', 'Head Office');
+INSERT INTO users (username, email) VALUES 
+('john_doe', 'john@example.com'),
+('jane_admin', 'jane@example.com');
+
+INSERT INTO authorities(authority) VALUES 
+('ROLE_USER'),
+('ROLE_ADMIN');
+
+INSERT INTO user_authorities(user_id, authority) VALUES 
+(1, 'ROLE_ADMIN'),
+(1, 'ROLE_USER'),
+(2, 'ROLE_USER');
 
 -- Insert into logs table
 INSERT INTO logs (user_id, action) VALUES 
