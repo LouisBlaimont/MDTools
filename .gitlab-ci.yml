@@ -160,7 +160,8 @@ frontend:
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
     PUBLIC_API_URL: ${API_URL}
-    PUBLIC_OIDC_ENDPOINT: ${PUBLIC_OIDC_ENDPOINT} # doesn't matter
+    PUBLIC_OIDC_ENDPOINT: ${PUBLIC_OIDC_ENDPOINT}
+    
   services:
     - docker:20.10.16-dind
   before_script:
