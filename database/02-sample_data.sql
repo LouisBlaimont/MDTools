@@ -31,7 +31,8 @@ INSERT INTO users (username, email) VALUES
 
 INSERT INTO authorities(authority) VALUES 
 ('ROLE_USER'),
-('ROLE_ADMIN');
+('ROLE_ADMIN'),
+('ROLE_WEBMASTER');
 
 INSERT INTO user_authorities(user_id, authority) VALUES 
 (1, 'ROLE_ADMIN'),
