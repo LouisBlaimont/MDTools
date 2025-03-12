@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health/**").permitAll() // Allow health check
                         .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight requests
                         .anyRequest().authenticated() // Require authentication for all requests
                 )
@@ -40,22 +41,21 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             // Redirect to frontend after successful login
                             response.sendRedirect(frontendUrl);
-                        })
-                        )
+                        }))
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
-                            // Redirect to frontend after successful logout, seems like it is not using the default cors
+                            // Redirect to frontend after successful logout, seems like it is not using the
+                            // default cors
                             response.setStatus(204);
                             response.setHeader("Access-Control-Allow-Origin", frontendUrl);
                             response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, OPTIONS");
                             response.setHeader("Access-Control-Allow-Headers", "*");
                             response.setHeader("Access-Control-Allow-Credentials", "true");
-                        })
-                        )
+                        }))
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {
-                            log.info("Authentication error: " + authException.getMessage());
+                            log.info(authException.getMessage() + ", " + authException.getCause());
                             response.setStatus(401);
                             response.setHeader("Access-Control-Allow-Origin", frontendUrl);
                             response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, OPTIONS");
@@ -63,14 +63,13 @@ public class SecurityConfig {
                             response.setHeader("Access-Control-Allow-Credentials", "true");
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            log.info("Access denied: " + accessDeniedException.getMessage());
+                            log.info(accessDeniedException.getMessage() + ", " + accessDeniedException.getCause());
                             response.setStatus(403);
                             response.setHeader("Access-Control-Allow-Origin", frontendUrl);
                             response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
                             response.setHeader("Access-Control-Allow-Headers", "*");
                             response.setHeader("Access-Control-Allow-Credentials", "true");
-                        })
-                );
+                        }));
 
         return http.build();
     }
