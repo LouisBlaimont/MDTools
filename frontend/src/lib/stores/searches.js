@@ -31,3 +31,4 @@ export let order = writable([]);
 export let findSubGroupsStore = writable(null);
 export let findCharacteristicsStore = writable(null);
 export let keywords = writable(null);
+export let keywordsResult = writable(null);

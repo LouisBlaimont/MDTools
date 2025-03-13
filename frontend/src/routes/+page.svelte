@@ -9,7 +9,7 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
 	import { user } from "$lib/stores/user_stores"; 
-  import { errorMessage, keywords } from "$lib/stores/searches";
+  import { errorMessage, keywords, keywordsResult } from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
 
   // RBAC 
@@ -116,7 +116,9 @@
   async function searchByKeywords() {
     console.log($keywords);
     try {
-      const foundElements = await fetch(PUBLIC_API_URL + `api/instruments/search`);
+      const response = await apiFetch(`/api/instruments/search?keyword=${encodeURIComponent($keywords)}`);
+      keywordsResult.set(await response.json());
+
     } catch (error) {
       console.log(error);
       errorMessage.set(error.message);

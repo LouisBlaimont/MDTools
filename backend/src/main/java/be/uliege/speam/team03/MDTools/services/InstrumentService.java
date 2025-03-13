@@ -222,6 +222,12 @@ public class InstrumentService {
     }
 
     public List<Instruments> searchInstrument(String keyword) {
-        return instrumentRepository.searchByKeyword(keyword);
+        List<Instruments> instrumentsMaybe = instrumentRepository.searchByKeyword(keyword);
+
+        List<Instruments> instruments = instrumentsMaybe.get();
+
+        List<InstrumentDTO> instrumentsDTO = new ArrayList<>();
+
     }
 }
+

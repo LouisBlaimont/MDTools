@@ -11,7 +11,7 @@
         selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
         showChars, charValues, currentSuppliers, categories, characteristics, 
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
-    findSubGroupsStore, findCharacteristicsStore} from "$lib/stores/searches";    
+        findSubGroupsStore, findCharacteristicsStore} from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
 

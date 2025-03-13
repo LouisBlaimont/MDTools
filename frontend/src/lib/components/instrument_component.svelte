@@ -9,7 +9,8 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditCategoryButton from "$lib/assets/EditCategoryButton.svelte";    
-    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
+    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, 
+        quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
      } from "$lib/stores/searches";
     import { isAdmin } from "$lib/stores/user_stores";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
