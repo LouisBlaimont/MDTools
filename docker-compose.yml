@@ -46,6 +46,7 @@ services:
 
 
   springboot:
+    network_mode: "host"
     build:
       context: ./backend
       dockerfile: Dockerfile-local
@@ -59,8 +60,21 @@ services:
       - ./backend:/app/src  # Mount the backend directory for live reload
       - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
       - pictures:/app/pictures
+    #ports:
+    #  - "8080:8080"  # Expose the Spring Boot application port
+
+
+  dex:
+    image: ghcr.io/dexidp/dex:v2.37.0
+    container_name: dex
+    restart: unless-stopped
     ports:
-      - "8080:8080"  # Expose the Spring Boot application port
+      - "5556:5556"  # DeX runs on port 5556
+    volumes:
+      - ./dex/dex-config.yaml:/etc/dex/config.yaml
+      - ./dex/dex-data:/data
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+
 volumes:
   pgdata:
     driver: local
