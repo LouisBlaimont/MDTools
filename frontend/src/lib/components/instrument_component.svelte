@@ -14,8 +14,7 @@
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
-    import { g } from "vitest/dist/chunks/suite.B2jumIFP.js";
- 
+    
     isAdmin.set(true);
 
     function selectSupplier(index) {
