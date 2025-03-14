@@ -99,8 +99,8 @@ public class InstrumentController {
     }
     
     @GetMapping("/search")
-    public ResponseEntity<List<InstrumentDTO>> searchInstrument(@RequestParam String keyword) {
-        List<InstrumentDTO> instruments = instrumentService.searchInstrument(keyword);
+    public ResponseEntity<List<InstrumentDTO>> searchInstrument(@RequestParam String keywords) {
+        List<InstrumentDTO> instruments = instrumentService.searchInstrument(keywords);
         return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
-}
+} 

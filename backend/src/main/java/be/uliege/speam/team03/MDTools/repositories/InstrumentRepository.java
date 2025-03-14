@@ -22,6 +22,6 @@ public interface InstrumentRepository extends CrudRepository<Instruments, Intege
     @NonNull
     Optional<Instruments> findById(@NonNull Integer id);
     @Query("SELECT d FROM Instruments d WHERE d.supplierDescription LIKE %:keyword%")
-    List<Instruments> searchByKeyword(@Param("keyword") String keyword);
+    Optional<List<Instruments>> searchByKeyword(@Param("keyword") String keyword);
 
 }

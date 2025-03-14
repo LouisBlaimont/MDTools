@@ -1,7 +1,6 @@
 <script>
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  
   import { toast } from "@zerodevx/svelte-toast";
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
@@ -113,17 +112,35 @@
     moveToSearches(group.name, subgroup.name);
   }
 
-  async function searchByKeywords() {
-    console.log($keywords);
-    try {
-      const response = await apiFetch(`/api/instruments/search?keyword=${encodeURIComponent($keywords)}`);
-      keywordsResult.set(await response.json());
-
-    } catch (error) {
-      console.log(error);
-      errorMessage.set(error.message);
+  $effect(() => {
+    if ($keywords().trim()) {
+      debouncedSearch();
     }
-}
+  }); 
+
+  const debouncedSearch = debounce(searchByKeywords, 300);
+  function debounce(fn, delay = 300) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  async function searchByKeywords() {
+    if (!$keywords.trim()) return;
+
+    try {
+      const foundElements = await apiFetch(`/api/instruments/search?keywords=${encodeURIComponent($keywords)}`);
+      keywordsResult.set(await response.json());
+      console.log($keywords);
+      console.log($keywordsResult);
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+      }
+  }
+  
 </script>
 
 <svelte:head>

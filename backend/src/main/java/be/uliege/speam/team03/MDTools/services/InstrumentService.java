@@ -221,12 +221,12 @@ public class InstrumentService {
         instrumentRepository.deleteById(id);
     }
 
-    public List<Instruments> searchInstrument(String keyword) {
-        List<Instruments> instrumentsMaybe = instrumentRepository.searchByKeyword(keyword);
+    public List<InstrumentDTO> searchInstrument(String keyword) {
+        Optional<List<Instruments>> instrumentsMaybe = instrumentRepository.searchByKeyword(keyword);
 
         List<Instruments> instruments = instrumentsMaybe.get();
 
-        List<InstrumentDTO> instrumentsDTO = new ArrayList<>();
+        return convertToDTO(instruments);
 
     }
 }
