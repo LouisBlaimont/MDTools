@@ -21,4 +21,12 @@ public interface GroupRepository extends CrudRepository<Group, Long>{
      * @return an Optional containing the Group entity if found, or an empty Optional if not found
      */
     Optional<Group> findByName(String name);
+
+    /**
+     * Retrieves an Optional containing a Group entity that matches the given ID.
+     * 
+     * @param id
+     * @return
+     */
+    Optional<Group> findById(Integer id);
 }

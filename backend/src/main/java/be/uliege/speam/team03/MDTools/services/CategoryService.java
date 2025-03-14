@@ -18,7 +18,6 @@ public class CategoryService {
     private GroupRepository groupRepository;
     private SubGroupRepository subGroupRepository;
     private CategoryRepository categoryRepository;
-    private CharacteristicRepository characteristicRepository;
     private CategoryCharacteristicRepository categoryCharRepository;
     private CategoryMapper catMapper;
     private PictureStorageService pictureStorageService;
@@ -27,7 +26,6 @@ public class CategoryService {
         this.groupRepository = groupRepo;
         this.subGroupRepository = subGroupRepo;
         this.categoryRepository = categoryRepo;
-        this.characteristicRepository = charRepo;
         this.categoryCharRepository = catCharRepo;
         this.catMapper = new CategoryMapper(categoryRepo);
         this.pictureStorageService = pictureStorageService;
@@ -57,6 +55,41 @@ public class CategoryService {
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
+    }
+
+    /**
+     * Gets the category given by id
+     * 
+     * @param id
+     * @return
+     */
+    public CategoryDTO findById(Integer id) {
+        Optional<Category> categoryMaybe = categoryRepository.findById((long) id);
+        if (categoryMaybe.isEmpty()){
+            return null;
+        }
+        System.out.println("Category found");
+        Category category = categoryMaybe.get();
+        System.out.println("Category is " + category);
+        return catMapper.mapToCategoryDto(category);
+    }
+
+    /**
+     * Saves a new category
+     * 
+     * @param newCategory
+     * @return
+     */
+    public CategoryDTO save(CategoryDTO newCategory) {
+        if(newCategory.getGroupName() == null || newCategory.getSubGroupName() == null){
+            throw new IllegalArgumentException("Group or Subgroup not found. Not adding category.");
+        }
+        Category category = catMapper.mapToCategory(newCategory);
+        category.setSubGroup(subGroupRepository.findByName(newCategory.getSubGroupName()).get());
+        System.out.println("Category is before saving in Service" + category);
+        Category savedCategory = categoryRepository.save(category);
+        System.out.println("Category is after saving in Service" + savedCategory);
+        return catMapper.mapToCategoryDto(savedCategory);
     }
 
     /**

@@ -15,6 +15,12 @@ public class CategoryMapper {
         this.categoryRepository = categoryRepository;
     }
 
+    /**
+     * Maps a Category entity to a CategoryDTO object.
+     * 
+     * @param category
+     * @return
+     */
     public CategoryDTO mapToCategoryDto(Category category){
         Integer id = category.getId();
         String gName = category.getSubGroup().getGroup().getName();
@@ -51,5 +57,19 @@ public class CategoryMapper {
         CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, category.getPictureId());
 
         return categoryDTO;
+    }
+
+    /**
+     * Maps a CategoryDTO object to a Category entity.
+     * 
+     * @param categoryDTO
+     * @return
+     */
+    public Category mapToCategory(CategoryDTO categoryDTO){
+        Category category = new Category();
+        category.setId(categoryDTO.getId());
+        category.setShape(categoryDTO.getShape());
+        category.setPictureId(categoryDTO.getPictureId());
+        return category;
     }
 }

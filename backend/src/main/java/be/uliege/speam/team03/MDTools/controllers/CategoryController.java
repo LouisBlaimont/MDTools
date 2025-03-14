@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,8 @@ import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
+import be.uliege.speam.team03.MDTools.services.GroupService;
+import be.uliege.speam.team03.MDTools.services.SubGroupService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +36,8 @@ public class CategoryController {
 
     private final CategoryService categoryService;
     private final InstrumentService instrumentService;
+    private final GroupService groupService;
+    private final SubGroupService subGroupService;
 
     @GetMapping("/group/{groupName}")
     public ResponseEntity<List<CategoryDTO>> getCategoryFromGroup(@PathVariable String groupName) throws ResourceNotFoundException {
@@ -51,6 +56,37 @@ public class CategoryController {
             throw new ResourceNotFoundException("No categories found for the subgroup name :" + subGroupName);
         }
         return ResponseEntity.status(HttpStatus.OK).body(categories);
+    }
+
+    @PostMapping("/group/{groupId}/subgroup/{id}/add")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> addCategory(@RequestBody CategoryDTO newCategoryDTO, @PathVariable Integer id, @PathVariable Integer groupId) {
+        String groupName = groupService.findGroupById(groupId).getName();
+        if(groupName == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No group found for the id :" + groupId);
+        }
+        String subGroupName = subGroupService.findSubGroupById(id).getName();
+        if(subGroupName == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No subgroup found for the id :" + id);
+        }
+        CategoryDTO newCategory = new CategoryDTO();
+        newCategory.setSubGroupName(subGroupName);
+        newCategory.setGroupName(groupName);
+
+        if(newCategoryDTO.getName() != null){
+            newCategory.setName(newCategoryDTO.getName());
+        }
+        if(newCategoryDTO.getFunction() != null){
+            newCategory.setFunction(newCategoryDTO.getFunction());
+        }
+        if(newCategoryDTO.getShape() != null){
+            newCategory.setShape(newCategoryDTO.getShape());
+        }
+
+        System.out.println("newCategory" + newCategory);
+
+        CategoryDTO savedCategory = categoryService.save(newCategory);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
 
     @PostMapping("/{id}/picture")

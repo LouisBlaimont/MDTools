@@ -151,6 +151,23 @@ public class SubGroupService {
     }
 
     /**
+     * Finds a subgroup by its ID.
+     * 
+     * @param id
+     * @return
+     * @throws ResourceNotFoundException
+     */
+    public SubGroupDTO findSubGroupById(Integer id) throws ResourceNotFoundException {
+        Optional<SubGroup> subgroupMaybe = subGroupRepository.findById(id);
+        if (subgroupMaybe.isEmpty())
+            throw new ResourceNotFoundException("Subgroup not found.");
+
+        SubGroup subGroup = subgroupMaybe.get();
+        SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);
+        return subGroupDTO;
+    }
+
+    /**
      * Updates the name of an existing subgroup.
      *
      * @param subGroupName the current name of the subgroup to be updated.

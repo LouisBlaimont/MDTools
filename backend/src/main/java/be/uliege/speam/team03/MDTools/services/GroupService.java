@@ -73,6 +73,23 @@ public class GroupService {
     }
 
     /**
+     * Retrieves the details of a group by its ID.
+     * 
+     * @param groupId
+     * @return
+     */
+    public GroupDTO findGroupById(Integer groupId){
+        Optional<Group> groupMaybe = groupRepository.findById(groupId);
+        if (groupMaybe.isPresent() == false){
+            return null;
+        }
+        Group group = groupMaybe.get();
+
+        GroupDTO groupDTO = GroupMapper.toDto(group);
+        return groupDTO;
+    }
+
+    /**
      * Retrieves the details of a group by its name.
      * 
      * @param groupName the name of the group.
