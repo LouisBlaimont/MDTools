@@ -90,6 +90,9 @@ public class InstrumentController {
         if(newInstrument.getSupplier() == null || newInstrument.getSupplier().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Supplier is required to identify an instrument");
         }
+        if(newInstrument.getCategoryId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category is required to identify an instrument");
+        }
         if(newInstrument.getPrice() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price is required to identify an instrument");
         }

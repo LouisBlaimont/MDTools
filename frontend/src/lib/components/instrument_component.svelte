@@ -94,9 +94,13 @@
      */
     function openAddInstrumentPage() {
         isAdmin.set(true);
-        let id = $categories[$selectedCategoryIndex].id;
-        if (id){
-            category_to_addInstrument.set(id);
+
+        if ($selectedCategoryIndex == null){
+            console.log("Categories are not defined");
+            category_to_addInstrument.set(null);
+        } else {
+            console.log("Categories are defined");
+            category_to_addInstrument.set($categories[$selectedCategoryIndex].id);
         }
         goto("../../admin/add_instrument");
     }
@@ -194,7 +198,7 @@
             <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                 <tr
                     class="cursor-pointer"
-                    class:bg-[cornflowerblue]={$selectedSupplierIndex === index}
+                    class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
                     class:bg-[lightgray]={$hoveredSupplierIndex === index &&
                     $selectedSupplierIndex !== index}
                     on:click={() => selectedSupplierIndex.set(index)}

@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { goto } from "$app/navigation";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { category_to_addInstrument } from "$lib/stores/searches";
+    import { category_to_addInstrument, reload } from "$lib/stores/searches";
 
     let reference = "";
     let supplier = "";
@@ -11,7 +11,7 @@
     let alt = "";
     let obsolete = "";
     let id = "";
-    let category = $category_to_addInstrument;
+    let categoryId = $category_to_addInstrument; // can be a number or null
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
@@ -31,14 +31,16 @@
         });
         
         if (response.ok) {
-            dispatch("success", { message: "Instrument added successfully!" });
+            dispatch("Succès", { message: "Instrument ajouté!" });
+            reload.set(true);
+            goto("../../searches");
         } else {
-            dispatch("error", { message: "Failed to add instrument." });
+            dispatch("Erreur", { message: "Impossible d'ajouter un instrument." });
         }
     }
 
     function cancel() {
-        dispatch("cancel");
+        dispatch("Annulé", { message: "Operation annulée." });
         goto("../../searches");
     }
 
@@ -61,7 +63,7 @@
         <input type="text" bind:value={reference} placeholder="Enter the reference"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
-        <label for="brand" class="font-semibold text-lg">fournisseur:</label>
+        <label for="brand" class="font-semibold text-lg">Fournisseur:</label>
         <input type="text" bind:value={supplier} placeholder="Enter the brand"
             class="w-full p-2 mt-1 mb-3 border rounded">
         

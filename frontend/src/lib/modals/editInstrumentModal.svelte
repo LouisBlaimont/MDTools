@@ -67,6 +67,7 @@
       }
       reload.set(true); // Trigger a reload
       close(); // Close the modal
+      reload.set(true);
       goto("../../searches"); // Navigate to the searches page
     }
   
