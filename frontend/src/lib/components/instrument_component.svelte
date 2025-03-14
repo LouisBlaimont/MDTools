@@ -9,12 +9,14 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
+    import { isEditing, order, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
      } from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
+    import { g } from "vitest/dist/chunks/suite.B2jumIFP.js";
  
+    isAdmin.set(true);
 
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
@@ -86,7 +88,17 @@
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
 
+    /**
+     * Opens the add instrument page and set the category to the selected category or null if no category is selected
+     * @param {number} index
+     * @returns {void}
+     */
     function openAddInstrumentPage() {
+        isAdmin.set(true);
+        let id = $categories[$selectedCategoryIndex].id;
+        if (id){
+            category_to_addInstrument.set(id);
+        }
         goto("../../admin/add_instrument");
     }
 
@@ -208,10 +220,10 @@
         </tbody>
     </table>
     {#if $isEditing}
-        {#if $isAdmin}
+       {#if $isAdmin}
             <div class="flex justify-center">
                 <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
-                    Add an instrument
+                    Ajouter un instrument
                 </button>
             </div>
         {/if}

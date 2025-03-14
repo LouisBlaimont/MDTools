@@ -15,8 +15,8 @@
   user.subscribe(value => {
     userValue = value;
   });
-  let isLoggedIn = !!userValue; // check if user is connected when login is implemented
-  let isAdmin = checkRole(userValue, ROLES.ADMIN);
+  let isLoggedIn = true;//!!userValue; // check if user is connected when login is implemented
+  let isAdmin = true;//checkRole(userValue, ROLES.ADMIN);
   let isWebmaster = checkRole(userValue, ROLES.WEBMASTER);
 
   // handle user authentication (changing it when correct login implementation)

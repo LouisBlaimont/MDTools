@@ -13,6 +13,7 @@ export let groups = writable([]);
 export let subGroups = writable([]);
 export let characteristics = writable([]);
 export let instrumentCharacteristics = writable([]);
+export let category_to_addInstrument = writable(null);
 export let categories = writable([]);
 export let hoveredSupplierIndex = writable(null);
 export let hoveredSupplierImageIndex = writable(null);
