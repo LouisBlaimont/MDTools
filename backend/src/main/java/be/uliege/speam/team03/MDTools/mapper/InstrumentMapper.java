@@ -36,8 +36,8 @@ public class InstrumentMapper {
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            instrument.getObsolete(),
             null,
             instrument.getId()
         );

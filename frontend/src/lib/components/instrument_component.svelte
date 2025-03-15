@@ -9,7 +9,7 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, order, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
+    import { isEditing, order, reload, category_to_addInstrument, categories, selectedGroup, selectedSubGroup, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
      } from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
@@ -103,6 +103,24 @@
             category_to_addInstrument.set($categories[$selectedCategoryIndex].id);
         }
         goto("../../admin/add_instrument");
+    }
+
+    function openAddCategoryPage() {
+        isAdmin.set(true);
+
+        if($selectedGroup == null){
+            console.log("Groups are not defined");
+            category_to_addInstrument.set(null);
+        } 
+        else if($selectedSubGroup == null){
+            console.log("SubGroups are not defined");
+            category_to_addInstrument.set(null);
+        }
+        else {
+            console.log("Groups and subgroups are defined");
+            category_to_addInstrument.set($selectedGroup.id);
+        }
+        goto("../../admin/add_category");
     }
 
 </script>

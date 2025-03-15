@@ -30,11 +30,37 @@ public class Category {
     @Column(name="picture_id", nullable = true)
     private Long pictureId;
 
+    @Transient
+    private String name;
+    @Transient
+    private String function;
+    @Transient
+    private String lenAbrv;
+
     public Category(SubGroup subGroup, String shape) { 
         this.subGroup = subGroup;
         this.shape = shape;
     }
     public Category(SubGroup subGroup){
         this.subGroup = subGroup;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setFunction(String function) {
+        this.function = function;
+    }
+    public void setLenAbrv(String lenAbrv) {
+        this.lenAbrv = lenAbrv;
+    }
+    public String getName() {
+        return this.name;
+    }
+    public String getFunction() {
+        return this.function;
+    }
+    public String getLenAbrv() {
+        return this.lenAbrv;
     }
 }

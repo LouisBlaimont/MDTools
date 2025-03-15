@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class InstrumentDTO {
@@ -13,26 +15,11 @@ public class InstrumentDTO {
     private String reference;
     private String supplierDescription;
     private Float price;
-    private boolean alt;
-    private boolean obsolete;
+    private Boolean alt;
+    private Boolean obsolete;
     private List<Long> picturesId;
 
     private Integer id;
-
-    /**
-     * Constructor for the InstrumentDTO class.
-     */
-    public InstrumentDTO(String supplier, Integer categoryId, String reference, String supplierDescription, Float price, boolean alt, boolean obsolete, List<Long> picturesId, Integer id) {
-        this.supplier = supplier;
-        this.categoryId = categoryId;
-        this.reference = reference;
-        this.supplierDescription = supplierDescription;
-        this.price = price;
-        this.alt = alt;
-        this.obsolete = obsolete;
-        this.picturesId = picturesId;
-        this.id = id;
-    }
 
     /**
      * Get the supplier of the instrument.

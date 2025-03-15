@@ -68,6 +68,9 @@ public class CategoryMapper {
     public Category mapToCategory(CategoryDTO categoryDTO){
         Category category = new Category();
         category.setId(categoryDTO.getId());
+        // category.setName(categoryDTO.getName());
+        // category.setFunction(categoryDTO.getFunction());
+        // category.setLenAbrv(categoryDTO.getLenAbrv());
         category.setShape(categoryDTO.getShape());
         category.setPictureId(categoryDTO.getPictureId());
         return category;

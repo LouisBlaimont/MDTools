@@ -60,7 +60,9 @@ public class CategoryController {
 
     @PostMapping("/group/{groupId}/subgroup/{id}/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> addCategory(@RequestBody CategoryDTO newCategoryDTO, @PathVariable Integer id, @PathVariable Integer groupId) {
+    public ResponseEntity<?> addCategory(@RequestBody Map<String, Object> body, @PathVariable Integer id, @PathVariable Integer groupId) {
+        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
+
         String groupName = groupService.findGroupById(groupId).getName();
         if(groupName == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No group found for the id :" + groupId);
@@ -69,22 +71,30 @@ public class CategoryController {
         if(subGroupName == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No subgroup found for the id :" + id);
         }
-        CategoryDTO newCategory = new CategoryDTO();
+
         newCategory.setSubGroupName(subGroupName);
         newCategory.setGroupName(groupName);
 
-        if(newCategoryDTO.getName() != null){
-            newCategory.setName(newCategoryDTO.getName());
-        }
-        if(newCategoryDTO.getFunction() != null){
-            newCategory.setFunction(newCategoryDTO.getFunction());
-        }
-        if(newCategoryDTO.getShape() != null){
-            newCategory.setShape(newCategoryDTO.getShape());
-        }
-
-        System.out.println("newCategory" + newCategory);
-
+        // if(newCategoryDTO.getName() != null){
+        //     System.out.println("newCategoryDTO.getName()" + newCategoryDTO.getName());
+        //     newCategory.setName(newCategoryDTO.getName());
+        // } else {System.out.println("No name");}
+        // if(newCategoryDTO.getFunction() != null){
+        //     System.out.println("newCategoryDTO.getFunction()" + newCategoryDTO.getFunction());
+        //     newCategory.setFunction(newCategoryDTO.getFunction());
+        // } else {System.out.println("No function");}
+        // if(newCategoryDTO.getShape() != null){
+        //     System.out.println("newCategoryDTO.getShape()" + newCategoryDTO.getShape());
+        //     newCategory.setShape(newCategoryDTO.getShape());
+        // }
+        // if(newCategoryDTO.getPictureId() != null){
+        //     System.out.println("newCategoryDTO.getPictureId()" + newCategoryDTO.getPictureId());
+        //     newCategory.setPictureId(newCategoryDTO.getPictureId());
+        // }
+        // if(newCategoryDTO.getCharacteristics() != null){
+        //     System.out.println("newCategoryDTO.getCharacteristics()" + newCategoryDTO.getCharacteristics());
+        //     newCategory.setCharacteristics(newCategoryDTO.getCharacteristics());
+        // }
         CategoryDTO savedCategory = categoryService.save(newCategory);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
