@@ -88,7 +88,7 @@ public class CategoryService {
         String name = (String) body.get("name");
         String function = (String) body.get("function");
         String shape = (String) body.get("shape");
-        String lenAbr = (String) body.get("lenAbr");
+        String lenAbrv = (String) body.get("lenAbrv");
         // String pictureId = (String) body.get("pictureId");
 
         Category category = new Category();
@@ -164,7 +164,7 @@ public class CategoryService {
                         continue;
                     }
                     if(charSubGroup.equals("Length")){
-                        lenAbr = newCharAbrev;
+                        lenAbrv = newCharAbrev;
                     }
                     shapeBuilder.append(newCharAbrev).append("/");
                 }  
@@ -183,7 +183,7 @@ public class CategoryService {
         category.setName(name);
         category.setFunction(function);
         category.setShape(shape);
-        category.setLenAbrv(lenAbr);
+        category.setLenAbrv(lenAbrv);
         Category savedCategory = categoryRepository.save(category);
         return catMapper.mapToCategoryDto(savedCategory);
     }

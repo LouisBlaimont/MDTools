@@ -26,30 +26,42 @@ public class CategoryMapper {
         String gName = category.getSubGroup().getGroup().getName();
         String subgName = category.getSubGroup().getName();
         
-        String name = new String();
+        String name;
         Optional<String> nameMaybe = categoryRepository.findCharacteristicVal((long) id, "Name");
         if (nameMaybe.isPresent()){ 
+            System.out.println("Name is present: " + nameMaybe.get());
             name = nameMaybe.get();
+        } else if (category.getName() != null){
+            System.out.println("Name is present by argument: " + category.getName());
+            name = category.getName();
         }
         else{
             name = null;
         }
 
-        String function = new String();
+        String function;
         Optional<String> functionMaybe = categoryRepository.findCharacteristicVal((long) id, "Function");
         if (functionMaybe.isPresent()){
+            System.out.println("Function is present: " + functionMaybe.get());
             function = functionMaybe.get();
+        } else if (category.getFunction() != null){
+            System.out.println("Function is present by argument: " + category.getFunction());
+            function = category.getFunction();
         }
         else{
-            name = null;
+            function = null;
         }
 
         String shape = category.getShape();
 
-        String lenAbrv = new String();
+        String lenAbrv;
         Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv((long) id, "Length");
         if (lenAbrvMaybe.isPresent()){
+            System.out.println("Length is present: " + lenAbrvMaybe.get());
             lenAbrv = lenAbrvMaybe.get();
+        } else if (category.getLenAbrv() != null){
+            System.out.println("Length is present by argument: " + category.getLenAbrv());
+            lenAbrv = category.getLenAbrv();
         }
         else{
             lenAbrv = null;
