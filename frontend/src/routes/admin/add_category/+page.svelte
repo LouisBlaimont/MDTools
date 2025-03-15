@@ -12,6 +12,8 @@
     let shape = "";
     let lenAbrv = "";
     let pictureId = "";
+    let groupId = $selectedGroup.id;
+    let subGroupId = $selectedSubGroup.id;
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
@@ -59,32 +61,32 @@
     <form on:submit|preventDefault={submitForm} class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter un instrument</h2>
         
-        <label for="reference" class="font-semibold text-lg">Groupe:</label>
-        <input type="text" bind:value={groupName} placeholder="Enter the reference"
+        <label for="group" class="font-semibold text-lg">Groupe:</label>
+        <input type="text" bind:value={groupName} placeholder="Entrez un groupe"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
-        <label for="brand" class="font-semibold text-lg">Nom du sous-groupe:</label>
-        <input type="text" bind:value={subGroupName} placeholder="Enter the brand"
+        <label for="subgroup" class="font-semibold text-lg">Nom du sous-groupe:</label>
+        <input type="text" bind:value={subGroupName} placeholder="Entrez un sous-groupe"
             class="w-full p-2 mt-1 mb-3 border rounded">
         
-        <label for="supplierDescription" class="font-semibold text-lg">Fonction:</label>
-        <input type="text" bind:value={fct} placeholder="Enter the description"
+        <label for="fct" class="font-semibold text-lg">Fonction:</label>
+        <input type="text" bind:value={fct} placeholder="Entrez une fonction"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
-        <label for="price" class="font-semibold text-lg">Nom de la catégorie:</label>
-        <input type="text" bind:value={name} placeholder="Enter the price"
+        <label for="name" class="font-semibold text-lg">Nom de la catégorie:</label>
+        <input type="text" bind:value={name} placeholder="Entrez un nom de catégorie"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
-        <label for="alt" class="font-semibold text-lg">Forme:</label>
-        <input type="text" bind:value={shape} placeholder="Enter the alt"
+        <label for="shape" class="font-semibold text-lg">Forme:</label>
+        <input type="text" bind:value={shape} placeholder="Entrez une forme"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
-        <label for="obsolete" class="font-semibold text-lg">Abréviation:</label>
-        <input type="text" bind:value={lenAbrv} placeholder="Enter if obsolete"
+        <label for="lenAbrv" class="font-semibold text-lg">Abréviation:</label>
+        <input type="text" bind:value={lenAbrv} placeholder="Entrez une abréviation"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <label for="id" class="font-semibold text-lg">Source de l'image:</label>
-        <input type="text" bind:value={pictureId} placeholder="Enter the image source"
+        <input type="text" bind:value={pictureId} placeholder="Entre l'ID de l'image"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <div class="flex gap-4 mt-4">

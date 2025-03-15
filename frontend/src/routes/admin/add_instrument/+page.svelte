@@ -60,31 +60,51 @@
         <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter un instrument</h2>
         
         <label for="reference" class="font-semibold text-lg">Référence:</label>
-        <input type="text" bind:value={reference} placeholder="Enter the reference"
+        <input type="text" bind:value={reference} placeholder="Entrez la référence"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <label for="brand" class="font-semibold text-lg">Fournisseur:</label>
-        <input type="text" bind:value={supplier} placeholder="Enter the brand"
+        <input type="text" bind:value={supplier} placeholder="Entrez le fournisseur"
             class="w-full p-2 mt-1 mb-3 border rounded">
         
         <label for="supplierDescription" class="font-semibold text-lg">Description du fournisseur:</label>
-        <input type="text" bind:value={supplierDescription} placeholder="Enter the description"
+        <input type="text" bind:value={supplierDescription} placeholder="Entrez la description du fournisseur"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <label for="price" class="font-semibold text-lg">Prix:</label>
-        <input type="text" bind:value={price} placeholder="Enter the price"
+        <input type="text" bind:value={price} placeholder="Entrez le prix"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <label for="alt" class="font-semibold text-lg">Alternatives:</label>
-        <input type="text" bind:value={alt} placeholder="Enter the alt"
+        <input type="text" bind:value={alt} placeholder="Entrez les alternatives"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <label for="obsolete" class="font-semibold text-lg">Obsolescence:</label>
-        <input type="text" bind:value={obsolete} placeholder="Enter if obsolete"
-            class="w-full p-2 mt-1 mb-3 border rounded">
+        <div class="flex items-center gap-4 mt-1 mb-3">
+            <label class="flex items-center">
+                <input
+                    type="radio"
+                    bind:group={obsolete}
+                    value={true}
+                    class="mr-2"
+                />
+                Oui
+            </label>
+            <label class="flex items-center">
+                <input
+                    type="radio"
+                    bind:group={obsolete}
+                    value={false}
+                    class="mr-2"
+                />
+                Non
+            </label>
+        </div>
+        <!-- <input type="text" bind:value={obsolete} placeholder="Enter if obsolete"
+            class="w-full p-2 mt-1 mb-3 border rounded"> -->
 
         <label for="id" class="font-semibold text-lg">Source de l'image:</label>
-        <input type="text" bind:value={id} placeholder="Enter the image source"
+        <input type="text" bind:value={id} placeholder="Entrez l'ID de l'image"
             class="w-full p-2 mt-1 mb-3 border rounded">
 
         <div class="flex gap-4 mt-4">

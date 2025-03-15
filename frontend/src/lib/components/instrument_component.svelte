@@ -9,7 +9,7 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, order, reload, category_to_addInstrument, categories, selectedGroup, selectedSubGroup, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
+    import { isEditing, order, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
      } from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
@@ -89,7 +89,8 @@
 
     /**
      * Opens the add instrument page and set the category to the selected category or null if no category is selected
-     * @param {number} index
+     * 
+     * @param {number} index - The index of the selected category
      * @returns {void}
      */
     function openAddInstrumentPage() {
@@ -105,52 +106,8 @@
         goto("../../admin/add_instrument");
     }
 
-    function openAddCategoryPage() {
-        isAdmin.set(true);
-
-        if($selectedGroup == null){
-            console.log("Groups are not defined");
-            category_to_addInstrument.set(null);
-        } 
-        else if($selectedSubGroup == null){
-            console.log("SubGroups are not defined");
-            category_to_addInstrument.set(null);
-        }
-        else {
-            console.log("Groups and subgroups are defined");
-            category_to_addInstrument.set($selectedGroup.id);
-        }
-        goto("../../admin/add_category");
-    }
-
 </script>
-<!-- <div
-    class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
-    role="button"
-    tabindex="0"
-    on:click={() => showBigPicture(row.src ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png")}
-    on:keydown={(e) => e.key === 'Enter' && showBigPicture(row.src ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png")}
->
-    <img
-        alt="supplier{row.id}"
-        src={row.src ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png"}
-        on:click={() => modals.open(BigPicturesModal, { initInstrument: row })}
-        on:keydown={(e) => e.key === 'Enter' && modals.open(BigPicturesModal, { initInstrument: row })}
-        on:mouseover={() => (hoveredSupplierImageIndex.set(index))}
-        on:focus={() => (hoveredSupplierImageIndex.set(index))}
-        on:mouseout={() => (hoveredSupplierImageIndex.set(null))}
-        on:blur={() => (hoveredSupplierImageIndex.set(null))}
-        class="h-4/5 {$selectedSupplierIndex === index ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]' : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index ? 'cursor-pointer border-2 border-solid border-[lightgray]' : ''}"
-    />
-    <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
-</div>
-{#if $isEditing}
-    {#if $isAdmin}
-        <button type="button" class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
-            +
-        </button>
-    {/if}
-{/if} -->
+
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
     <!-- PICTURES OF THE INSTRUMENTS -->
     <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
