@@ -45,9 +45,12 @@ This command will:
 4. **Access the Application**:
 
 ```
-Frontend: http://localhost:3000
-API: http://localhost:8080/api
+Frontend: http://frontend.localhost.direct/
+API: http://api.localhost.direct/
+Dex: http://dex.localhost.direct/
 ```
+
+
 
 ## Setup a production environment (OpenShift)
 
@@ -83,3 +86,12 @@ This project uses [GitLab CI/CD](https://docs.gitlab.com/ee/ci/yaml/) for automa
 ### OpenShift-Specific Configurations
 
 Each job that builds and pushes images uses OpenShift-compatible Docker configurations. Docker-in-Docker (`docker:20.10.16-dind`) is used to ensure isolated container builds,.
+
+### Caddy & Dex
+
+Why are we using Caddy ? Caddy is a lightweight reverse proxy with a easily readable configuration.
+
+Using Caddy was a necessity of the introduction of Dex for OIDC Authentication. Using Dex in Spring Boot forced us to pass the url of the Dex server. But since Dex & Spring Boot are inside docker containers, what url should we use ? The docker one ? No ! It is not accesible to the user when Spring Boot will redirect to it & it will create problems with OIDC. Using Docker Host network mode ? No ! Windows... Do I need to say more ? 
+
+The solution: a reverse proxy.
+
