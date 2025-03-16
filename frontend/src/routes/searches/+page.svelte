@@ -44,13 +44,12 @@
         throw new Error("Failed to fetch characteristics of category");
       }
       const categoryChars = await response.json();
-      for (let i = 0; i<categoryChars.length ; i++){
-        if (categoryChars[i].name === "Length"){
-          const len_val =  categoryChars[i].value.replace(/[^\d.]/g, "");
+      for (let i = 0; i < categoryChars.length; i++) {
+        if (categoryChars[i].name === "Length") {
+          const len_val = categoryChars[i].value.replace(/[^\d.]/g, "");
           document.getElementById(categoryChars[i].name).value = len_val;
           charValues[categoryChars[i].name] = len_val;
-        }
-        else{
+        } else {
           document.getElementById(categoryChars[i].name).value = categoryChars[i].value;
           charValues[categoryChars[i].name] = categoryChars[i].value;
         }
@@ -60,7 +59,6 @@
       errorMessage.set(error.message);
     }
     return;
-
   }
 
   /**
@@ -71,8 +69,8 @@
     selectedCategoryIndex = index;
 
     // selecting the categoryId
-    const cat = categories[selectedCategoryIndex]; 
-    const categoryId = cat.id;  
+    const cat = categories[selectedCategoryIndex];
+    const categoryId = cat.id;
 
     try{
       const response = await apiFetch(`/api/category/instruments/${categoryId}`);
@@ -81,7 +79,7 @@
       }
       const answer = await response.json();
       currentSuppliers = Array.isArray(answer) ? answer : [answer];
-    }catch (error) {
+    } catch (error) {
       console.error(error);
       errorMessage.set(error.message);
     }
@@ -102,6 +100,7 @@
     const picture = document.getElementById("big-category");
     pannel.style.display = "flex";
     overlay.style.display = "block";
+    console.log("a " + img);
     picture.src = img;
   }
   function closeBigPicture() {
@@ -220,12 +219,12 @@
       selectedCategoryIndex = null;
       selectedSupplierIndex = null;
       showCategories = false;
-      categories=[];
+      categories = [];
       showSubGroups = false;
-      subGroups=[];
+      subGroups = [];
       showChars = false;
-      charValues=[];
-      characteristics=[];
+      charValues = [];
+      characteristics = [];
       currentSuppliers = [];
       return;
     }
@@ -233,17 +232,17 @@
     selectedGroup = group;
     showSubGroups = true;
     showCategories = true;
-    
+
     currentSuppliers = [];
-    selectedSupplierIndex="";
-    selectedCategoryIndex="";
+    selectedSupplierIndex = "";
+    selectedCategoryIndex = "";
     // Only reset subgroup if the group has changed
     if (previousGroup !== group) {
       selectedSubGroup = "";
     }
     showChars = false;
     characteristics = [];
-    charValues=[];
+    charValues = [];
 
     let subGroups_all_info = [];
     try {
