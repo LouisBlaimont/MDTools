@@ -25,4 +25,5 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
     Optional<List<Category>> findBySubGroup(SubGroup subGroup);
     Optional<List<Category>> findBySubGroupIn(List<SubGroup> subGroups);
     Optional<Category> findById(Integer category_id);
+
 }

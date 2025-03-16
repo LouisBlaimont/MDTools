@@ -8,7 +8,7 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
 	import { user } from "$lib/stores/user_stores"; 
-  import { errorMessage, keywords, keywordsResult } from "$lib/stores/searches";
+  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
 
   // RBAC 
@@ -50,6 +50,7 @@
   let clickTimeout;
   let isEditing = false;
   let showModal = $state(false);
+  let showKeywordsResult = $state(false);
 
   function startEditing() {
     if (isEditing) {
@@ -112,35 +113,66 @@
     moveToSearches(group.name, subgroup.name);
   }
 
-  $effect(() => {
-    if ($keywords().trim()) {
-      debouncedSearch();
-    }
-  }); 
-
-  const debouncedSearch = debounce(searchByKeywords, 300);
-  function debounce(fn, delay = 300) {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => fn(...args), delay);
-    };
-  }
-
   async function searchByKeywords() {
-    if (!$keywords.trim()) return;
-
     try {
-      const foundElements = await apiFetch(`/api/instruments/search?keywords=${encodeURIComponent($keywords)}`);
-      keywordsResult.set(await response.json());
-      console.log($keywords);
-      console.log($keywordsResult);
+      // Build URL
+      let params = new URLSearchParams();
+
+      // Split the $keywords on "," trim spaces
+      $keywords.split(",").forEach(element => {
+        params.append('keywords', element.trim());
+      });
+
+      let response = await apiFetch(`/api/instruments/search?${params}`);
+      let data = await response.json();
+      if (data.length == 0) {
+        console.log("no data");
+        let key = [];
+        key = $keywords.split(",")
+        let first = key[0];
+        params.delete("keywords");
+        params.append('keywords', first.trim());
+        response = await apiFetch(`/api/instruments/search?${params}`);
+        data = await response.json();
+        keywordsResult.set(data);
+        console.log("made new request with:");
+        console.log(first);
+      }
+      keywordsResult.set(data);
+      showKeywordsResult = true;
     } catch (error) {
       console.error(error);
       errorMessage.set(error.message);
-      }
+    }
   }
-  
+
+  async function getCategoryOfInstrument(categoryId) {
+    try {
+      let response = await apiFetch(`/api/instruments/getCategory/${categoryId}`);
+      let cat = await response.json();
+      return cat;
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+    }
+  }
+
+  async function selectedInstrumentHome(row) {
+    try {
+      let response = await apiFetch(`/api/instruments/getCategory/${row.categoryId}`);
+      let cat = await response.json();
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+    }
+    console.log(cat);
+    let subgroup = category.subGroupName;
+    let group = category.groupName;
+    // goto(
+    //   `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
+    // );
+  }
+
 </script>
 
 <svelte:head>
@@ -209,14 +241,111 @@
   <section
     class="w-full bg-white md:w-1/3 lg:min-w-[800px] xl:min-w-[1100px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[400px] overflow-y-auto"
   >
-    <div class="flex gap-2">
-      <!-- Buttons div -->
-      {#if selectedGroup}
-        <button
-          class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2"
-          aria-label="back to groups"
-          onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
-        >
+    {#if !showKeywordsResult}
+      <div class="flex gap-2">
+        <!-- Buttons div -->
+        {#if selectedGroup}
+          <button
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2"
+            aria-label="back to groups"
+            onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+        {/if}
+
+        {#if isAdmin}
+          <button
+            class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
+            aria-label="edit groups"
+            id="editGroupsButton"
+            onclick={() => startEditing()}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L6 20l-4 1 1-4L16.5 3.5z" />
+            </svg>
+          </button>
+        {/if}
+      </div>
+    
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
+        {#if !selectedGroup}
+          {#each groups_summary as group}
+            <div class="relative group w-64 h-40">
+              <button
+                class="cursor-pointer w-full h-full object-cover rounded-lg"
+                style="background-image: url({group.pictureId
+                  ? PUBLIC_API_URL + `/api/pictures/${group.pictureId}`
+                  : '/default/group_picture_default.png'}); background-size: cover;"
+                aria-label="group image"
+                onclick={() => handleGroupClick(group)}
+                ondblclick={() => moveToSearches(group.name)}
+                onkeydown={(e) => {
+                  if (e.key === "Enter") handleGroupClick(group);
+                }}
+              ></button>
+              <div
+                class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+              >
+                {group.name} ({group.instrCount})
+              </div>
+            </div>
+          {/each}
+        {/if}
+
+        {#if selectedGroup}
+          {#each selectedSubgroups as subgroup}
+            <div class="relative group w-64 h-40">
+              <button
+                class="cursor-pointer w-full h-full object-cover rounded-lg"
+                style="background-image: url({subgroup.pictureId
+                  ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
+                  : '/default/group_picture_default.png'}); background-size: cover;"
+                aria-label="subgroup image"
+                onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
+                onkeydown={(e) => {
+                  if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
+                }}
+              ></button>
+              <div
+                class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+              >
+                {subgroup.name} ({subgroup.instrCount})
+              </div>
+            </div>
+          {/each}
+        {/if}
+      </div>
+    {/if}
+    <!-- Results of the keywords search -->
+    {#if showKeywordsResult}
+      <button
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2"
+            aria-label="back to groups"
+            onclick={() => ((showKeywordsResult = false), (keywordsResult.set(null)))}
+          >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="w-5 h-5"
@@ -229,82 +358,41 @@
           >
             <path d="M15 18l-6-6 6-6" />
           </svg>
-        </button>
-      {/if}
-
-      {#if isAdmin}
-        <button
-          class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
-          aria-label="edit groups"
-          id="editGroupsButton"
-          onclick={() => startEditing()}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L6 20l-4 1 1-4L16.5 3.5z" />
-          </svg>
-        </button>
-      {/if}
-    </div>
-  
-
-    <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
-      {#if !selectedGroup}
-        {#each groups_summary as group}
-          <div class="relative group w-64 h-40">
-            <button
-              class="cursor-pointer w-full h-full object-cover rounded-lg"
-              style="background-image: url({group.pictureId
-                ? PUBLIC_API_URL + `/api/pictures/${group.pictureId}`
-                : '/default/group_picture_default.png'}); background-size: cover;"
-              aria-label="group image"
-              onclick={() => handleGroupClick(group)}
-              ondblclick={() => moveToSearches(group.name)}
-              onkeydown={(e) => {
-                if (e.key === "Enter") handleGroupClick(group);
-              }}
-            ></button>
-            <div
-              class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-            >
-              {group.name} ({group.instrCount})
-            </div>
-          </div>
-        {/each}
-      {/if}
-
-      {#if selectedGroup}
-        {#each selectedSubgroups as subgroup}
-          <div class="relative group w-64 h-40">
-            <button
-              class="cursor-pointer w-full h-full object-cover rounded-lg"
-              style="background-image: url({subgroup.pictureId
-                ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
-                : '/default/group_picture_default.png'}); background-size: cover;"
-              aria-label="subgroup image"
-              onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
-              onkeydown={(e) => {
-                if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
-              }}
-            ></button>
-            <div
-              class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-            >
-              {subgroup.name} ({subgroup.instrCount})
-            </div>
-          </div>
-        {/each}
-      {/if}
-    </div>
+      </button>
+      <table data-testid = "suppliers-table" class="w-full border-collapse">
+        <thead class="bg-teal-400">
+            <tr>
+            <th class="text-center border border-solid border-[black] w-24">REF</th>
+            <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
+            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
+            <th class="text-center border border-solid border-[black] w-16">PRIX</th>
+            <th class="text-center border border-solid border-[black] w-16">ALT</th>
+            <th class="text-center border border-solid border-[black] w-16">OBS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each $keywordsResult as row, index}
+            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                <tr
+                    class="cursor-pointer"
+                    class:bg-[cornflowerblue]={$selectedInstrumentIndex === index}
+                    class:bg-[lightgray]={$hoveredInstrumentIndex === index &&
+                    $selectedInstrumentIndex !== index}
+                    onclick={() => (selectedInstrumentIndex.set(index), selectedInstrumentHome(row))}
+                    onmouseover={() => (hoveredInstrumentIndex.set(index))}
+                    onmouseout={() => (hoveredInstrumentIndex.set(null))}
+                >
+                <td class="text-center border border-solid border-[black]">{row.reference}</td>
+                <td class="text-center border border-solid border-[black]">{row.supplier}</td>
+                <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
+                <td class="text-center border border-solid border-[black]">{row.price}</td>
+                <td class="text-center border border-solid border-[black]">{row.alt}</td>
+                <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
+                </tr>
+            {/each}
+        </tbody>
+    </table>
+    {/if}
   </section>
 </main>
 

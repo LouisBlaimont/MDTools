@@ -18,14 +18,15 @@ import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
 import lombok.AllArgsConstructor;
 
-@Service
 @AllArgsConstructor
+@Service
 public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
     private final PictureStorageService pictureStorageService;
+
 
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
@@ -221,13 +222,9 @@ public class InstrumentService {
         instrumentRepository.deleteById(id);
     }
 
-    public List<InstrumentDTO> searchInstrument(String keyword) {
-        Optional<List<Instruments>> instrumentsMaybe = instrumentRepository.searchByKeyword(keyword);
-
-        List<Instruments> instruments = instrumentsMaybe.get();
-
+    public List<InstrumentDTO> searchInstrument(List<String> keywords) {
+        List<Instruments> instruments = instrumentRepository.searchByKeywords(keywords);
         return convertToDTO(instruments);
-
     }
 }
 
