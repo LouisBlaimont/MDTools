@@ -104,14 +104,19 @@ public class SubGroupService {
                 charRepository.save(newChar);
             }
 
-            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId().intValue(),
+            Integer newSubGroupId = newSubGroup.getId().intValue();
+
+            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId,
                     newChar.getId());
             SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(newSubGroup, newChar, 1);
             subGroupChar.setId(key);
             subGroupChars.add(subGroupChar);
         }
 
+        // This is where it doesn't work
         subGroupCharRepository.saveAll(subGroupChars);
+
+        System.out.println("Print after save");
 
         newSubGroup.setInstrCount(0);
         newSubGroup.setCategories(null);

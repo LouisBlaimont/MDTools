@@ -170,6 +170,11 @@
         <div class="flex flex-col">
           <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_group">Ajouter un groupe</a></button>
         </div>
+        {#if selectedGroup}
+          <div class="flex flex-col">
+            <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button>
+          </div>
+        {/if}
       {/if}
     </form>
   </aside>
