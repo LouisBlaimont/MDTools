@@ -87,7 +87,7 @@ This project uses [GitLab CI/CD](https://docs.gitlab.com/ee/ci/yaml/) for automa
 
 Each job that builds and pushes images uses OpenShift-compatible Docker configurations. Docker-in-Docker (`docker:20.10.16-dind`) is used to ensure isolated container builds,.
 
-### Caddy & Dex
+## Caddy & Dex
 
 Why are we using Caddy ? Caddy is a lightweight reverse proxy with a easily readable configuration.
 
