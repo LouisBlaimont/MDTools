@@ -1,4 +1,5 @@
 <script>
+    import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { createEventDispatcher } from "svelte";
     
@@ -14,6 +15,18 @@
 
     function updateCharacteristic(index, value) {
         characteristics[index] = value;
+    }
+
+    function erase() {
+        groupName = "";
+        subGroupName = "";
+        picture = "";
+        characteristics = [""];
+    }
+
+    function cancel() {
+        dispatch("cancel", { message: "Operation cancelled." });
+        goto("../../..");
     }
 
     async function submitForm() {
@@ -63,6 +76,8 @@
         <input type="file" bind:value={picture} class="w-full p-2 mt-1 border rounded">
         </div>
 
-        <button type="submit" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded ">Submit</button>
+        <button type="submit" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded ">Enregistrer</button>
+        <button type="button" on:click={erase} class="mt-4 px-4 py-2 bg-red-500 text-white rounded">Effacer</button>
+        <button type="button" on:click={cancel} class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Annuler</button>
     </form>
 </main>
