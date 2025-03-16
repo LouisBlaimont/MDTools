@@ -16,18 +16,14 @@
     $selectedSubGroupIndex = $subGroups.indexOf($selectedSubGroup);
     let groupId = $selectedGroupIndex + 1;
     let subGroupId = $selectedSubGroupIndex + 1;
-    console.log("Groups: ", $groups);
-    console.log("SubGroups: ", $subGroups);
-    console.log("Selected group: ", $selectedGroup);
-    console.log("Selected sub-group: ", $selectedSubGroup);
-    console.log("Group index: " + $selectedGroupIndex);
-    console.log("Subgroup index: " + $selectedSubGroupIndex);
-    console.log("Group ID: " + groupId);
-    console.log("Subgroup ID: " + subGroupId);
 
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
+        if(groupId == 0 || subGroupId == 0) {
+            dispatch("Erreur", { message: "Veuillez sélectionner un groupe et un sous-groupe." });
+            goto("../../searches");
+        }
         const response = await fetch('http://localhost:8080/api/category/group/' + groupId + '/subgroup/' + subGroupId + '/add', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -44,11 +40,11 @@
         });
         
         if (response.ok) {
-            dispatch("Succès", { message: "Instrument ajouté!" });
+            dispatch("Succès", { message: "Catégorie ajouté!" });
             reload.set(true);
             goto("../../searches");
         } else {
-            dispatch("Erreur", { message: "Impossible d'ajouter un instrument." });
+            dispatch("Erreur", { message: "Impossible d'ajouter une catégorie." });
         }
     }
 
@@ -70,7 +66,7 @@
 
 <main class="flex flex-col items-center w-full p-6 mt-3">
     <form on:submit|preventDefault={submitForm} class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter un instrument</h2>
+        <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter une catégorie</h2>
         
         <label for="group" class="font-semibold text-lg">Groupe:</label>
         <input type="text" bind:value={groupName} placeholder="Entrez un groupe"

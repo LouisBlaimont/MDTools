@@ -14,6 +14,7 @@
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
+    import AddCategoryModal from "$lib/modals/AddCategoryModal.svelte";
     
     isAdmin.set(true);
 
@@ -96,14 +97,23 @@
     function openAddInstrumentPage() {
         isAdmin.set(true);
 
-        if ($selectedCategoryIndex == null){
+        if ($selectedCategoryIndex == null || $selectedCategoryIndex == ""){
             console.log("Categories are not defined");
             category_to_addInstrument.set(null);
+
+            // Open the notification modal
+            modals.open(AddCategoryModal, {
+                title: "Aucune catégorie sélectionnée",
+                message: "Veuillez sélectionner une catégorie ou en créer une nouvelle avant d'ajouter un instrument.",
+                onClose: () => {
+                    console.log("Notification modal closed");
+                }
+            });
         } else {
             console.log("Categories are defined");
             category_to_addInstrument.set($categories[$selectedCategoryIndex].id);
+            goto("../../admin/add_instrument");
         }
-        goto("../../admin/add_instrument");
     }
 
 </script>

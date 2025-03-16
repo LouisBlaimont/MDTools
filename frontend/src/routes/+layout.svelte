@@ -32,9 +32,7 @@
 
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
   <!-- Logo -->
-  <a href="/">
-    <img alt="Logo MD" src="logo-blanc.png" class="h-10" />
-  </a>
+  <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
 
   <!-- Navigation Bar -->
   <nav class="hidden md:flex space-x-6">
