@@ -7,6 +7,8 @@ export const reload = writable(false);
 export const sharedData = writable({ name: 'Alice' });
 
 export let selectedCategoryIndex = writable(null);
+export let selectedGroupIndex = writable(null);
+export let selectedSubGroupIndex = writable(null);
 export let currentSuppliers = writable([]);
 export let charValues = writable({});
 export let groups = writable([]);

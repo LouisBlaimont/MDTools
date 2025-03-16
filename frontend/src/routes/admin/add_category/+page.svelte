@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { goto } from "$app/navigation";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { selectedGroup, selectedSubGroup, reload, subGroups } from "$lib/stores/searches";
+    import { groups, subGroups, selectedGroup, selectedSubGroup, selectedGroupIndex, selectedSubGroupIndex, reload } from "$lib/stores/searches";
 
     let id = "";
     let groupName = "";
@@ -12,12 +12,23 @@
     let shape = "";
     let lenAbrv = "";
     let pictureId = "";
-    let groupId = $selectedGroup.id;
-    let subGroupId = $selectedSubGroup.id;
+    $selectedGroupIndex = $groups.indexOf($selectedGroup);
+    $selectedSubGroupIndex = $subGroups.indexOf($selectedSubGroup);
+    let groupId = $selectedGroupIndex + 1;
+    let subGroupId = $selectedSubGroupIndex + 1;
+    console.log("Groups: ", $groups);
+    console.log("SubGroups: ", $subGroups);
+    console.log("Selected group: ", $selectedGroup);
+    console.log("Selected sub-group: ", $selectedSubGroup);
+    console.log("Group index: " + $selectedGroupIndex);
+    console.log("Subgroup index: " + $selectedSubGroupIndex);
+    console.log("Group ID: " + groupId);
+    console.log("Subgroup ID: " + subGroupId);
+
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
-        const response = await fetch('http://localhost:8080/api/category/group/' + groupId + 'subgroup/' + subGroupId + 'add', {
+        const response = await fetch('http://localhost:8080/api/category/group/' + groupId + '/subgroup/' + subGroupId + '/add', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -25,7 +36,7 @@
                 groupName,
                 subGroupName,
                 name,
-                fct,
+                function: fct,
                 shape,
                 lenAbrv,
                 pictureId
