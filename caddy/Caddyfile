@@ -1,0 +1,15 @@
+{
+  auto_https off  # Disable HTTPS globally
+}
+
+http://dex.localhost.direct {
+  reverse_proxy dex:5556
+}
+
+http://frontend.localhost.direct {
+  reverse_proxy svelte:3000
+}
+
+http://api.localhost.direct {
+  reverse_proxy springboot:8080
+}

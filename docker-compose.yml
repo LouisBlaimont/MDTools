@@ -18,7 +18,9 @@ services:
       interval: 30s
       timeout: 60s
       retries: 5
-      start_period: 15s 
+      start_period: 15s
+    networks:
+      - mdtools
 
   svelte:
     build:
@@ -43,10 +45,11 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    networks:
+      - mdtools
 
 
   springboot:
-    network_mode: "host"
     build:
       context: ./backend
       dockerfile: Dockerfile-local
@@ -60,8 +63,10 @@ services:
       - ./backend:/app/src  # Mount the backend directory for live reload
       - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
       - pictures:/app/pictures
-    #ports:
-    #  - "8080:8080"  # Expose the Spring Boot application port
+    ports:
+      - "8080:8080"  # Expose the Spring Boot application port
+    networks:
+      - mdtools
 
 
   dex:
@@ -74,9 +79,27 @@ services:
       - ./dex/dex-config.yaml:/etc/dex/config.yaml
       - ./dex/dex-data:/data
     command: ["dex", "serve", "/etc/dex/config.yaml"]
+    networks:
+      - mdtools
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      mdtools:
+        aliases:
+          - dex.localhost.direct
 
 volumes:
   pgdata:
     driver: local
   pictures:
     driver: local
+
+networks:
+  mdtools:
+    driver: bridge

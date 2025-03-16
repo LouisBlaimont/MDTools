@@ -1,4 +1,4 @@
-issuer: http://localhost:5556/dex  # Local OIDC issuer
+issuer: http://dex.localhost.direct/dex  # Local OIDC issuer
 
 storage:
   type: sqlite3
@@ -12,7 +12,7 @@ staticClients:
   - id: mdtools-backend
     name: "MDTools Backend"
     redirectURIs:
-      - "http://localhost:8080/login/oauth2/code/dex"  # Adjust for Spring Boot
+      - "http://api.localhost.direct/login/oauth2/code/dex"  # Adjust for Spring Boot
     secret: "backend-secret"
 
 enablePasswordDB: true  # Enable static users for testing
@@ -25,7 +25,7 @@ staticPasswords:
     userID: "1234"
 
 oauth2:
-  skipApprovalScreen: false  # No need to approve OAuth requests
+  skipApprovalScreen: true  # No need to approve OAuth requests
   alwaysShowLoginScreen: true
 
 expiry:
