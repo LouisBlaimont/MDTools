@@ -85,7 +85,7 @@
   }
 
   onMount(() => {
-    if (!$isWebmaster && !$isAdmin) {
+    if (!$isWebmaster || !$isAdmin) {
       goto("/unauthorized");
     }
 

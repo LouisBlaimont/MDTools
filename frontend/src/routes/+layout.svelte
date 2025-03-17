@@ -11,15 +11,6 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { toast } from "@zerodevx/svelte-toast";
 
-  let userValue = null;
-  let shouldCheckUser = false; // Flag to control checkUser() execution
-
-  // Subscribe to user store
-  user.subscribe(value => {
-    userValue = value;
-    isLoggedIn.set(!!value);
-  });
-
   // Handle authentication
   async function handleAuth() {
     if ($isLoggedIn) {
@@ -39,9 +30,13 @@
     }
   }
 
+  let shouldCheckUser = true;
   // Determine if we should check the user
   onMount(() => {
-    shouldCheckUser = !userValue || userValue.expiresAt < Date.now();
+    shouldCheckUser = !$user || $user.expiresAt < Date.now();
+    console.log("isAdmin", $isAdmin);
+    console.log("isWebmaster", $isWebmaster);
+    
   });
 </script>
 

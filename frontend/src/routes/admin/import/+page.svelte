@@ -1,7 +1,9 @@
 <script>
   import { fetchGroups, fetchCharacteristics, sendExcelToBackend   } from "../../../api.js";
+  import { isAdmin } from "$lib/stores/user_stores";
   import { onMount } from "svelte";
   import * as XLSX from "xlsx";
+  import { goto } from "$app/navigation";
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -468,6 +470,9 @@
    * Adds event listeners for mouse events when the component is mounted.
    */
   onMount(() => {
+    if(!isAdmin) {
+      goto("/unauthorized");
+    }
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     loadGroups();
