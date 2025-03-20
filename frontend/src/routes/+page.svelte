@@ -8,8 +8,9 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
 	import { user } from "$lib/stores/user_stores"; 
-  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex} from "$lib/stores/searches";
+  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
+  import { selectCategory } from "$lib/components/category_component.svelte";
 
   // RBAC 
   let userValue;
@@ -39,6 +40,7 @@
 
   function moveToSearches(group, subgroup) {
     clearTimeout(clickTimeout);
+    console.log("group :", group);
     goto(
       `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
     );
@@ -161,16 +163,13 @@
     try {
       let response = await apiFetch(`/api/instruments/getCategory/${row.categoryId}`);
       let cat = await response.json();
+
+      moveToSearches(cat.groupName, cat.subGroupName);
+      selectCategory(row.categoryId, true);
     } catch (error) {
       console.error(error);
       errorMessage.set(error.message);
     }
-    console.log(cat);
-    let subgroup = category.subGroupName;
-    let group = category.groupName;
-    // goto(
-    //   `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
-    // );
   }
 
 </script>

@@ -20,12 +20,19 @@
      * Update categories to have only the selected one.
      * @param index
      */
-    async function selectCategoryWithChar(index) {
-        selectCategory(index);
-        selectedCategoryIndex.set(index);
-        let cat = $categories[$selectedCategoryIndex];
-        let catId = $categories[$selectedCategoryIndex].id;
-        categories.set([cat]);
+    async function selectCategoryWithChar(index, comingFromHome) {
+        let catId;
+        if (!comingFromHome) {
+            selectCategory(index, comingFromHome);
+            selectedCategoryIndex.set(index);
+            let cat = $categories[$selectedCategoryIndex];
+            catId = $categories[$selectedCategoryIndex].id;
+            categories.set([cat]);
+        } 
+        else {
+            // if we come from homepage with keywords search, we have the index directly as the catId
+            catId = index;
+        }
 
         try{
             const response = await apiFetch(`/api/category/${catId}`);
@@ -67,23 +74,31 @@
      * Gets the suppliers of the category given by the line index in the table
      * @param index
      */
-    async function selectCategory(index) {
-        selectedCategoryIndex.set(index);
-
-        // selecting the categoryId
-        const cat = $categories[$selectedCategoryIndex]; 
-        const categoryId = $categories[$selectedCategoryIndex].id;  
-
+    export async function selectCategory(index, comingFromHome) {
         try{
-        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-        if (!response.ok){
-            throw new Error("Failed to fetch instruments of category");
-        }
-        const answer = await response.json();
-        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+            let categoryId;
+            if (!comingFromHome) {
+                selectedCategoryIndex.set(index);
+        
+                // selecting the categoryId
+                let cat = $categories[$selectedCategoryIndex]; 
+                categoryId = $categories[$selectedCategoryIndex].id; 
+                console.log("category id de base :", categoryId); 
+            }
+            else {
+                console.log("not going here until i test it");
+                categoryId = index;
+            }
+            console.log("category id de base après le if-else :", categoryId); 
+            const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+            if (!response.ok){
+                throw new Error("Failed to fetch instruments of category");
+            }
+            const answer = await response.json();
+            currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
         }catch (error) {
-        console.error(error);
-        errorMessage.set(error.message);
+            console.error(error);
+            errorMessage.set(error.message);
         }
         return;
     }
@@ -128,8 +143,8 @@
                     <tr
                         class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
                         class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
-                        on:click={() => selectCategory(index)}
-                        on:dblclick={() => selectCategoryWithChar(index)}
+                        on:click={() => selectCategory(index, false)}
+                        on:dblclick={() => selectCategoryWithChar(index, false)}
                         on:mouseover={() => (hoveredCategoryIndex.set(index))}
                         on:mouseout={() => (hoveredCategoryIndex.set(null))}
                     >

@@ -26,68 +26,6 @@
   import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
   import { apiFetch } from "$lib/utils/fetch.js";
 
-  /**
-   * Display the characteristic values of the category at line index in the table.
-   * Update categories to have only the selected one.
-   * @param index
-   */
-  async function selectCategoryWithChar(index) {
-    selectCategory(index);
-    selectedCategoryIndex = index;
-    let cat = categories[selectedCategoryIndex];
-    let catId = cat.id;
-    categories = [cat];
-
-    try{
-      const response = await apiFetch(`/api/category/${catId}`);
-      if(!response.ok){
-        throw new Error("Failed to fetch characteristics of category");
-      }
-      const categoryChars = await response.json();
-      for (let i = 0; i<categoryChars.length ; i++){
-        if (categoryChars[i].name === "Length"){
-          const len_val =  categoryChars[i].value.replace(/[^\d.]/g, "");
-          document.getElementById(categoryChars[i].name).value = len_val;
-          charValues[categoryChars[i].name] = len_val;
-        }
-        else{
-          document.getElementById(categoryChars[i].name).value = categoryChars[i].value;
-          charValues[categoryChars[i].name] = categoryChars[i].value;
-        }
-      }
-    }catch(error){
-      console.error(error)
-      errorMessage.set(error.message);
-    }
-    return;
-
-  }
-
-  /**
-   * Gets the suppliers of the category given by the line index in the table
-   * @param index
-   */
-  async function selectCategory(index) {
-    selectedCategoryIndex = index;
-
-    // selecting the categoryId
-    const cat = categories[selectedCategoryIndex]; 
-    const categoryId = cat.id;  
-
-    try{
-      const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-      if (!response.ok){
-        throw new Error("Failed to fetch instruments of category");
-      }
-      const answer = await response.json();
-      currentSuppliers = Array.isArray(answer) ? answer : [answer];
-    }catch (error) {
-      console.error(error);
-      errorMessage.set(error.message);
-    }
-    return;
-  }
-
   let hoveredSupplierIndex = null;
   let hoveredSupplierImageIndex = null;
   let selectedSupplierIndex = null;
