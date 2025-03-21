@@ -4,6 +4,7 @@ import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.text.Normalizer;
 
+@AllArgsConstructor
 @Service
 public class ExcelImportService {
 
@@ -24,25 +26,7 @@ public class ExcelImportService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryCharacteristicRepository categoryCharacteristicRepository;
-
-    /**
-     * Constructs an instance of ExcelImportService.
-     */
-    public ExcelImportService(
-        InstrumentRepository instrumentRepository,
-        SubGroupRepository subGroupRepository,
-        CharacteristicRepository characteristicRepository,
-        SupplierRepository supplierRepository,
-        CategoryRepository categoryRepository,
-        CategoryCharacteristicRepository categoryCharacteristicRepository
-    ) {
-        this.instrumentRepository = instrumentRepository;
-        this.subGroupRepository = subGroupRepository;
-        this.characteristicRepository = characteristicRepository;
-        this.supplierRepository = supplierRepository;
-        this.categoryRepository = categoryRepository;
-        this.categoryCharacteristicRepository = categoryCharacteristicRepository;
-    }
+    private final CharacteristicAbbreviationService abbreviationService;
 
     /**
      * Processes an import request based on its type.
@@ -383,21 +367,23 @@ public class ExcelImportService {
                     .stream()
                     .filter(cc -> normalizeString(cc.getVal()).equals(normalizedValue))
                     .findFirst();
-    
-            String abbreviation;
-            if (existingCategoryCharacteristic.isPresent()) {
-                // If the value already exists, use its abbreviation
-                abbreviation = existingCategoryCharacteristic.get().getValAbrev();
-            } else {
-    
-                // If no abbreviation exists, check if there's a column for abbreviation
-                abbreviation = (availableColumns.contains("abbreviation") && row.get("abbreviation") != null)
-                        ? row.get("abbreviation").toString()
-                        : null;
+
+            if(existingCategoryCharacteristic.isPresent()) {
+                // If the characteristic value exists, check if there's an abbreviation
+                String abbreviation = abbreviationService.getAbbreviation(existingCategoryCharacteristic.get().getVal()).orElse(null);
+                if (abbreviation == null) {
+                    // If no abbreviation exists, check if there's a column for abbreviation
+                    abbreviation = (availableColumns.contains("abbreviation") && row.get("abbreviation") != null)
+                            ? row.get("abbreviation").toString()
+                            : null;
+                    if(abbreviation != null) {
+                        abbreviationService.addAbbreviation(existingCategoryCharacteristic.get().getVal(), abbreviation);
+                    }
+                }
             }
     
             // Create new CategoryCharacteristic
-            CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(newCategory, characteristic, characteristicValue, abbreviation);
+            CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(newCategory, characteristic, characteristicValue);
             categoryCharacteristic.setId(new CategoryCharacteristicKey(newCategory.getId(), characteristic.getId()));
             categoryCharacteristicRepository.save(categoryCharacteristic);
         }

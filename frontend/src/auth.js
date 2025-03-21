@@ -6,13 +6,14 @@ import { createPersistentStore, clearPersistentStore } from "$lib/utils/persiste
 
 
 export function login() {
-  window.location.href = PUBLIC_API_URL + "/oauth2/authorization/" + PUBLIC_OIDC_ENDPOINT; // Backend URL for OAuth login
   user.set(null);
   clearPersistentStore("user");
+  window.location.href = PUBLIC_API_URL + "/oauth2/authorization/" + PUBLIC_OIDC_ENDPOINT; // Backend URL for OAuth login
 }
 
 // check if user is logged in using the API
 export async function checkUser() {
+  console.log("Checking user");
   const res = await apiFetch("/api/auth/me");
   if (res.ok) {
     const data = await res.json();
@@ -20,5 +21,5 @@ export async function checkUser() {
   } else {
     user.set(null);
   }
-  console.log("User: ", user);
+  console.log("User: ", $user);
 }

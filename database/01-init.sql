@@ -72,16 +72,22 @@ CREATE TABLE category (
 -- Table characteristic
 CREATE TABLE characteristic (
     characteristic_id SERIAL PRIMARY KEY,
-    characteristic_name VARCHAR(255)
+    characteristic_name TEXT
 );
 
 -- Table category_characteristic
 CREATE TABLE category_characteristic (
     category_id INTEGER REFERENCES category(category_id),
     characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
-    characteristic_value VARCHAR(255),
-    value_abreviation VARCHAR(100),
+    characteristic_value TEXT,
     PRIMARY KEY (category_id, characteristic_id)
+);
+
+-- Table for characteristic values abbreviations
+CREATE TABLE category_characteristic_abbreviations (
+    id SERIAL PRIMARY KEY,
+    characteristic_value TEXT UNIQUE NOT NULL,
+    value_abreviation TEXT NOT NULL
 );
 
 -- Table instruments
@@ -124,33 +130,6 @@ CREATE TABLE order_items (
     instrument_id INTEGER REFERENCES instruments(instrument_id),
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_id, instrument_id)
-);
--- Create table for instrument images
-CREATE TABLE instrument_pictures (
-  instrument_pictures_id SERIAL PRIMARY KEY,
-  instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
-);
-
--- Create table for sub-group images
-CREATE TABLE category_pictures (
-  category_pictures_id SERIAL PRIMARY KEY,
-  category_id INTEGER NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
-);
-
--- Create table for sub-group images
-CREATE TABLE group_pictures (
-  group_pictures_id SERIAL PRIMARY KEY,
-  group_id INTEGER NOT NULL REFERENCES "group"(group_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
-);
-
--- Create table for sub-group images
-CREATE TABLE sub_group_pictures (
-  sub_group_pictures_id SERIAL PRIMARY KEY,
-  sub_group_id INTEGER NOT NULL REFERENCES sub_group(sub_group_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
 );
 
 
@@ -203,16 +182,18 @@ DECLARE
 BEGIN
     -- Build the shape string based on the present characteristics and their order
     FOR characteristic_record IN
-        SELECT sgc.value_abreviation
-        FROM category_characteristic sgc
+        SELECT cca.value_abreviation
+        FROM category_characteristic cc
+        JOIN category_characteristic_abbreviations cca
+            ON cca.characteristic_value = cc.characteristic_value
         JOIN sub_group_characteristic sgc_rel
             ON sgc_rel.sub_group_id = (SELECT sub_group_id
                                        FROM sub_group
                                        WHERE sub_group_id = (SELECT sub_group_id
                                                              FROM category
                                                              WHERE category_id = NEW.category_id))
-            AND sgc_rel.characteristic_id = sgc.characteristic_id
-        WHERE sgc.category_id = NEW.category_id
+            AND sgc_rel.characteristic_id = cc.characteristic_id
+        WHERE cc.category_id = NEW.category_id
           AND sgc_rel.order_position IS NOT NULL
         ORDER BY sgc_rel.order_position
     LOOP
@@ -231,6 +212,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- Update the trigger to reflect the modified function
 CREATE TRIGGER trigger_update_shape
