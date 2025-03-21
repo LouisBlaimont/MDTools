@@ -1,15 +1,15 @@
 <script>
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  
   import { toast } from "@zerodevx/svelte-toast";
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { modals } from "svelte-modals";
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
-	import { user } from "$lib/stores/user_stores"; 
-  import { apiFetch } from "$lib/utils/fetch";
+  import { ordersNames, userId, selectedOrderId } from "$lib/stores/searches";
+	import { user } from "$lib/stores/user_stores";
+  import { findOrderItems } from "$lib/components/order_component.js";  import { apiFetch } from "$lib/utils/fetch";
 
   // RBAC 
   let userValue;
@@ -25,10 +25,15 @@
     try {
       const response = await apiFetch("/api/groups/summary");
 
+      const response2 = await apiFetch(`/api/orders/user/${$userId}`);
+      if (!response2.ok){
+          throw new Error(`Failed to fetch orders: ${response2.statusText}`); 
+      }
       if (!response.ok) {
         throw new Error(`Failed to fetch groups: ${response.statusText}`);
       }
 
+      ordersNames.set(await response2.json());
       groups_summary = await response.json();
       groups_summary.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
@@ -111,16 +116,31 @@
     }
     moveToSearches(group.name, subgroup.name);
   }
+
+  function seePreviousOrders(){
+    goto("/previous_orders");
+  }
+
+  function getSelectedOrderName(orderId) {
+    const selectedOrder = $ordersNames.find(order => order.id === orderId);
+    return selectedOrder ? selectedOrder.name : null;
+  }
+
+  async function singleOrderView(){
+    const name = getSelectedOrderName($selectedOrderId);
+    findOrderItems($selectedOrderId);
+    goto(`/single_order_view?name=${name}`);
+  }
 </script>
 
 <svelte:head>
   <title>Accueil</title>
 </svelte:head>
 
-<main
-  class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-16 max-w-screen-xl mx-auto text-[14px"
->
-  <aside class="w-full md:w-1/4 bg-gray-100 rounded-lg p-8 shadow-md">
+
+<div class="flex flex-row justify-center items-start space-x-8 px-8 py-16 max-w-screen-xl mx-auto text-[14px]">
+  <div class = "flex flex-col space-y-8 w-1/3">
+  <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md">
     <form class="space-y-6">
       <div class="flex flex-col">
         <label for="id_search_keyword" class="font-semibold text-lg"
@@ -173,9 +193,41 @@
         </div>
       {/if}
     </form>
-  </aside>
+  </div>
+  
 
-  <section
+  <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md mt-6">
+    <div class="mb-6">
+      <label for="search-order" class="font-semibold text-lg">
+        Rechercher une commande :
+      </label>
+      <select 
+      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 mb-2"
+      bind:value={$selectedOrderId}
+      >
+        {#each $ordersNames as order}
+          <option value={order.id}>{order.name} </option>
+        {/each}
+      </select>
+      <button 
+      class="w-full p-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
+      onclick={()=>singleOrderView()}>Rechercher</button>
+    </div>
+
+    <div class="mb-6">
+      <label for="previous-orders" class="font-semibold text-lg">
+        Voir les commandes précédentes: 
+      </label>
+      <button 
+      class="w-full p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 flex items-center justify-center"
+      onclick={()=>seePreviousOrders()}>
+        Voir
+      </button>
+    </div>
+  </div>
+  </div>
+
+  <div
     class="w-full bg-white md:w-3/4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
   >
     <div class="flex gap-2">
@@ -273,38 +325,6 @@
           </div>
         {/each}
       {/if}
-    </div>
-  </section>
-</main>
-
-<div
-  class="container mx-auto bg-gray-50 p-6 shadow-lg flex justify-center flex items-center space-x-6"
->
-  <div>
-    <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
-  </div>
-  <div>
-    <label for="id_ref" class="font-semibold text-lg">Rechercher une commande:</label>
-    <div class="flex flex-row">
-      <div>
-        <input
-          list="commandes"
-          name="commandes"
-          placeholder="Entrez un numéro de commande"
-          class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg"
-        />
-        <datalist id="commandes">
-          <option value="#123456"> </option><option value="#123457"> </option><option
-            value="#123458"
-          >
-          </option><option value="#123459"> </option></datalist
-        >
-      </div>
-      <div>
-        <button class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg"
-          >Rechercher</button
-        >
-      </div>
     </div>
   </div>
 </div>
