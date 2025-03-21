@@ -27,7 +27,8 @@ INSERT INTO sub_group (sub_group_name, group_id) VALUES
 -- Insert into users table
 INSERT INTO users (username, email) VALUES 
 ('john_doe', 'john@example.com'),
-('jane_admin', 'jane@example.com');
+('jane_admin', 'jane@example.com'),
+('estelle', 'test@mdtools.local');
 
 INSERT INTO authorities(authority) VALUES 
 ('ROLE_USER'),
@@ -38,6 +39,9 @@ INSERT INTO user_authorities(user_id, authority) VALUES
 (1, 'ROLE_ADMIN'),
 (1, 'ROLE_USER'),
 (2, 'ROLE_USER');
+(3, 'ROLE_ADMIN');
+(3, 'ROLE_USER');
+(3, 'ROLE_WEBMASTER');
 
 -- Insert into logs table
 INSERT INTO logs (user_id, action) VALUES 
