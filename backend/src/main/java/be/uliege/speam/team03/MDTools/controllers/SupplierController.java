@@ -26,6 +26,12 @@ public class SupplierController {
         this.instrumentService = instrumentService;
     }
 
+    /**
+     * Get all instruments of a specific supplier.
+     * 
+     * @param supplierId the ID of the supplier
+     * @return a list of instruments for the specified supplier, or a 404 status if no instruments are found
+     */
     @GetMapping("/{supplierId}/instruments")
     public ResponseEntity<?> getInstrumentsOfSupplier(@PathVariable Integer supplierId) {
         List<InstrumentDTO> products = instrumentService.findInstrumentsBySupplierId(supplierId);
@@ -35,6 +41,12 @@ public class SupplierController {
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
+    /**
+     * Get a supplier by its ID.
+     * 
+     * @param supplierId the ID of the supplier
+     * @return the supplier with the specified ID, or a 404 status if no supplier is found
+     */
     @GetMapping("/{supplierId}")
     public ResponseEntity<?> getSupplierById(@PathVariable Integer supplierId) {
         SupplierDTO supplier = supplierService.findSupplierById(supplierId);
@@ -44,6 +56,11 @@ public class SupplierController {
         return ResponseEntity.status(HttpStatus.OK).body(supplier);
     }
 
+    /**
+     * Get all suppliers.
+     * 
+     * @return a list of all suppliers, or a 404 status if no suppliers are found
+     */
     @GetMapping("/all")
     public ResponseEntity<?> getAllSuppliers() {
         List<SupplierDTO> suppliers = supplierService.findAllSuppliers();
@@ -53,13 +70,58 @@ public class SupplierController {
         return ResponseEntity.status(HttpStatus.OK).body(suppliers);
     }
 
+    /**
+     * Add a new supplier.
+     * 
+     * @param newSupplier the supplier to add
+     * @return the added supplier, or a 409 status if a supplier with the same ID already exists
+     */
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<SupplierDTO> addSupplier(@RequestBody SupplierDTO newSupplier) {
+    public ResponseEntity<?> addSupplier(@RequestBody SupplierDTO newSupplier) {
         if (newSupplier.getName() == null || newSupplier.getName().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
         }
+        // Check if a supplier with the same ID already exists so that we don't overwrite it
+        if (newSupplier.getId() != null) {
+            SupplierDTO existingSupplier = supplierService.findSupplierById(newSupplier.getId());
+            if (existingSupplier != null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Supplier with this id exists already.\n");
+            }
+        } else {
+            // Assign a new ID to the supplier (the id of the last supplier + 1)
+            Integer maxSupplierId = supplierService.findMaxSupplierId();
+            newSupplier.setId(maxSupplierId + 1);
+        }
         SupplierDTO savedSupplier = supplierService.saveSupplier(newSupplier);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSupplier);
+    }
+
+    /**
+     * Update a supplier.
+     * 
+     * @param id the ID of the supplier to update
+     * @param updatedSupplier the supplier data to update
+     * @return the updated supplier, or a 404 status if no supplier is found with the specified ID
+     */
+    @PatchMapping("/edit/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> updateSupplier(@PathVariable Integer id, @RequestBody SupplierDTO updatedSupplier) {
+        SupplierDTO existingSupplier = supplierService.findSupplierById(id);
+        if (existingSupplier != null) {
+            if (updatedSupplier.getName() != null) {
+                existingSupplier.setName(updatedSupplier.getName());
+            }
+            if (updatedSupplier.isSoldByMD() != null) {
+                existingSupplier.setSoldByMD(updatedSupplier.isSoldByMD());
+            }
+            if (updatedSupplier.isClosed() != null) {
+                existingSupplier.setClosed(updatedSupplier.isClosed());
+            }
+            SupplierDTO savedSupplier = supplierService.saveSupplier(existingSupplier);
+            return ResponseEntity.status(HttpStatus.OK).body(savedSupplier);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier does not exist with id: " + id);
+        }
     }
 }

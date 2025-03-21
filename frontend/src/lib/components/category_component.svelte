@@ -7,9 +7,10 @@
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
-    import { isEditing, reload, selectedCategoryIndex, hoveredCategoryIndex,
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import { isAdmin } from "$lib/stores/user_stores";
+    import { PUBLIC_API_URL } from "$env/static/public";
+    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
+     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
@@ -103,6 +104,21 @@
         pannel.style.display = "none";
         overlay.style.display = "none";
     }
+    
+    function openAddCategoryPage() {
+        if($selectedGroup == null){
+            console.log("Groups are not defined");
+            return;
+        } 
+        else if($selectedSubGroup == null){
+            console.log("SubGroups are not defined");
+            return;
+        }
+        else {
+            console.log("Groups and subgroups are defined");
+            goto("../../admin/add_category");
+        }
+    }
 
 </script>
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
@@ -153,6 +169,15 @@
     {#if $isAdmin}
         <EditButton />
     {/if}
+    {#if $isEditing}
+       {#if $isAdmin}
+            <div class="flex justify-center">
+                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddCategoryPage()}>
+                    Ajouter une catégorie
+                </button>
+            </div>
+        {/if}
+    {/if}
     </div>
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
@@ -164,6 +189,7 @@
         <!-- svelte-ignore a11yå_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <img
             alt="tool{row.id}"
             src={row.pictureId

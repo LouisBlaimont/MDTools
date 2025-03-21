@@ -2,9 +2,11 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { createEventDispatcher } from "svelte";
+    import { selectedGroup } from "$lib/stores/searches";
     
-    let groupName = "";
-    let subGroupName = "";
+    let groupName = $selectedGroup;
+    console.log("Group : " + groupName);
+    let name = "";
     let picture = "";
     let characteristics = [""];
     const dispatch = createEventDispatcher();
@@ -19,7 +21,7 @@
 
     function erase() {
         groupName = "";
-        subGroupName = "";
+        name = "";
         picture = "";
         characteristics = [""];
     }
@@ -30,49 +32,53 @@
     }
 
     async function submitForm() {
-        const response = await fetch('localhost:8080/api/groups', {
+        if (characteristics === null) {
+            characteristics = [""];
+        }
+        else {
+            characteristics.join(", ");
+        }
+        const response = await fetch('localhost:8080/api/subgroups/group/' + groupName, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                groupName, 
-                subGroupName, 
-                characteristics: characteristics.join(", "),
+                name, 
+                groupName,
+                characteristics,
                 picture 
             })
         });
         
         if (response.ok) {
-            dispatch("success", { message: "Group added successfully!" });
+            dispatch("success", { message: "Ajout sous-groupe réussi!" });
         } else {
-            dispatch("error", { message: "Failed to add group." });
+            dispatch("error", { message: "Impossible d'ajouter un sous-groupe." });
         }
     }
 </script>
 
 <main class="flex flex-col items-center w-full p-6 mt-3">
     <form on:submit|preventDefault={submitForm} class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter un groupe d'instruments</h2>
-        
-        <label for="group_name" class="font-semibold text-lg">Nom du groupe:</label>
-        <input type="text" bind:value={groupName} placeholder="Entrez le nom du groupe"
-            class="w-full p-2 mt-1 mb-3 border rounded">
+        <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter un sous-groupe d'instruments</h2>
 
         <label for="subgroup_name" class="font-semibold text-lg">Nom du sous-groupe:</label>
-        <input type="text" bind:value={subGroupName} placeholder="Entrez le nom du sous-groupe"
+        <input type="text" bind:value={name} placeholder="Entrez le nom du sous-groupe"
             class="w-full p-2 mt-1 mb-3 border rounded">
         
         <label for="characateristics" class="font-semibold text-lg">Caractéristiques:</label>   
-        {#each characteristics as char, index}
-            <div class="flex items-center mt-2">
-                <input type="text" bind:value={characteristics[index]} placeholder="Entrez une caractéristique"
-                    class="flex-1 p-2 border rounded" on:input={(e) => updateCharacteristic(index, e.target.value)}>
-            </div>
-        {/each}
+        {#if characteristics !== null}
+            {#each characteristics as char, index}
+                <div class="flex items-center mt-2">
+                    <input type="text" bind:value={characteristics[index]} placeholder="Entrez une caractéristique"
+                        class="flex-1 p-2 border rounded" on:input={(e) => updateCharacteristic(index, e.target.value)}>
+                </div>
+            {/each}
+        {/if}
         
         <button type="button" on:click={addCharacteristic} class="mt-4 px-4 py-2 bg-teal-500 text-white rounded">Ajouter une caractéristique</button>
         
         <div class="mt-3">
-        <label for="picture" class="font-semibold text-lg">Ajouter une image du groupe:</label>
+        <label for="picture" class="font-semibold text-lg">Ajouter une image du sous-groupe:</label>
         <input type="file" bind:value={picture} class="w-full p-2 mt-1 border rounded">
         </div>
 
