@@ -1,0 +1,32 @@
+issuer: http://dex.localhost.direct/dex  # Local OIDC issuer
+
+storage:
+  type: sqlite3
+  config:
+    file: /data/dex.db  # SQLite database
+
+web:
+  http: 0.0.0.0:5556  # Expose DeX on all interfaces
+
+staticClients:
+  - id: mdtools-backend
+    name: "MDTools Backend"
+    redirectURIs:
+      - "http://api.localhost.direct/login/oauth2/code/dex"  # Adjust for Spring Boot
+    secret: "backend-secret"
+
+enablePasswordDB: true  # Enable static users for testing
+
+staticPasswords:
+  - email: "test@mdtools.local"
+    hash: "$2a$12$pNIdfGYU7YNjbbEDL2xxAeSyU3iFsNvGt5vRRImdzP7W6F9c8/uYC"  # bcrypt("test123")
+    username: "testuser"
+    name: "Test User"
+    userID: "1234"
+
+oauth2:
+  skipApprovalScreen: true  # No need to approve OAuth requests
+  alwaysShowLoginScreen: true
+
+expiry:
+  idTokens: 24h  # Token expiry time

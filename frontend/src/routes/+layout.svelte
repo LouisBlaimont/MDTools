@@ -1,33 +1,43 @@
 <script>
   import "../app.css";
   import { SvelteToast } from "@zerodevx/svelte-toast";
-  import { Modals } from 'svelte-modals'
+  import { Modals } from "svelte-modals";
   import Loading from "$lib/Loading.svelte";
-	import { checkRole } from "$lib/rbacUtils";
-	import { ROLES } from "../constants";
-	import { user } from "$lib/stores/user_stores"; 
+  import { checkRole } from "$lib/rbacUtils";
+  import { ROLES } from "../constants";
+  import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
+  import { login, checkUser } from "../auth";
+  import { onMount } from "svelte";
+  import { apiFetch } from "$lib/utils/fetch";
+  import { toast } from "@zerodevx/svelte-toast";
 
-  let { children } = $props();
-
-  // RBAC implementation
-  let userRole = "admin"; // change to "admin" for admin view
-  let userValue;
-  user.subscribe(value => {
-    userValue = value;
-  });
-  let isLoggedIn = true;//!!userValue; // check if user is connected when login is implemented
-  let isAdmin = true;//checkRole(userValue, ROLES.ADMIN);
-  let isWebmaster = checkRole(userValue, ROLES.WEBMASTER);
-
-  // handle user authentication (changing it when correct login implementation)
-  function handleAuth() {
-    if (isLoggedIn) {
-      // Log out logic to do when login ok
-      user.set(null);
+  // Handle authentication
+  async function handleAuth() {
+    if ($isLoggedIn) {
+      try {
+        const response = await apiFetch("/api/auth/logout", { method: "POST" });
+        if (response.ok) {
+          user.set(null);
+          toast.push("You have been logged out successfully.");
+        } else {
+          throw new Error("Logout failed.");
+        }
+      } catch (error) {
+        toast.push("An error occurred while logging out. Please try again.");
+      }
     } else {
-      window.location.href = "/login";
+      login();
     }
-  } 
+  }
+
+  let shouldCheckUser = true;
+  // Determine if we should check the user
+  onMount(() => {
+    shouldCheckUser = !$user || $user.expiresAt < Date.now();
+    console.log("isAdmin", $isAdmin);
+    console.log("isWebmaster", $isWebmaster);
+    
+  });
 </script>
 
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
@@ -36,39 +46,43 @@
 
   <!-- Navigation Bar -->
   <nav class="hidden md:flex space-x-6">
-    <!-- add here pages to see them easily for developing -->
-
     <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
     <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
 
-    {#if isAdmin || isWebmaster}
+    {#if $isAdmin || $isWebmaster}
       <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
     {/if}
 
-    {#if isWebmaster}
+    {#if $isWebmaster}
       <a href="/webmaster" class="text-white hover:text-teal-300 transition">Webmaster</a>
     {/if}
   </nav>
 
-  <!-- Bouton Login / Logout -->
+  <!-- Login / Logout Button -->
   <button
     onclick={handleAuth}
-    class="px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
+    class="px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition flex items-center justify-center"
+    style="width: 100px; height: 42px;"
   >
-    {isLoggedIn ? "Log out" : "Login"}
+    <span class="size-fit">
+      {#await shouldCheckUser ? checkUser() : Promise.resolve()}
+        <Loading />
+      {:then}
+        {$isLoggedIn ? "Log out" : "Login"}
+      {:catch}
+        Login
+      {/await}
+    </span>
   </button>
 </header>
 
-<div class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-
-{@render children()}
-
-</div>
+<main class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+  <slot />
+</main>
 
 <SvelteToast />
 
 <Modals>
-  <!-- shown when any modal is opened -->
   {#snippet backdrop({ close })}
     <button
       class="backdrop"
@@ -86,11 +100,11 @@
     bottom: 0;
     right: 0;
     left: 0;
-    background: rgba(0,0,0,0.50)
+    background: rgba(0, 0, 0, 0.5);
   }
 
   :root {
-    --toastContainerTop: 4.25rem;
+    --toastContainerTop: 4.5rem;
     --toastContainerRight: 1rem;
     --toastContainerBottom: auto;
     --toastContainerLeft: auto;

@@ -34,6 +34,11 @@ WORKDIR /app
 # Copy the built JAR file from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
+COPY wild.apps.speam.montefiore.uliege.be__cacert.crt /usr/local/share/ca-certificates/wild.apps.speam.montefiore.uliege.be__cacert.crt
+
+RUN update-ca-certificates && \
+    keytool -import -noprompt -trustcacerts -alias oc_cert -file /usr/local/share/ca-certificates/wild.apps.speam.montefiore.uliege.be__cacert.crt -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit
+
 # Expose the application port (default for Spring Boot is 8080)
 EXPOSE 8080
 

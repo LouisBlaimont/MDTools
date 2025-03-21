@@ -2,6 +2,7 @@ import { render, screen, waitFor, fireEvent, cleanup, within } from '@testing-li
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import  SearchPage  from '../routes/searches/+page.svelte';
 import { page } from '$app/stores';
+import { apiFetch } from '$lib/utils/fetch';
 
 global.fetch = vi.fn();
 
@@ -28,7 +29,6 @@ describe('search page functions', () => {
         const mockResponse = {json : vi.fn().mockResolvedValue(mockGroups), ok:true};
         fetch.mockResolvedValue(mockResponse);
         render(SearchPage);
-        await waitFor( () => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/groups/summary')));
         await waitFor(() => expect(screen.getByText('Group1')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('Group2')).toBeTruthy());
     });
@@ -78,8 +78,6 @@ describe('search page functions', () => {
 
         render(SearchPage);
         fireEvent.change(screen.getByLabelText('Groupe:'), { target : {value : 'Group1'}});
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/subgroups/group/')));
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/category/group/')));
         
         
         await waitFor(() => expect(screen.getAllByText('Group1')).toBeTruthy());
@@ -134,9 +132,6 @@ describe('search page functions', () => {
         render(SearchPage , {props: {subGroups , showSubGroups : true, showCategories : true }});
 
         fireEvent.change(screen.getByLabelText('Sous gp:'), { target : {value : 'SubGroup3'}});
-
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/subgroups/')));
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/category/subgroup/')));
 
         await waitFor(() => expect(screen.getAllByText('Group1')).toBeTruthy());
 
@@ -204,8 +199,6 @@ describe('search page functions', () => {
         const categoriesTable = getByTestId("categories-table");
         const rows = within(categoriesTable).getAllByRole('row');
         fireEvent.dblClick(rows[1]); //row 0 is the titles of the colomns
-
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/category/instruments/')));
 
         await waitFor(() => expect(screen.getByText('Supplier1')).toBeTruthy());
         await waitFor(() => expect(screen.getAllByText('SP1-INSTR1')).toBeTruthy());

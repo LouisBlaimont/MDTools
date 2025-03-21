@@ -1,7 +1,7 @@
 <script>
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  import { PUBLIC_API_URL } from "$env/static/public";
+  
   import { toast } from "@zerodevx/svelte-toast";
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
@@ -9,6 +9,7 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
 	import { user } from "$lib/stores/user_stores"; 
+  import { apiFetch } from "$lib/utils/fetch";
 
   // RBAC 
   let userValue;
@@ -22,7 +23,7 @@
 
   async function fecthData() {
     try {
-      const response = await fetch(PUBLIC_API_URL + "/api/groups/summary");
+      const response = await apiFetch("/api/groups/summary");
 
       if (!response.ok) {
         throw new Error(`Failed to fetch groups: ${response.statusText}`);
@@ -82,7 +83,7 @@
     }
 
     try {
-      const response = await fetch(PUBLIC_API_URL + `/api/groups/${group.name}`);
+      const response = await apiFetch(`/api/groups/${group.name}`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch subgroups: ${response.statusText}`);

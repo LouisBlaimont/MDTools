@@ -2,7 +2,6 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
 import be.uliege.speam.team03.MDTools.services.ExcelImportService;
-import be.uliege.speam.team03.MDTools.utils.JwtTokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +38,6 @@ class ExcelControllerTest {
     @MockBean  
     private ExcelImportService excelImportService;
 
-    @MockBean  
-    private JwtTokenUtils jwtTokenUtils;
 
     @MockBean  
     private UserDetailsService userDetailsService;

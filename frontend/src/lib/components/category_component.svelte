@@ -10,9 +10,11 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, isAdmin,
      charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
+    import { isAdmin } from "$lib/stores/user_stores";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+    import { apiFetch } from "$lib/utils/fetch";
   
     /**
      * Display the characteristic values of the category at line index in the table.
@@ -27,7 +29,7 @@
         categories.set([cat]);
 
         try{
-            const response = await fetch(PUBLIC_API_URL + `/api/category/${catId}`);
+            const response = await apiFetch(`/api/category/${catId}`);
             if(!response.ok){
                 throw new Error("Failed to fetch characteristics of category");
             }
@@ -74,7 +76,7 @@
         const categoryId = $categories[$selectedCategoryIndex].id;  
 
         try{
-        const response = await fetch(PUBLIC_API_URL + `/api/category/instruments/${categoryId}`);
+        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
         if (!response.ok){
             throw new Error("Failed to fetch instruments of category");
         }
