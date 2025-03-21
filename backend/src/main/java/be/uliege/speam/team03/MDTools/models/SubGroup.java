@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "sub_group")
+@Table(name = "sub_groups")
 public class SubGroup {
 
     @Id
