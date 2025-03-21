@@ -29,3 +29,7 @@ export function clearPersistentStore(key) {
   console.log("Clearing persistent store: " + key);
   localStorage.removeItem(key);
 }
+
+export function persistentStoreExists(key) {
+  return localStorage.getItem(key) !== null;
+}

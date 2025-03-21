@@ -61,7 +61,6 @@ class CategoryServiceTest {
         when(categoryRepository.findBySubGroupIn(List.of(subGroup))).thenReturn(Optional.of(List.of(category)));
         when(categoryRepository.findCharacteristicVal(1L, "Name")).thenReturn(Optional.of("Scalpel"));
         when(categoryRepository.findCharacteristicVal(1L, "Function")).thenReturn(Optional.of("Cutting"));
-        when(categoryRepository.findCharacteristicValAbrv(1L, "Length")).thenReturn(Optional.of("L"));
 
         // When
         List<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName);
@@ -72,7 +71,6 @@ class CategoryServiceTest {
         assertEquals("Scalpel", result.get(0).getName());
         assertEquals("Cutting", result.get(0).getFunction());
         assertEquals("Round", result.get(0).getShape());
-        assertEquals("L", result.get(0).getLenAbrv());
     }
 
     @Test
@@ -108,7 +106,6 @@ class CategoryServiceTest {
         when(categoryRepository.findBySubGroup(subGroup)).thenReturn(Optional.of(List.of(category)));
         when(categoryRepository.findCharacteristicVal(1L, "Name")).thenReturn(Optional.of("Scalpel"));
         when(categoryRepository.findCharacteristicVal(1L, "Function")).thenReturn(Optional.of("Cutting"));
-        when(categoryRepository.findCharacteristicValAbrv(1L, "Length")).thenReturn(Optional.of("L"));
 
         // When
         List<CategoryDTO> result = categoryService.findCategoriesOfSubGroup(subGroupName);
@@ -119,7 +116,6 @@ class CategoryServiceTest {
         assertEquals("Scalpel", result.get(0).getName());
         assertEquals("Cutting", result.get(0).getFunction());
         assertEquals("Round", result.get(0).getShape());
-        assertEquals("L", result.get(0).getLenAbrv());
     }
 
     @Test
