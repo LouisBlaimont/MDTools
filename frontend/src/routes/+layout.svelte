@@ -53,6 +53,8 @@
 
     {#if $isAdmin || $isWebmaster}
       <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
+      <a href="/admin/users" class="text-white hover:text-teal-300 transition">Users</a>
+      <a href="/admin/suppliers" class="text-white hover:text-teal-300 transition">Suppliers</a>
     {/if}
 
     {#if $isWebmaster}
