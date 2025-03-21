@@ -30,8 +30,8 @@
     }
   }
 
-  let shouldCheckUser = !$user || $user.expiresAt < Date.now();
   // Determine if we should check the user
+  $: shouldCheckUser = !$user || ($user?.expiresAt ?? 0) < Date.now();
   onMount(() => {
     console.log("shouldCheckUser", shouldCheckUser);
     console.log("isLoggedIn", $isLoggedIn);
