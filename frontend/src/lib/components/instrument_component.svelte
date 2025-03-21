@@ -5,20 +5,18 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
+    import { isAdmin } from "$lib/stores/user_stores";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, order, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
+    import { isEditing, order, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
      } from "$lib/stores/searches";   
-    import { isAdmin } from "$lib/stores/user_stores"; 
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
     import AddCategoryModal from "$lib/modals/AddCategoryModal.svelte";
     
-    isAdmin.set(true);
-
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
     }
@@ -96,7 +94,6 @@
      * @returns {void}
      */
     function openAddInstrumentPage() {
-        isAdmin.set(true);
 
         if ($selectedCategoryIndex == null || $selectedCategoryIndex == ""){
             console.log("Categories are not defined");

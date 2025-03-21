@@ -7,10 +7,10 @@
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
-    import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, isAdmin,
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import { isAdmin } from "$lib/stores/user_stores";
+    import { PUBLIC_API_URL } from "$env/static/public";
+    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
+     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
@@ -106,8 +106,6 @@
     }
     
     function openAddCategoryPage() {
-        isAdmin.set(true);
-
         if($selectedGroup == null){
             console.log("Groups are not defined");
             return;
