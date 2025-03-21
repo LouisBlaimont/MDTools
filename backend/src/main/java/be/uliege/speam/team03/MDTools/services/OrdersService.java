@@ -34,6 +34,7 @@ public class OrdersService {
     private final OrderItemsRepository orderItemsRepository;
     private final UserRepository userRepository;
     private final InstrumentRepository instrumentRepository;
+    private final CharacteristicAbbreviationService characteristicAbbreviationService;
 
     /**
      * Gets the instruments of the order given by id

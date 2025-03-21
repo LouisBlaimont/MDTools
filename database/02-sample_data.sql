@@ -139,95 +139,114 @@ INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_pos
 (6, 6, NULL), -- Function
 (6, 7, NULL); -- Name
 
+
+-- Add value_abreviation to category_characteristic_abbreviations table
+INSERT INTO category_characteristic_abbreviations(characteristic_value, value_abreviation) VALUES
+('Plastic', 'PL'),
+('Sharp', 'SH'),
+('Very Sharp', 'VSH'),
+('Cutting', 'CT'),
+('Kelly', 'kel'),
+('Steel', 'ST'),
+('Stainless Steel', 'SS'),
+('Flexible', 'FLX'),
+('Semi-Flexible', 'SFLX'),
+('Rigid', 'RGD'),
+('Semi-Rigid', 'SRGD'),
+('Comfortable', 'COMF'),
+('Ergonomic', 'ERG'),
+('Textured', 'TXT'),
+('Smooth', 'SMTH');
+
 -- Add characteristic values for Plastic Scalpels (sub_group_id = 1)
-INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value, value_abreviation) VALUES
-(1, 1, '10cm', '10CM'), -- Length
-(1, 2, 'Plastic', 'PL'), -- Material
-(1, 3, 'Sharp', 'SH'), -- Sharpness
-(1, 6, 'Cutting', 'CT'), -- Function
-(1, 7, 'Kelly', 'kel'), -- Name
-(2, 1, '15cm', '15CM'), -- Length
-(2, 2, 'Plastic', 'PL'), -- Material
-(2, 3, 'Very Sharp', 'VSH'), -- Sharpness
-(2, 6, 'Cutting', 'CT'), -- Function
-(2, 7, 'Kelly', 'kel'), -- Name
-(3, 1, '20cm', '20CM'), -- Length
-(3, 2, 'Plastic', 'PL'), -- Material
-(3, 6, 'Cutting', 'CT'), -- Function
-(3, 7, 'Kelly', 'kel'); -- Name
+INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
+(1, 1, '10cm'), -- Length
+(1, 2, 'Plastic'), -- Material
+(1, 3, 'Sharp'), -- Sharpness
+(1, 6, 'Cutting'), -- Function
+(1, 7, 'Kelly'), -- Name
+(2, 1, '15cm'), -- Length
+(2, 2, 'Plastic'), -- Material
+(2, 3, 'Very Sharp'), -- Sharpness
+(2, 6, 'Cutting'), -- Function
+(2, 7, 'Kelly'), -- Name
+(3, 1, '20cm'), -- Length
+(3, 2, 'Plastic'), -- Material
+(3, 6, 'Cutting'), -- Function
+(3, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Metal Scalpels (sub_group_id = 2)
-INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value, value_abreviation) VALUES
-(4, 1, '12cm', '12CM'), -- Length
-(4, 2, 'Steel', 'ST'), -- Material
-(4, 3, 'Sharp', 'SH'), -- Sharpness
-(4, 6, 'Cutting', 'CT'), -- Function
-(4, 7, 'Kelly', 'kel'), -- Name
-(5, 1, '18cm', '18CM'), -- Length
-(5, 2, 'Stainless Steel', 'SS'), -- Material
-(5, 3, 'Very Sharp', 'VSH'), -- Sharpness
-(5, 6, 'Cutting', 'CT'), -- Function
-(5, 7, 'Kelly', 'kel'), -- Name
-(6, 1, '22cm', '22CM'), -- Length
-(6, 2, 'Steel', 'ST'), -- Material
-(6, 6, 'Cutting', 'CT'), -- Function
-(6, 7, 'Kelly', 'kel'); -- Name
+INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
+(4, 1, '12cm'), -- Length
+(4, 2, 'Steel'), -- Material
+(4, 3, 'Sharp'), -- Sharpness
+(4, 6, 'Cutting'), -- Function
+(4, 7, 'Kelly'), -- Name
+(5, 1, '18cm'), -- Length
+(5, 2, 'Stainless Steel'), -- Material
+(5, 3, 'Very Sharp'), -- Sharpness
+(5, 6, 'Cutting'), -- Function
+(5, 7, 'Kelly'), -- Name
+(6, 1, '22cm'), -- Length
+(6, 2, 'Steel'), -- Material
+(6, 6, 'Cutting'), -- Function
+(6, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Curved Scissors (sub_group_id = 3)
-INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value, value_abreviation) VALUES
-(7, 1, '14cm', '14CM'), -- Length
-(7, 4, 'Flexible', 'FLX'), -- Flexibility
-(7, 6, 'Cutting', 'CT'), -- Function
-(7, 7, 'Kelly', 'kel'), -- Name
-(8, 1, '16cm', '16CM'), -- Length
-(8, 4, 'Semi-Flexible', 'SFLX'), -- Flexibility
-(8, 6, 'Cutting', 'CT'), -- Function
-(8, 7, 'Kelly', 'kel'), -- Name
-(9, 1, '20cm', '20CM'), -- Length
-(9, 6, 'Cutting', 'CT'), -- Function
-(9, 7, 'Kelly', 'kel'); -- Name
+INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
+(7, 1, '14cm'), -- Length
+(7, 4, 'Flexible'), -- Flexibility
+(7, 6, 'Cutting'), -- Function
+(7, 7, 'Kelly'), -- Name
+(8, 1, '16cm'), -- Length
+(8, 4, 'Semi-Flexible'), -- Flexibility
+(8, 6, 'Cutting'), -- Function
+(8, 7, 'Kelly'), -- Name
+(9, 1, '20cm'), -- Length
+(9, 6, 'Cutting'), -- Function
+(9, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Straight Scissors (sub_group_id = 4)
-INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value, value_abreviation) VALUES
-(10, 1, '12cm', '12CM'), -- Length
-(10, 4, 'Rigid', 'RGD'), -- Flexibility
-(10, 6, 'Cutting', 'CT'), -- Function
-(10, 7, 'Kelly', 'kel'), -- Name
-(11, 1, '18cm', '18CM'), -- Length
-(11, 4, 'Semi-Rigid', 'SRGD'), -- Flexibility
-(11, 6, 'Cutting', 'CT'), -- Function
-(11, 7, 'Kelly', 'kel'), -- Name
-(12, 1, '20cm', '20CM'), -- Length
-(12, 6, 'Cutting', 'CT'), -- Function
-(12, 7, 'Kelly', 'kel'); -- Name
+INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
+(10, 1, '12cm'), -- Length
+(10, 4, 'Rigid'), -- Flexibility
+(10, 6, 'Cutting'), -- Function
+(10, 7, 'Kelly'), -- Name
+(11, 1, '18cm'), -- Length
+(11, 4, 'Semi-Rigid'), -- Flexibility
+(11, 6, 'Cutting'), -- Function
+(11, 7, 'Kelly'), -- Name
+(12, 1, '20cm'), -- Length
+(12, 6, 'Cutting'), -- Function
+(12, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Locking Forceps (sub_group_id = 5)
-INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value, value_abreviation) VALUES
-(13, 1, '10cm', '10CM'), -- Length
-(13, 5, 'Ergonomic', 'ERG'), -- Grip Type
-(13, 6, 'Cutting', 'CT'), -- Function
-(13, 7, 'Kelly', 'kel'), -- Name
-(14, 1, '15cm', '15CM'), -- Length
-(14, 5, 'Comfortable', 'COMF'), -- Grip Type
-(14, 6, 'Cutting', 'CT'), -- Function
-(14, 7, 'Kelly', 'kel'), -- Name
-(15, 1, '20cm', '20CM'), -- Length
-(15, 6, 'Cutting', 'CT'), -- Function
-(15, 7, 'Kelly', 'kel'); -- Name
+INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
+(13, 1, '10cm'), -- Length
+(13, 5, 'Ergonomic'), -- Grip Type
+(13, 6, 'Cutting'), -- Function
+(13, 7, 'Kelly'), -- Name
+(14, 1, '15cm'), -- Length
+(14, 5, 'Comfortable'), -- Grip Type
+(14, 6, 'Cutting'), -- Function
+(14, 7, 'Kelly'), -- Name
+(15, 1, '20cm'), -- Length
+(15, 6, 'Cutting'), -- Function
+(15, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Non-Locking Forceps (sub_group_id = 6)
-INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value, value_abreviation) VALUES
-(16, 1, '11cm', '11CM'), -- Length
-(16, 5, 'Textured', 'TXT'), -- Grip Type
-(16, 6, 'Cutting', 'CT'), -- Function
-(16, 7, 'Kelly', 'kel'), -- Name
-(17, 1, '17cm', '17CM'), -- Length
-(17, 5, 'Smooth', 'SMTH'), -- Grip Type
-(17, 6, 'Cutting', 'CT'), -- Function
-(17, 7, 'Kelly', 'kel'), -- Name
-(18, 1, '21cm', '21CM'), -- Length
-(18, 6, 'Cutting', 'CT'), -- Function
-(18, 7, 'Kelly', 'kel'); -- Name
+INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
+(16, 1, '11cm'), -- Length
+(16, 5, 'Textured'), -- Grip Type
+(16, 6, 'Cutting'), -- Function
+(16, 7, 'Kelly'), -- Name
+(17, 1, '17cm'), -- Length
+(17, 5, 'Smooth'), -- Grip Type
+(17, 6, 'Cutting'), -- Function
+(17, 7, 'Kelly'), -- Name
+(18, 1, '21cm'), -- Length
+(18, 6, 'Cutting'), -- Function
+(18, 7, 'Kelly'); -- Name
 
 
 -- Insert into instruments table

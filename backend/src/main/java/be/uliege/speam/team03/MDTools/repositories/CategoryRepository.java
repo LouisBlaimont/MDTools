@@ -16,11 +16,6 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
            "JOIN cc.characteristic c " +
            "WHERE cc.category.id = :categoryId AND c.name = :characteristicName")
     Optional<String> findCharacteristicVal(Long categoryId, String characteristicName);
-
-    @Query("SELECT cc.valAbrev FROM CategoryCharacteristic cc " +
-           "JOIN cc.characteristic c " +
-           "WHERE cc.category.id = :categoryId AND c.name = :characteristicName")
-    Optional<String> findCharacteristicValAbrv(Long categoryId, String characteristicName);
     
     Optional<List<Category>> findBySubGroup(SubGroup subGroup);
     Optional<List<Category>> findBySubGroupIn(List<SubGroup> subGroups);

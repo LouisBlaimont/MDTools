@@ -2,8 +2,9 @@ package be.uliege.speam.team03.MDTools.mapper;
 
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
-import java.util.Optional;
+import be.uliege.speam.team03.MDTools.services.CharacteristicAbbreviationService;
 
+import java.util.Optional;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 
@@ -11,7 +12,7 @@ public class CategoryMapper {
 
     private CategoryRepository categoryRepository;
 
-    public CategoryMapper(CategoryRepository categoryRepository){
+    public CategoryMapper(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 

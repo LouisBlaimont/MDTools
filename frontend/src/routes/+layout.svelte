@@ -30,10 +30,12 @@
     }
   }
 
-  let shouldCheckUser = true;
+  let shouldCheckUser = !$user || $user.expiresAt < Date.now();
   // Determine if we should check the user
   onMount(() => {
-    shouldCheckUser = !$user || $user.expiresAt < Date.now();
+    console.log("shouldCheckUser", shouldCheckUser);
+    console.log("isLoggedIn", $isLoggedIn);
+    console.log("user", $user);
     console.log("isAdmin", $isAdmin);
     console.log("isWebmaster", $isWebmaster);
     
