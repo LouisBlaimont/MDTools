@@ -1,16 +1,11 @@
 <script>
-  //Mockup scripts
-  import { tools } from "../../tools.js";
-  import { suppliers } from "../../suppliers.js";
-  import { getOrder, addTool } from "../../order.js";
-
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { preventDefault } from "svelte/legacy";
   import { get } from "svelte/store";
   import { isEditing, reload, groups_summary, groups, 
-    errorMessage, findSubGroupsStore, findCharacteristicsStore } from "$lib/stores/searches";
+    errorMessage, findSubGroupsStore, findCharacteristicsStore, findOrdersNamesStore } from "$lib/stores/searches";
   import { user, isAdmin } from "$lib/stores/user_stores";
   import EditButton from "./EditButton.svelte";
   import EditCategoryButton from "./EditCategoryButton.svelte";
@@ -111,49 +106,6 @@
     overlay.style.display = "none";
   }
 
-  let toolToAddRef = "";
-  let quantity = "";
-  let order = getOrder();
-  function addToOrderPannel(ref) {
-    const pannel = document.getElementById("add-order-pannel");
-    const overlay = document.getElementById("overlay");
-    toolToAddRef = ref;
-    pannel.style.display = "flex";
-    overlay.style.display = "block";
-  }
-  function closeAddToOrder() {
-    const pannel = document.getElementById("add-order-pannel");
-    const overlay = document.getElementById("overlay");
-    pannel.style.display = "none";
-    overlay.style.display = "none";
-  }
-  function addToOrder() {
-    const tool_ref = suppliers[selectedCategoryIndex][selectedSupplierIndex].ref;
-    const tool_brand = suppliers[selectedCategoryIndex][selectedSupplierIndex].brand;
-    const tool_group = tools[selectedCategoryIndex].group;
-    const tool_fct = tools[selectedCategoryIndex].fct;
-    const tool_name = tools[selectedCategoryIndex].name;
-    const tool_form = tools[selectedCategoryIndex].form;
-    const tool_dim = tools[selectedCategoryIndex].dim;
-    const tool_qte = quantity;
-    const tool_pu_htva = suppliers[selectedCategoryIndex][selectedSupplierIndex].price;
-    order = addTool(
-      tool_ref,
-      tool_brand,
-      tool_group,
-      tool_fct,
-      tool_name,
-      tool_form,
-      tool_dim,
-      tool_qte,
-      tool_pu_htva
-    );
-    closeAddToOrder();
-  }
-  function exportOrderToExcel() {
-    //smth to do with the database I think
-  }
-
   /**
    * Delete the characteristic value given by id.
    * @param id
@@ -206,6 +158,7 @@
     }
   }
 
+  let findOrdersNames = null;
   // let findSubGroups = null;
   let findCharacteristics = null;
   let initialized = false;
@@ -283,10 +236,11 @@
         await findCharacteristics(subgroup);
       }
     }
+    await findOrdersNames();
   }
 
   function tryFetchData() {
-    if (findSubGroups && findCharacteristics && !initialized) {
+    if (findSubGroups && findCharacteristics && findOrdersNames && !initialized) {
       initialized = true; 
       fetchData();
     }
@@ -305,6 +259,12 @@
         tryFetchData();
       }
     });
+    findOrdersNamesStore.subscribe(value => {
+      if(value){
+        findOrdersNames = value;
+        tryFetchData();
+      }
+    })
   });
 
   reload.subscribe((v) => {

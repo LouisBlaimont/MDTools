@@ -1,7 +1,4 @@
 <script> 
-    import { tools } from "../../tools.js";
-    import { suppliers } from "../../suppliers.js";
-    import { getOrder } from "../../order.js"; 
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
@@ -10,7 +7,7 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, order, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
+    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
      } from "$lib/stores/searches";   
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
@@ -20,6 +17,8 @@
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
     }
+    import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
+ 
 
     function showBigPicture(img) {
         const pannel = document.getElementById("big-category-pannel");
@@ -193,7 +192,7 @@
                 {/if}
                 <td
                 class="green text-center border border-solid border-[black]"
-                on:click={() => addToOrderPannel(row.ref)}>+</td
+                on:click= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                 >
                 <td class="text-center border border-solid border-[black]">{row.reference}</td>
                 <td class="text-center border border-solid border-[black]">{row.supplier}</td>
@@ -217,35 +216,6 @@
 </div>
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
-
-
-<div
-  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]"
-  id="add-order-pannel"
->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <span
-    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5"
-    on:click={(event) => {
-      event.stopPropagation();
-      closeAddToOrder();
-    }}>&times;</span
-  >
-  <div>AJOUTER référence à la commande:</div>
-  <div>
-    <label for="qte" class="w-2/5">QUANTITE:</label>
-    <input
-      type="number"
-      id="qte"
-      name="qte"
-      class="border border-black rounded p-2 text-black bg-white"
-      bind:value={$quantity}
-    />
-    <button class="cursor-pointer" pointer on:click={() => addToOrder()}>AJOUT</button>
-  </div>
-</div>
-
 
 <div
   class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
