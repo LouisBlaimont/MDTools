@@ -91,6 +91,9 @@
         }; 
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
+    
+    console.log("current suppliers from instruments: ", $currentSuppliers);
+
 
 </script>
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">

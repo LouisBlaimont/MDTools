@@ -8,9 +8,8 @@
   import { checkRole } from "$lib/rbacUtils";
 	import { ROLES } from "../constants";
 	import { user } from "$lib/stores/user_stores"; 
-  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex} from "$lib/stores/searches";
+  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
-  import { selectCategory } from "$lib/components/category_component.svelte";
 
   // RBAC 
   let userValue;
@@ -38,11 +37,15 @@
   }
   onMount(fecthData);
 
-  function moveToSearches(group, subgroup) {
+  function moveToSearches(group, subgroup, row) {
     clearTimeout(clickTimeout);
     console.log("group :", group);
     goto(
-      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`, {
+    state: {
+      categoryId: row.categoryId
+    }
+  }
     );
   }
 
@@ -148,24 +151,11 @@
     }
   }
 
-  async function getCategoryOfInstrument(categoryId) {
-    try {
-      let response = await apiFetch(`/api/instruments/getCategory/${categoryId}`);
-      let cat = await response.json();
-      return cat;
-    } catch (error) {
-      console.error(error);
-      errorMessage.set(error.message);
-    }
-  }
-
   async function selectedInstrumentHome(row) {
     try {
       let response = await apiFetch(`/api/instruments/getCategory/${row.categoryId}`);
       let cat = await response.json();
-
-      moveToSearches(cat.groupName, cat.subGroupName);
-      selectCategory(row.categoryId, true);
+      moveToSearches(cat.groupName, cat.subGroupName, row);
     } catch (error) {
       console.error(error);
       errorMessage.set(error.message);

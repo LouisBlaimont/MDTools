@@ -10,7 +10,7 @@
   import { preventDefault } from "svelte/legacy";
   import { get } from "svelte/store";
   import { isEditing, reload, groups_summary, groups, 
-    errorMessage, findSubGroupsStore, findCharacteristicsStore } from "$lib/stores/searches";
+    errorMessage, findSubGroupsStore, findCharacteristicsStore,currentSuppliers } from "$lib/stores/searches";
   import { user, isAdmin } from "$lib/stores/user_stores";
   import EditButton from "./EditButton.svelte";
   import EditCategoryButton from "./EditCategoryButton.svelte";
@@ -164,7 +164,7 @@
       showChars = false;
       charValues=[];
       characteristics=[];
-      currentSuppliers = [];
+      currentSuppliers.set([]);
       return;
     }
     const previousGroup = selectedGroup;
@@ -172,7 +172,7 @@
     showSubGroups = true;
     showCategories = true;
     
-    currentSuppliers = [];
+    currentSuppliers.set([]);
     selectedSupplierIndex="";
     selectedCategoryIndex="";
     // Only reset subgroup if the group has changed
@@ -230,7 +230,9 @@
     }
   }
 
-  onMount(() => {
+  let isLoading = true;
+
+  onMount(async () => {
     findSubGroupsStore.subscribe(value => {
       if (value) {
         findSubGroups = value;
@@ -243,6 +245,12 @@
         tryFetchData();
       }
     });
+    const state = $page?.state;
+    if (state?.categoryId) {
+      await selectCategoryBis(state.categoryId);
+    }
+    console.log("currentSuppliers at end on Mount: ", $currentSuppliers);
+    isLoading = false;
   });
 
   reload.subscribe((v) => {
@@ -255,6 +263,27 @@
   function openEditPage(toolId) {
     goto(`/admin/instrument_edit/${toolId}`);
   }
+
+  /**
+   * Gets the suppliers of the category given directly by the categoryId
+   * @param categoryId
+   */
+  async function selectCategoryBis(categoryId) {
+    try{   
+        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+        if (!response.ok){
+            throw new Error("Failed to fetch instruments of category");
+        }
+        const answer = await response.json();
+        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+        console.log("current suppliers from Home: ", $currentSuppliers);
+    }catch (error) {
+        console.error(error);
+        errorMessage.set(error.message);
+    }
+    return;
+  }
+
 
 </script>
 
@@ -273,7 +302,7 @@
       <CategoryComponent />
       
       <!-- TABLE AND PICTURES OF THE SUPPLIERS -->
-      <InstrumentComponent />
+      <InstrumentComponent {isLoading}/>
 
     </div>
 
