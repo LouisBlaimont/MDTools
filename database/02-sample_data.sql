@@ -10,13 +10,13 @@ ALTER SEQUENCE instruments_instrument_id_seq RESTART WITH 1;
 
 
 -- Insert into "group" table
-INSERT INTO "group" (group_name) VALUES 
+INSERT INTO groups (group_name) VALUES 
 ('Scalpels'), 
 ('Scissors'), 
 ('Forceps');
 
 /* Insert into sub_group table */
-INSERT INTO sub_group (sub_group_name, group_id) VALUES
+INSERT INTO sub_groups (sub_group_name, group_id) VALUES
 ('Plastic Scalpels', 1),
 ('Metal Scalpels', 1),
 ('Curved Scissors', 2),
@@ -37,7 +37,9 @@ INSERT INTO authorities(authority) VALUES
 INSERT INTO user_authorities(user_id, authority) VALUES 
 (1, 'ROLE_ADMIN'),
 (1, 'ROLE_USER'),
-(2, 'ROLE_USER');
+(2, 'ROLE_USER'),
+(3, 'ROLE_WEBMASTER'),
+(3, 'ROLE_ADMIN');
 
 -- Insert into logs table
 INSERT INTO logs (user_id, action) VALUES 

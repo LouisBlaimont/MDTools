@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode
 @Entity
-@Table(name="\"group\"")
+@Table(name="groups")
 
 public class Group {
     @Id
