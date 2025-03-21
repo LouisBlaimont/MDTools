@@ -143,46 +143,46 @@ public class CategoryService {
     
             StringBuilder shapeBuilder = new StringBuilder();
     
-            List<CategoryCharacteristic> newCatChars = new ArrayList<>();
-            for (String charSubGroup : characteristics){
-                if (dictVal.containsKey(charSubGroup) && dictValAbrev.containsKey(charSubGroup)){
-                    Optional<Characteristic> charMaybe =  characteristicRepository.findByName(charSubGroup);
-                    if (charMaybe.isPresent() == false){
-                        return null;
-                    }
-                    Characteristic newChar = charMaybe.get();
-                    Integer charId = newChar.getId(); 
-                    String newCharVal = dictVal.get(charSubGroup);
-                    String newCharAbrev = dictValAbrev.get(charSubGroup);
+            // List<CategoryCharacteristic> newCatChars = new ArrayList<>();
+            // for (String charSubGroup : characteristics){
+            //     if (dictVal.containsKey(charSubGroup) && dictValAbrev.containsKey(charSubGroup)){
+            //         Optional<Characteristic> charMaybe =  characteristicRepository.findByName(charSubGroup);
+            //         if (charMaybe.isPresent() == false){
+            //             return null;
+            //         }
+            //         Characteristic newChar = charMaybe.get();
+            //         Integer charId = newChar.getId(); 
+            //         String newCharVal = dictVal.get(charSubGroup);
+            //         String newCharAbrev = dictValAbrev.get(charSubGroup);
     
-                    if (newCharVal==null){
-                        continue;
-                    }
+            //         if (newCharVal==null){
+            //             continue;
+            //         }
     
-                    CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCategoryId, charId);
-                    CategoryCharacteristic catChar = new CategoryCharacteristic(category, newChar, newCharVal, newCharAbrev);
-                    catChar.setId(key);
-                    categoryCharRepository.save(catChar);
-                    newCatChars.add(catChar);
+            //         CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCategoryId, charId);
+            //         CategoryCharacteristic catChar = new CategoryCharacteristic(category, newChar, newCharVal, newCharAbrev);
+            //         catChar.setId(key);
+            //         categoryCharRepository.save(catChar);
+            //         newCatChars.add(catChar);
     
-                    if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
-                        continue;
-                    }
-                    if(charSubGroup.equals("Length")){
-                        lenAbrv = newCharAbrev;
-                    }
-                    shapeBuilder.append(newCharAbrev).append("/");
-                }  
-            }
+            //         if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
+            //             continue;
+            //         }
+            //         if(charSubGroup.equals("Length")){
+            //             lenAbrv = newCharAbrev;
+            //         }
+            //         shapeBuilder.append(newCharAbrev).append("/");
+            //     }  
+            // }
     
-            if (shapeBuilder.length()> 0){
-                shapeBuilder.setLength(shapeBuilder.length()-1);
-            }
+            // if (shapeBuilder.length()> 0){
+            //     shapeBuilder.setLength(shapeBuilder.length()-1);
+            // }
     
             shape = shapeBuilder.toString();
             category.setShape(shape);
     
-            category.setCategoryCharacteristic(newCatChars);
+            // category.setCategoryCharacteristic(newCatChars);
         }
 
         category.setName(name);

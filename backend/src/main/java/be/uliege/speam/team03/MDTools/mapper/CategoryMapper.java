@@ -56,7 +56,7 @@ public class CategoryMapper {
         String shape = category.getShape();
 
         String lenAbrv;
-        Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicValAbrv((long) id, "Length");
+        Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicVal((long) id, "Length");
         if (lenAbrvMaybe.isPresent()){
             System.out.println("Length is present: " + lenAbrvMaybe.get());
             lenAbrv = lenAbrvMaybe.get();
