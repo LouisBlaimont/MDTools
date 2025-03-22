@@ -2,6 +2,7 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
@@ -48,6 +50,16 @@ public class UserController {
       } else {
          throw new BadRequestException("Please provide either user_id or email");
       }
+   }
+
+   @ResponseStatus(HttpStatus.CREATED)
+   @PostMapping("/add")
+   public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> body) {
+      UserDto newUser = userService.registerUser(body);
+      if (newUser == null) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
+      }
+      return ResponseEntity.ok(newUser);
    }
 
    @PreAuthorize("hasRole('WEBMASTER')")

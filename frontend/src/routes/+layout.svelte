@@ -51,9 +51,12 @@
     <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
     <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
 
+    {#if $isLoggedIn}
+      <a href="/users" class="text-white hover:text-teal-300 transition">User Profile</a>
+    {/if}
+
     {#if $isAdmin || $isWebmaster}
       <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
-      <a href="/admin/users" class="text-white hover:text-teal-300 transition">Users</a>
       <a href="/admin/suppliers" class="text-white hover:text-teal-300 transition">Suppliers</a>
     {/if}
 
