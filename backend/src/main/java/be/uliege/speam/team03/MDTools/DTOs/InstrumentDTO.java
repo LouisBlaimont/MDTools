@@ -19,6 +19,7 @@ public class InstrumentDTO {
     private Boolean obsolete;
     private List<Long> picturesId;
 
+<<<<<<< Updated upstream
     private Integer id;
 
     /**
@@ -44,6 +45,8 @@ public class InstrumentDTO {
      * 
      * @return the category ID of the instrument
      */
+=======
+>>>>>>> Stashed changes
     public Integer getCategoryId() {
         return categoryId;
     }

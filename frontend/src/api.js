@@ -151,5 +151,23 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
     throw new Error("Failed to import data");
   }
 
+<<<<<<< Updated upstream
   return response.json();
 }
+=======
+  return "Data successfully imported!";
+}
+
+/**
+ * Fetches all instruments for a given subgroup.
+ * Each instrument includes its reference and related attributes.
+ * @param {string} subGroupName - The name of the subgroup.
+ * @returns {Promise<Array>} - A list of instrument objects.
+ */
+export async function fetchInstrumentsBySubGroup(subGroupName) {
+  const res = await fetch(`${BASE_URL}/instruments/subgroup/${encodeURIComponent(subGroupName)}`);
+  if (!res.ok) throw new Error(`Failed to fetch instruments for subgroup: ${subGroupName}`);
+  return res.json();
+}
+
+>>>>>>> Stashed changes
