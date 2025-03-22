@@ -11,7 +11,7 @@ import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
-import be.uliege.speam.team03.MDTools.models.Suppliers;
+import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
@@ -125,11 +125,11 @@ public class InstrumentService {
      * @throws IllegalArgumentException if the supplier name is null or empty
      */
     public List<InstrumentDTO> findInstrumentsBySupplierName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
+        Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
-        Suppliers supplier = supplierMaybe.get();
+        Supplier supplier = supplierMaybe.get();
         List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
         return instrumentMapper.convertToDTO(instruments);
     }
@@ -142,11 +142,11 @@ public class InstrumentService {
      * @throws IllegalArgumentException if the supplier ID is null
      */
     public List<InstrumentDTO> findInstrumentsBySupplierId(Integer supplierId) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findById(supplierId);
+        Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
-        Suppliers supplier = supplierMaybe.get();
+        Supplier supplier = supplierMaybe.get();
         List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
         return instrumentMapper.convertToDTO(instruments);
     }

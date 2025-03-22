@@ -175,7 +175,7 @@ public class ExcelImportService {
      * @param supplierName The supplier's name.
      * @return The supplier object.
      */
-    Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
+    Supplier getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
         // Use the provided supplier name if not null, otherwise extract from available columns
         if (supplierName == null || supplierName.trim().isEmpty()) {
             supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : null;
@@ -190,8 +190,8 @@ public class ExcelImportService {
         String normalizedSupplierName = normalizeString(supplierName);
     
         // Fetch all existing suppliers from the database
-        List<Suppliers> existingSuppliers = supplierRepository.findAll();
-        for (Suppliers existingSupplier : existingSuppliers) {
+        List<Supplier> existingSuppliers = supplierRepository.findAll();
+        for (Supplier existingSupplier : existingSuppliers) {
             // Compare normalized names to check if a similar supplier already exists
             if (normalizeString(existingSupplier.getSupplierName()).equals(normalizedSupplierName)) {
                 return existingSupplier; // Return the existing supplier to avoid duplicates
@@ -199,7 +199,7 @@ public class ExcelImportService {
         }
     
         // If no similar supplier exists, create a new one
-        Suppliers newSupplier = new Suppliers();
+        Supplier newSupplier = new Supplier();
         newSupplier.setSupplierName(supplierName);
         
         newSupplier.setSoldByMd(getSoldByMdValue(row, availableColumns));
@@ -404,7 +404,7 @@ public class ExcelImportService {
         boolean isUpdated = false;
     
         // Check Supplier
-        Suppliers newSupplier = getOrCreateSupplier(row, availableColumns, null);
+        Supplier newSupplier = getOrCreateSupplier(row, availableColumns, null);
         if (newSupplier != null && !Objects.equals(instrument.getSupplier(), newSupplier)) {
             instrument.setSupplier(newSupplier);
             isUpdated = true;
@@ -516,7 +516,7 @@ public class ExcelImportService {
                 }
     
                 // Update supplier if missing but do not change if different
-                Suppliers newSupplier = getOrCreateSupplier(row, availableColumns, null);
+                Supplier newSupplier = getOrCreateSupplier(row, availableColumns, null);
                 if (existingInstrument.getSupplier() == null && newSupplier != null) {
                     existingInstrument.setSupplier(newSupplier);
                     instrumentRepository.save(existingInstrument);

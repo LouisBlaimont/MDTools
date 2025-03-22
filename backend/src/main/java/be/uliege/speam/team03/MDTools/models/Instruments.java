@@ -22,7 +22,7 @@ public class Instruments {
 
     @ManyToOne(cascade = CascadeType.ALL) // Cascade the save operation
     @JoinColumn(name = "supplier_id")
-    private Suppliers supplier;
+    private Supplier supplier;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
