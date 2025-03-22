@@ -3,6 +3,7 @@
     import { onMount } from "svelte";
     import { createEventDispatcher } from "svelte";
     import { selectedGroup } from "$lib/stores/searches";
+    import { apiFetch } from "$lib/utils/fetch";
     
     let groupName = $selectedGroup;
     console.log("Group : " + groupName);
@@ -38,7 +39,7 @@
         else {
             characteristics.join(", ");
         }
-        const response = await fetch('localhost:8080/api/subgroups/group/' + groupName, {
+        const response = await apiFetch('/api/subgroups/group/' + groupName, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

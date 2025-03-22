@@ -4,6 +4,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { modals } from "svelte-modals";
   import AddPictureModal from "./AddPictureModal.svelte";
+  import { apiFetch } from "$lib/utils/fetch";
 
   const {
     // provided by <Modals />
@@ -18,7 +19,7 @@
 
   async function deltePicture(id, index) {
     try {
-      const response = await fetch(PUBLIC_API_URL + "/api/pictures/" + encodeURIComponent(id), {
+      const response = await apiFetch(PUBLIC_API_URL + "/api/pictures/" + encodeURIComponent(id), {
         method: "DELETE",
       });
       if (!response.ok) {

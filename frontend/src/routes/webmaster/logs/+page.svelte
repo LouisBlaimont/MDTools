@@ -7,7 +7,7 @@
 
   async function fetchLogs() {
     try {
-      const response = await fetch(PUBLIC_API_URL + "/api/logs/list");
+      const response = await apiFetch("/api/logs/list");
       if (!response.ok) {
         throw new Error(`Failed to fetch logs: ${response.statusText}`);
       }

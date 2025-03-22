@@ -20,7 +20,7 @@ public class Instruments {
     @Column(name = "instrument_id")
     private Integer id;
 
-    @ManyToOne(cascade = CascadeType.ALL) // Cascade the save operation
+    @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Suppliers supplier;
 
