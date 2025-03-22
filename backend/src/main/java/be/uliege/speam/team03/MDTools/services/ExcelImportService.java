@@ -275,7 +275,7 @@ public class ExcelImportService {
     
         if (value instanceof String) {
             String strValue = ((String) value).trim().toLowerCase();
-            Set<String> trueValues = Set.of("true", "vrai", "ja", "yes", "oui");
+            Set<String> trueValues = Set.of("true", "vrai", "ja", "yes", "oui", "marque propre", "obsolete");
             Set<String> falseValues = Set.of("false", "faux", "nee", "non", "no");
     
             if (trueValues.contains(strValue)) return true;
@@ -350,10 +350,16 @@ public class ExcelImportService {
             String characteristicName = entry.getKey();
             String characteristicValue = entry.getValue();
     
-            // Normalize characteristic value for comparison
+            // Normalize the characteristic value for comparison
             String normalizedValue = normalizeString(characteristicValue);
     
-            // Check if characteristic exists in the database
+            // Check if an abbreviation column exists for this characteristic
+            String abbreviationColumn = "abbreviation_" + characteristicName;
+            String abbreviation = (availableColumns.contains(abbreviationColumn) && row.get(abbreviationColumn) != null)
+                    ? row.get(abbreviationColumn).toString()
+                    : null;
+    
+            // Retrieve the characteristic from the database or create a new one if it does not exist
             Characteristic characteristic = characteristicRepository.findByName(characteristicName)
                     .orElseGet(() -> {
                         Characteristic newChar = new Characteristic(characteristicName);
@@ -361,34 +367,38 @@ public class ExcelImportService {
                         return newChar;
                     });
     
-            // Look for an existing characteristic value in the database
+            // Check if the characteristic value already exists in the database
             Optional<CategoryCharacteristic> existingCategoryCharacteristic = categoryCharacteristicRepository
                     .findByCharacteristicId(characteristic.getId())
                     .stream()
                     .filter(cc -> normalizeString(cc.getVal()).equals(normalizedValue))
                     .findFirst();
-
-            if(existingCategoryCharacteristic.isPresent()) {
-                // If the characteristic value exists, check if there's an abbreviation
-                String abbreviation = abbreviationService.getAbbreviation(existingCategoryCharacteristic.get().getVal()).orElse(null);
-                if (abbreviation == null) {
-                    // If no abbreviation exists, check if there's a column for abbreviation
-                    abbreviation = (availableColumns.contains("abbreviation") && row.get("abbreviation") != null)
-                            ? row.get("abbreviation").toString()
-                            : null;
-                    if(abbreviation != null) {
-                        abbreviationService.addAbbreviation(existingCategoryCharacteristic.get().getVal(), abbreviation);
-                    }
+    
+            if (existingCategoryCharacteristic.isPresent()) {
+                // If the characteristic value exists, check if an abbreviation is already defined
+                String existingAbbreviation = abbreviationService.getAbbreviation(existingCategoryCharacteristic.get().getVal()).orElse(null);
+                if (existingAbbreviation == null && abbreviation != null) {
+                    // If no abbreviation exists and an abbreviation is provided in the import file, add it
+                    abbreviationService.addAbbreviation(existingCategoryCharacteristic.get().getVal(), abbreviation);
+                }
+            } else {
+                // If the characteristic is new, add the abbreviation if available
+                String existingAbbreviation = abbreviationService
+                    .getAbbreviation(characteristicValue)
+                    .orElse(null);
+                    
+                if (existingAbbreviation == null && abbreviation != null) {
+                    abbreviationService.addAbbreviation(characteristicValue, abbreviation);
                 }
             }
     
-            // Create new CategoryCharacteristic
+            // Create the association between the category and the characteristic
             CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(newCategory, characteristic, characteristicValue);
             categoryCharacteristic.setId(new CategoryCharacteristicKey(newCategory.getId(), characteristic.getId()));
             categoryCharacteristicRepository.save(categoryCharacteristic);
         }
         return newCategory;
-    }
+    }    
 
     /**
      * Updates an existing instrument with new data.
