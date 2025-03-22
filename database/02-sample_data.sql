@@ -10,7 +10,7 @@ ALTER SEQUENCE instruments_instrument_id_seq RESTART WITH 1;
 
 
 -- Insert into "group" table
-INSERT INTO "group" (group_name) VALUES 
+INSERT INTO groups (group_name) VALUES 
 ('Scalpels'), 
 ('Scissors'), 
 ('Forceps'),
@@ -18,7 +18,7 @@ INSERT INTO "group" (group_name) VALUES
 
 
 /* Insert into sub_group table */
-INSERT INTO sub_group (sub_group_name, group_id) VALUES
+INSERT INTO sub_groups (sub_group_name, group_id) VALUES
 ('Plastic Scalpels', 1),
 ('Metal Scalpels', 1),
 ('Curved Scissors', 2),
@@ -31,7 +31,7 @@ INSERT INTO sub_group (sub_group_name, group_id) VALUES
 INSERT INTO users (username, email) VALUES 
 ('john_doe', 'john@example.com'),
 ('jane_admin', 'jane@example.com'),
-('louis_blaimont', 'test@mdtools.local');
+('testuser', 'test@mdtools.local');
 
 INSERT INTO authorities(authority) VALUES 
 ('ROLE_USER'),

@@ -32,6 +32,15 @@
       console.error(error);
     }
   }
+
+  // Run this effect whenever isLoggedIn changes
+  $effect(() => {
+    if (isLoggedIn) {
+      console.log("Now logged in, fetching data...");
+      fecthData();
+    }
+  });
+
   onMount(() => {
     if ($isLoggedIn) {
       fecthData();
