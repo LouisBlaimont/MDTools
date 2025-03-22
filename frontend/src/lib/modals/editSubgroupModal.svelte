@@ -1,5 +1,5 @@
 <script>
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { apiFetch } from "$lib/utils/fetch";
 
   const {
     // provided by <Modals />
@@ -25,8 +25,7 @@
     // Update subgroup name if it has changed
     if (nameChanged) {
       try {
-        const response = await fetch(
-          PUBLIC_API_URL + "/api/subgroups/" + encodeURIComponent(subgroup.name),
+        const response = await apiFetch("/api/subgroups/" + encodeURIComponent(subgroup.name),
           {
             method: "PATCH",
             headers: {
@@ -49,8 +48,7 @@
       try {
         const fileData = new FormData();
         fileData.append("file", file);
-        const response = await fetch(
-          PUBLIC_API_URL + "/api/subgroups/" + encodeURIComponent(subgroup.name) + "/picture",
+        const response = await apiFetch("/api/subgroups/" + encodeURIComponent(subgroup.name) + "/picture",
           {
             method: "POST",
             body: fileData,

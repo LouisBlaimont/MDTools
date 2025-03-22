@@ -1,7 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { goto } from "$app/navigation";
-    import { PUBLIC_API_URL } from "$env/static/public";
+    import { apiFetch } from "$lib/utils/fetch";
     import { groups, subGroups, selectedGroup, selectedSubGroup, selectedGroupIndex, selectedSubGroupIndex, reload } from "$lib/stores/searches";
 
     let id = "";
@@ -24,7 +24,7 @@
             dispatch("Erreur", { message: "Veuillez sélectionner un groupe et un sous-groupe." });
             goto("../../searches");
         }
-        const response = await fetch('http://localhost:8080/api/category/group/' + groupId + '/subgroup/' + subGroupId + '/add', {
+        const response = await apiFetch('/api/category/group/' + groupId + '/subgroup/' + subGroupId + '/add', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

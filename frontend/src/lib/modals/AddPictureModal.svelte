@@ -25,7 +25,7 @@
      formData.append("type", "instrument");
  
      try {
-       const response = await fetch(`${PUBLIC_API_URL}/api/pictures/multiple`, {
+       const response = await apiFetch(`/api/pictures/multiple`, {
          method: "POST",
          body: formData,
        });

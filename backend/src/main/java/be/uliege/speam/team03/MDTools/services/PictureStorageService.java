@@ -153,4 +153,17 @@ public class PictureStorageService {
             throw new RuntimeException("Failed to delete file", ex);
         }
     }
+
+    // This is just an idea to implement the deletion of all pictures of a certain type
+
+    // /**
+    //  * Deletes pictures by reference ID and picture type.
+    //  *
+    //  * @param referenceId the ID of the reference to which the pictures belong
+    //  * @param pictureType the type of pictures to delete
+    //  */
+    // public void deletePicturesByReferenceIdAndPictureType(Long referenceId, PictureType pictureType) {
+    //     List<Picture> pictures = pictureRepository.findByReferenceIdAndPictureType(referenceId, pictureType);
+    //     pictureRepository.deleteAll(pictures);
+    // }
 }

@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.sound.midi.Instrument;
+
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
@@ -236,6 +239,8 @@ public class InstrumentService {
      * @param id the ID of the instrument to delete
      */
     public void delete(Integer id) {
-        instrumentRepository.deleteById(id);
+        Instruments instrument = instrumentRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Instrument not found with id: " + id));
+        instrumentRepository.delete(instrument);
     }
 }

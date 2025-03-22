@@ -153,11 +153,16 @@ public class InstrumentController {
         return ResponseEntity.status(HttpStatus.OK).body(savedInstrument);
     }
     
-    // @DeleteMapping("/delete/{id}")
-    // @ResponseStatus(HttpStatus.NO_CONTENT)
-    // public void deleteInstrument(@PathVariable Integer id) {
-    //     instrumentService.delete(id);
-    // }
+    /**
+     * Delete an instrument by its ID.
+     * 
+     * @param id the ID of the instrument
+     */
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInstrument(@PathVariable Integer id) {
+        instrumentService.delete(id);
+    }
 
     /**
      * Get picture IDs for a specific instrument.

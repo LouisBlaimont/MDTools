@@ -1,7 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { goto } from "$app/navigation";
-    import { PUBLIC_API_URL } from "$env/static/public";
+    import { apiFetch } from "$lib/utils/fetch";
     import { category_to_addInstrument, reload } from "$lib/stores/searches";
 
     let reference = "";
@@ -15,7 +15,7 @@
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
-        const response = await fetch('http://localhost:8080/api/instrument/add', {
+        const response = await apiFetch('/api/instrument/add', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { createEventDispatcher } from "svelte";
+    import { apiFetch } from "$lib/utils/fetch";
     
     let groupName = "";
     let subGroupName = "";
@@ -30,7 +31,7 @@
     }
 
     async function submitForm() {
-        const response = await fetch('localhost:8080/api/groups', {
+        const response = await apiFetch('/api/groups', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
