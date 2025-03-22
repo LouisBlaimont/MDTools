@@ -3,6 +3,7 @@
     import { onMount, getContext } from "svelte";
     import { reload } from "$lib/stores/searches";
     import { goto } from "$app/navigation";
+    import { apiFetch } from "$lib/utils/fetch";
   
     // Destructure the props provided by <Modals />
     const {
@@ -26,8 +27,7 @@
         try {
           const fileData = new FormData();
           fileData.append("file", file);
-          const response = await fetch(
-            PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id) + "/picture",
+          const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id) + "/picture",
             {
               method: "POST",
               body: fileData,
@@ -45,8 +45,7 @@
       if (characteristicsEdited) {
         try {
           const filteredCharacteristics = characteristics.filter(c => c.name !== 'id');
-          const response = await fetch(
-            PUBLIC_API_URL + "/api/instrument/edit/" + encodeURIComponent(instrument.id),
+          const response = await apiFetch("/api/instrument/edit/" + encodeURIComponent(instrument.id),
             {
               method: "PATCH",
               headers: {
@@ -74,8 +73,7 @@
     // Function to fetch the characteristics of the instrument
     async function fetchCharacteristics() {
       try {
-        const response = await fetch(
-          PUBLIC_API_URL + "/api/instrument/" + encodeURIComponent(instrument.id)
+        const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id)
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch characteristics: ${response.statusText}`);
