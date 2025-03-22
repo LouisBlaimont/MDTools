@@ -50,6 +50,8 @@ public class LogServiceTest {
 
       Timestamp timestamp = Timestamp.valueOf("2018-09-01 09:01:15");
 
+      logDto.setTimestamp(timestamp.toString());
+
       Log savedLog = new Log(12L, user, "Test log message", timestamp);
 
       when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -105,7 +107,7 @@ public class LogServiceTest {
       assertEquals(log.getLogId(), result.getLogId());
       assertEquals(log.getAction(), result.getAction());
       assertEquals(log.getUser().getUserId(), result.getUserId());
-      assertEquals(log.getTimestamp(), result.getTimestamp());
+      assertEquals(log.getTimestamp().toString(), result.getTimestamp());
 
       verify(logRepository, times(1)).findById(logId);
    }
@@ -148,13 +150,13 @@ public class LogServiceTest {
       assertEquals(log1.getLogId(), logDto1.getLogId());
       assertEquals(log1.getAction(), logDto1.getAction());
       assertEquals(log1.getUser().getUserId(), logDto1.getUserId());
-      assertEquals(log1.getTimestamp(), logDto1.getTimestamp());
+      assertEquals(log1.getTimestamp().toString(), logDto1.getTimestamp());
 
       LogDto logDto2 = result.get(1);
       assertEquals(log2.getLogId(), logDto2.getLogId());
       assertEquals(log2.getAction(), logDto2.getAction());
       assertEquals(log2.getUser().getUserId(), logDto2.getUserId());
-      assertEquals(log2.getTimestamp(), logDto2.getTimestamp());
+      assertEquals(log2.getTimestamp().toString(), logDto2.getTimestamp());
       verify(logRepository, times(1)).findAll();
    }
 }
