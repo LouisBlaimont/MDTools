@@ -432,6 +432,19 @@
             columnMapping[index] = match;
           }
         });
+        // Find the index of the 'reference' column
+        const refIndex = Object.entries(columnMapping).find(([_, col]) => col === "reference")?.[0];
+
+        if (refIndex !== undefined) {
+          // Filter out rows without a valid 'reference' value
+          const headerRow = jsonData[0];
+          const validRows = jsonData.slice(1).filter(row =>
+            row[refIndex] && String(row[refIndex]).trim() !== ""
+          );
+          jsonData = [headerRow, ...validRows];
+        } else {
+          console.warn("No column mapped to 'reference'. Cannot filter invalid rows.");
+        }
       }
 
       isLoading = false;
@@ -668,45 +681,42 @@
                 <h2 class="text-2xl font-bold mb-6">Vérification des Colonnes</h2>
               </div>
               <p class="text-gray-700 mb-4">Voici un aperçu du fichier Excel importé :</p>
-              
-              <div class="relative overflow-auto" style="max-height: 60vh; max-width: 100%;">
+              <div class="overflow-auto" style="max-height: 60vh; max-width: 100%;">
                 {#if isImporting}
                   <div class="absolute inset-0 bg-white bg-opacity-80 flex flex-col justify-center items-center z-50">
                     <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-4"></div>
                     <p class="text-gray-700 text-sm">Importation en cours...</p>
                   </div>
                 {/if}
-            
                 {#if jsonData && jsonData.length > 0}
                   <table class="border-collapse border border-gray-400 w-full text-sm">
-                    <thead>
-                      <tr>
-                        {#each jsonData[0] as header, index}
-                          <th class="border border-gray-400 p-2 bg-gray-200">
-                            <select
-                              bind:value={columnMapping[index]}
-                              class="w-full"
-                              style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
-                              on:change={() => updateColumnMapping(index)}
-                            >
-                              <option value="">vide</option>
-                              {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
-                                <option value={column}>{column}</option>
+                      <thead>
+                          <tr>
+                              {#each jsonData[0] as header, index}
+                                  <th class="border border-gray-400 p-2 bg-gray-200">
+                                    <select
+                                      bind:value={columnMapping[index]}
+                                      class="w-full"
+                                      style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
+                                      on:change={() => updateColumnMapping(index)}
+                                    >                                                                        <option value="">vide</option>
+                                          {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                              <option value={column}>{column}</option>
+                                          {/each}
+                                      </select>
+                                  </th>
                               {/each}
-                            </select>
-                          </th>
-                        {/each}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {#each jsonData.slice(1) as row}
-                        <tr>
-                          {#each row as cell}
-                            <td class="border border-gray-400 p-2 text-center">{cell}</td>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {#each jsonData.slice(1) as row, rowIndex}
+                              <tr>
+                                  {#each row as cell}
+                                      <td class="border border-gray-400 p-2 text-center">{cell}</td>
+                                  {/each}
+                              </tr>
                           {/each}
-                        </tr>
-                      {/each}
-                    </tbody>
+                      </tbody>
                   </table>
                 {:else}
                   <p class="text-gray-600">Aucune donnée disponible.</p>
