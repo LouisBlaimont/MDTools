@@ -99,7 +99,7 @@
     if (selectedOption === "NonCategorized") {
       requiredColumns = [
         "reference", 
-        "supplier_name", 
+        "supplier", 
         "sold_by_md", 
         "closed", 
         "supplier_description", 
@@ -144,7 +144,7 @@
 
       requiredColumns = [
         "reference",
-        "supplier_name",
+        "supplier",
         "sold_by_md",
         "closed",
         "group_name",
