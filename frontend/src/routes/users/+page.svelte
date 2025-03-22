@@ -1,6 +1,8 @@
 <script>
     import { goto } from "$app/navigation";
     import { user } from "$lib/stores/user_stores";
+    import { modals } from "svelte-modals";
+    import EditUserProfileModal from "$lib/modals/editUserProfileModal.svelte";
 
     let email = $user?.email;
     let name = $user?.name;
@@ -12,7 +14,7 @@
     console.log("active", active);
 
     function goBack() {
-        goto("/searches");
+        goto("../");
     }
 
     function addUser() {
@@ -20,7 +22,7 @@
     }
 
     function editProfile() {
-        goto(`/users/edit/${user.name}`);
+        modals.open(EditUserProfileModal, { user: $user });
     }
 </script>
 

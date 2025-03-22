@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,6 +85,54 @@ public class UserService {
       User newUser = UserMapper.toEntity(userDto);
       userRepository.save(newUser);
       return UserMapper.toDto(newUser);
+   }
+
+   /**
+    * Updates a user in the database.
+    *
+    * @param username The username of the user to update.
+    * @param body   The new values of the user.
+    * @return The updated user.
+    */
+   public UserDto updateUser(String username, Map<String, Object> body) {
+      User userToUpdate = userRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + username));
+      String email = (String) body.get("email");
+      if (email != null) {
+         if (!isValidEmail(email)) {
+            throw new BadRequestException("Invalid email address.");
+         }
+         Optional<User> user = userRepository.findByEmail(email);
+         if (user.isPresent() && user.get().getUserId() != userToUpdate.getUserId()) {
+            throw new BadRequestException("User with email " + email + " already exists.");
+         }
+         userToUpdate.setEmail(email);
+      }
+      String newUsername = (String) body.get("username");
+      if (newUsername != null) {
+         if (userRepository.findByUsername(newUsername).isPresent()) {
+            throw new BadRequestException("User with username " + newUsername + " already exists.");
+         }
+         userToUpdate.setUsername(newUsername);
+      }
+      Boolean enabled = (Boolean) body.get("enabled");
+      if (enabled != null) {
+         userToUpdate.setEnabled(enabled);
+      }
+      userToUpdate.setUpdatedAt(Timestamp.from(Instant.now()));
+      userRepository.save(userToUpdate);
+      return UserMapper.toDto(userToUpdate);
+   }
+
+   /**
+    * Deletes a user from the database.
+    *
+    * @param userName The ID of the user to delete.
+    */
+   public void deleteUser(String userName) {
+      User userToDelete = userRepository.findByUsername(userName)
+            .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received username: " + userName));
+      userRepository.delete(userToDelete);
    }
 
    /**
