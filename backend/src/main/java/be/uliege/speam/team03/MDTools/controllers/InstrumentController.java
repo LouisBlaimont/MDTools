@@ -194,14 +194,5 @@ public class InstrumentController {
 
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<?> findInstrumentsBySubGroup(@PathVariable String subGroupName) {
-        List<InstrumentDTO> instruments = instrumentService.findInstrumentsBySubGroup(subGroupName);
         
-        if (instruments == null || instruments.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for subgroup: " + subGroupName);
-        }
-        
-        return ResponseEntity.status(HttpStatus.OK).body(instruments);
-    }
 }

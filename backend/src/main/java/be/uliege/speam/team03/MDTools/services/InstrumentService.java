@@ -13,21 +13,13 @@ import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
-<<<<<<< Updated upstream
 import be.uliege.speam.team03.MDTools.models.PictureType;
-=======
-import be.uliege.speam.team03.MDTools.models.SubGroup;
->>>>>>> Stashed changes
 import be.uliege.speam.team03.MDTools.models.Suppliers;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
-<<<<<<< Updated upstream
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
-=======
-import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
->>>>>>> Stashed changes
 import lombok.AllArgsConstructor;
 
 @Service
@@ -37,12 +29,8 @@ public class InstrumentService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
-<<<<<<< Updated upstream
     private final InstrumentMapper instrumentMapper;
     private final PictureStorageService pictureStorageService;
-=======
-    private final SubGroupRepository subGroupRepository;
->>>>>>> Stashed changes
 
     /**
      * Find all instruments of a specific supplier.
@@ -215,7 +203,6 @@ public class InstrumentService {
         return instrumentsDTO;
     }
 
-<<<<<<< Updated upstream
     /**
      * Find the maximum instrument ID.
      * 
@@ -223,42 +210,6 @@ public class InstrumentService {
      */
     public Integer findMaxInstrumentId() {
         return instrumentRepository.findMaxInstrumentId();
-=======
-
-    public InstrumentDTO save(InstrumentDTO instrumentDTO) {
-        Instruments instrument = new Instruments();
-        instrument.setReference(instrumentDTO.getReference());
-        instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
-        instrument.setPrice(instrumentDTO.getPrice());
-        instrument.setObsolete(instrumentDTO.isObsolete());
-
-        // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
-        if (supplierMaybe.isPresent() == false) {
-            return null;
-        }
-        Suppliers supplier = supplierMaybe.get();
-        instrument.setSupplier(supplier);
-
-        // retrieve category based on category id
-        Optional<Category> categoryMaybe = categoryRepository.findById(instrumentDTO.getCategoryId());
-        if (categoryMaybe.isPresent() == false) {
-            return null;
-        }
-        Category category = categoryMaybe.get();
-        instrument.setCategory(category);
-
-        Instruments savedInstrument = instrumentRepository.save(instrument);
-        return new InstrumentDTO(
-            savedInstrument.getSupplier().getSupplierName(),
-            savedInstrument.getCategory().getId(),
-            savedInstrument.getReference(),
-            savedInstrument.getSupplierDescription(),
-            savedInstrument.getPrice(),
-            savedInstrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(savedInstrument.getId()).isEmpty()
-        );
->>>>>>> Stashed changes
     }
 
     /**
@@ -291,34 +242,5 @@ public class InstrumentService {
         Instruments instrument = instrumentRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Instrument not found with id: " + id));
         instrumentRepository.delete(instrument);
-    }
-
-    public List<InstrumentDTO> findInstrumentsBySubGroup(String subGroupName) {
-        // Fetch the subgroup by name
-        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (!subGroupMaybe.isPresent()) {
-            return null; // No subgroup found
-        }
-        SubGroup subGroup = subGroupMaybe.get();
-
-        // Fetch all categories within this subgroup
-        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
-        if (!categoriesMaybe.isPresent() || categoriesMaybe.get().isEmpty()) {
-            return null; // No categories found
-        }
-
-        List<Category> categories = categoriesMaybe.get();
-        List<InstrumentDTO> instrumentsDTO = new ArrayList<>();
-
-        // Fetch instruments for each category
-        for (Category category : categories) {
-            Optional<List<Instruments>> instrumentsMaybe = instrumentRepository.findByCategory(category);
-            if (instrumentsMaybe.isPresent()) {
-                List<Instruments> instruments = instrumentsMaybe.get();
-                instrumentsDTO.addAll(convertToDTO(instruments)); // Convert to DTO format
-            }
-        }
-
-        return instrumentsDTO;
     }
 }
