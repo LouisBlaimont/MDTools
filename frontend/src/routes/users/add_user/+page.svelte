@@ -9,7 +9,7 @@
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
-        const response = await apiFetch('/api/user/add', {
+        const response = await apiFetch('/api/user', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, email, roles })

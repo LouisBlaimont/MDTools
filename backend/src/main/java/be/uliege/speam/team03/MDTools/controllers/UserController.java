@@ -62,7 +62,7 @@ public class UserController {
     * @param body The user to register.
     * @return The registered user.
     */
-   @PostMapping("/add")
+   @PostMapping
    @ResponseStatus(HttpStatus.CREATED)
    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> body) {
       UserDto newUser = userService.registerUser(body);
