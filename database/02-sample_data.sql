@@ -13,7 +13,9 @@ ALTER SEQUENCE instruments_instrument_id_seq RESTART WITH 1;
 INSERT INTO groups (group_name) VALUES 
 ('Scalpels'), 
 ('Scissors'), 
-('Forceps');
+('Forceps'),
+('Scissors2');
+
 
 /* Insert into sub_group table */
 INSERT INTO sub_groups (sub_group_name, group_id) VALUES
@@ -22,7 +24,8 @@ INSERT INTO sub_groups (sub_group_name, group_id) VALUES
 ('Curved Scissors', 2),
 ('Straight Scissors', 2),
 ('Locking Forceps', 3),
-('Non-Locking Forceps', 3);
+('Non-Locking Forceps', 3),
+('classic scissors', 4);
 
 -- Insert into users table
 INSERT INTO users (username, email) VALUES 
@@ -39,8 +42,9 @@ INSERT INTO user_authorities(user_id, authority) VALUES
 (1, 'ROLE_ADMIN'),
 (1, 'ROLE_USER'),
 (2, 'ROLE_USER'),
+(3, 'ROLE_ADMIN'),
 (3, 'ROLE_WEBMASTER'),
-(3, 'ROLE_ADMIN');
+(3, 'ROLE_USER');
 
 -- Insert into logs table
 INSERT INTO logs (user_id, action) VALUES 
@@ -100,7 +104,16 @@ INSERT INTO characteristic (characteristic_name) VALUES
 ('Flexibility'), 
 ('Grip Type'),
 ('Function'), 
-('Name');
+('Name'),
+('Courbure Lame'),
+('Pointe Lame'),
+('specificité plat lame'),
+('matiere'),
+('fil lame'),
+('epaisseur'),
+('branche'),
+('anneaux'),
+('autre');
 
 -- Link characteristics to sub_group
 INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_position) VALUES
@@ -140,7 +153,21 @@ INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_pos
 (6, 1, NULL), -- Length
 (6, 5, 2), -- Grip Type
 (6, 6, NULL), -- Function
-(6, 7, NULL); -- Name
+(6, 7, NULL), -- Name
+
+-- Scissors 2
+(7,1,NULL), -- Length
+(7,7,NULL), -- Name
+(7,6,NULL), -- Function
+(7,8,1), -- Courbure Lame
+(7,9,2), -- Pointe Lame
+(7,10,3), -- specificité plat lame
+(7,11,4), -- matiere
+(7,12,5), -- fil lame
+(7,13,6), -- epaisseur
+(7,14,7), -- branche
+(7,15, 8), -- anneaux
+(7,16,9); -- autre
 
 
 -- Add value_abreviation to category_characteristic_abbreviations table
@@ -163,91 +190,91 @@ INSERT INTO category_characteristic_abbreviations(characteristic_value, value_ab
 
 -- Add characteristic values for Plastic Scalpels (sub_group_id = 1)
 INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
-(1, 1, '10cm'), -- Length
+(1, 1, '10'), -- Length
 (1, 2, 'Plastic'), -- Material
 (1, 3, 'Sharp'), -- Sharpness
 (1, 6, 'Cutting'), -- Function
 (1, 7, 'Kelly'), -- Name
-(2, 1, '15cm'), -- Length
+(2, 1, '15'), -- Length
 (2, 2, 'Plastic'), -- Material
 (2, 3, 'Very Sharp'), -- Sharpness
 (2, 6, 'Cutting'), -- Function
 (2, 7, 'Kelly'), -- Name
-(3, 1, '20cm'), -- Length
+(3, 1, '20'), -- Length
 (3, 2, 'Plastic'), -- Material
 (3, 6, 'Cutting'), -- Function
 (3, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Metal Scalpels (sub_group_id = 2)
 INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
-(4, 1, '12cm'), -- Length
+(4, 1, '12'), -- Length
 (4, 2, 'Steel'), -- Material
 (4, 3, 'Sharp'), -- Sharpness
 (4, 6, 'Cutting'), -- Function
 (4, 7, 'Kelly'), -- Name
-(5, 1, '18cm'), -- Length
+(5, 1, '18'), -- Length
 (5, 2, 'Stainless Steel'), -- Material
 (5, 3, 'Very Sharp'), -- Sharpness
 (5, 6, 'Cutting'), -- Function
 (5, 7, 'Kelly'), -- Name
-(6, 1, '22cm'), -- Length
+(6, 1, '22'), -- Length
 (6, 2, 'Steel'), -- Material
 (6, 6, 'Cutting'), -- Function
 (6, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Curved Scissors (sub_group_id = 3)
 INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
-(7, 1, '14cm'), -- Length
+(7, 1, '14'), -- Length
 (7, 4, 'Flexible'), -- Flexibility
 (7, 6, 'Cutting'), -- Function
 (7, 7, 'Kelly'), -- Name
-(8, 1, '16cm'), -- Length
+(8, 1, '16'), -- Length
 (8, 4, 'Semi-Flexible'), -- Flexibility
 (8, 6, 'Cutting'), -- Function
 (8, 7, 'Kelly'), -- Name
-(9, 1, '20cm'), -- Length
+(9, 1, '20'), -- Length
 (9, 6, 'Cutting'), -- Function
 (9, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Straight Scissors (sub_group_id = 4)
 INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
-(10, 1, '12cm'), -- Length
+(10, 1, '12'), -- Length
 (10, 4, 'Rigid'), -- Flexibility
 (10, 6, 'Cutting'), -- Function
 (10, 7, 'Kelly'), -- Name
-(11, 1, '18cm'), -- Length
+(11, 1, '18'), -- Length
 (11, 4, 'Semi-Rigid'), -- Flexibility
 (11, 6, 'Cutting'), -- Function
 (11, 7, 'Kelly'), -- Name
-(12, 1, '20cm'), -- Length
+(12, 1, '20'), -- Length
 (12, 6, 'Cutting'), -- Function
 (12, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Locking Forceps (sub_group_id = 5)
 INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
-(13, 1, '10cm'), -- Length
+(13, 1, '10'), -- Length
 (13, 5, 'Ergonomic'), -- Grip Type
 (13, 6, 'Cutting'), -- Function
 (13, 7, 'Kelly'), -- Name
-(14, 1, '15cm'), -- Length
+(14, 1, '15'), -- Length
 (14, 5, 'Comfortable'), -- Grip Type
 (14, 6, 'Cutting'), -- Function
 (14, 7, 'Kelly'), -- Name
-(15, 1, '20cm'), -- Length
+(15, 1, '20'), -- Length
 (15, 6, 'Cutting'), -- Function
 (15, 7, 'Kelly'); -- Name
 
 -- Add characteristic values for Non-Locking Forceps (sub_group_id = 6)
 INSERT INTO category_characteristic (category_id, characteristic_id, characteristic_value) VALUES
-(16, 1, '11cm'), -- Length
+(16, 1, '11'), -- Length
 (16, 5, 'Textured'), -- Grip Type
 (16, 6, 'Cutting'), -- Function
 (16, 7, 'Kelly'), -- Name
-(17, 1, '17cm'), -- Length
+(17, 1, '17'), -- Length
 (17, 5, 'Smooth'), -- Grip Type
 (17, 6, 'Cutting'), -- Function
 (17, 7, 'Kelly'), -- Name
-(18, 1, '21cm'), -- Length
+(18, 1, '21'), -- Length
 (18, 6, 'Cutting'), -- Function
 (18, 7, 'Kelly'); -- Name
 
