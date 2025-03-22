@@ -57,8 +57,10 @@ export async function fetchSuppliers() {
  * Fetches groups and their associated sub-groups dynamically from the backend.
  */
 export async function fetchGroups() {
-  return apiFetch("/api/groups");
+  const response = await apiFetch("/api/groups");
+  return await response.json();
 }
+
 
 
 /**
@@ -133,15 +135,21 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
 
   const requestData = {
     importType: selectedOption,
-    groupName: groupName,
-    subGroupName: subGroupName,
-    supplier : supplier,
+    groupName,
+    subGroupName,
+    supplier,
     data: formattedData,
   };
 
-  return apiFetch(`/api/import/excel`, {
+  const response = await apiFetch(`/api/import/excel`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(requestData),
   });
+
+  if (!response.ok) {
+    throw new Error("Failed to import data");
+  }
+
+  return response.json();
 }

@@ -71,9 +71,7 @@
    */
   async function loadGroups() {
       try {
-          const response = await fetchGroups(); // Fetch data from API
-          const data = await response.json(); // Parse JSON response
-
+          const data = await fetchGroups(); // Fetch data from API
           if (!Array.isArray(data)) {
               throw new Error("Invalid response format: Expected an array but got " + typeof data);
           }
