@@ -36,4 +36,15 @@ public class Log {
     @Column(name = "timestamp", nullable = false, updatable = false)
     private Timestamp timestamp;
 
+    public void setTimestamp(String timestamp) {
+        this.timestamp = Timestamp.valueOf(timestamp);
+    }
+
+    public Log(Long logId, User user, String action, String timestamp) {
+        this.logId = logId;
+        this.user = user;
+        this.action = action;
+        setTimestamp(timestamp);
+    }
+
 }

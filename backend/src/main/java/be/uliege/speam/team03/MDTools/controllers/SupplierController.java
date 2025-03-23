@@ -8,11 +8,14 @@ import org.springframework.web.bind.annotation.*;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.SupplierService;
 
 /**
- * This controller implements the API endpoints relative to the suppliers. See the Wiki (>>2. Technical requirements>>API Specifications) for more information.
+ * This controller implements the API endpoints relative to the suppliers. See
+ * the Wiki (>>2. Technical requirements>>API Specifications) for more
+ * information.
  */
 @RestController
 @RequestMapping("/api/supplier")
@@ -30,12 +33,13 @@ public class SupplierController {
      * Get all instruments of a specific supplier.
      * 
      * @param supplierId the ID of the supplier
-     * @return a list of instruments for the specified supplier, or a 404 status if no instruments are found
+     * @return a list of instruments for the specified supplier, or a 404 status if
+     *         no instruments are found
      */
     @GetMapping("/{supplierId}/instruments")
     public ResponseEntity<?> getInstrumentsOfSupplier(@PathVariable Integer supplierId) {
         List<InstrumentDTO> products = instrumentService.findInstrumentsBySupplierId(supplierId);
-        if (products == null || products.isEmpty()){
+        if (products == null || products.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No products found for the supplier " + supplierId);
         }
         return ResponseEntity.status(HttpStatus.OK).body(products);
@@ -45,12 +49,13 @@ public class SupplierController {
      * Get a supplier by its ID.
      * 
      * @param supplierId the ID of the supplier
-     * @return the supplier with the specified ID, or a 404 status if no supplier is found
+     * @return the supplier with the specified ID, or a 404 status if no supplier is
+     *         found
      */
     @GetMapping("/{supplierId}")
     public ResponseEntity<?> getSupplierById(@PathVariable Integer supplierId) {
         SupplierDTO supplier = supplierService.findSupplierById(supplierId);
-        if (supplier == null){
+        if (supplier == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No supplier found with id: " + supplierId);
         }
         return ResponseEntity.status(HttpStatus.OK).body(supplier);
@@ -64,7 +69,7 @@ public class SupplierController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllSuppliers() {
         List<SupplierDTO> suppliers = supplierService.findAllSuppliers();
-        if (suppliers == null || suppliers.isEmpty()){
+        if (suppliers == null || suppliers.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No suppliers found");
         }
         return ResponseEntity.status(HttpStatus.OK).body(suppliers);
@@ -74,7 +79,8 @@ public class SupplierController {
      * Add a new supplier.
      * 
      * @param newSupplier the supplier to add
-     * @return the added supplier, or a 409 status if a supplier with the same ID already exists
+     * @return the added supplier, or a 409 status if a supplier with the same ID
+     *         already exists
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -82,7 +88,8 @@ public class SupplierController {
         if (newSupplier.getName() == null || newSupplier.getName().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
         }
-        // Check if a supplier with the same ID already exists so that we don't overwrite it
+        // Check if a supplier with the same ID already exists so that we don't
+        // overwrite it
         if (newSupplier.getId() != null) {
             SupplierDTO existingSupplier = supplierService.findSupplierById(newSupplier.getId());
             if (existingSupplier != null) {
@@ -100,28 +107,27 @@ public class SupplierController {
     /**
      * Update a supplier.
      * 
-     * @param id the ID of the supplier to update
+     * @param id              the ID of the supplier to update
      * @param updatedSupplier the supplier data to update
-     * @return the updated supplier, or a 404 status if no supplier is found with the specified ID
+     * @return the updated supplier, or a 404 status if no supplier is found with
+     *         the specified ID
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> updateSupplier(@PathVariable Integer id, @RequestBody SupplierDTO updatedSupplier) {
+    public ResponseEntity<SupplierDTO> updateSupplier(@PathVariable Integer id, @RequestBody SupplierDTO updatedSupplier) {
         SupplierDTO existingSupplier = supplierService.findSupplierById(id);
-        if (existingSupplier != null) {
-            if (updatedSupplier.getName() != null) {
-                existingSupplier.setName(updatedSupplier.getName());
-            }
-            if (updatedSupplier.isSoldByMD() != null) {
-                existingSupplier.setSoldByMD(updatedSupplier.isSoldByMD());
-            }
-            if (updatedSupplier.isClosed() != null) {
-                existingSupplier.setClosed(updatedSupplier.isClosed());
-            }
-            SupplierDTO savedSupplier = supplierService.saveSupplier(existingSupplier);
-            return ResponseEntity.status(HttpStatus.OK).body(savedSupplier);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier does not exist with id: " + id);
+        if (existingSupplier == null) {
+            throw new ResourceNotFoundException("Supplier not found with id: " + id);
         }
+
+        if (updatedSupplier.getName() != null) {
+            existingSupplier.setName(updatedSupplier.getName());
+        }
+
+        existingSupplier.setSoldByMd(updatedSupplier.isSoldByMd());
+        existingSupplier.setClosed(updatedSupplier.isClosed());
+
+        SupplierDTO savedSupplier = supplierService.saveSupplier(existingSupplier);
+        return ResponseEntity.status(HttpStatus.OK).body(savedSupplier);
     }
 }

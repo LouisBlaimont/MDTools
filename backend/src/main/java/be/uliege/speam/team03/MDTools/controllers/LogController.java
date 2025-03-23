@@ -27,7 +27,7 @@ public class LogController {
    @PostMapping
    public ResponseEntity<LogDto> createLog(@RequestBody LogDto logDto) {
       LogDto savedLog = logService.createLog(logDto);
-      return new ResponseEntity<>(savedLog, HttpStatus.CREATED);
+      return ResponseEntity.status(HttpStatus.CREATED).body(savedLog);
    }
 
    @GetMapping("{logId}")
