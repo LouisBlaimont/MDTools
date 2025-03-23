@@ -1,9 +1,14 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -15,9 +20,9 @@ public class Instruments {
     @Column(name = "instrument_id")
     private Integer id;
 
-    @ManyToOne(cascade = CascadeType.ALL) // Cascade the save operation
+    @ManyToOne
     @JoinColumn(name = "supplier_id")
-    private Suppliers supplier;
+    private Supplier supplier;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -34,17 +39,4 @@ public class Instruments {
 
     @Column(name = "obsolete")
     private Boolean obsolete;
-    //private Boolean alt;
-
-    public Instruments() {}
-
-    public Instruments(Suppliers supplier, Category category, String reference, String supplierDescription, Float price, Boolean obsolete){//, Boolean alt) {
-        this.supplier = supplier;
-        this.category = category;
-        this.reference = reference;
-        this.supplierDescription = supplierDescription;
-        this.price = price;
-        this.obsolete = obsolete;
-        //this.alt = alt;
-    }
 }

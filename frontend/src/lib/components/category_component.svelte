@@ -7,12 +7,14 @@
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
+    import { isAdmin } from "$lib/stores/user_stores";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload, selectedCategoryIndex, hoveredCategoryIndex, isAdmin,
+    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
      charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+    import { apiFetch } from "$lib/utils/fetch";
   
     /**
      * Display the characteristic values of the category at line index in the table.
@@ -27,7 +29,7 @@
         categories.set([cat]);
 
         try{
-            const response = await fetch(PUBLIC_API_URL + `/api/category/${catId}`);
+            const response = await apiFetch(`/api/category/${catId}`);
             if(!response.ok){
                 throw new Error("Failed to fetch characteristics of category");
             }
@@ -74,7 +76,7 @@
         const categoryId = $categories[$selectedCategoryIndex].id;  
 
         try{
-        const response = await fetch(PUBLIC_API_URL + `/api/category/instruments/${categoryId}`);
+        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
         if (!response.ok){
             throw new Error("Failed to fetch instruments of category");
         }
@@ -101,6 +103,21 @@
         const overlay = document.getElementById("overlay");
         pannel.style.display = "none";
         overlay.style.display = "none";
+    }
+    
+    function openAddCategoryPage() {
+        if($selectedGroup == null){
+            console.log("Groups are not defined");
+            return;
+        } 
+        else if($selectedSubGroup == null){
+            console.log("SubGroups are not defined");
+            return;
+        }
+        else {
+            console.log("Groups and subgroups are defined");
+            goto("../../admin/add_category");
+        }
     }
 
     let div2;
@@ -154,6 +171,15 @@
     {#if $isAdmin}
         <EditButton />
     {/if}
+    {#if $isEditing}
+       {#if $isAdmin}
+            <div class="flex justify-center">
+                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddCategoryPage()}>
+                    Ajouter une catégorie
+                </button>
+            </div>
+        {/if}
+    {/if}
     </div>
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
@@ -165,6 +191,7 @@
         <!-- svelte-ignore a11yå_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <img
             alt="tool{row.id}"
             src={row.pictureId

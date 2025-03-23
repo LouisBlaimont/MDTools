@@ -104,14 +104,19 @@ public class SubGroupService {
                 charRepository.save(newChar);
             }
 
-            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId().intValue(),
+            Integer newSubGroupId = newSubGroup.getId().intValue();
+
+            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId,
                     newChar.getId());
             SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(newSubGroup, newChar, 1);
             subGroupChar.setId(key);
             subGroupChars.add(subGroupChar);
         }
 
+        // This is where it doesn't work
         subGroupCharRepository.saveAll(subGroupChars);
+
+        System.out.println("Print after save");
 
         newSubGroup.setInstrCount(0);
         newSubGroup.setCategories(null);
@@ -144,6 +149,23 @@ public class SubGroupService {
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findByName(name);
         if (subgroupMaybe.isEmpty())
             throw new ResourceNotFoundException(name + " not found.");
+
+        SubGroup subGroup = subgroupMaybe.get();
+        SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);
+        return subGroupDTO;
+    }
+
+    /**
+     * Finds a subgroup by its ID.
+     * 
+     * @param id
+     * @return
+     * @throws ResourceNotFoundException
+     */
+    public SubGroupDTO findSubGroupById(Integer id) throws ResourceNotFoundException {
+        Optional<SubGroup> subgroupMaybe = subGroupRepository.findById(id);
+        if (subgroupMaybe.isEmpty())
+            throw new ResourceNotFoundException("Subgroup not found.");
 
         SubGroup subGroup = subgroupMaybe.get();
         SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);

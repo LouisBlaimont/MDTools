@@ -27,14 +27,11 @@ public class CategoryCharacteristic {
     @Column(name="characteristic_value")
     private String val;
 
-    @Column(name="value_abreviation")
-    private String valAbrev;
 
-    public CategoryCharacteristic(Category category, Characteristic characteristic, String val, String valAbrv){
+    public CategoryCharacteristic(Category category, Characteristic characteristic, String val){
         this.category = category;
         this.characteristic = characteristic;
         this.val = val;
-        this.valAbrev = valAbrv;
     }
     
 }

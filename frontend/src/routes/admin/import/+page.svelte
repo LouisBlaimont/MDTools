@@ -1,7 +1,9 @@
 <script>
-  import { fetchGroups, fetchCharacteristics, sendExcelToBackend   } from "../../../api.js";
+  import { fetchGroups, fetchCharacteristics, sendExcelToBackend, fetchSuppliers} from "../../../api.js";
+  import { isAdmin } from "$lib/stores/user_stores";
   import { onMount } from "svelte";
   import * as XLSX from "xlsx";
+  import { goto } from "$app/navigation";
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -32,7 +34,7 @@
   let suppliers = [];
   let selectedSupplier = "";
   let isSupplierModalOpen = false;
-
+  let isImporting = false;
 
   /**
    * Fetches the list of suppliers from the backend.
@@ -63,27 +65,32 @@
     }
   };
 
-  /**
+  /** 
    * Loads groups and their respective sub-groups from the backend.
    * @returns {Promise<{groups: string[], subGroups: object}>} A promise resolving to groups and subGroups.
    */
   async function loadGroups() {
-    try {
-      const data = await fetchGroups();
-      // Extracting group names
-      groups = data.map(group => group.name);
+      try {
+          const data = await fetchGroups(); // Fetch data from API
+          if (!Array.isArray(data)) {
+              throw new Error("Invalid response format: Expected an array but got " + typeof data);
+          }
 
-      // Mapping each group to its respective sub-groups
-      subGroups = Object.fromEntries(
-        data.map(group => [group.name, group.subGroups.map(sub => sub.name)])
-      );
+          // Extracting group names
+          groups = data.map(group => group.name);
 
-      return { groups, subGroups };
-    } catch (error) {
-      console.error("Error while retrieving groups:", error);
-      return { groups: [], subGroups: {} };
-    }
+          // Mapping each group to its respective sub-groups
+          subGroups = Object.fromEntries(
+              data.map(group => [group.name, (group.subGroups || []).map(sub => sub.name)])
+          );
+
+          return { groups, subGroups };
+      } catch (error) {
+          console.error("Error while retrieving groups:", error);
+          return { groups: [], subGroups: {} };
+      }
   }
+
 
   /**
    * Sets the required columns based on the selected option.
@@ -92,7 +99,7 @@
     if (selectedOption === "NonCategorized") {
       requiredColumns = [
         "reference", 
-        "supplier_name", 
+        "supplier", 
         "sold_by_md", 
         "closed", 
         "supplier_description", 
@@ -126,20 +133,26 @@
    * @param {string} selectedSubGroup The selected subgroup.
    * @returns {Promise<string[]>} A promise resolving to the list of required columns.
    */
-  async function loadCharacteristics(selectedSubGroup) {
+   async function loadCharacteristics(selectedSubGroup) {
     try {
       const characteristics = await fetchCharacteristics(selectedSubGroup);
-      // Updating the list of available columns with those retrieved from the API
+
+      if (!Array.isArray(characteristics)) {
+        console.error("Unexpected format: expected an array but got", typeof characteristics);
+        return [];
+      }
+
       requiredColumns = [
         "reference",
-        "supplier_name",
+        "supplier",
         "sold_by_md",
         "closed",
         "group_name",
         "supplier_description",
         "price",
         "obsolete",
-        ...characteristics,
+        ...characteristics,  
+        ...characteristics.map(char => `abbreviation_${char}`),
       ];
 
       return requiredColumns;
@@ -148,6 +161,20 @@
       return [];
     }
   }
+  /**
+   * Normalizes a column header (lowercase, trims spaces, replaces spaces with underscores).
+   * @param {string} header 
+   * @returns {string}
+   */
+  function normalizeHeader(header) {
+    return header
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+  }
+
 
   /**
    * Handles the drag-over event to allow a file to be dropped.
@@ -382,26 +409,48 @@
   const extractExcelDataToJson = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
 
-        const tempJsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const tempJsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        if (!tempJsonData || tempJsonData.length === 0) {
-            console.warn("⚠️ Aucune donnée extraite de l'Excel !");
-            jsonData = []; // Assigne un tableau vide au lieu de `null`
+      if (!tempJsonData || tempJsonData.length === 0) {
+        console.warn("Aucune donnée extraite de l'Excel !");
+        jsonData = [];
+      } else {
+        jsonData = [...tempJsonData];
+
+        // Auto-map headers to required columns
+        jsonData[0].forEach((header, index) => {
+          const normalized = normalizeHeader(header);
+          const match = requiredColumns.find(col => normalizeHeader(col) === normalized);
+          if (match) {
+            columnMapping[index] = match;
+          }
+        });
+        // Find the index of the 'reference' column
+        const refIndex = Object.entries(columnMapping).find(([_, col]) => col === "reference")?.[0];
+
+        if (refIndex !== undefined) {
+          // Filter out rows without a valid 'reference' value
+          const headerRow = jsonData[0];
+          const validRows = jsonData.slice(1).filter(row =>
+            row[refIndex] && String(row[refIndex]).trim() !== ""
+          );
+          jsonData = [headerRow, ...validRows];
         } else {
-            jsonData = [...tempJsonData]; // Force la mise à jour
+          console.warn("No column mapped to 'reference'. Cannot filter invalid rows.");
         }
+      }
 
-        isLoading = false;
-        currentView = "verification";
-        verifyColumns();
+      isLoading = false;
+      currentView = "verification";
+      verifyColumns();
     };
     reader.readAsArrayBuffer(file);
-};
+  };
 
 
   /**
@@ -421,9 +470,14 @@
   /**
    * Handles the final import process after verifying the columns.
    */
-  const handleImportFinal = () => {
-    handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier)
-    showModal = false;
+   const handleImportFinal = async () => {
+    isImporting = true;
+    try {
+      await handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
+    } finally {
+      isImporting = false;
+      showModal = false;
+    }
   };
 
   /**
@@ -454,24 +508,40 @@
    * @param {string} selectedSubGroup The selected subgroup.
    * @param {string} selectedSupplier The selected supplier.
    */
-  async function handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier) {
-    try {
-      const message = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
-      alert(message);
-    } catch (error) {
-      console.error("Error while sending data:", error);
-      alert(error.message);
-    }
+   async function handleDataSubmission(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier) {
+      try {
+          const response = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
+          
+          const data = await response.json();
+
+          if (data.success) {
+              alert("Success: " + (data.message || "Import completed successfully!"));
+          } else {
+              alert("Error: " + (data.message || "An error occurred while importing."));
+          }
+      } catch (error) {
+          console.error("Error while sending data:", error);
+          alert("Failed to send data: " + error.message);
+      }
   }
 
   /**
    * Adds event listeners for mouse events when the component is mounted.
    */
-  onMount(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    loadGroups();
-    loadSuppliers();
+   onMount(async () => {
+      if (!isAdmin) {
+          goto("/unauthorized");
+      }
+
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+
+      try {
+          await loadGroups();
+          await loadSuppliers();
+      } catch (error) {
+          console.error("Error loading data:", error);
+      }
   });
 
 </script>
@@ -592,55 +662,64 @@
               <label for="supplier-select" class="block mb-2 text-gray-700">Fournisseur :</label>
               <input id="supplier-select" type="text" bind:value={selectedSupplier} class="w-full p-3 border rounded" placeholder="Entrez un fournisseur" on:input={handleSupplierChange} list="supplier-options" />
               <datalist id="supplier-options">
-                {#each suppliers.filter(s => s.name.toLowerCase().includes(selectedSupplier.toLowerCase())) as supplier}
-                  <option value={supplier.name}>{supplier.name}</option>
+                {#each (Array.isArray(suppliers) ? suppliers : []).filter(s => s.name.toLowerCase().includes(selectedSupplier.toLowerCase())) as supplier}
+                <option value={supplier.name}>{supplier.name}</option>
                 {/each}
               </datalist>
             </div>
-          {:else if currentView === "verification"}
-            <!-- Column Verification View with Excel-like Table -->
-            <div class="flex items-center mb-4">
-              <button class="text-gray-700 mr-4" on:click={() => {
-                currentView = viewHistory[viewHistory.length - 1];
-                viewHistory.pop(); 
-              }}>
-                ←
-              </button>
-              <h2 class="text-2xl font-bold mb-6">Vérification des Colonnes</h2>
-            </div>
-            <p class="text-gray-700 mb-4">Voici un aperçu du fichier Excel importé :</p>
-            <div class="overflow-auto" style="max-height: 60vh; max-width: 100%;">
-              {#if jsonData && jsonData.length > 0}
-                <table class="border-collapse border border-gray-400 w-full text-sm">
-                    <thead>
-                        <tr>
-                            {#each jsonData[0] as header, index}
-                                <th class="border border-gray-400 p-2 bg-gray-200">
-                                    <select bind:value={columnMapping[index]} class="w-full" on:change={() => updateColumnMapping(index)}>
-                                        <option value="">vide</option>
-                                        {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
-                                            <option value={column}>{column}</option>
-                                        {/each}
-                                    </select>
-                                </th>
-                            {/each}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each jsonData.slice(1) as row, rowIndex}
-                            <tr>
-                                {#each row as cell}
-                                    <td class="border border-gray-400 p-2 text-center">{cell}</td>
-                                {/each}
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            {:else}
-                <p class="text-gray-600">Aucune donnée disponible.</p>
-            {/if}
-
-            </div>
+            {:else if currentView === "verification"}
+              <!-- Column Verification View with Excel-like Table -->
+              <div class="flex items-center mb-4">
+                <button class="text-gray-700 mr-4" on:click={() => {
+                  currentView = viewHistory[viewHistory.length - 1];
+                  viewHistory.pop(); 
+                }}>
+                  ←
+                </button>
+                <h2 class="text-2xl font-bold mb-6">Vérification des Colonnes</h2>
+              </div>
+              <p class="text-gray-700 mb-4">Voici un aperçu du fichier Excel importé :</p>
+              <div class="overflow-auto" style="max-height: 60vh; max-width: 100%;">
+                {#if isImporting}
+                  <div class="absolute inset-0 bg-white bg-opacity-80 flex flex-col justify-center items-center z-50">
+                    <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 mb-4"></div>
+                    <p class="text-gray-700 text-sm">Importation en cours...</p>
+                  </div>
+                {/if}
+                {#if jsonData && jsonData.length > 0}
+                  <table class="border-collapse border border-gray-400 w-full text-sm">
+                      <thead>
+                          <tr>
+                              {#each jsonData[0] as header, index}
+                                  <th class="border border-gray-400 p-2 bg-gray-200">
+                                    <select
+                                      bind:value={columnMapping[index]}
+                                      class="w-full"
+                                      style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
+                                      on:change={() => updateColumnMapping(index)}
+                                    >                                                                        <option value="">vide</option>
+                                          {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                              <option value={column}>{column}</option>
+                                          {/each}
+                                      </select>
+                                  </th>
+                              {/each}
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {#each jsonData.slice(1) as row, rowIndex}
+                              <tr>
+                                  {#each row as cell}
+                                      <td class="border border-gray-400 p-2 text-center">{cell}</td>
+                                  {/each}
+                              </tr>
+                          {/each}
+                      </tbody>
+                  </table>
+                {:else}
+                  <p class="text-gray-600">Aucune donnée disponible.</p>
+                {/if}
+              </div>
             <div class="flex justify-end mt-4">
               <button 
                 class="border border-gray-500 text-gray-500 py-2 px-4 rounded-lg bg-blue-600 text-white"

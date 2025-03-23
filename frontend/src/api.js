@@ -1,5 +1,6 @@
 import { PUBLIC_API_URL } from "$env/static/public";
 const BASE_URL = PUBLIC_API_URL + "/api";
+import { apiFetch } from "$lib/utils/fetch.js"
 
 
 export async function fetchTools() {
@@ -40,9 +41,15 @@ export async function addTool(tool) {
 }
 
 export async function fetchSuppliers() {
-  const res = await fetch(`${BASE_URL}/supplier/all`);
-  if (!res.ok) throw new Error("Failed to fetch suppliers");
-  return res.json();
+  const response = await apiFetch("/api/supplier/all"); 
+  const data = await response.json();
+
+  if (!Array.isArray(data)) {
+    console.error("❌ Unexpected API response format for suppliers:", data);
+    return [];
+  }
+
+  return data; 
 }
 
 
@@ -50,15 +57,10 @@ export async function fetchSuppliers() {
  * Fetches groups and their associated sub-groups dynamically from the backend.
  */
 export async function fetchGroups() {
-  const res = await fetch(`${BASE_URL}/groups`, {
-    method: "GET",
-    headers: { "Accept": "application/json" },
-  });
-
-  if (!res.ok) throw new Error(`Failed to fetch groups: ${res.status}`);
-
-  return res.json();
+  const response = await apiFetch("/api/groups");
+  return await response.json();
 }
+
 
 
 /**
@@ -72,17 +74,23 @@ export async function fetchCharacteristics(subGroup) {
     return [];
   }
 
-  const res = await fetch(`${BASE_URL}/subgroups/${encodeURIComponent(subGroup)}`, {
-    method: "GET",
-    headers: { "Accept": "application/json" },
-  });
+  try {
+    const response = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroup)}`);
 
-  if (!res.ok) throw new Error("Failed to fetch characteristics");
+    const data = await response.json();
 
-  const data = await res.json();
-  
-  return data.subGroupCharacteristics;
+    if (!data || !Array.isArray(data.subGroupCharacteristics)) {
+      console.error("Unexpected response format for characteristics:", data);
+      return [];
+    }
+
+    return data.subGroupCharacteristics; 
+  } catch (error) {
+    console.error("Failed to fetch characteristics:", error);
+    return [];
+  }
 }
+
 
 /**
  * Sends the formatted JSON data to the backend for processing and storage.
@@ -127,21 +135,65 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
 
   const requestData = {
     importType: selectedOption,
-    groupName: groupName,
-    subGroupName: subGroupName,
-    supplier : supplier,
+    groupName,
+    subGroupName,
+    supplier,
     data: formattedData,
   };
 
-  const res = await fetch(`${BASE_URL}/import/excel`, {
+  const response = await apiFetch(`/api/import/excel`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(requestData),
   });
 
-  if (!res.ok) {
-    throw new Error("Failed to import data.");
+  if (!response.ok) {
+    throw new Error("Failed to import data");
   }
 
-  return "Data successfully imported!";
+  return response.json();
+}
+
+/**
+ * Fetches all instruments for a given subgroup.
+ * Each instrument includes its reference and related attributes.
+ * @param {string} subGroupName - The name of the subgroup.
+ * @returns {Promise<Array>} - A list of instrument objects.
+ */
+export async function fetchInstrumentsBySubGroup(subGroupName) {
+  const response = await apiFetch(`/api/instrument/subgroup/${encodeURIComponent(subGroupName)}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch instruments for subgroup: ${subGroupName}`);
+  }
+  return await response.json();
+}
+
+/**
+ * Fetches a supplier by name.
+ *
+ * @param {string} supplierName - The name of the supplier to retrieve.
+ * @returns {Promise<Object>} - The supplier object containing fields like 'closed' and 'soldByMD'.
+ * @throws {Error} - If the fetch fails or the supplier is not found.
+ */
+export async function fetchSupplierByName(supplierName) {
+  const res = await apiFetch(`/api/supplier/name/${encodeURIComponent(supplierName)}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch supplier: ${supplierName}`);
+  }
+  return res.json();
+}
+
+/**
+ * Fetches all characteristic values for a given category.
+ * @param {number|string} categoryId - The ID of the category.
+ * @returns {Promise<Object>} - A mapping of characteristic name to value.
+ */
+export async function fetchCharacteristicValuesByCategory(categoryId) {
+  const res = await apiFetch(`/api/category/${categoryId}/characteristics`);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch characteristic values for category ${categoryId}`);
+  }
+
+  return res.json();
 }

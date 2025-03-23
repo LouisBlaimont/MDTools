@@ -18,7 +18,9 @@ services:
       interval: 30s
       timeout: 60s
       retries: 5
-      start_period: 15s 
+      start_period: 15s
+    networks:
+      - mdtools
 
   svelte:
     build:
@@ -43,6 +45,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    networks:
+      - mdtools
 
 
   springboot:
@@ -61,8 +65,41 @@ services:
       - pictures:/app/pictures
     ports:
       - "8080:8080"  # Expose the Spring Boot application port
+    networks:
+      - mdtools
+
+
+  dex:
+    image: ghcr.io/dexidp/dex:v2.37.0
+    container_name: dex
+    restart: unless-stopped
+    ports:
+      - "5556:5556"  # DeX runs on port 5556
+    volumes:
+      - ./dex/dex-config.yaml:/etc/dex/config.yaml
+      - ./dex/dex-data:/data
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    networks:
+      - mdtools
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      mdtools:
+        aliases:
+          - dex.localhost.direct
+
 volumes:
   pgdata:
     driver: local
   pictures:
     driver: local
+
+networks:
+  mdtools:
+    driver: bridge

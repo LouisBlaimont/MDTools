@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.OrderItemDTO;
+import be.uliege.speam.team03.MDTools.DTOs.OrdersDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.OrderItemsKey;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
@@ -33,6 +34,7 @@ public class OrdersService {
     private final OrderItemsRepository orderItemsRepository;
     private final UserRepository userRepository;
     private final InstrumentRepository instrumentRepository;
+    private final CharacteristicAbbreviationService characteristicAbbreviationService;
 
     /**
      * Gets the instruments of the order given by id
@@ -61,13 +63,13 @@ public class OrdersService {
      * @param id
      * @return List of String (names of orders)
      */
-    public List<String> findOrdersOfUser(Integer id){
+    public List<OrdersDTO> findOrdersOfUser(Integer id){
         Optional<User> userMaybe = userRepository.findByUserId(id);
         if(userMaybe.isEmpty()){
             throw new ResourceNotFoundException("User not found.");
         }
-        List<String> orderNames = ordersRepository.findByUserId(id).stream().map(Orders::getOrderName).collect(Collectors.toList());
-        return orderNames;
+        List<OrdersDTO> orders = ordersRepository.findByUserId(id).stream().map(order -> new OrdersDTO(order.getId(), order.getOrderName())).collect(Collectors.toList());
+        return orders;
     }
 
     /**
@@ -172,7 +174,7 @@ public class OrdersService {
      * @param body
      * @return True if successfully created
      */
-    public Boolean createNewOrder(Map<String, Object> body){
+    public List<OrdersDTO> createNewOrder(Map<String, Object> body){
         Integer userId = (Integer) body.get("userId");
         String orderName = (String) body.get("orderName");
 
@@ -184,7 +186,7 @@ public class OrdersService {
         List<Orders> sameOrders = ordersRepository.findByOrderName(orderName);
         for (Orders order : sameOrders){
             if(order.getUserId() == userId){
-                throw new ResourceNotFoundException("Order with that name already exists for that user");
+                throw new BadRequestException("Order with that name already exists for that user");
             }
         }
 
@@ -193,7 +195,7 @@ public class OrdersService {
         newOrder.setOrderDate(new Timestamp(System.currentTimeMillis()));
         newOrder.setOrderName(orderName);
         ordersRepository.save(newOrder);
-        return true; 
+        return findOrdersOfUser(userId); 
     }
 
     /**
@@ -217,7 +219,12 @@ public class OrdersService {
         return true;
     }
 
-    // To test after adding the name column in the orders 
+    /**
+     * Changes the name of the order with order Id
+     * @param orderId
+     * @param body
+     * @return
+     */
     public List<OrderItemDTO> editOrder(Integer orderId, Map<String, Object> body){
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
 
@@ -230,13 +237,13 @@ public class OrdersService {
 
         String newName = (String) body.get("orderName");
         if(newName == null){
-            throw new BadRequestException("Name is required");
+            throw new ResourceNotFoundException("Name is required");
         }
 
         List<Orders> sameOrders = ordersRepository.findByOrderName(newName);
         for (Orders sameOrder : sameOrders){
             if(sameOrder.getUserId() == userId){
-                throw new ResourceNotFoundException("Order with that name already exists for that user");
+                throw new BadRequestException("Order with that name already exists for that user");
             }
         }
 

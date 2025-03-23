@@ -6,143 +6,159 @@ CREATE TABLE pictures (
     reference_id INTEGER NOT NULL,
     upload_date TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP
 );
+COMMENT ON TABLE pictures IS 'Stores image files with polymorphic associations to other entities';
 
--- Table group
-CREATE TABLE "group" (
+-- Table groups
+CREATE TABLE groups (
     group_id SERIAL PRIMARY KEY,
     group_name VARCHAR(100) UNIQUE NOT NULL,
     picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
 
---Table sub_group
-CREATE TABLE sub_group (
+--Table sub_groups
+CREATE TABLE sub_groups (
     sub_group_id SERIAL PRIMARY KEY,
     sub_group_name VARCHAR(100) NOT NULL,
-    group_id INTEGER REFERENCES "group"(group_id) ON DELETE SET NULL,
+    group_id INTEGER REFERENCES groups(group_id) ON DELETE SET NULL,
     picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
+CREATE INDEX idx_sub_groups_group_id ON sub_groups(group_id);
 
 -- Table users
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_fingerprint VARCHAR(100),
+    username TEXT UNIQUE,
+    email TEXT UNIQUE,
+    enabled BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    role_name VARCHAR(50) NOT NULL, -- Note: 'admin or user'
-    job_position VARCHAR(100),
-    workplace VARCHAR(100),
-    reset_token VARCHAR(40),
-    reset_token_expiration TIMESTAMPTZ
+    role_name TEXT,
+    job_position TEXT,
+    workplace TEXT,
+    CONSTRAINT unique_username UNIQUE (username),
+    CONSTRAINT unique_email UNIQUE (email),
+    CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+-- Add a trigger for updating the updated_at timestamp
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_users_timestamp
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+CREATE TABLE authorities (
+    authority TEXT PRIMARY KEY
+);
+
+CREATE TABLE user_authorities (
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    authority TEXT NOT NULL REFERENCES authorities(authority) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, authority)
 );
 
 -- Table logs
 CREATE TABLE logs (
     log_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(user_id),
+    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
     action TEXT NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_logs_user_id ON logs(user_id);
+CREATE INDEX idx_logs_timestamp ON logs(timestamp); -- For time-based queries
 
 -- Table supplier
 CREATE TABLE supplier (
     supplier_id SERIAL PRIMARY KEY,
     supplier_name VARCHAR(255) NOT NULL,
     sold_by_md BOOLEAN NOT NULL,
-    closed BOOLEAN DEFAULT FALSE
+    closed BOOLEAN DEFAULT FALSE,
+    CONSTRAINT unique_supplier_name UNIQUE (supplier_name)
 );
 
 -- Table category
 CREATE TABLE category (
     category_id SERIAL PRIMARY KEY,
-    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
+    sub_group_id INTEGER NOT NULL REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
     shape VARCHAR(255),
     picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
+CREATE INDEX idx_categories_sub_group_id ON category(sub_group_id);
 
 -- Table characteristic
 CREATE TABLE characteristic (
     characteristic_id SERIAL PRIMARY KEY,
-    characteristic_name VARCHAR(255)
+    characteristic_name TEXT NOT NULL
 );
 
 -- Table category_characteristic
 CREATE TABLE category_characteristic (
-    category_id INTEGER REFERENCES category(category_id),
-    characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
-    characteristic_value VARCHAR(255),
-    value_abreviation VARCHAR(100),
+    category_id INTEGER REFERENCES category(category_id) ON DELETE CASCADE,
+    characteristic_id INTEGER REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
+    characteristic_value TEXT,
     PRIMARY KEY (category_id, characteristic_id)
+);
+
+-- Table for characteristic values abbreviations
+CREATE TABLE category_characteristic_abbreviations (
+    id SERIAL PRIMARY KEY,
+    characteristic_value TEXT UNIQUE NOT NULL,
+    value_abreviation TEXT NOT NULL
 );
 
 -- Table instruments
 CREATE TABLE instruments (
     instrument_id SERIAL PRIMARY KEY,
-    supplier_id INTEGER REFERENCES supplier(supplier_id),
-    category_id INTEGER REFERENCES category(category_id),
+    supplier_id INTEGER REFERENCES supplier(supplier_id) ON DELETE CASCADE,
+    category_id INTEGER REFERENCES category(category_id) ON DELETE CASCADE,
     reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
     obsolete BOOLEAN DEFAULT FALSE
 );
 
+CREATE INDEX idx_instruments_supplier_id ON instruments(supplier_id);
+CREATE INDEX idx_instruments_category_id ON instruments(category_id);
+CREATE INDEX idx_instruments_reference ON instruments(reference);
+
 -- Table group_characteristic
 CREATE TABLE sub_group_characteristic (
-    sub_group_id INTEGER REFERENCES sub_group(sub_group_id),
-    characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
+    sub_group_id INTEGER REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
+    characteristic_id INTEGER REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
     order_position INTEGER,
     PRIMARY KEY (sub_group_id, characteristic_id)
 );
 
 -- Table alternatives
 CREATE TABLE alternatives (
-    instruments_id_1 INTEGER REFERENCES instruments(instrument_id),
-    instruments_id_2 INTEGER REFERENCES instruments(instrument_id),
+    instruments_id_1 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+    instruments_id_2 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+    alternative_type TEXT,
+    alternative_comment TEXT,
     PRIMARY KEY (instruments_id_1, instruments_id_2)
 );
 
 -- Table orders
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(user_id),
+    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_name TEXT
 );
 
 -- Table order_items
 CREATE TABLE order_items (
-    order_id INTEGER REFERENCES orders(order_id),
-    instrument_id INTEGER REFERENCES instruments(instrument_id),
+    order_id INTEGER NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_id, instrument_id)
-);
--- Create table for instrument images
-CREATE TABLE instrument_pictures (
-  instrument_pictures_id SERIAL PRIMARY KEY,
-  instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
-);
-
--- Create table for sub-group images
-CREATE TABLE category_pictures (
-  category_pictures_id SERIAL PRIMARY KEY,
-  category_id INTEGER NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
-);
-
--- Create table for sub-group images
-CREATE TABLE group_pictures (
-  group_pictures_id SERIAL PRIMARY KEY,
-  group_id INTEGER NOT NULL REFERENCES "group"(group_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
-);
-
--- Create table for sub-group images
-CREATE TABLE sub_group_pictures (
-  sub_group_pictures_id SERIAL PRIMARY KEY,
-  sub_group_id INTEGER NOT NULL REFERENCES sub_group(sub_group_id) ON DELETE CASCADE,
-  picture_path VARCHAR(255) NOT NULL
 );
 
 
@@ -163,11 +179,11 @@ BEGIN
         RAISE EXCEPTION 'Instruments must be from different suppliers';
     END IF;
 
-    -- Ensure instruments are from the same group by checking through category and group
-    IF (SELECT group_id FROM sub_group
+    -- Ensure instruments are from the same groups by checking through category and groups
+    IF (SELECT group_id FROM sub_groups
     WHERE sub_group_id = (SELECT sub_group_id FROM category 
                           WHERE category_id = (SELECT category_id FROM instruments WHERE instrument_id = NEW.instruments_id_1))) <> 
-   (SELECT group_id FROM sub_group
+   (SELECT group_id FROM sub_groups
     WHERE sub_group_id = (SELECT sub_group_id FROM category 
                           WHERE category_id = (SELECT category_id FROM instruments WHERE instrument_id = NEW.instruments_id_2))) THEN
     RAISE EXCEPTION 'Instruments must be from the same group';
@@ -195,16 +211,18 @@ DECLARE
 BEGIN
     -- Build the shape string based on the present characteristics and their order
     FOR characteristic_record IN
-        SELECT sgc.value_abreviation
-        FROM category_characteristic sgc
+        SELECT cca.value_abreviation
+        FROM category_characteristic cc
+        JOIN category_characteristic_abbreviations cca
+            ON cca.characteristic_value = cc.characteristic_value
         JOIN sub_group_characteristic sgc_rel
             ON sgc_rel.sub_group_id = (SELECT sub_group_id
-                                       FROM sub_group
+                                       FROM sub_groups
                                        WHERE sub_group_id = (SELECT sub_group_id
                                                              FROM category
                                                              WHERE category_id = NEW.category_id))
-            AND sgc_rel.characteristic_id = sgc.characteristic_id
-        WHERE sgc.category_id = NEW.category_id
+            AND sgc_rel.characteristic_id = cc.characteristic_id
+        WHERE cc.category_id = NEW.category_id
           AND sgc_rel.order_position IS NOT NULL
         ORDER BY sgc_rel.order_position
     LOOP
@@ -223,6 +241,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- Update the trigger to reflect the modified function
 CREATE TRIGGER trigger_update_shape

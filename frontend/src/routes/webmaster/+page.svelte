@@ -1,96 +1,44 @@
 <script>
   import { goto } from "$app/navigation";
   import { toast } from "@zerodevx/svelte-toast";
+  import { apiFetch } from "$lib/utils/fetch";
+  import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
+  import { onMount } from "svelte";
+  import UserButton from "./UserButton.svelte";
 
-  let users = [
-    { id: "1", email: "user1@example.com", roles: ["admin"], enabled: false },
-    { id: "2", email: "user2@example.com", roles: ["user"], enabled: true },
-    { id: "3", email: "user3@example.com", roles: ["admin", "webmaster"], enabled: true },
-    { id: "4", email: "admin@example.com", roles: ["user"], enabled: true },
-    { id: "5", email: "employee@example.com", roles: ["user"], enabled: false },
-    { id: "6", email: "test@example.com", roles: ["user"], enabled: true },
-    { id: "7", email: "example@example.com", roles: ["admin"], enabled: true },
-  ]; // Normally from API
+  import Icon from "@iconify/svelte";
 
-  let email = "";
+  let users = $state();
   let searchQuery = "";
-  let loading = false;
+  let roles = [];
 
   const itemsPerPage = 3; // Number of items per page
   let currentPage = 1; // Current page number
 
-  const totalPages = Math.ceil(users.length / itemsPerPage);
-
-  // Reactive statement to filter and paginate users
-  $: filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  $: paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const goToPage = (page) => {
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
-  };
-
-  const createUser = async () => {
-    if (!email) {
-      toast.push("Please enter a valid email address");
-      return;
-    }
-    loading = true;
-    setTimeout(() => {
-      toast.push(`User with email ${email} created!`);
-      users.push({ id: (users.length + 1).toString(), email });
-      email = "";
-      loading = false;
-    }, 1500);
-  };
-
-  const disableAccount = (userId) => {
-    const userIndex = users.findIndex((u) => u.id === userId);
-    if (userIndex !== -1) {
-      users[userIndex].enabled = !users[userIndex].enabled;
-      toast.push(
-        users[userIndex].enabled
-          ? `Account with ID ${userId} enabled!`
-          : `Account with ID ${userId} disabled!`
-      );
-    }
-  };
-
-  const resetPassword = (userId) => {
-    if (confirm(`Are you sure you want to reset the password for user ID ${userId}?`)) {
-      toast.push(`Password reset for user ID ${userId}`);
-    }
-  };
+  const totalPages = 0
 
   const viewLogs = () => {
     goto("/webmaster/logs");
   };
 
-  const getBadges = (userId) => {
-    const user = users.find((u) => u.id === userId);
+  const getBadges = (user) => {
     if (user) {
       return user.roles.map((role) => {
-        if (role === "admin") {
+        if (role === "ROLE_ADMIN") {
           return {
             text: "Administrateur",
             bg: "bg-red-100",
             textColor: "text-red-800",
             ringColor: "ring-red-800/10",
           };
-        } else if (role === "webmaster") {
+        } else if (role === "ROLE_WEBMASTER") {
           return {
             text: "Webmaster",
             bg: "bg-green-100",
             textColor: "text-green-800",
             ringColor: "ring-green-800/10",
           };
-        } else if (role === "user") {
+        } else if (role === "ROLE_USER") {
           return {
             text: "Utilisateur",
             bg: "bg-blue-100",
@@ -109,43 +57,57 @@
     }
     return [];
   };
+
+  async function fetchRoles() {
+    try {
+      const response = await apiFetch("/api/role/list");
+      if (response.ok) {
+        roles = await response.json();
+      } else {
+        throw new Error("Failed to fetch roles.");
+      }
+    } catch (error) {
+      toast.push("An error occurred while fetching roles. Please try again.<br> Erreur:" + error);
+    }    
+  }
+
+  async function fetchUsers() {
+    try {
+      const response = await apiFetch("/api/user/list");
+      if (response.ok) {
+        users = await response.json();
+      } else {
+        throw new Error("Failed to fetch users.");
+      }
+    } catch (error) {
+      toast.push("An error occurred while fetching users. Please try again.<br> Erreur:" + error);
+    }
+  }
+
+  onMount(() => {
+    if (!$isWebmaster || !$isAdmin) {
+      goto("/unauthorized");
+    }
+
+    fetchUsers();
+    fetchRoles();
+  });
 </script>
+
+<svelte:head>
+  <title>Gestion du site</title>
+</svelte:head>
 
 <div class="p-8 space-y-10">
   <section class="bg-white shadow-lg rounded-xl p-6">
     <h2 class="text-2xl font-semibold mb-8">Administration du site</h2>
 
     <div class="flex flex-col lg:flex-row items-start lg:space-x-6 space-y-6 lg:space-y-0 mb-8">
-      <!-- Create User Section -->
-      <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
-        <h3 class="text-lg font-medium mb-4">Créer un utilisateur</h3>
-        <div class="space-y-4">
-          <input
-            type="email"
-            bind:value={email}
-            placeholder="Enter user email"
-            class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <button
-            on:click={createUser}
-            class="w-full bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition disabled:opacity-50 flex items-center justify-center space-x-2"
-            disabled={loading}
-          >
-            {#if loading}
-              <span class="animate-spin h-5 w-5 border-t-2 border-white rounded-full"></span>
-              <span>Création ...</span>
-            {:else}
-              <span>Créer</span>
-            {/if}
-          </button>
-        </div>
-      </div>
-
       <!-- Consult Logs Section -->
       <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
         <h3 class="text-lg font-medium mb-4">Consulter les logs</h3>
         <button
-          on:click={viewLogs}
+          onclick={viewLogs}
           class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition"
         >
           Accéder aux logs
@@ -155,14 +117,14 @@
 
     <!-- Users List Section -->
     <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
-      <h3 class="text-lg font-medium mb-6">Utilisateurs existants</h3>
+      <h3 class="text-lg font-medium mb-6">Utilisateurs</h3>
 
       <!-- Search Bar -->
       <div class="mb-6 max-w-xs">
         <input
           type="text"
           bind:value={searchQuery}
-          placeholder="Search by email"
+          placeholder="Rechercher un utilisateur"
           class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
@@ -172,16 +134,17 @@
         <table class="min-w-full table-auto border-collapse">
           <thead>
             <tr class="bg-gray-100 text-left text-sm font-semibold">
+              <th class="px-6 py-4 w-96">Nom d'utilisateur</th>
               <th class="px-6 py-4 w-96">Adresse email</th>
               <th class="px-6 py-4 w-64">Rôles</th>
               <th class="px-6 py-4 w-36">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {#each paginatedUsers as user}
+            {#each users as user (user.id)}
               <tr class="border-b hover:bg-gray-50 transition">
                 <td class="px-6 py-4">
-                  {user.email}
+                  {user.username}
                   {#if user.enabled}
                     <span
                       class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
@@ -194,8 +157,11 @@
                     >
                   {/if}
                 </td>
+                <td class="px-6 py-4">
+                  {user.email}
+                </td>
                 <td class="px-6 py-4 space-x-1">
-                  {#each getBadges(user.id) as badge}
+                  {#each getBadges(user) as badge}
                     <span
                       class={`px-2 py-1 rounded-md text-xs font-medium ring-1 ring-inset ${badge.bg} ${badge.textColor} ${badge.ringColor}`}
                     >
@@ -204,55 +170,7 @@
                   {/each}
                 </td>
                 <td class="px-6 py-4 inline-flex rounded-md shadow-sm">
-                  <button
-                    on:click={() => disableAccount(user.id)}
-                    class={`px-5 py-2 rounded-l-lg w-36 flex items-center transform transition ${
-                      user.enabled
-                        ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-green-600 hover:bg-green-700 text-white"
-                    }`}
-                  >
-                    <span
-                      ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="size-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                        />
-                      </svg>
-                    </span>
-                    <span class="pl-2">{user.enabled ? "Désactiver" : "Activer"}</span>
-                  </button>
-
-                  <button
-                    on:click={() => resetPassword(user.id)}
-                    class="bg-yellow-500 text-white px-5 py-2 rounded-r-lg hover:bg-yellow-600 flex items-center transform transition"
-                  >
-                    <span
-                      ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="size-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-                        />
-                      </svg>
-                    </span>
-                    <span class="pl-2">Réinitialiser le mdp</span>
-                  </button>
+                  <UserButton user={user} roles={roles} />
                 </td>
               </tr>
             {/each}
@@ -262,17 +180,46 @@
 
       <!-- Pagination Controls -->
       <div class="flex justify-center items-center space-x-4 mt-4">
-        <button on:click={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Précédent">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
-          </svg>          
+        <button
+          onclick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          aria-label="Précédent"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+            />
+          </svg>
         </button>
         <span>Page {currentPage} sur {totalPages}</span>
-        <button on:click={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Suivant">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+        <button
+          onclick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          aria-label="Suivant"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+            />
           </svg>
-          
         </button>
       </div>
     </div>

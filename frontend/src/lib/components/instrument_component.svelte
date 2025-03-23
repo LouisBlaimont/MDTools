@@ -1,24 +1,24 @@
 <script> 
-    import { tools } from "../../tools.js";
-    import { suppliers } from "../../suppliers.js";
-    import { getOrder } from "../../order.js"; 
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
+    import { isAdmin } from "$lib/stores/user_stores";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import EditCategoryButton from "$lib/assets/EditCategoryButton.svelte";    
-    import { isEditing, order, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef, isAdmin
-     } from "$lib/stores/searches";    
+    import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
+    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
+     } from "$lib/stores/searches";   
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
- 
-
+    import AddCategoryModal from "$lib/modals/AddCategoryModal.svelte";
+    
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
     }
+    import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
+ 
 
     function showBigPicture(img) {
         const pannel = document.getElementById("big-category-pannel");
@@ -43,10 +43,6 @@
         pannel.style.display = "flex";
         overlay.style.display = "block";
     }
-    
-    function openAddInstrumentPage() {
-        goto('/admin/add_instrument');
-    }  
   
     function closeAddToOrder() {
         const pannel = document.getElementById("add-order-pannel");
@@ -90,7 +86,35 @@
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
 
+    /**
+     * Opens the add instrument page and set the category to the selected category or null if no category is selected
+     * 
+     * @param {number} index - The index of the selected category
+     * @returns {void}
+     */
+    function openAddInstrumentPage() {
+
+        if ($selectedCategoryIndex == null || $selectedCategoryIndex == ""){
+            console.log("Categories are not defined");
+            category_to_addInstrument.set(null);
+
+            // Open the notification modal
+            modals.open(AddCategoryModal, {
+                title: "Aucune catégorie sélectionnée",
+                message: "Veuillez sélectionner une catégorie ou en créer une nouvelle avant d'ajouter un instrument.",
+                onClose: () => {
+                    console.log("Notification modal closed");
+                }
+            });
+        } else {
+            console.log("Categories are defined");
+            category_to_addInstrument.set($categories[$selectedCategoryIndex].id);
+            goto("../../admin/add_instrument");
+        }
+    }
+
 </script>
+
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
     <!-- PICTURES OF THE INSTRUMENTS -->
     <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
@@ -98,12 +122,16 @@
     </div>
     <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
         {#each $currentSuppliers as row, index}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
             class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
             on:click={() => showBigPicture(row.src? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
                 : "/default/no_picture.png"
             )}
             >
+                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <img
                     alt="supplier{row.id}"
                     src={row.src
@@ -152,7 +180,7 @@
             <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                 <tr
                     class="cursor-pointer"
-                    class:bg-[cornflowerblue]={$selectedSupplierIndex === index}
+                    class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
                     class:bg-[lightgray]={$hoveredSupplierIndex === index &&
                     $selectedSupplierIndex !== index}
                     on:click={() => selectedSupplierIndex.set(index)}
@@ -160,11 +188,11 @@
                     on:mouseout={() => (hoveredSupplierIndex.set(null))}
                 >
                 {#if $isEditing}
-                    <EditCategoryButton category={row}/>
+                    <EditInstrumentButton instrument={row}/>
                 {/if}
                 <td
                 class="green text-center border border-solid border-[black]"
-                on:click={() => addToOrderPannel(row.ref)}>+</td
+                on:click= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                 >
                 <td class="text-center border border-solid border-[black]">{row.reference}</td>
                 <td class="text-center border border-solid border-[black]">{row.supplier}</td>
@@ -177,10 +205,10 @@
         </tbody>
     </table>
     {#if $isEditing}
-        {#if $isAdmin}
+       {#if $isAdmin}
             <div class="flex justify-center">
                 <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
-                    Add an instrument
+                    Ajouter un instrument
                 </button>
             </div>
         {/if}
@@ -188,35 +216,6 @@
 </div>
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
-
-
-<div
-  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4 text-[white] flex-col gap-[15px]"
-  id="add-order-pannel"
->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <span
-    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5"
-    on:click={(event) => {
-      event.stopPropagation();
-      closeAddToOrder();
-    }}>&times;</span
-  >
-  <div>AJOUTER référence à la commande:</div>
-  <div>
-    <label for="qte" class="w-2/5">QUANTITE:</label>
-    <input
-      type="number"
-      id="qte"
-      name="qte"
-      class="border border-black rounded p-2 text-black bg-white"
-      bind:value={$quantity}
-    />
-    <button class="cursor-pointer" pointer on:click={() => addToOrder()}>AJOUT</button>
-  </div>
-</div>
-
 
 <div
   class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
