@@ -86,7 +86,7 @@ CREATE TABLE supplier (
 -- Table category
 CREATE TABLE category (
     category_id SERIAL PRIMARY KEY,
-    sub_group_id INTEGER NOT NULL REFERENCES sub_groups(sub_group_id),
+    sub_group_id INTEGER NOT NULL REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
     shape VARCHAR(255),
     picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
 );
@@ -100,8 +100,8 @@ CREATE TABLE characteristic (
 
 -- Table category_characteristic
 CREATE TABLE category_characteristic (
-    category_id INTEGER REFERENCES category(category_id),
-    characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
+    category_id INTEGER REFERENCES category(category_id) ON DELETE CASCADE,
+    characteristic_id INTEGER REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
     characteristic_value TEXT,
     PRIMARY KEY (category_id, characteristic_id)
 );
@@ -116,8 +116,8 @@ CREATE TABLE category_characteristic_abbreviations (
 -- Table instruments
 CREATE TABLE instruments (
     instrument_id SERIAL PRIMARY KEY,
-    supplier_id INTEGER REFERENCES supplier(supplier_id),
-    category_id INTEGER REFERENCES category(category_id),
+    supplier_id INTEGER REFERENCES supplier(supplier_id) ON DELETE CASCADE,
+    category_id INTEGER REFERENCES category(category_id) ON DELETE CASCADE,
     reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
@@ -130,16 +130,16 @@ CREATE INDEX idx_instruments_reference ON instruments(reference);
 
 -- Table group_characteristic
 CREATE TABLE sub_group_characteristic (
-    sub_group_id INTEGER REFERENCES sub_groups(sub_group_id),
-    characteristic_id INTEGER REFERENCES characteristic(characteristic_id),
+    sub_group_id INTEGER REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
+    characteristic_id INTEGER REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
     order_position INTEGER,
     PRIMARY KEY (sub_group_id, characteristic_id)
 );
 
 -- Table alternatives
 CREATE TABLE alternatives (
-    instruments_id_1 INTEGER NOT NULL REFERENCES instruments(instrument_id),
-    instruments_id_2 INTEGER NOT NULL REFERENCES instruments(instrument_id),
+    instruments_id_1 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+    instruments_id_2 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     alternative_type TEXT,
     alternative_comment TEXT,
     PRIMARY KEY (instruments_id_1, instruments_id_2)
@@ -148,15 +148,15 @@ CREATE TABLE alternatives (
 -- Table orders
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(user_id),
+    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_name TEXT
 );
 
 -- Table order_items
 CREATE TABLE order_items (
-    order_id INTEGER REFERENCES orders(order_id),
-    instrument_id INTEGER REFERENCES instruments(instrument_id),
+    order_id INTEGER NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_id, instrument_id)
 );
