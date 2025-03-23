@@ -7,17 +7,14 @@ import org.springframework.stereotype.Service;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.mapper.SupplierMapper;
 
+@AllArgsConstructor
 @Service
 public class SupplierService {
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
-
-    public SupplierService(SupplierRepository supplierRepository, SupplierMapper supplierMapper) {
-        this.supplierRepository = supplierRepository;
-        this.supplierMapper = supplierMapper;
-    }
 
     /**
      * Find a supplier by his name.
@@ -26,11 +23,11 @@ public class SupplierService {
      * @return a SupplierDTO matching the supplier name, or null if no supplier is found
      */
     public SupplierDTO findSupplierByName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
+        Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
-        Suppliers supplier = supplierMaybe.get();
+        Supplier supplier = supplierMaybe.get();
         return new SupplierDTO(supplier.getSupplierName(), supplier.getId(), supplier.getSoldByMd(), supplier.getClosed());
     }
 
@@ -41,11 +38,11 @@ public class SupplierService {
      * @return a list of SupplierDTOs matching the supplier name, or null if no suppliers are found
      */
     public List<SupplierDTO> findSuppliersByName(String supplierName) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
+        Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
             return null;
         }
-        Suppliers supplier = supplierMaybe.get();
+        Supplier supplier = supplierMaybe.get();
         List<SupplierDTO> supplierDTOs = new ArrayList<>();
         supplierDTOs.add(new SupplierDTO(supplier.getSupplierName(), supplier.getId(), supplier.getSoldByMd(), supplier.getClosed()));
         return supplierDTOs;
@@ -62,7 +59,7 @@ public class SupplierService {
         if (supplier.getName() == null || supplier.getName().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
         }
-        Suppliers savedSupplier = supplierRepository.save(supplierMapper.convertToEntity(supplier));
+        Supplier savedSupplier = supplierRepository.save(supplierMapper.convertToEntity(supplier));
         return supplierMapper.convertToDTO(savedSupplier);
     }
 
@@ -82,7 +79,7 @@ public class SupplierService {
      * @return the SupplierDTO with the specified ID, or null if no supplier is found
      */
     public SupplierDTO findSupplierById(Integer supplierId) {
-        Optional<Suppliers> supplierMaybe = supplierRepository.findById(supplierId);
+        Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
         return supplierMaybe.map(supplierMapper::convertToDTO).orElse(null);
     }
 
@@ -101,7 +98,7 @@ public class SupplierService {
      * @return a list of all SupplierDTOs, or null if no suppliers are found
      */
     public List<SupplierDTO> findAllSuppliers() {
-        List<Suppliers> suppliers = new ArrayList<>();
+        List<Supplier> suppliers = new ArrayList<>();
         supplierRepository.findAll().forEach(suppliers::add);
         return suppliers.isEmpty() ? null : supplierMapper.convertToDTOList(suppliers);
     }
