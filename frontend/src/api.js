@@ -197,3 +197,19 @@ export async function fetchCharacteristicValuesByCategory(categoryId) {
 
   return res.json();
 }
+
+/**
+ * Fetches all instruments for a given supplier name.
+ * @param {string} supplierName - The name of the supplier.
+ * @returns {Promise<Array>} - A list of instrument objects.
+ * @throws {Error} - If the request fails.
+ */
+export async function fetchInstrumentsBySupplier(supplierName) {
+  const response = await apiFetch(`/api/instrument/supplier/${encodeURIComponent(supplierName)}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch instruments for supplier: ${supplierName}`);
+  }
+  return await response.json();
+}
+
+

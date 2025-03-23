@@ -1,5 +1,5 @@
 <script>
-    import { fetchGroups, fetchCharacteristics, fetchInstrumentsBySubGroup, fetchSupplierByName, fetchCharacteristicValuesByCategory} from "../../../api.js";
+    import { fetchGroups, fetchCharacteristics, fetchInstrumentsBySubGroup, fetchSupplierByName, fetchInstrumentsBySupplier,fetchCharacteristicValuesByCategory, fetchSuppliers} from "../../../api.js";
     import { onMount } from "svelte";
     import * as XLSX from "xlsx";
     import { goto } from "$app/navigation";
@@ -13,7 +13,10 @@
     let subGroups = {};
     let selectedGroup = "";
     let selectedSubGroup = "";
+    let suppliers = [];
+    let selectedSupplier = "";
   
+    
     let allColumns = [
         "reference",
         "supplier",
@@ -24,17 +27,19 @@
         "obsolete"
     ];
   
-    let selectedColumns = [...allColumns]; // Colonnes cochées par défaut
+    let selectedColumns = [...allColumns]; 
   
     let availableLanguages = ["Français", "Néerlandais", "Anglais"];
     let selectedLanguages = ["Français"];
   
-    let characteristics = []; // Stockera les caractéristiques dynamiques
-    let selectedCharacteristics = []; // Stockera les caractéristiques sélectionnées
+    let characteristics = []; 
+    let selectedCharacteristics = []; 
     
-    async function exportToExcel(subGroupName, selectedColumns) {
-        if (!subGroupName) {
-            alert("Please select a subgroup before exporting.");
+    async function exportToExcel(contextName, selectedColumns) {
+        const isCatalogue = selectedOption === "Catalogue";
+
+        if (!contextName) {
+            alert(`Please select a ${isCatalogue ? "supplier" : "subgroup"} before exporting.`);
             return;
         }
 
@@ -44,7 +49,9 @@
         }
 
         try {
-            const instruments = await fetchInstrumentsBySubGroup(subGroupName);
+            const instruments = isCatalogue
+                ? await fetchInstrumentsBySupplier(contextName)
+                : await fetchInstrumentsBySubGroup(contextName);
 
             if (!instruments || instruments.length === 0) {
                 alert("No data available to export.");
@@ -54,16 +61,20 @@
             const filteredData = [];
 
             for (const instrument of instruments) {
+                // Skip obsolete if not selected
+                if (!selectedColumns.includes("obsolete") && instrument.obsolete === true) {
+                    continue;
+                }
+
                 let row = {};
 
-                // Basic selected columns
                 selectedColumns.forEach((col) => {
                     if (instrument.hasOwnProperty(col)) {
                         row[col] = instrument[col];
                     }
                 });
 
-                // Fetch supplier info if needed
+                // supplier info
                 if (selectedColumns.includes("closed") || selectedColumns.includes("sold_by_md")) {
                     const supplier = await fetchSupplierByName(instrument.supplier);
                     if (selectedColumns.includes("closed")) {
@@ -74,13 +85,14 @@
                     }
                 }
 
-                // Fetch all characteristic values for this instrument’s category
-                if (selectedCharacteristics.length > 0 && instrument.categoryId) {
+                // only for SubGroup option
+                if (!isCatalogue && selectedCharacteristics.length > 0 && instrument.categoryId) {
                     const values = await fetchCharacteristicValuesByCategory(instrument.categoryId);
                     for (const characteristic of selectedCharacteristics) {
                         row[characteristic] = values[characteristic] ?? "";
                     }
                 }
+                
                 filteredData.push(row);
             }
 
@@ -88,11 +100,24 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Instruments");
 
-            XLSX.writeFile(workbook, `export_${subGroupName}.xlsx`);
+            XLSX.writeFile(workbook, `export_${contextName}.xlsx`);
         } catch (error) {
             console.error("Error during export:", error);
             alert("An error occurred while exporting.");
         }
+    }
+
+
+
+    /**
+     * Fetches the list of suppliers from the backend.
+     */
+    async function loadSuppliers() {
+      try {
+        suppliers = await fetchSuppliers();
+      } catch (error) {
+        console.error("Error while retrieving suppliers:", error);
+      }
     }
   
   
@@ -176,16 +201,15 @@
           goto("/unauthorized");
       }
         loadGroups();
+        loadSuppliers();
     });
   </script>
   
   <main class="w-full flex flex-col p-6">
     <h1 class="text-2xl font-bold mb-4">Exporter un fichier Excel</h1>
   
-    <!-- Section de sélection des options -->
     <div class="flex gap-6">
       
-      <!-- Étape 1: Choix unique de l'exportation -->
       <div class="w-1/4 border p-4">
         <h2 class="text-lg font-semibold mb-2">Que voulez-vous exporter ?</h2>
         {#each ["SubGroup", "Catalogue", "Alternatives", "Crossref"] as option}
@@ -196,7 +220,6 @@
         {/each}
       </div>
   
-      <!-- Étape 2: Sélection du groupe et sous-groupe -->
       {#if selectedOption === "SubGroup"}
         <div class="w-1/4 border p-4">
           <h2 class="text-lg font-semibold">Sélectionnez un Groupe</h2>
@@ -216,9 +239,19 @@
           </select>
         </div>
       {/if}
+      {#if selectedOption === "Catalogue"}
+        <div class="w-1/4 border p-4">
+          <h2 class="text-lg font-semibold">Sélectionnez un Fournisseur</h2>
+          <select bind:value={selectedSupplier} class="w-full p-2 mt-2 border">
+            <option value="">-- Choisir un fournisseur --</option>
+            {#each suppliers as supplier}
+              <option value={supplier.name}>{supplier.name}</option>
+            {/each}
+          </select>
+        </div>
+      {/if}
   
-      <!-- Étape 3: Sélection des colonnes (ne disparaissent plus) -->
-      {#if selectedSubGroup}
+      {#if (selectedOption === "SubGroup" && selectedSubGroup) || (selectedOption === "Catalogue" && selectedSupplier)}
         <div class="w-1/4 border p-4">
           <h2 class="text-lg font-semibold">Sélectionnez les Colonnes</h2>
           {#each allColumns as column}
@@ -228,7 +261,7 @@
             </label>
           {/each}
   
-          {#if characteristics.length > 0}
+          {#if characteristics.length > 0 && selectedOption === "SubGroup"}
             <h2 class="text-lg font-semibold mt-4">Caractéristiques</h2>
             {#each characteristics as characteristic}
               <label class="block">
@@ -240,8 +273,7 @@
         </div>
       {/if}
   
-      <!-- Étape 4: Bouton d'exportation -->
-      {#if selectedSubGroup && selectedColumns.length > 0}
+      {#if ((selectedOption === "SubGroup" && selectedSubGroup) || (selectedOption === "Catalogue" && selectedSupplier)) && selectedColumns.length > 0}
         <div class="w-1/4 border p-4">
           <h2 class="text-lg font-semibold">Langues disponibles</h2>
           {#each availableLanguages as language}
@@ -251,7 +283,7 @@
             </label>
           {/each}
   
-          <button class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-4 w-full" on:click={() => exportToExcel(selectedSubGroup, selectedColumns)}>
+          <button class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-4 w-full" on:click={() => exportToExcel(selectedOption === "Catalogue" ? selectedSupplier : selectedSubGroup, selectedColumns)}>
             Exporter
           </button>        
         </div>
