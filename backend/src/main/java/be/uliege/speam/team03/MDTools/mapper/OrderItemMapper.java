@@ -23,7 +23,7 @@ public class OrderItemMapper {
                 Category category = instrument.getCategory();
                 CategoryMapper categoryMapper = new CategoryMapper(categoryRepository);
                 CategoryDTO categoryDTO = categoryMapper.mapToCategoryDto(category); 
-                OrderItemDTO orderItemDTO = new OrderItemDTO(order.getId(), instrument.getId(),order.getOrderName(), instrument.getReference(), instrument.getSupplier().getSupplierName(), categoryDTO,  orderItem.getQuantity(), instrument.getPrice());
+                OrderItemDTO orderItemDTO = new OrderItemDTO(order.getId(), order.getUserId(), instrument.getId(),order.getOrderName(), instrument.getReference(), instrument.getSupplier().getSupplierName(), categoryDTO,  orderItem.getQuantity(), instrument.getPrice());
                 orderItemDTO.setTotalPrice();
                 return orderItemDTO;
         }

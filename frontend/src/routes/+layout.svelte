@@ -11,14 +11,15 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { toast } from "@zerodevx/svelte-toast";
 
-  let userValue = null;
-  let shouldCheckUser = false; // Flag to control checkUser() execution
+  let showDataMenu = false;
 
-  // Subscribe to user store
-  user.subscribe(value => {
-    userValue = value;
-    isLoggedIn.set(!!value);
-  });
+  function toggleDataMenu() {
+    showDataMenu = !showDataMenu;
+  }
+
+  function closeMenu() {
+    showDataMenu = false;
+  }
 
   // Handle authentication
   async function handleAuth() {
@@ -40,24 +41,55 @@
   }
 
   // Determine if we should check the user
+  $: shouldCheckUser = !$user || ($user?.expiresAt ?? 0) < Date.now();
   onMount(() => {
-    shouldCheckUser = !userValue || userValue.expiresAt < Date.now();
+    console.log("shouldCheckUser", shouldCheckUser);
+    console.log("isLoggedIn", $isLoggedIn);
+    console.log("user", $user);
+    console.log("isAdmin", $isAdmin);
+    console.log("isWebmaster", $isWebmaster);
+    
   });
 </script>
 
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
   <!-- Logo -->
-  <a href="/">
-    <img alt="Logo MD" src="logo-blanc.png" class="h-10" />
-  </a>
+  <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
 
   <!-- Navigation Bar -->
   <nav class="hidden md:flex space-x-6">
     <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
     <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
 
+    {#if $isLoggedIn}
+      <a href="/users" class="text-white hover:text-teal-300 transition">User Profile</a>
+    {/if}
+
     {#if $isAdmin || $isWebmaster}
-      <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
+      <div class="relative">
+        <button 
+          onclick={toggleDataMenu}
+          class="text-white hover:text-teal-300 transition flex items-center gap-1"
+        >
+          Data
+          <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+        </button>
+
+        {#if showDataMenu}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div 
+            class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
+            onmouseleave={closeMenu}
+          >
+            <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
+            <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
+          </div>
+        {/if}
+      </div>
+
+      <!-- Keep these always visible -->
+      <a href="/admin/users" class="text-white hover:text-teal-300 transition">Users</a>
+      <a href="/admin/suppliers" class="text-white hover:text-teal-300 transition">Suppliers</a>
     {/if}
 
     {#if $isWebmaster}

@@ -3,10 +3,8 @@ package be.uliege.speam.team03.MDTools.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.OrderItemDTO;
-import be.uliege.speam.team03.MDTools.exception.BadRequestException;
-import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.DTOs.OrdersDTO;
 import be.uliege.speam.team03.MDTools.services.OrdersService;
 
 import java.util.List;
@@ -37,7 +35,7 @@ public class OrdersController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getOrdersIdOfUser(@PathVariable Integer userId) {
-        List<String> ordersNames = ordersService.findOrdersOfUser(userId);
+        List<OrdersDTO> ordersNames = ordersService.findOrdersOfUser(userId);
         if (ordersNames == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user id");
         }
@@ -76,12 +74,12 @@ public class OrdersController {
 
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> body) {
-        Boolean creation = ordersService.createNewOrder(body);
-        if (creation != true) {
+        List<OrdersDTO> orders = ordersService.createNewOrder(body);
+        if (orders == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Cannot create group");
+                    .body("Cannot create order");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(creation);
+        return ResponseEntity.status(HttpStatus.OK).body(orders);
     }
 
     @DeleteMapping("/{orderId}")
@@ -100,9 +98,5 @@ public class OrdersController {
         List<OrderItemDTO> order = ordersService.editOrder(orderId, body);
         return ResponseEntity.status(HttpStatus.OK).body(order);
 
-    }
-    
-    
-    
-      
+    } 
 }

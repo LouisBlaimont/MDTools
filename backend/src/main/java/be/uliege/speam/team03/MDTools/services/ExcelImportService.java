@@ -4,6 +4,7 @@ import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
+import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.text.Normalizer;
 
+@AllArgsConstructor
 @Service
 public class ExcelImportService {
 
@@ -24,25 +26,7 @@ public class ExcelImportService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryCharacteristicRepository categoryCharacteristicRepository;
-
-    /**
-     * Constructs an instance of ExcelImportService.
-     */
-    public ExcelImportService(
-        InstrumentRepository instrumentRepository,
-        SubGroupRepository subGroupRepository,
-        CharacteristicRepository characteristicRepository,
-        SupplierRepository supplierRepository,
-        CategoryRepository categoryRepository,
-        CategoryCharacteristicRepository categoryCharacteristicRepository
-    ) {
-        this.instrumentRepository = instrumentRepository;
-        this.subGroupRepository = subGroupRepository;
-        this.characteristicRepository = characteristicRepository;
-        this.supplierRepository = supplierRepository;
-        this.categoryRepository = categoryRepository;
-        this.categoryCharacteristicRepository = categoryCharacteristicRepository;
-    }
+    private final CharacteristicAbbreviationService abbreviationService;
 
     /**
      * Processes an import request based on its type.
@@ -191,10 +175,10 @@ public class ExcelImportService {
      * @param supplierName The supplier's name.
      * @return The supplier object.
      */
-    Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
+    Supplier getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
         // Use the provided supplier name if not null, otherwise extract from available columns
         if (supplierName == null || supplierName.trim().isEmpty()) {
-            supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : null;
+            supplierName = availableColumns.contains("supplier") ? (String) row.get("supplier") : null;
         }
 
         // If still null or empty after extraction, return null (do not create an "Unknown Supplier")
@@ -206,8 +190,8 @@ public class ExcelImportService {
         String normalizedSupplierName = normalizeString(supplierName);
     
         // Fetch all existing suppliers from the database
-        List<Suppliers> existingSuppliers = supplierRepository.findAll();
-        for (Suppliers existingSupplier : existingSuppliers) {
+        List<Supplier> existingSuppliers = supplierRepository.findAll();
+        for (Supplier existingSupplier : existingSuppliers) {
             // Compare normalized names to check if a similar supplier already exists
             if (normalizeString(existingSupplier.getSupplierName()).equals(normalizedSupplierName)) {
                 return existingSupplier; // Return the existing supplier to avoid duplicates
@@ -215,7 +199,7 @@ public class ExcelImportService {
         }
     
         // If no similar supplier exists, create a new one
-        Suppliers newSupplier = new Suppliers();
+        Supplier newSupplier = new Supplier();
         newSupplier.setSupplierName(supplierName);
         
         newSupplier.setSoldByMd(getSoldByMdValue(row, availableColumns));
@@ -291,7 +275,7 @@ public class ExcelImportService {
     
         if (value instanceof String) {
             String strValue = ((String) value).trim().toLowerCase();
-            Set<String> trueValues = Set.of("true", "vrai", "ja", "yes", "oui");
+            Set<String> trueValues = Set.of("true", "vrai", "ja", "yes", "oui", "marque propre", "obsolete");
             Set<String> falseValues = Set.of("false", "faux", "nee", "non", "no");
     
             if (trueValues.contains(strValue)) return true;
@@ -366,10 +350,16 @@ public class ExcelImportService {
             String characteristicName = entry.getKey();
             String characteristicValue = entry.getValue();
     
-            // Normalize characteristic value for comparison
+            // Normalize the characteristic value for comparison
             String normalizedValue = normalizeString(characteristicValue);
     
-            // Check if characteristic exists in the database
+            // Check if an abbreviation column exists for this characteristic
+            String abbreviationColumn = "abbreviation_" + characteristicName;
+            String abbreviation = (availableColumns.contains(abbreviationColumn) && row.get(abbreviationColumn) != null)
+                    ? row.get(abbreviationColumn).toString()
+                    : null;
+    
+            // Retrieve the characteristic from the database or create a new one if it does not exist
             Characteristic characteristic = characteristicRepository.findByName(characteristicName)
                     .orElseGet(() -> {
                         Characteristic newChar = new Characteristic(characteristicName);
@@ -377,32 +367,38 @@ public class ExcelImportService {
                         return newChar;
                     });
     
-            // Look for an existing characteristic value in the database
+            // Check if the characteristic value already exists in the database
             Optional<CategoryCharacteristic> existingCategoryCharacteristic = categoryCharacteristicRepository
                     .findByCharacteristicId(characteristic.getId())
                     .stream()
                     .filter(cc -> normalizeString(cc.getVal()).equals(normalizedValue))
                     .findFirst();
     
-            String abbreviation;
             if (existingCategoryCharacteristic.isPresent()) {
-                // If the value already exists, use its abbreviation
-                abbreviation = existingCategoryCharacteristic.get().getValAbrev();
+                // If the characteristic value exists, check if an abbreviation is already defined
+                String existingAbbreviation = abbreviationService.getAbbreviation(existingCategoryCharacteristic.get().getVal()).orElse(null);
+                if (existingAbbreviation == null && abbreviation != null) {
+                    // If no abbreviation exists and an abbreviation is provided in the import file, add it
+                    abbreviationService.addAbbreviation(existingCategoryCharacteristic.get().getVal(), abbreviation);
+                }
             } else {
-    
-                // If no abbreviation exists, check if there's a column for abbreviation
-                abbreviation = (availableColumns.contains("abbreviation") && row.get("abbreviation") != null)
-                        ? row.get("abbreviation").toString()
-                        : null;
+                // If the characteristic is new, add the abbreviation if available
+                String existingAbbreviation = abbreviationService
+                    .getAbbreviation(characteristicValue)
+                    .orElse(null);
+
+                if (existingAbbreviation == null && abbreviation != null) {
+                    abbreviationService.addAbbreviation(characteristicValue, abbreviation);
+                }
             }
     
-            // Create new CategoryCharacteristic
-            CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(newCategory, characteristic, characteristicValue, abbreviation);
+            // Create the association between the category and the characteristic
+            CategoryCharacteristic categoryCharacteristic = new CategoryCharacteristic(newCategory, characteristic, characteristicValue);
             categoryCharacteristic.setId(new CategoryCharacteristicKey(newCategory.getId(), characteristic.getId()));
             categoryCharacteristicRepository.save(categoryCharacteristic);
         }
         return newCategory;
-    }
+    }    
 
     /**
      * Updates an existing instrument with new data.
@@ -418,7 +414,7 @@ public class ExcelImportService {
         boolean isUpdated = false;
     
         // Check Supplier
-        Suppliers newSupplier = getOrCreateSupplier(row, availableColumns, null);
+        Supplier newSupplier = getOrCreateSupplier(row, availableColumns, null);
         if (newSupplier != null && !Objects.equals(instrument.getSupplier(), newSupplier)) {
             instrument.setSupplier(newSupplier);
             isUpdated = true;
@@ -530,7 +526,7 @@ public class ExcelImportService {
                 }
     
                 // Update supplier if missing but do not change if different
-                Suppliers newSupplier = getOrCreateSupplier(row, availableColumns, null);
+                Supplier newSupplier = getOrCreateSupplier(row, availableColumns, null);
                 if (existingInstrument.getSupplier() == null && newSupplier != null) {
                     existingInstrument.setSupplier(newSupplier);
                     instrumentRepository.save(existingInstrument);

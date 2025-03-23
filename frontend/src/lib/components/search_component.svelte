@@ -4,10 +4,7 @@
     import { onMount } from "svelte";
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
-    import { tools } from "../../tools.js";
-    import { suppliers } from "../../suppliers.js";
-    import { getOrder, addTool } from "../../order.js";
-    import { isEditing, order, reload, selectedCategoryIndex, 
+    import { isEditing, orderItems, reload, selectedCategoryIndex, 
         selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
         showChars, charValues, currentSuppliers, categories, characteristics, 
         showSubGroups, showCategories, subGroups, groups, errorMessage, 

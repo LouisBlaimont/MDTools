@@ -1,5 +1,5 @@
 <script>
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { apiFetch } from "$lib/utils/fetch";
   import { onMount, getContext } from "svelte";
   import { reload } from "$lib/stores/searches";
 
@@ -23,8 +23,7 @@
       try {
         const fileData = new FormData();
         fileData.append("file", file);
-        const response = await fetch(
-          PUBLIC_API_URL + "/api/category/" + encodeURIComponent(category.id) + "/picture",
+        const response = await apiFetch("/api/category/" + encodeURIComponent(category.id) + "/picture",
           {
             method: "POST",
             body: fileData,
@@ -40,8 +39,8 @@
 
     if (characteristicsEdited) {
       try {
-        const response = await fetch(
-          PUBLIC_API_URL + "/api/category/" + encodeURIComponent(category.id),
+        const response = await apiFetch(
+          "/api/category/" + encodeURIComponent(category.id),
           {
             method: "PATCH",
             headers: {
@@ -64,8 +63,8 @@
 
   async function fetchCharacteristics() {
     try {
-      const response = await fetch(
-        PUBLIC_API_URL + "/api/category/" + encodeURIComponent(category.id)
+      const response = await apiFetch(
+        "/api/category/" + encodeURIComponent(category.id)
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch characteristics: ${response.statusText}`);

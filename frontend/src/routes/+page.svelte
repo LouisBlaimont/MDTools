@@ -5,19 +5,12 @@
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { modals } from "svelte-modals";
-  import { checkRole } from "$lib/rbacUtils";
-	import { ROLES } from "../constants";
-	import { user } from "$lib/stores/user_stores"; 
+  import { ROLES } from "../constants";
+  import { ordersNames, userId, selectedOrderId } from "$lib/stores/searches";
+  import { user, isAdmin, isWebmaster, isLoggedIn } from "$lib/stores/user_stores";
   import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
-
-  // RBAC 
-  let userValue;
-  user.subscribe(value => {
-    userValue = value;
-  });
-  // returns true if user is admin
-  let isAdmin = checkRole(userValue, ROLES.ADMIN);
+  import { findOrderItems } from "$lib/components/order_component.js";
 
   let groups_summary = $state([]);
 
@@ -25,17 +18,35 @@
     try {
       const response = await apiFetch("/api/groups/summary");
 
+      const response2 = await apiFetch(`/api/orders/user/${$userId}`);
+      if (!response2.ok) {
+        throw new Error(`Failed to fetch orders: ${response2.statusText}`);
+      }
       if (!response.ok) {
         throw new Error(`Failed to fetch groups: ${response.statusText}`);
       }
 
+      ordersNames.set(await response2.json());
       groups_summary = await response.json();
       groups_summary.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error(error);
     }
   }
-  onMount(fecthData);
+
+  // Run this effect whenever isLoggedIn changes
+  $effect(() => {
+    if (isLoggedIn) {
+      console.log("Now logged in, fetching data...");
+      fecthData();
+    }
+  });
+
+  onMount(() => {
+    if ($isLoggedIn) {
+      fecthData();
+    }
+  });
 
   function moveToSearches(group, subgroup, row) {
     clearTimeout(clickTimeout);
@@ -178,75 +189,131 @@
     return;
   }
 
+
+  function seePreviousOrders() {
+    goto("/previous_orders");
+  }
+
+  function getSelectedOrderName(orderId) {
+    const selectedOrder = $ordersNames.find((order) => order.id === orderId);
+    return selectedOrder ? selectedOrder.name : null;
+  }
+
+  async function singleOrderView() {
+    const name = getSelectedOrderName($selectedOrderId);
+    findOrderItems($selectedOrderId);
+    goto(`/single_order_view?name=${name}`);
+  }
 </script>
 
 <svelte:head>
   <title>Accueil</title>
 </svelte:head>
 
-<main
-  class="flex flex-col md:flex-row justify-center items-start space-y-8 md:space-y-0 md:space-x-10 px-8 py-10 max-w-screen-xl mx-auto text-[14px"
+<div
+  class="flex flex-row justify-center items-start space-x-8 px-8 py-16 max-w-screen-xl mx-auto text-[14px]"
 >
-  <aside class="w-full md:w-1/3 bg-gray-100 rounded-lg p-8 shadow-md">
-    <form class="space-y-6">
-      <div class="flex flex-col">
-        <label for="id_search_keyword" class="font-semibold text-lg"
-          >Recherche par mot(s) clé(s):</label
-        >
-        <input
-          type="text"
-          name="search_keyword"
-          id="id_search_keyword"
-          placeholder="Entrez un mot clé"
-          class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-          bind:value={$keywords}
-        />
-      </div>
+  <div class="flex flex-col space-y-8 w-1/3">
+    <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md">
+      <form class="space-y-6">
+        <div class="flex flex-col">
+          <label for="id_search_keyword" class="font-semibold text-lg"
+            >Recherche par mot(s) clé(s):</label
+          >
+          <input
+            type="text"
+            name="search_keyword"
+            id="id_search_keyword"
+            placeholder="Entrez un mot clé"
+            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+            bind:value={$keywords}
+          />
+        </div>
 
-      <div class="flex flex-col">
-        <label for="id_search_by_groups" class="font-semibold text-lg"
-          >Recherche par groupe ou sous-groupe:</label
-        >
-        <input
-          type="text"
-          name="search_by_groups"
-          id="id_search_by_groups"
-          placeholder="Entrez un groupe"
-          class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-        />
-      </div>
+        <div class="flex flex-col">
+          <label for="id_search_by_groups" class="font-semibold text-lg"
+            >Recherche par groupe ou sous-groupe:</label
+          >
+          <input
+            type="text"
+            name="search_by_groups"
+            id="id_search_by_groups"
+            placeholder="Entrez un groupe"
+            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+          />
+        </div>
 
-      <div class="flex flex-col">
-        <label for="id_search_set" class="font-semibold text-lg">Recherche par référence:</label>
-        <input
-          list="ref"
-          name="ref"
-          placeholder="Entrez une référence"
-          class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-        />
-        <datalist id="ref">
-          <option value="ref1"> </option><option value="ref2"> </option><option value="ref3">
-          </option><option value="ref4"> </option><option value="ref5"> </option></datalist
-        >
-      </div>
+        <div class="flex flex-col">
+          <label for="id_search_set" class="font-semibold text-lg">Recherche par référence:</label>
+          <input
+            list="ref"
+            name="ref"
+            placeholder="Entrez une référence"
+            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+          />
+          <datalist id="ref">
+            <option value="ref1"> </option><option value="ref2"> </option><option value="ref3">
+            </option><option value="ref4"> </option><option value="ref5"> </option></datalist
+          >
+        </div>
 
-      <button
+        <button
         type="submit"
         class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg" onclick={searchByKeywords}
         >Rechercher</button
-      >
-      {#if isAdmin}
-        <div class="flex flex-col">
-          <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_group">Ajouter un groupe</a></button>
-        </div>
-      {/if}
-    </form>
-  </aside>
+        >
+        {#if $isAdmin}
+          <div class="flex flex-col">
+            <button
+              class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
+              ><a href="/admin/add_group">Ajouter un groupe</a></button
+            >
+          </div>
+        {#if selectedGroup}
+          <div class="flex flex-col">
+            <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button>
+          </div>
+        {/if}
+        {/if}
+      </form>
+    </div>
 
-  <section
-    class="w-full bg-white md:w-1/3 lg:min-w-[800px] xl:min-w-[1100px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[400px] overflow-y-auto"
+    <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md mt-6">
+      <div class="mb-6">
+        <label for="search-order" class="font-semibold text-lg"> Rechercher une commande : </label>
+        <select
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 mb-2"
+          bind:value={$selectedOrderId}
+        >
+          {#each $ordersNames as order}
+            <option value={order.id}>{order.name} </option>
+          {/each}
+        </select>
+        <button
+          class="w-full p-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
+          onclick={() => singleOrderView()}>Rechercher</button
+        >
+      </div>
+
+      <div class="mb-6">
+        <label for="previous-orders" class="font-semibold text-lg">
+          Voir les commandes précédentes:
+        </label>
+        <button
+          class="w-full p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 flex items-center justify-center"
+          onclick={() => seePreviousOrders()}
+        >
+          Voir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="w-full bg-white md:w-3/4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
   >
-    {#if !showKeywordsResult}
+  {#if !showKeywordsResult }
+    {#if $isLoggedIn}
       <div class="flex gap-2">
         <!-- Buttons div -->
         {#if selectedGroup}
@@ -269,8 +336,9 @@
             </svg>
           </button>
         {/if}
+      {/if}
 
-        {#if isAdmin}
+        {#if $isAdmin}
           <button
             class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
             aria-label="edit groups"
@@ -293,7 +361,6 @@
           </button>
         {/if}
       </div>
-    
 
       <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
         {#if !selectedGroup}
@@ -320,29 +387,29 @@
           {/each}
         {/if}
 
-        {#if selectedGroup}
-          {#each selectedSubgroups as subgroup}
-            <div class="relative group w-64 h-40">
-              <button
-                class="cursor-pointer w-full h-full object-cover rounded-lg"
-                style="background-image: url({subgroup.pictureId
-                  ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
-                  : '/default/group_picture_default.png'}); background-size: cover;"
-                aria-label="subgroup image"
-                onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
-                onkeydown={(e) => {
-                  if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
-                }}
-              ></button>
-              <div
-                class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-              >
-                {subgroup.name} ({subgroup.instrCount})
+          {#if selectedGroup}
+            {#each selectedSubgroups as subgroup}
+              <div class="relative group w-64 h-40">
+                <button
+                  class="cursor-pointer w-full h-full object-cover rounded-lg"
+                  style="background-image: url({subgroup.pictureId
+                    ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
+                    : '/default/group_picture_default.png'}); background-size: cover;"
+                  aria-label="subgroup image"
+                  onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
+                  onkeydown={(e) => {
+                    if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
+                  }}
+                ></button>
+                <div
+                  class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+                >
+                  {subgroup.name} ({subgroup.instrCount})
+                </div>
               </div>
-            </div>
-          {/each}
-        {/if}
-      </div>
+            {/each}
+          {/if}
+        </div>
     {/if}
     <!-- Results of the keywords search -->
     {#if showKeywordsResult}
@@ -398,37 +465,18 @@
         </tbody>
     </table>
     {/if}
-  </section>
-</main>
+    {:else}
+      <div class="flex flex-col items-center justify-center h-full">
+        <p class="text-lg">Connectez-vous pour accéder à cette page.</p>
+      </div>
+    {/if}
+  </div>
+</div>
 
 <div
   class="container mx-auto bg-gray-50 p-6 shadow-lg flex justify-center flex items-center space-x-6"
 >
   <div>
     <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
-  </div>
-  <div>
-    <label for="id_ref" class="font-semibold text-lg">Rechercher une commande:</label>
-    <div class="flex flex-row">
-      <div>
-        <input
-          list="commandes"
-          name="commandes"
-          placeholder="Entrez un numéro de commande"
-          class="w-[350px] p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-lg"
-        />
-        <datalist id="commandes">
-          <option value="#123456"> </option><option value="#123457"> </option><option
-            value="#123458"
-          >
-          </option><option value="#123459"> </option></datalist
-        >
-      </div>
-      <div>
-        <button class="bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 text-lg"
-          >Rechercher</button
-        >
-      </div>
-    </div>
   </div>
 </div>
