@@ -62,8 +62,8 @@
 
             for (const instrument of instruments) {
                 // Skip obsolete if not selected
-                if (!selectedColumns.includes("obsolete") && instrument.obsolete === true) {
-                    continue;
+                if (isCatalogue && !selectedColumns.includes("obsolete") && instrument.obsolete === true) {
+                  continue;
                 }
 
                 let row = {};
