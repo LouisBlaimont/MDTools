@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { apiFetch } from '$lib/utils/fetch';
   import LogCard from "./LogCard.svelte";
 
   let logsPromise = []; // Store the promise itself

@@ -15,7 +15,7 @@
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
-        const response = await apiFetch('/api/instrument/add', {
+        const response = await apiFetch('/api/instrument', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
