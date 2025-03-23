@@ -1,6 +1,6 @@
 <script>
   import { modals } from "svelte-modals";
-  import EditUserModal from "$lib/modals/EditUserModal.svelte";
+  import EditUserModal from "$lib/modals/editUserModal.svelte";
   import Icon from "@iconify/svelte";
   import { toast } from "@zerodevx/svelte-toast";
 
