@@ -226,4 +226,96 @@ public class SupplierServiceTest {
         // Assert
         assertNull(result);
     }
+
+    @Test
+    void findSupplierByName_WithNullName_ThrowsIllegalArgumentException() {
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            supplierService.findSupplierByName(null);
+        });
+
+        assertEquals("Supplier name cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void findSuppliersByName_WithEmptyName_ReturnsNull() {
+        // Arrange
+        when(supplierRepository.findBySupplierName("")).thenReturn(Optional.empty());
+
+        // Act
+        List<SupplierDTO> result = supplierService.findSuppliersByName("");
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void saveSupplier_WithDuplicateId_ThrowsConflictException() {
+        // Arrange
+        when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
+
+        SupplierDTO duplicateSupplier = new SupplierDTO("Duplicate Supplier", 1, true, false);
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            supplierService.saveSupplier(duplicateSupplier);
+        });
+
+        assertEquals("Supplier with this ID already exists", exception.getMessage());
+    }
+
+    @Test
+    void deleteSupplier_WithNonexistentId_DoesNothing() {
+        // Arrange
+        doNothing().when(supplierRepository).deleteById(999);
+
+        // Act
+        supplierService.deleteSupplier(999);
+
+        // Assert
+        verify(supplierRepository).deleteById(999);
+    }
+
+    @Test
+    void findAllSuppliers_WhenRepositoryThrowsException_ThrowsRuntimeException() {
+        // Arrange
+        when(supplierRepository.findAll()).thenThrow(new RuntimeException("Database error"));
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            supplierService.findAllSuppliers();
+        });
+
+        assertEquals("Database error", exception.getMessage());
+    }
+
+    @Test
+    void findMaxSupplierId_WhenNoSuppliersExist_ReturnsZero() {
+        // Arrange
+        when(supplierRepository.findMaxSupplierId()).thenReturn(null);
+
+        // Act
+        Integer result = supplierService.findMaxSupplierId();
+
+        // Assert
+        assertEquals(0, result);
+    }
+
+    @Test
+    void updateSupplier_WithPartialData_UpdatesOnlySpecifiedFields() {
+        // Arrange
+        SupplierDTO partialUpdate = new SupplierDTO(null, 1, false, true);
+        when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
+        when(supplierMapper.convertToDTO(supplier)).thenReturn(supplierDTO);
+        when(supplierRepository.save(any(Supplier.class))).thenReturn(supplier);
+
+        // Act
+        SupplierDTO result = supplierService.saveSupplier(partialUpdate);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(supplierDTO.getName(), result.getName());
+        assertTrue(result.isClosed());
+        assertFalse(result.isSoldByMd());
+    }
 }
