@@ -39,13 +39,8 @@
 
   function moveToSearches(group, subgroup, row) {
     clearTimeout(clickTimeout);
-    console.log("group :", group);
     goto(
-      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`, {
-    state: {
-      categoryId: row.categoryId
-    }
-  }
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
     );
   }
 
@@ -155,11 +150,32 @@
     try {
       let response = await apiFetch(`/api/instruments/getCategory/${row.categoryId}`);
       let cat = await response.json();
+      selectCategoryBis(row.categoryId);
       moveToSearches(cat.groupName, cat.subGroupName, row);
     } catch (error) {
       console.error(error);
       errorMessage.set(error.message);
     }
+  }
+
+  /**
+   * Gets the suppliers of the category given directly by the categoryId
+   * @param categoryId
+   */
+   async function selectCategoryBis(categoryId) {
+    try{   
+        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+        if (!response.ok){
+            throw new Error("Failed to fetch instruments of category");
+        }
+        const answer = await response.json();
+        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+        console.log("current suppliers from Home: ", $currentSuppliers);
+    }catch (error) {
+        console.error(error);
+        errorMessage.set(error.message);
+    }
+    return;
   }
 
 </script>

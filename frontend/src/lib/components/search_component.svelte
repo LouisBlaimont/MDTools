@@ -20,6 +20,7 @@
      * @param subGroup
      */
     export async function findCharacteristics(subGroup) {
+        console.log("we pass in findChar");
         if (subGroup == "none") {
             selectedSubGroup.set("");
             findSubGroups($selectedGroup);
@@ -60,6 +61,8 @@
      * Filters the categories depending on the input of the user.
      */
     function searchByCharacteristics() {
+        console.log("we pass in searchBychar");
+
         let char_vals = [];
         for (let i = 0; i < $characteristics.length; i++) {
         if ($characteristics[i] === "Function" || $characteristics[i] === "Name") {
@@ -158,6 +161,8 @@
      * @param group
      */
     export async function findSubGroups(group) {
+        console.log("we pass in findSubGroup");
+
         if (group == "none") {
             selectedGroup.set("");
             selectedSubGroup.set("");

@@ -230,8 +230,6 @@
     }
   }
 
-  let isLoading = true;
-
   onMount(async () => {
     findSubGroupsStore.subscribe(value => {
       if (value) {
@@ -245,12 +243,11 @@
         tryFetchData();
       }
     });
-    const state = $page?.state;
-    if (state?.categoryId) {
-      await selectCategoryBis(state.categoryId);
-    }
+    // const state = $page?.state;
+    // if (state?.categoryId) {
+    //   await selectCategoryBis(state.categoryId);
+    // }
     console.log("currentSuppliers at end on Mount: ", $currentSuppliers);
-    isLoading = false;
   });
 
   reload.subscribe((v) => {
@@ -302,7 +299,7 @@
       <CategoryComponent />
       
       <!-- TABLE AND PICTURES OF THE SUPPLIERS -->
-      <InstrumentComponent {isLoading}/>
+      <InstrumentComponent />
 
     </div>
 
