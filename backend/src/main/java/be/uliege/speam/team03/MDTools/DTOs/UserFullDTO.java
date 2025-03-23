@@ -1,20 +1,14 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-
 import be.uliege.speam.team03.MDTools.models.User;
 import lombok.Getter;
 import lombok.Setter;

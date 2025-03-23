@@ -5,7 +5,7 @@ import java.util.*;
 import org.springframework.stereotype.Component;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
-import be.uliege.speam.team03.MDTools.models.Suppliers;
+import be.uliege.speam.team03.MDTools.models.Supplier;
 
 @Component
 public class SupplierMapper {
@@ -16,7 +16,7 @@ public class SupplierMapper {
      * @param supplier the Suppliers entity to convert
      * @return the converted SupplierDTO
      */
-    public SupplierDTO convertToDTO(Suppliers supplier) {
+    public SupplierDTO convertToDTO(Supplier supplier) {
         return new SupplierDTO(
             supplier.getSupplierName(),
             supplier.getId(),
@@ -31,11 +31,11 @@ public class SupplierMapper {
      * @param supplierDTO the SupplierDTO to convert
      * @return the converted Suppliers entity
      */
-    public Suppliers convertToEntity(SupplierDTO supplierDTO) {
-        Suppliers supplier = new Suppliers();
+    public Supplier convertToEntity(SupplierDTO supplierDTO) {
+        Supplier supplier = new Supplier();
         supplier.setSupplierName(supplierDTO.getName());
         supplier.setId(supplierDTO.getId());
-        supplier.setSoldByMd(supplierDTO.isSoldByMD() != null ? supplierDTO.isSoldByMD() : true);
+        supplier.setSoldByMd(supplierDTO.isSoldByMd());
         supplier.setClosed(supplierDTO.isClosed());
         return supplier;
     }
@@ -46,9 +46,9 @@ public class SupplierMapper {
      * @param suppliers the list of Suppliers entities to convert
      * @return the converted list of SupplierDTOs
      */
-    public List<SupplierDTO> convertToDTOList(List<Suppliers> suppliers) {
+    public List<SupplierDTO> convertToDTOList(List<Supplier> suppliers) {
         List<SupplierDTO> supplierDTOs = new ArrayList<>();
-        for (Suppliers supplier : suppliers) {
+        for (Supplier supplier : suppliers) {
             supplierDTOs.add(convertToDTO(supplier));
         }
         return supplierDTOs;

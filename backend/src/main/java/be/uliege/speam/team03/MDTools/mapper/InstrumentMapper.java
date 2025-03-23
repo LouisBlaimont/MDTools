@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
-import be.uliege.speam.team03.MDTools.models.Suppliers;
+import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
@@ -84,11 +84,11 @@ public class InstrumentMapper {
         instrument.setObsolete(instrumentDTO.isObsolete());
 
         // retrieve supplier based on supplier name
-        Optional<Suppliers> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
+        Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
         if (supplierMaybe.isPresent() == false) {
             return null;
         }
-        Suppliers supplier = supplierMaybe.get();
+        Supplier supplier = supplierMaybe.get();
         instrument.setSupplier(supplier);
 
         // retrieve category based on category id

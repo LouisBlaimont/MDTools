@@ -21,5 +21,17 @@ public class LogDto {
     private String action;
     private Timestamp timestamp;
 
+    public void setTimestamp(String timestamp) {
+        this.timestamp = Timestamp.valueOf(timestamp);
+    }
+
+    public String getTimestamp() {
+        if (timestamp == null) {
+            return null;
+        }
+        // Format the timestamp to a string representation
+        return timestamp.toString();
+    }
+
 
 }
