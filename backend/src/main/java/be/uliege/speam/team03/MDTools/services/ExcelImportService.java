@@ -178,7 +178,7 @@ public class ExcelImportService {
     Suppliers getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
         // Use the provided supplier name if not null, otherwise extract from available columns
         if (supplierName == null || supplierName.trim().isEmpty()) {
-            supplierName = availableColumns.contains("supplier_name") ? (String) row.get("supplier_name") : null;
+            supplierName = availableColumns.contains("supplier") ? (String) row.get("supplier") : null;
         }
 
         // If still null or empty after extraction, return null (do not create an "Unknown Supplier")
@@ -386,7 +386,7 @@ public class ExcelImportService {
                 String existingAbbreviation = abbreviationService
                     .getAbbreviation(characteristicValue)
                     .orElse(null);
-                    
+
                 if (existingAbbreviation == null && abbreviation != null) {
                     abbreviationService.addAbbreviation(characteristicValue, abbreviation);
                 }

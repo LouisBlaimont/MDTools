@@ -153,3 +153,47 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
 
   return response.json();
 }
+
+/**
+ * Fetches all instruments for a given subgroup.
+ * Each instrument includes its reference and related attributes.
+ * @param {string} subGroupName - The name of the subgroup.
+ * @returns {Promise<Array>} - A list of instrument objects.
+ */
+export async function fetchInstrumentsBySubGroup(subGroupName) {
+  const response = await apiFetch(`/api/instrument/subgroup/${encodeURIComponent(subGroupName)}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch instruments for subgroup: ${subGroupName}`);
+  }
+  return await response.json();
+}
+
+/**
+ * Fetches a supplier by name.
+ *
+ * @param {string} supplierName - The name of the supplier to retrieve.
+ * @returns {Promise<Object>} - The supplier object containing fields like 'closed' and 'soldByMD'.
+ * @throws {Error} - If the fetch fails or the supplier is not found.
+ */
+export async function fetchSupplierByName(supplierName) {
+  const res = await apiFetch(`/api/supplier/name/${encodeURIComponent(supplierName)}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch supplier: ${supplierName}`);
+  }
+  return res.json();
+}
+
+/**
+ * Fetches all characteristic values for a given category.
+ * @param {number|string} categoryId - The ID of the category.
+ * @returns {Promise<Object>} - A mapping of characteristic name to value.
+ */
+export async function fetchCharacteristicValuesByCategory(categoryId) {
+  const res = await apiFetch(`/api/category/${categoryId}/characteristics`);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch characteristic values for category ${categoryId}`);
+  }
+
+  return res.json();
+}

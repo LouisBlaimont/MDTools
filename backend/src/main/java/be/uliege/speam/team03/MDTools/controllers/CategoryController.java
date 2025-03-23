@@ -138,5 +138,22 @@ public class CategoryController {
         List<CharacteristicDTO> chars = categoryService.updateCategoryCharacteristics(id, body);
         return ResponseEntity.status(HttpStatus.OK).body(chars);
     }
-    
+
+    /**
+     * Retrieves a map of characteristic names and their values for a given category.
+     * Used for exporting instruments with characteristic values to Excel.
+     *
+     * @param id The ID of the category.
+     * @return A map where keys are characteristic names and values are the corresponding values (or empty strings).
+     */
+    @GetMapping("/{id}/characteristics")
+    public ResponseEntity<Map<String, String>> getCharacteristicValuesFromCategory(@PathVariable Integer id) {
+        Map<String, String> characteristicValues = categoryService.getCharacteristicValuesByCategoryId(id);
+
+        if (characteristicValues == null || characteristicValues.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        return ResponseEntity.ok(characteristicValues);
+    }   
 }
