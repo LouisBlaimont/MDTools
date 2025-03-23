@@ -135,6 +135,14 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <!-- Exclude specific class -->
+                                <exclude>be/uliege/speam/team03/MDTools/config/**</exclude>
+                                <exclude>be/uliege/speam/team03/MDTools/DTOs/**</exclude>
+                                <exclude>be/uliege/speam/team03/MDTools/exceptions/**</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

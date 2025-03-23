@@ -22,7 +22,7 @@ public class Instruments {
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
-    private Suppliers supplier;
+    private Supplier supplier;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

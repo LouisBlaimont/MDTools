@@ -3,11 +3,8 @@ package be.uliege.speam.team03.MDTools.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.OrderItemDTO;
 import be.uliege.speam.team03.MDTools.DTOs.OrdersDTO;
-import be.uliege.speam.team03.MDTools.exception.BadRequestException;
-import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.OrdersService;
 
 import java.util.List;
