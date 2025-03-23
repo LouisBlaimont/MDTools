@@ -13,7 +13,6 @@
      charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
   
     /**
@@ -120,7 +119,6 @@
         }
     }
 
-    let div2;
 
 </script>
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">

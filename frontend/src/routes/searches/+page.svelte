@@ -18,7 +18,7 @@
   import OrderComponent from "$lib/components/order_component.svelte";
   import SearchComponent from "$lib/components/search_component.svelte";
 
-  import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
+  import {startResizeBoth, startResizeVertical} from "$lib/resizableUtils.js";
 
   import { apiFetch } from "$lib/utils/fetch.js";
 
@@ -273,6 +273,8 @@
       reload.set(false);
     }
   });
+
+  let div1, div2, div3, div4, div5;
 </script>
 
 <svelte:head>
@@ -282,26 +284,35 @@
 <div id="container" class="text-[14px]">
   <div class="flex flex-col gap-[5px] box-border w-full">
     <!-- TOP PART -->
-    <div class="relative resize overflow-auto border border-gray-300" bind:this={div2}>
+    <div class="relative resize-none overflow-auto border border-gray-300" bind:this={div5}>
+    
       <div class="flex-[5] flex flex-row mt-3 h-max-[50vh]">
         <!-- FORM OF SEARCHES -->
-        <SearchComponent />
-
+        <div class="relative resize-none overflow-auto border border-gray-300" bind:this={div2}>
+          <SearchComponent />
+          <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResizeBoth(e, div2)}></div>
+        </div>
         <!-- TABLE AND PICTURES OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-        <CategoryComponent />
-        
-        <!-- TABLE AND PICTURES OF THE SUPPLIERS -->
-        <InstrumentComponent />
+        <div class="relative resize-none overflow-auto border border-gray-300" bind:this={div3}>
+          <CategoryComponent />
+          <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResizeBoth(e, div3)}></div>
+        </div> 
 
+        <!-- TABLE AND PICTURES OF THE SUPPLIERS -->
+        <div class="relative resize-none overflow-auto border border-gray-300" bind:this={div4}>
+          <InstrumentComponent />
+          <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResizeBoth(e, div4)}></div>
+        </div> 
       </div>
-      <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div2)}></div>
+      <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResizeBoth(e, div5)}></div>
     </div>
+    
 
     <!-- BOTTOM PART -->
     <!-- ORDERS  -->
-    <div class="relative resize overflow-auto border border-gray-300" bind:this={div1}>
+    <div class="relative resize-none overflow-auto border border-gray-300" bind:this={div1}>
       <OrderComponent />
-    <div class="absolute w-2 h-2 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResize(e, div1)}></div>
+      <div class="absolute w-3 h-3 bg-gray-500 bottom-0 right-0 cursor-nwse-resize" on:mousedown={(e) => startResizeVertical(e, div1)}></div>
     </div>
 
   </div>

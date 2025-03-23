@@ -5,7 +5,6 @@
     import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { isEditing, orderItems, ordersNames, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, selectedOrderId, errorMessage, findOrdersNamesStore, userId } from "$lib/stores/searches";    
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { findOrderItems, addInstrument, getOrders } from "./order_component.js";
     import createOrderModal from "$lib/modals/createOrderModal.svelte";
     import { modals } from "svelte-modals";
