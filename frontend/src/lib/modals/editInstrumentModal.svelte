@@ -45,7 +45,7 @@
       if (characteristicsEdited) {
         try {
           const filteredCharacteristics = characteristics.filter(c => c.name !== 'id');
-          const response = await apiFetch("/api/instrument/edit/" + encodeURIComponent(instrument.id),
+          const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id),
             {
               method: "PATCH",
               headers: {
@@ -99,7 +99,7 @@
     async function handleDelete() {
         if (confirm("Êtes-vous sûr de vouloir supprimer cet instrument ?")) {
             try {
-                const response = await apiFetch("/api/instrument/delete/" + encodeURIComponent(instrument.id), {
+                const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id), {
                     method: "DELETE",
                 });
                 if (!response.ok) {

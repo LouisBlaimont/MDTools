@@ -9,7 +9,7 @@
     const dispatch = createEventDispatcher();
 
     async function submitForm() {
-        const response = await apiFetch('/api/supplier/add', {
+        const response = await apiFetch('/api/supplier', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: supplierName, soldByMD: soldByMd, closed })

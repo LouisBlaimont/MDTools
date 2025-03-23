@@ -134,6 +134,7 @@
         <table class="min-w-full table-auto border-collapse">
           <thead>
             <tr class="bg-gray-100 text-left text-sm font-semibold">
+              <th class="px-6 py-4 w-96">Nom d'utilisateur</th>
               <th class="px-6 py-4 w-96">Adresse email</th>
               <th class="px-6 py-4 w-64">Rôles</th>
               <th class="px-6 py-4 w-36">Actions</th>
@@ -143,7 +144,7 @@
             {#each users as user (user.id)}
               <tr class="border-b hover:bg-gray-50 transition">
                 <td class="px-6 py-4">
-                  {user.email}
+                  {user.username}
                   {#if user.enabled}
                     <span
                       class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
@@ -155,6 +156,9 @@
                       >Désactivé</span
                     >
                   {/if}
+                </td>
+                <td class="px-6 py-4">
+                  {user.email}
                 </td>
                 <td class="px-6 py-4 space-x-1">
                   {#each getBadges(user) as badge}

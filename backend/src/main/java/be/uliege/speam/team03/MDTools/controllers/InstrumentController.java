@@ -66,7 +66,7 @@ public class InstrumentController {
      * @param newInstrument the instrument to add
      * @return the added instrument
      */
-    @PostMapping("/add")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> addInstrument(@RequestBody InstrumentDTO newInstrument) {
         // Check if the instrument already exists
@@ -111,7 +111,7 @@ public class InstrumentController {
      * @param updatedInstrument the instrument to update
      * @return the updated instrument
      */
-    @PatchMapping("/edit/{id}")
+    @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updateInstrument(@PathVariable Integer id, @RequestBody InstrumentDTO updatedInstrument) {
         InstrumentDTO existingInstrument = instrumentService.findById(id);
@@ -158,7 +158,7 @@ public class InstrumentController {
      * 
      * @param id the ID of the instrument
      */
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteInstrument(@PathVariable Integer id) {
         instrumentService.delete(id);

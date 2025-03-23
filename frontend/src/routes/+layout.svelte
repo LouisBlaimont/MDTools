@@ -61,7 +61,11 @@
     <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
     <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
 
-    {#if $isAdmin}
+    {#if $isLoggedIn}
+      <a href="/users" class="text-white hover:text-teal-300 transition">User Profile</a>
+    {/if}
+
+    {#if $isAdmin || $isWebmaster}
       <div class="relative">
         <button 
           onclick={toggleDataMenu}

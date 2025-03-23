@@ -76,7 +76,7 @@ public class SupplierController {
      * @param newSupplier the supplier to add
      * @return the added supplier, or a 409 status if a supplier with the same ID already exists
      */
-    @PostMapping("/add")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> addSupplier(@RequestBody SupplierDTO newSupplier) {
         if (newSupplier.getName() == null || newSupplier.getName().isEmpty()) {
@@ -104,7 +104,7 @@ public class SupplierController {
      * @param updatedSupplier the supplier data to update
      * @return the updated supplier, or a 404 status if no supplier is found with the specified ID
      */
-    @PatchMapping("/edit/{id}")
+    @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updateSupplier(@PathVariable Integer id, @RequestBody SupplierDTO updatedSupplier) {
         SupplierDTO existingSupplier = supplierService.findSupplierById(id);
