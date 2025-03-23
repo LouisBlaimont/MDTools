@@ -205,4 +205,21 @@ public class InstrumentController {
         
         return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
+
+    /**
+     * Get all instruments by supplier name.
+     *
+     * @param supplierName the name of the supplier
+     * @return a list of instruments associated with the specified supplier
+     */
+    @GetMapping("/supplier/{supplierName}")
+    public ResponseEntity<?> findInstrumentsBySupplierName(@PathVariable String supplierName) {
+        List<InstrumentDTO> instruments = instrumentService.findInstrumentsBySupplierName(supplierName);
+
+        if (instruments == null || instruments.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for supplier: " + supplierName);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(instruments);
+    }
 }
