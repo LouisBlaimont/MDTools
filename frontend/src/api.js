@@ -182,3 +182,18 @@ export async function fetchSupplierByName(supplierName) {
   }
   return res.json();
 }
+
+/**
+ * Fetches all characteristic values for a given category.
+ * @param {number|string} categoryId - The ID of the category.
+ * @returns {Promise<Object>} - A mapping of characteristic name to value.
+ */
+export async function fetchCharacteristicValuesByCategory(categoryId) {
+  const res = await apiFetch(`/api/category/${categoryId}/characteristics`);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch characteristic values for category ${categoryId}`);
+  }
+
+  return res.json();
+}

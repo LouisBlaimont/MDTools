@@ -11,6 +11,16 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { toast } from "@zerodevx/svelte-toast";
 
+  let showDataMenu = false;
+
+  function toggleDataMenu() {
+    showDataMenu = !showDataMenu;
+  }
+
+  function closeMenu() {
+    showDataMenu = false;
+  }
+
   // Handle authentication
   async function handleAuth() {
     if ($isLoggedIn) {
@@ -51,8 +61,29 @@
     <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
     <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
 
-    {#if $isAdmin || $isWebmaster}
-      <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
+    {#if $isAdmin}
+      <div class="relative">
+        <button 
+          onclick={toggleDataMenu}
+          class="text-white hover:text-teal-300 transition flex items-center gap-1"
+        >
+          Data
+          <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+        </button>
+
+        {#if showDataMenu}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div 
+            class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
+            onmouseleave={closeMenu}
+          >
+            <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
+            <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
+          </div>
+        {/if}
+      </div>
+
+      <!-- Keep these always visible -->
       <a href="/admin/users" class="text-white hover:text-teal-300 transition">Users</a>
       <a href="/admin/suppliers" class="text-white hover:text-teal-300 transition">Suppliers</a>
     {/if}

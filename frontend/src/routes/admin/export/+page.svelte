@@ -1,5 +1,5 @@
 <script>
-    import { fetchGroups, fetchCharacteristics, fetchInstrumentsBySubGroup, fetchSupplierByName} from "../../../api.js";
+    import { fetchGroups, fetchCharacteristics, fetchInstrumentsBySubGroup, fetchSupplierByName, fetchCharacteristicValuesByCategory} from "../../../api.js";
     import { onMount } from "svelte";
     import * as XLSX from "xlsx";
     import { goto } from "$app/navigation";
@@ -32,13 +32,6 @@
     let characteristics = []; // Stockera les caractéristiques dynamiques
     let selectedCharacteristics = []; // Stockera les caractéristiques sélectionnées
     
-    /**
-     * Exports instrument data from a subgroup to an Excel file,
-     * only including the selected columns.
-     * 
-     * @param {string} subGroupName - The name of the subgroup to fetch instruments from.
-     * @param {Array<string>} selectedColumns - The list of columns to include in the export.
-     */
     async function exportToExcel(subGroupName, selectedColumns) {
         if (!subGroupName) {
             alert("Please select a subgroup before exporting.");
@@ -54,34 +47,41 @@
             const instruments = await fetchInstrumentsBySubGroup(subGroupName);
 
             if (!instruments || instruments.length === 0) {
-            alert("No data available to export.");
-            return;
+                alert("No data available to export.");
+                return;
             }
 
             const filteredData = [];
 
             for (const instrument of instruments) {
-            let row = {};
+                let row = {};
 
-            // Add instrument fields
-            selectedColumns.forEach((col) => {
-                if (instrument.hasOwnProperty(col)) {
-                row[col] = instrument[col];
-                }
-            });
+                // Basic selected columns
+                selectedColumns.forEach((col) => {
+                    if (instrument.hasOwnProperty(col)) {
+                        row[col] = instrument[col];
+                    }
+                });
 
-            // Fetch supplier info if needed
-            if (selectedColumns.includes("closed") || selectedColumns.includes("sold_by_md")) {
-                const supplier = await fetchSupplierByName(instrument.supplier);
-                if (selectedColumns.includes("closed")) {
-                row["closed"] = supplier.closed;
+                // Fetch supplier info if needed
+                if (selectedColumns.includes("closed") || selectedColumns.includes("sold_by_md")) {
+                    const supplier = await fetchSupplierByName(instrument.supplier);
+                    if (selectedColumns.includes("closed")) {
+                        row["closed"] = supplier.closed;
+                    }
+                    if (selectedColumns.includes("sold_by_md")) {
+                        row["sold_by_md"] = supplier.soldByMD;
+                    }
                 }
-                if (selectedColumns.includes("sold_by_md")) {
-                row["sold_by_md"] = supplier.soldByMD;
-                }
-            }
 
-            filteredData.push(row);
+                // Fetch all characteristic values for this instrument’s category
+                if (selectedCharacteristics.length > 0 && instrument.categoryId) {
+                    const values = await fetchCharacteristicValuesByCategory(instrument.categoryId);
+                    for (const characteristic of selectedCharacteristics) {
+                        row[characteristic] = values[characteristic] ?? "";
+                    }
+                }
+                filteredData.push(row);
             }
 
             const worksheet = XLSX.utils.json_to_sheet(filteredData);
