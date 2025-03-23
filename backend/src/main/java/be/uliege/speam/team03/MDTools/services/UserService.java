@@ -90,13 +90,22 @@ public class UserService {
    /**
     * Updates a user in the database.
     *
-    * @param username The username of the user to update.
+    * @param identifier The identifier of the user to update (can be an id or a username).
     * @param body   The new values of the user.
     * @return The updated user.
     */
-   public UserDto updateUser(String username, Map<String, Object> body) {
-      User userToUpdate = userRepository.findByUsername(username)
-            .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + username));
+   public UserDto updateUser(Object identifier, Map<String, Object> body) {
+      User userToUpdate;
+      if (identifier instanceof Long) {
+         userToUpdate = userRepository.findById((Long) identifier)
+                 .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + identifier));
+     } else if (identifier instanceof String) {
+         userToUpdate = userRepository.findByUsername((String) identifier)
+                 .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received username: " + identifier));
+     } else {
+         throw new BadRequestException("Invalid identifier type. Must be a Long (ID) or String (username).");
+     }
+      
       String email = (String) body.get("email");
       if (email != null) {
          if (!isValidEmail(email)) {
@@ -110,7 +119,8 @@ public class UserService {
       }
       String newUsername = (String) body.get("username");
       if (newUsername != null) {
-         if (userRepository.findByUsername(newUsername).isPresent()) {
+         Optional<User> user = userRepository.findByUsername(newUsername);
+         if (user.isPresent() && user.get().getUserId() != userToUpdate.getUserId()) {
             throw new BadRequestException("User with username " + newUsername + " already exists.");
          }
          userToUpdate.setUsername(newUsername);
@@ -119,7 +129,15 @@ public class UserService {
       if (enabled != null) {
          userToUpdate.setEnabled(enabled);
       }
+
+      @SuppressWarnings("unchecked")
+      List<String> roles = (List<String>) body.get("roles");
+      if (roles != null) {
+         userToUpdate.setAuthorities(UserMapper.toAuthorities(roles));
+      }
+
       userToUpdate.setUpdatedAt(Timestamp.from(Instant.now()));
+
       userRepository.save(userToUpdate);
       return UserMapper.toDto(userToUpdate);
    }

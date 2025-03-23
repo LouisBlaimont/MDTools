@@ -72,10 +72,34 @@ public class UserController {
       return ResponseEntity.ok(newUser);
    }
 
-   @PatchMapping("{username}")
+   /**
+    * Updates a user in the database.
+
+    * @param username The username of the user to update.
+    * @param body The new user data.
+    * @return
+    */
+   @PatchMapping("username/{username}")
    @ResponseStatus(HttpStatus.OK)
    public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody Map<String, Object> body) {
       UserDto updatedUser = userService.updateUser(username, body);
+      if (updatedUser == null) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
+      }
+      return ResponseEntity.ok(updatedUser);
+   }
+
+   /**
+    * Updates a user in the database.
+    *
+    * @param id The ID of the user to update.
+    * @param body The new user data.
+    * @return
+    */
+   @PatchMapping("{id}")
+   @ResponseStatus(HttpStatus.OK)
+   public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+      UserDto updatedUser = userService.updateUser(id, body);
       if (updatedUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
       }

@@ -14,7 +14,7 @@
 
     async function handleSave() {
         try {
-            const response = await apiFetch(`/api/user/` + previousName, {
+            const response = await apiFetch(`/api/user/username/` + previousName, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, active }),

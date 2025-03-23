@@ -1,14 +1,14 @@
 <script>
   import { modals } from "svelte-modals";
-  import EditUserRolesModal from "$lib/modals/EditUserRolesModal.svelte";
+  import EditUserModal from "$lib/modals/EditUserModal.svelte";
   import Icon from "@iconify/svelte";
   import { toast } from "@zerodevx/svelte-toast";
 
   const { user, roles } = $props();
 
-  function editRoles() {
+  function editUser() {
     event.stopPropagation();
-    modals.open(EditUserRolesModal, { user: user, roles: roles });
+    modals.open(EditUserModal, { user: user, roles: roles });
   }
 
   const disableAccount = () => {
@@ -29,8 +29,8 @@
       : "bg-green-600 hover:bg-green-700 text-white"
   }`}
 >
-  <span
-    ><svg
+  <span>
+<svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -49,10 +49,11 @@
 </button>
 
 <button
-  onclick={() => editRoles()}
+  onclick={() => editUser()}
   class="bg-cyan-500 text-white px-5 py-2 rounded-r-lg hover:bg-cyan-600 flex items-center transform transition"
-  ><span>
+  >
+<span>
     <Icon icon="material-symbols:edit-rounded" width="24" height="24" />
   </span>
-  <span class="pl-2">Définir les rôles</span>
+  <span class="pl-2">Modifier l'utilisateur</span>
 </button>
