@@ -286,7 +286,7 @@ public class InstrumentService {
 
     public List<InstrumentDTO> searchInstrument(List<String> keywords) {
         List<Instruments> instruments = instrumentRepository.searchByKeywords(keywords);
-        return convertToDTO(instruments);
+        return instrumentMapper.convertToDTO(instruments);
     }
 }
 
