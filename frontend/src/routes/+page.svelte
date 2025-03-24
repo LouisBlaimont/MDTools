@@ -10,6 +10,7 @@
   import { user, isAdmin, isWebmaster, isLoggedIn } from "$lib/stores/user_stores";
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
+  import Loading from "$lib/Loading.svelte";
 
   let groups_summary = $state([]);
 
@@ -36,13 +37,6 @@
   // Run this effect whenever isLoggedIn changes
   $effect(() => {
     if (isLoggedIn) {
-      console.log("Now logged in, fetching data...");
-      fecthData();
-    }
-  });
-
-  onMount(() => {
-    if ($isLoggedIn) {
       fecthData();
     }
   });
@@ -200,11 +194,14 @@
               ><a href="/admin/add_group">Ajouter un groupe</a></button
             >
           </div>
-        {#if selectedGroup}
-          <div class="flex flex-col">
-            <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button>
-          </div>
-        {/if}
+          {#if selectedGroup}
+            <div class="flex flex-col">
+              <button
+                class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
+                ><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button
+              >
+            </div>
+          {/if}
         {/if}
       </form>
     </div>
@@ -342,8 +339,8 @@
         {/if}
       </div>
     {:else}
-      <div class="flex flex-col items-center justify-center h-full">
-        <p class="text-lg">Connectez-vous pour accéder à cette page.</p>
+      <div class="flex flex-col items-center justify-center h-full max-height-[200px]">
+        <Loading />
       </div>
     {/if}
   </div>

@@ -6,10 +6,16 @@
   import { checkRole } from "$lib/rbacUtils";
   import { ROLES } from "../constants";
   import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
-  import { login, checkUser } from "../auth";
+  import { login, checkUser, handleLogin, handleLogout } from "../auth";
   import { onMount } from "svelte";
   import { apiFetch } from "$lib/utils/fetch";
   import { toast } from "@zerodevx/svelte-toast";
+  import { goto } from "$app/navigation";
+  import { browser } from "$app/environment";
+  import { page } from '$app/stores';
+  import UserDropdown from "$lib/components/userDropdown.svelte";
+  import { replaceState, afterNavigate } from "$app/navigation";
+
 
   let showDataMenu = false;
 
@@ -21,35 +27,27 @@
     showDataMenu = false;
   }
 
-  // Handle authentication
-  async function handleAuth() {
-    if ($isLoggedIn) {
-      try {
-        const response = await apiFetch("/api/auth/logout", { method: "POST" });
-        if (response.ok) {
-          user.set(null);
-          toast.push("You have been logged out successfully.");
-        } else {
-          throw new Error("Logout failed.");
-        }
-      } catch (error) {
-        toast.push("An error occurred while logging out. Please try again.");
-      }
-    } else {
-      login();
+  // Handle redirect to login page if not logged in
+  $: if(browser) {
+    if (!$isLoggedIn && !($page.url.searchParams.get("login") === "success") && window && window.location.pathname !== "/login") {
+        goto("/login");
     }
   }
 
   // Determine if we should check the user
   $: shouldCheckUser = !$user || ($user?.expiresAt ?? 0) < Date.now();
+
   onMount(() => {
-    console.log("shouldCheckUser", shouldCheckUser);
-    console.log("isLoggedIn", $isLoggedIn);
-    console.log("user", $user);
-    console.log("isAdmin", $isAdmin);
-    console.log("isWebmaster", $isWebmaster);
-    
-  });
+    if(shouldCheckUser) {
+      checkUser();
+    }
+
+    if(browser && $page.url.searchParams.get("login") === "success") {
+      toast.push("You have successfully log in !");
+    }
+  }
+)
+
 </script>
 
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
@@ -58,10 +56,9 @@
 
   <!-- Navigation Bar -->
   <nav class="hidden md:flex space-x-6">
-    <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
-    <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
-
     {#if $isLoggedIn}
+      <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
+      <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
       <a href="/users" class="text-white hover:text-teal-300 transition">User Profile</a>
     {/if}
 
@@ -98,21 +95,8 @@
   </nav>
 
   <!-- Login / Logout Button -->
-  <button
-    onclick={handleAuth}
-    class="px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition flex items-center justify-center"
-    style="width: 100px; height: 42px;"
-  >
-    <span class="size-fit">
-      {#await shouldCheckUser ? checkUser() : Promise.resolve()}
-        <Loading />
-      {:then}
-        {$isLoggedIn ? "Log out" : "Login"}
-      {:catch}
-        Login
-      {/await}
-    </span>
-  </button>
+  <UserDropdown />
+ 
 </header>
 
 <main class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
