@@ -321,10 +321,7 @@
 
     <!-- BOTTOM PART -->
     <!-- ORDERS  -->
-    <div class="relative overflow-auto border border-gray-300" style="resize: none;" bind:this={div5}>
-      <OrderComponent />
-      <div class="absolute w-full h-0.5 bg-gray-300 bottom-0 left-0 cursor-ns-resize" on:mousedown={(e) => startResizeVertical(e, div5)}></div>
-    </div>
+    <OrderComponent />
 
   </div>
 </div>

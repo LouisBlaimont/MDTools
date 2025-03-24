@@ -122,9 +122,9 @@
 
 </script>
 <div class="flex">
-    <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
+    <div class="flex-[3] h-full box-border ml-3">
         <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
+        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse  overflow-y-auto">
             <thead class="bg-teal-400">
             <tr>
                 {#if $isEditing}
