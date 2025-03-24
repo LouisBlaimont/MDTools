@@ -121,102 +121,104 @@
 
 
 </script>
-<div class="flex-[3] h-full overflow-y-auto box-border ml-3">
-    <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-    <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
-        <thead class="bg-teal-400">
-        <tr>
-            {#if $isEditing}
-                <th class="text-center border border-solid border-[black]"></th>
+<div class="flex">
+    <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
+        <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
+        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
+            <thead class="bg-teal-400">
+            <tr>
+                {#if $isEditing}
+                    <th class="text-center border border-solid border-[black]"></th>
+                {/if}
+                <th class="text-center border border-solid border-[black]">GROUPE</th>
+                <th class="text-center border border-solid border-[black]">SOUS GP</th>
+                <th class="text-center border border-solid border-[black]">FCT</th>
+                <th class="text-center border border-solid border-[black]">NOM</th>
+                <th class="text-center border border-solid border-[black]">FORME</th>
+                <th class="text-center border border-solid border-[black]">DIM</th>
+            </tr>
+            </thead>
+            {#if $showCategories}
+                <tbody>
+                    {#each $categories as row, index}
+                        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                        <tr
+                            class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
+                            class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
+                            on:click={() => selectCategory(index)}
+                            on:dblclick={() => selectCategoryWithChar(index)}
+                            on:mouseover={() => (hoveredCategoryIndex.set(index))}
+                            on:mouseout={() => (hoveredCategoryIndex.set(null))}
+                        >
+                            {#if $isEditing}
+                                <EditCategoryButton category={row}/>
+                            {/if}
+                            <td class="text-center border border-solid border-[black]">{row.groupName}</td>
+                            <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+                            <td class="text-center border border-solid border-[black]">{row.function}</td>
+                            <td class="text-center border border-solid border-[black]">{row.name}</td>
+                            <td class="text-center border border-solid border-[black]">{row.shape}</td>
+                            <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+                        </tr>
+                    {/each}
+                </tbody>
             {/if}
-            <th class="text-center border border-solid border-[black]">GROUPE</th>
-            <th class="text-center border border-solid border-[black]">SOUS GP</th>
-            <th class="text-center border border-solid border-[black]">FCT</th>
-            <th class="text-center border border-solid border-[black]">NOM</th>
-            <th class="text-center border border-solid border-[black]">FORME</th>
-            <th class="text-center border border-solid border-[black]">DIM</th>
-        </tr>
-        </thead>
-        {#if $showCategories}
-            <tbody>
-                {#each $categories as row, index}
-                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                    <tr
-                        class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
-                        class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
-                        on:click={() => selectCategory(index)}
-                        on:dblclick={() => selectCategoryWithChar(index)}
-                        on:mouseover={() => (hoveredCategoryIndex.set(index))}
-                        on:mouseout={() => (hoveredCategoryIndex.set(null))}
-                    >
-                        {#if $isEditing}
-                            <EditCategoryButton category={row}/>
-                        {/if}
-                        <td class="text-center border border-solid border-[black]">{row.groupName}</td>
-                        <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
-                        <td class="text-center border border-solid border-[black]">{row.function}</td>
-                        <td class="text-center border border-solid border-[black]">{row.name}</td>
-                        <td class="text-center border border-solid border-[black]">{row.shape}</td>
-                        <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
-                    </tr>
-                {/each}
-            </tbody>
+        </table>
+
+
+        <!-- PASS IN ADMIN MODE -->
+        {#if $isAdmin}
+            <EditButton />
         {/if}
-    </table>
-
-
-    <!-- PASS IN ADMIN MODE -->
-    {#if $isAdmin}
-        <EditButton />
-    {/if}
-    {#if $isEditing}
-       {#if $isAdmin}
-            <div class="flex justify-center">
-                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddCategoryPage()}>
-                    Ajouter une catégorie
-                </button>
-            </div>
-        {/if}
-    {/if}
-    </div>
-
-<!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
-<div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
-    <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-        <span class="p-1">Photos des catégories</span>
-    </div>
-    {#each $categories as row, index}
-        <!-- svelte-ignore a11yå_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <img
-            alt="tool{row.id}"
-            src={row.pictureId
-            ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-            : "/default/no_picture.png"}
-            on:click={() =>
-            showBigPicture(
-                row.pictureId
-                ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                : "/default/no_picture.png"
-            )}
-            on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
-            on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
-            class="mb-[3px] {$selectedCategoryIndex === index
-            ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-            : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
-            ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
-            : ''}"
-        />
         {#if $isEditing}
-            {#if $isAdmin}
-            <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
-                +
-            </button> 
+        {#if $isAdmin}
+                <div class="flex justify-center">
+                    <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddCategoryPage()}>
+                        Ajouter une catégorie
+                    </button>
+                </div>
             {/if}
         {/if}
-    {/each}
+    </div>
+
+    <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
+    <div class="flex-[1] max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
+        <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
+            <span class="p-1">Photos des catégories</span>
+        </div>
+        {#each $categories as row, index}
+            <!-- svelte-ignore a11yå_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <img
+                alt="tool{row.id}"
+                src={row.pictureId
+                ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+                : "/default/no_picture.png"}
+                on:click={() =>
+                showBigPicture(
+                    row.pictureId
+                    ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+                    : "/default/no_picture.png"
+                )}
+                on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
+                on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
+                class="mb-[3px] {$selectedCategoryIndex === index
+                ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
+                : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
+                ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
+                : ''}"
+            />
+            {#if $isEditing}
+                {#if $isAdmin}
+                <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
+                    +
+                </button> 
+                {/if}
+            {/if}
+        {/each}
+    </div>    
 </div>    
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>

@@ -63,3 +63,93 @@ function stopResizeVertical() {
     document.removeEventListener('mouseup', stopResizeVertical);
     resizing = null;
 }
+
+
+export function startResizeLeftToRight(e, div) {
+    e.preventDefault();
+    document.body.style.cursor = "ew-resize";
+  
+    const startX = e.clientX;
+    const startWidth = div.offsetWidth;
+  
+    function onMouseMove(event) {
+      const newWidth = startWidth + (event.clientX - startX);
+      div.style.width = `${newWidth}px`;
+    }
+  
+    function onMouseUp() {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "default";
+    }
+  
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+  
+  export function startResizeRightToLeft(e, div) {
+    e.preventDefault();
+    document.body.style.cursor = "ew-resize";
+  
+    const startX = e.clientX;
+    const startWidth = div.offsetWidth;
+  
+    function onMouseMove(event) {
+      const newWidth = startWidth - (event.clientX - startX);
+      div.style.width = `${newWidth}px`;
+    }
+  
+    function onMouseUp() {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "default";
+    }
+  
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+  
+  export function startResizeMiddleLeft(e, div) {
+    e.preventDefault();
+    document.body.style.cursor = "ew-resize";
+  
+    const startX = e.clientX;
+    const startWidth = div.offsetWidth;
+  
+    function onMouseMove(event) {
+      const delta = event.clientX - startX;
+      div.style.width = `${startWidth - delta}px`;
+    }
+  
+    function onMouseUp() {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "default";
+    }
+  
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+  
+  export function startResizeMiddleRight(e, div) {
+    e.preventDefault();
+    document.body.style.cursor = "ew-resize";
+  
+    const startX = e.clientX;
+    const startWidth = div.offsetWidth;
+  
+    function onMouseMove(event) {
+      const delta = event.clientX - startX;
+      div.style.width = `${startWidth + delta}px`;
+    }
+  
+    function onMouseUp() {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "default";
+    }
+  
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+  
