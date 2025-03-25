@@ -194,11 +194,20 @@
                 class="green text-center border border-solid border-[black]"
                 on:click= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                 >
-                <td class="text-center border border-solid border-[black]">{row.reference}</td>
-                <td class="text-center border border-solid border-[black]">{row.supplier}</td>
                 <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.supplierDescription}"
+                class="text-center border border-solid border-[black] truncate max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.reference}"
+                >
+                    {row.reference}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplier}"
+                >
+                    {row.supplier}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
                 >
                     {row.supplierDescription}
                 </td>                
@@ -237,3 +246,4 @@
   >
   <img class="h-[300px]" id="big-category" alt="big category" />
 </div>
+

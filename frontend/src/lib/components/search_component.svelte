@@ -213,7 +213,7 @@
 </script>
 
 
-<div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
+<div class="flex-[1.3] ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
     <form class="flex flex-col w-[90%] mb-2.5">
         <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
         <input
@@ -278,7 +278,7 @@
                 <label for={char} class="w-2/5">{char}:</label>
                 <input
                     type={ char === "Length" ? "number" : "text"}
-                    class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black] mb-2"
+                    class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black] mb-0.5"
                     id={char}
                     name={char}
                     data-testid={char}

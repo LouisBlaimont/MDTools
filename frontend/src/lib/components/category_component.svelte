@@ -9,8 +9,7 @@
     import { get } from "svelte/store";
     import { isAdmin } from "$lib/stores/user_stores";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
+    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import { apiFetch } from "$lib/utils/fetch";
@@ -70,6 +69,11 @@
     async function selectCategory(index) {
         selectedCategoryIndex.set(index);
 
+        // Scroll the corresponding image into view
+        if (imageRefs[index]) {
+            imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
         // selecting the categoryId
         const cat = $categories[$selectedCategoryIndex]; 
         const categoryId = $categories[$selectedCategoryIndex].id;  
@@ -118,25 +122,33 @@
             goto("../../admin/add_category");
         }
     }
+    let imageContainerRef;
+    let imageRefs = [];
+
+    function registerImageRef(el, index) {
+        if (el) {
+            imageRefs[index] = el; // Store the element in the array
+        }
+    }
 
 
 </script>
 <div class="flex">
-    <div class="flex-[3] h-full box-border ml-3">
+    <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
         <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse  overflow-y-auto">
+        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse table-fixed">
             <thead class="bg-teal-400">
-            <tr>
-                {#if $isEditing}
-                    <th class="text-center border border-solid border-[black]"></th>
-                {/if}
-                <th class="text-center border border-solid border-[black]">GROUPE</th>
-                <th class="text-center border border-solid border-[black]">SOUS GP</th>
-                <th class="text-center border border-solid border-[black]">FCT</th>
-                <th class="text-center border border-solid border-[black]">NOM</th>
-                <th class="text-center border border-solid border-[black]">FORME</th>
-                <th class="text-center border border-solid border-[black]">DIM</th>
-            </tr>
+                <tr>
+                    {#if $isEditing}
+                        <th class="text-center border border-solid border-[black] w-8"></th>
+                    {/if}
+                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">GROUPE</th>
+                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">SOUS GP</th>
+                    <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
+                    <th class="text-center border border-solid border-[black] w-20 overflow-hidden">NOM</th>
+                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">FORME</th>
+                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">DIM</th>
+                </tr>
             </thead>
             {#if $showCategories}
                 <tbody>
@@ -153,10 +165,29 @@
                             {#if $isEditing}
                                 <EditCategoryButton category={row}/>
                             {/if}
-                            <td class="text-center border border-solid border-[black]">{row.groupName}</td>
-                            <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
-                            <td class="text-center border border-solid border-[black]">{row.function}</td>
-                            <td class="text-center border border-solid border-[black]">{row.name}</td>
+                            <td 
+                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{row.groupName}">
+                                {row.groupName}
+                            </td>
+                            <td 
+                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{row.subGroupName}"
+                            >
+                                {row.subGroupName}
+                            </td>
+                            <td 
+                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{row.function}"
+                            >
+                                {row.function}
+                            </td>
+                            <td 
+                                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{row.name}"
+                            >
+                                {row.name}
+                            </td>
                             <td class="text-center border border-solid border-[black]">{row.shape}</td>
                             <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
                         </tr>
@@ -164,6 +195,7 @@
                 </tbody>
             {/if}
         </table>
+        
 
 
         <!-- PASS IN ADMIN MODE -->
@@ -182,9 +214,9 @@
     </div>
 
     <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
-    <div class="flex-[1] max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
+    <div class="flex-[1] max-h-[150vh] overflow-y-auto box-border ml-3 max-w-[150px] bind:this={imageContainerRef}">
         <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-            <span class="p-1">Photos des catégories</span>
+            <span class="p-1">Photos</span>
         </div>
         {#each $categories as row, index}
             <!-- svelte-ignore a11yå_click_events_have_key_events -->
@@ -196,6 +228,8 @@
                 src={row.pictureId
                 ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
                 : "/default/no_picture.png"}
+                bind:this={imageRefs[index]}
+                ref={el => registerImageRef(el, index)}
                 on:click={() =>
                 showBigPicture(
                     row.pictureId

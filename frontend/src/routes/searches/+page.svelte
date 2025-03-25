@@ -288,7 +288,7 @@
         <!-- SEARCHES -->
         <div
           class="relative overflow-auto border border-gray-300 flex-none"
-          style="width: 300px;"
+         
           bind:this={div2}
         >
           <SearchComponent />
@@ -300,13 +300,13 @@
       
         <!-- CATEGORIES -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-grow ">
+          class="relative overflow-auto border border-gray-300 flex-grow">
           <CategoryComponent />
         </div>
       
         <!-- INSTRUMENTS -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-grow "
+          class="relative overflow-auto border border-gray-300 flex-none"
           
           bind:this={div4}
         >
