@@ -162,17 +162,18 @@
     <table data-testid = "suppliers-table" class="w-full border-collapse">
         <thead class="bg-teal-400">
             <tr>
-            {#if $isEditing}
-                <th class="text-center border border-solid border-[black]"></th>
-            {/if}
-            <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
-            <th class="text-center border border-solid border-[black] w-24">REF</th>
-            <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
-            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-            <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-            <th class="text-center border border-solid border-[black] w-16">ALT</th>
-            <th class="text-center border border-solid border-[black] w-16">OBS</th>
-            </tr>
+                {#if $isEditing}
+                  <th class="text-center border border-solid border-[black] w-10"></th>
+                {/if}
+                <th class="text-center border border-solid border-[black] w-8">AJOUT</th>
+                <th class="text-center border border-solid border-[black] w-20">REF</th>
+                <th class="text-center border border-solid border-[black] w-24">MARQUE</th>
+                <th class="text-center border border-solid border-[black] w-[40%]">DESCRIPTION</th> 
+                <th class="text-center border border-solid border-[black] w-14">PRIX</th>
+                <th class="text-center border border-solid border-[black] w-12">ALT</th>
+                <th class="text-center border border-solid border-[black] w-12">OBS</th>
+              </tr>
+              
         </thead>
         <tbody>
             {#each $currentSuppliers as row, index}
@@ -195,7 +196,12 @@
                 >
                 <td class="text-center border border-solid border-[black]">{row.reference}</td>
                 <td class="text-center border border-solid border-[black]">{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplierDescription}"
+                >
+                    {row.supplierDescription}
+                </td>                
                 <td class="text-center border border-solid border-[black]">{row.price}</td>
                 <td class="text-center border border-solid border-[black]">{row.alt}</td>
                 <td class="text-center border border-solid border-[black]">{row.obsolete}</td>

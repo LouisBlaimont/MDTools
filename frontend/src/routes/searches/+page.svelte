@@ -300,14 +300,14 @@
       
         <!-- CATEGORIES -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-grow min-w-[100px]">
+          class="relative overflow-auto border border-gray-300 flex-grow ">
           <CategoryComponent />
         </div>
       
         <!-- INSTRUMENTS -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-none"
-          style="width: 450px;"
+          class="relative overflow-auto border border-gray-300 flex-grow "
+          
           bind:this={div4}
         >
           <InstrumentComponent />
