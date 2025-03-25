@@ -140,11 +140,8 @@ public class InstrumentController {
         if (updatedInstrument.getPrice() != null) {
             existingInstrument.setPrice(updatedInstrument.getPrice());
         }
-        if (updatedInstrument.isObsolete()) {
-            existingInstrument.setObsolete(updatedInstrument.isObsolete());
-        }
-        if (updatedInstrument.isAlt()) {
-            existingInstrument.setAlt(updatedInstrument.isAlt());
+        if (updatedInstrument.getObsolete()) {
+            existingInstrument.setObsolete(updatedInstrument.getObsolete());
         }
         if (updatedInstrument.getPicturesId() != null) {
             existingInstrument.setPicturesId(updatedInstrument.getPicturesId());

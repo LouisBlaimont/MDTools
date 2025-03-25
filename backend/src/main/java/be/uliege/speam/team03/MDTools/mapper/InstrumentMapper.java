@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Component
 public class InstrumentMapper {
-    private final AlternativesRepository alternativesRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
 
@@ -36,7 +35,6 @@ public class InstrumentMapper {
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
             instrument.getObsolete(),
             null,
             instrument.getId()
@@ -59,7 +57,6 @@ public class InstrumentMapper {
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
                 instrument.getObsolete(),
-                !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
                 null,
                 instrument.getId()
             );
@@ -81,7 +78,7 @@ public class InstrumentMapper {
         instrument.setId(instrumentDTO.getId());
         instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
         instrument.setPrice(instrumentDTO.getPrice());
-        instrument.setObsolete(instrumentDTO.isObsolete());
+        instrument.setObsolete(instrumentDTO.getObsolete());
 
         // retrieve supplier based on supplier name
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());

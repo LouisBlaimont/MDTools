@@ -40,7 +40,6 @@
                 <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
                 <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
                 <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-                <th class="text-center border border-solid border-[black] w-16">ALT</th>
                 <th class="text-center border border-solid border-[black] w-16">OBS</th>
                 </tr>
             </thead>
@@ -50,7 +49,6 @@
                     <td class="text-center border border-solid border-[black] text-black">{instrument.supplier}</td>
                     <td class="text-center border border-solid border-[black] text-black">{instrument.supplierDescription}</td>
                     <td class="text-center border border-solid border-[black] text-black">{instrument.price}</td>
-                    <td class="text-center border border-solid border-[black] text-black">{instrument.alt}</td>
                     <td class="text-center border border-solid border-[black] text-black">{instrument.obsolete}</td>
                 </tr>
             </tbody>
@@ -107,14 +105,14 @@
         <button
           type="button"
           class="inline-block w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
-          on:click={() => close()}
+          onclick={() => close()}
         >
           Annuler
         </button>
         <button
           type="button"
           class="inline-block w-auto justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500"
-          on:click={handleAddInstrument}
+          onclick={handleAddInstrument}
         >
           Commander
         </button>
