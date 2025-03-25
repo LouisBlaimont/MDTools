@@ -7,17 +7,15 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, toolToAddRef
-     } from "$lib/stores/searches";   
+    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, 
+        hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, selectedAlternativeIndex, hoveredAlternativeIndex} from "$lib/stores/searches";   
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
     import AddCategoryModal from "$lib/modals/AddCategoryModal.svelte";
-    
-    function selectSupplier(index) {
-        selectedSupplierIndex.set(index);
-    }
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
+    import { toast } from "@zerodevx/svelte-toast";
+    import { apiFetch } from "$lib/utils/fetch";
  
 
     function showBigPicture(img) {
@@ -34,56 +32,6 @@
         const overlay = document.getElementById("overlay");
         pannel.style.display = "none";
         overlay.style.display = "none";
-    }
-
-    function addToOrderPannel(ref) {
-        const pannel = document.getElementById("add-order-pannel");
-        const overlay = document.getElementById("overlay");
-        toolToAddRef.set(ref);
-        pannel.style.display = "flex";
-        overlay.style.display = "block";
-    }
-  
-    function closeAddToOrder() {
-        const pannel = document.getElementById("add-order-pannel");
-        const overlay = document.getElementById("overlay");
-        pannel.style.display = "none";
-        overlay.style.display = "none";
-    }
-
-    function addToOrder() {
-        const tool_ref = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].ref;
-        const tool_brand = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].brand;
-        const tool_group = tools[$selectedCategoryIndex].group;
-        const tool_fct = tools[$selectedCategoryIndex].fct;
-        const tool_name = tools[$selectedCategoryIndex].name;
-        const tool_form = tools[$selectedCategoryIndex].form;
-        const tool_dim = tools[$selectedCategoryIndex].dim;
-        const tool_qte = Number($quantity);
-        const tool_pu_htva = suppliers[$selectedCategoryIndex][$selectedSupplierIndex].price;
-
-        order.update(currentOrder => {
-            return addTool(currentOrder, tool_ref, tool_brand, tool_group, tool_fct, tool_name, tool_form, tool_dim, tool_qte, tool_pu_htva);
-        });
-
-        closeAddToOrder();
-    }
-
-    function addTool(currentOrder, tool_ref, tool_brand, tool_group, tool_fct, tool_name, tool_form, tool_dim, tool_qte, tool_pu_htva) {
-        const newTool = {
-            id: currentOrder.length + 1, 
-            ref: tool_ref, 
-            brand: tool_brand, 
-            group: tool_group,
-            fct: tool_fct, 
-            name: tool_name, 
-            form: tool_form, 
-            dim: tool_dim, 
-            qte: tool_qte || 1, 
-            pu_htva: tool_pu_htva, 
-            total_htva: 3, // You may need to compute this based on qte and pu_htva
-        }; 
-        return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
 
     /**
@@ -113,6 +61,25 @@
         }
     }
 
+    function seeAllAlternatives(){
+        console.log($selectedCategoryIndex);
+        if ($selectedCategoryIndex !== null && $selectedCategoryIndex !== "" && $selectedCategoryIndex >= 0){
+            goto("/alternatives");
+            return
+        }
+        else {
+            toast.push("Veuillez sélectionner une catégorie pour en voir les alternatives.");
+            return;
+        }
+    }
+
+    async function selectAlternative(row, index){
+        const categoryId = row.categoryId;
+        const instrumentId = row.id;
+        window.open(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(categoryId)}&instrument=${encodeURIComponent(instrumentId)}`, '_blank');
+        return;
+    }
+
 </script>
 
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
@@ -126,7 +93,7 @@
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
             class="flex shrink-0 flex-col h-[95%] text-center box-border border mr-[3px] border-solid border-[black]"
-            on:click={() => showBigPicture(row.src? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+            onclick={() => showBigPicture(row.src? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
                 : "/default/no_picture.png"
             )}
             >
@@ -137,9 +104,9 @@
                     src={row.src
                     ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
                     : "/default/no_picture.png"}
-                    on:click= {() => modals.open(BigPicturesModal, { initInstrument: row})}
-                    on:mouseover={() => (hoveredSupplierImageIndex.set(index))}
-                    on:mouseout={() => (hoveredSupplierImageIndex.set(null))}
+                    onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}
+                    onmouseover={() => (hoveredSupplierImageIndex.set(index))}
+                    onmouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index
                     ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
                     : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index
@@ -148,21 +115,17 @@
                 />
                 <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
             </div>
-            {#if $isEditing}
-                {#if $isAdmin}
-                    <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
-                        +
-                    </button> 
-                {/if}
-            {/if}
         {/each}
     </div>
 
 
     <!-- TABLE OF THE SUPPLIERS -->
     <table data-testid = "suppliers-table" class="w-full border-collapse">
-        <thead class="bg-teal-400">
-            <tr>
+        <thead>
+            <tr class="bg-white text-teal-400">
+                <th colspan="4" class="text-center py-2">Instruments</th>
+            </tr>
+            <tr class="bg-teal-400">
             {#if $isEditing}
                 <th class="text-center border border-solid border-[black]"></th>
             {/if}
@@ -171,7 +134,6 @@
             <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
             <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
             <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-            <th class="text-center border border-solid border-[black] w-16">ALT</th>
             <th class="text-center border border-solid border-[black] w-16">OBS</th>
             </tr>
         </thead>
@@ -183,22 +145,21 @@
                     class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
                     class:bg-[lightgray]={$hoveredSupplierIndex === index &&
                     $selectedSupplierIndex !== index}
-                    on:click={() => selectedSupplierIndex.set(index)}
-                    on:mouseover={() => (hoveredSupplierIndex.set(index))}
-                    on:mouseout={() => (hoveredSupplierIndex.set(null))}
+                    onclick={() => selectedSupplierIndex.set(index)}
+                    onmouseover={() => (hoveredSupplierIndex.set(index))}
+                    onmouseout={() => (hoveredSupplierIndex.set(null))}
                 >
                 {#if $isEditing}
                     <EditInstrumentButton instrument={row}/>
                 {/if}
                 <td
                 class="green text-center border border-solid border-[black]"
-                on:click= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
+                onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                 >
                 <td class="text-center border border-solid border-[black]">{row.reference}</td>
                 <td class="text-center border border-solid border-[black]">{row.supplier}</td>
                 <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
                 <td class="text-center border border-solid border-[black]">{row.price}</td>
-                <td class="text-center border border-solid border-[black]">{row.alt}</td>
                 <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
                 </tr>
             {/each}
@@ -207,12 +168,67 @@
     {#if $isEditing}
        {#if $isAdmin}
             <div class="flex justify-center">
-                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddInstrumentPage()}>
+                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" onclick={()=>openAddInstrumentPage()}>
                     Ajouter un instrument
                 </button>
             </div>
         {/if}
     {/if}
+
+    <!-- TABLE OF THE ALTERNATIVES -->
+    <table class="w-full border-collapse mt-4">
+        <thead>
+            <tr class="bg-white text-teal-400">
+                <th colspan="4" class="text-center py-2">Alternatives</th>
+                <th colspan="2" class="text-center py-2">
+                    <button class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700 focus:outline-none"
+                    onclick={()=>seeAllAlternatives()}>
+                        Voir plus
+                    </button>
+                </th>
+            </tr>
+            <tr class="bg-teal-400">
+            {#if $isEditing}
+                <th class="text-center border border-solid border-[black]"></th>
+            {/if}
+            <th class="text-center border border-solid border-[black] w-16">AJOUT</th>
+            <th class="text-center border border-solid border-[black] w-24">REF</th>
+            <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
+            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
+            <th class="text-center border border-solid border-[black] w-16">PRIX</th>
+            <th class="text-center border border-solid border-[black] w-16">OBS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each $alternatives.slice(0,2) as row, index}
+                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                <tr
+                    class="cursor-pointer {index === 1 ? 'opacity-50' : ''}"
+                    class:bg-[cornflowerblue]= {$selectedAlternativeIndex === index}
+                    class:bg-[lightgray]={$hoveredAlternativeIndex === index &&
+                    $selectedAlternativeIndex !== index}
+                    onclick={() => selectedAlternativeIndex.set(index)}
+                    ondblclick={() => selectAlternative(row, index)}
+                    onmouseover={() => (hoveredAlternativeIndex.set(index))}
+                    onmouseout={() => (hoveredAlternativeIndex.set(null))}
+                >
+                {#if $isEditing}
+                    <EditInstrumentButton instrument={row}/>
+                {/if}
+                <td
+                class="green text-center border border-solid border-[black]"
+                onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
+                >
+                <td class="text-center border border-solid border-[black]">{row.reference}</td>
+                <td class="text-center border border-solid border-[black]">{row.supplier}</td>
+                <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
+                <td class="text-center border border-solid border-[black]">{row.price}</td>
+                <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
+                </tr>
+            {/each}
+        </tbody>
+    </table>
+
 </div>
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
@@ -221,11 +237,9 @@
   class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
   id="big-category-pannel"
 >
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <span
     class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
-    on:click={(event) => {
+    onclick={(event) => {
       event.stopPropagation();
       closeBigPicture();
     }}>&times;</span

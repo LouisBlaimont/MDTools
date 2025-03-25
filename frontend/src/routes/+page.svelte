@@ -50,7 +50,7 @@
   function moveToSearches(group, subgroup) {
     clearTimeout(clickTimeout);
     goto(
-      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent("")}&instrument=${encodeURIComponent("")}`
     );
   }
 
@@ -349,10 +349,5 @@
   </div>
 </div>
 
-<div
-  class="container mx-auto bg-gray-50 p-6 shadow-lg flex justify-center flex items-center space-x-6"
->
-  <div>
-    <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
-  </div>
-</div>
+
+

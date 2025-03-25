@@ -10,7 +10,7 @@
     import { isAdmin } from "$lib/stores/user_stores";
     import { PUBLIC_API_URL } from "$env/static/public";
     import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex } from "$lib/stores/searches";
+     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex, alternatives} from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
@@ -69,6 +69,8 @@
      * @param index
      */
     async function selectCategory(index) {
+        currentSuppliers.set([]);
+        alternatives.set([]);
         selectedCategoryIndex.set(index);
 
         // selecting the categoryId
@@ -77,11 +79,23 @@
 
         try{
         const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+        let response2;
+        if( $isAdmin){
+            response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
+        }
+        else{
+            response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
+        }
         if (!response.ok){
             throw new Error("Failed to fetch instruments of category");
         }
         const answer = await response.json();
         currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+        if (!response2.ok){
+            return;
+        }
+        const answer2 = await response2.json();
+        alternatives.set(Array.isArray(answer2)? answer2 : [answer2]);
         }catch (error) {
         console.error(error);
         errorMessage.set(error.message);

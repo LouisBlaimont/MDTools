@@ -1,6 +1,5 @@
 package be.uliege.speam.team03.MDTools.models;
 
-import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
