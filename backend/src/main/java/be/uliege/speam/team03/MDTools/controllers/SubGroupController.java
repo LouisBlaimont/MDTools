@@ -63,5 +63,17 @@ public class SubGroupController {
     public ResponseEntity<?> setGroupPicture(@PathVariable String subGroupName, @RequestParam("file") MultipartFile file) throws ResourceNotFoundException, BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(subGroupService.setSubGroupPicture(subGroupName, file));
     }
-
+    
+    @PostMapping("/{subGroupName}/characteristics")
+    public ResponseEntity<SubGroupDTO> addCharacteristicToSubGroup(
+        @PathVariable String subGroupName,
+        @RequestBody Map<String, String> body
+    ) throws ResourceNotFoundException, BadRequestException {
+        String name = body.get("name");
+        if (name == null || name.trim().isEmpty()) {
+            throw new BadRequestException("Characteristic name is required.");
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(subGroupService.addCharacteristicToSubGroup(subGroupName, name));
+    }
 }

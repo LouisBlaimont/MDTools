@@ -257,4 +257,52 @@ public class SubGroupService {
         return SubGroupMapper.toDto(savedSubGroup);
     }
 
+    /**
+     * Adds a new characteristic to an existing subgroup.
+     *
+     * If the characteristic already exists in the system, it will be reused.
+     * A link between the subgroup and the characteristic is created and persisted.
+     *
+     * @param subGroupName the name of the subgroup to which the characteristic will be added
+     * @param characteristicName the name of the characteristic to add
+     * @return the updated SubGroupDTO with the new characteristic linked
+     * @throws ResourceNotFoundException if the subgroup is not found
+     * @throws BadRequestException if the subgroup name or characteristic name is missing or if the characteristic is already linked
+     */
+    public SubGroupDTO addCharacteristicToSubGroup(String subGroupName, String characteristicName)
+            throws ResourceNotFoundException, BadRequestException {
+
+        if (ObjectUtils.isEmpty(subGroupName)) {
+            throw new BadRequestException("Subgroup name is required.");
+        }
+
+        if (ObjectUtils.isEmpty(characteristicName)) {
+            throw new BadRequestException("Characteristic name is required.");
+        }
+
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+                .orElseThrow(() -> new ResourceNotFoundException("Subgroup not found: " + subGroupName));
+
+        Optional<Characteristic> existing = charRepository.findByName(characteristicName);
+        Characteristic characteristic;
+
+        if (existing.isPresent()) {
+            characteristic = existing.get();
+        } else {
+            characteristic = new Characteristic(characteristicName);
+            charRepository.save(characteristic);
+        }
+
+        SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(
+            subGroup.getId().intValue(),
+            characteristic.getId().intValue()
+        );
+        SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(subGroup, characteristic, 1);
+        subGroupChar.setId(key);
+
+        subGroupCharRepository.save(subGroupChar);
+
+        subGroup = subGroupRepository.findByName(subGroupName).get();
+        return SubGroupMapper.toDto(subGroup);
+        }
 }

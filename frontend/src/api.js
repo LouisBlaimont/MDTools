@@ -216,4 +216,20 @@ export async function fetchInstrumentsBySupplier(supplierName) {
   return await response.json();
 }
 
+/**
+ * Adds a new characteristic to a specific subgroup.
+ * @param {string} subGroupName - The name of the subgroup to add the characteristic to.
+ * @param {string} characteristicName - The name of the new characteristic.
+ * @returns {Promise<void>}
+ */
+export async function addCharacteristicToSubGroup(subGroupName, characteristicName) {
+  const res = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroupName)}/characteristics`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: characteristicName })
+  });
 
+  if (!res.ok) {
+    throw new Error(`Failed to add characteristic "${characteristicName}" to subgroup "${subGroupName}"`);
+  }
+}

@@ -1,5 +1,5 @@
 <script>
-  import { fetchGroups, fetchCharacteristics, sendExcelToBackend, fetchSuppliers} from "../../../api.js";
+  import { fetchGroups, fetchCharacteristics, sendExcelToBackend, fetchSuppliers, addCharacteristicToSubGroup} from "../../../api.js";
   import { isAdmin } from "$lib/stores/user_stores";
   import { onMount } from "svelte";
   import * as XLSX from "xlsx";
@@ -35,6 +35,67 @@
   let selectedSupplier = "";
   let isSupplierModalOpen = false;
   let isImporting = false;
+  let showAddCharacteristicModal = false;
+  let newCharacteristicName = "";
+  let allCharacteristics = [];
+  let filteredSuggestions = [];
+
+  /**
+   * Loads all characteristics from the backend.
+   * This is used to suggest existing characteristics during creation.
+   */
+  async function loadAllCharacteristics() {
+    try {
+      const res = await apiFetch("/api/characteristics/all");
+      allCharacteristics = await res.json();
+    } catch (err) {
+      console.error("Failed to load all characteristics:", err);
+      allCharacteristics = [];
+    }
+  }
+
+  /**
+   * Updates the filteredSuggestions list based on user input and
+   * excludes characteristics already present in the subgroup.
+   */
+  $: if (newCharacteristicName.trim() !== "") {
+    const input = newCharacteristicName.trim().toLowerCase();
+    filteredSuggestions = allCharacteristics
+      .filter(c => c.toLowerCase().includes(input))
+      .filter(c => !requiredColumns.includes(c));
+  }
+
+
+  /**
+   * Adds a new characteristic to the current subgroup.
+   */
+   async function createNewCharacteristic() {
+    const trimmedName = newCharacteristicName.trim();
+    if (!trimmedName) return;
+
+    try {
+      await addCharacteristicToSubGroup(selectedSubGroup, trimmedName);
+
+      requiredColumns = [
+        ...requiredColumns,
+        trimmedName,
+        `abbreviation_${trimmedName}`,
+      ];
+
+      showAddCharacteristicModal = false;
+      newCharacteristicName = "";
+    } catch (error) {
+      console.error("Error adding new characteristic:", error);
+    }
+  }
+  function handleCharacteristicChange(value) {
+    if (value === "__add_new__") {
+      showAddCharacteristicModal = true;
+      loadAllCharacteristics(); // Load available suggestions
+    }
+  }
+
+
 
   /**
    * Fetches the list of suppliers from the backend.
@@ -696,12 +757,22 @@
                                       bind:value={columnMapping[index]}
                                       class="w-full"
                                       style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
-                                      on:change={() => updateColumnMapping(index)}
-                                    >                                                                        <option value="">vide</option>
-                                          {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
-                                              <option value={column}>{column}</option>
-                                          {/each}
-                                      </select>
+                                      on:change={(e) => {
+                                        if (e.target.value === "__add_new__") {
+                                          showAddCharacteristicModal = true;
+                                          e.target.value = "";
+                                        } else {
+                                          columnMapping[index] = e.target.value;
+                                          updateColumnMapping(index);
+                                        }
+                                      }}
+                                    >
+                                      <option value="">vide</option>
+                                      {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                        <option value={column}>{column}</option>
+                                      {/each}
+                                      <option value="__add_new__">➕ Autre...</option>
+                                    </select>
                                   </th>
                               {/each}
                           </tr>
@@ -757,6 +828,38 @@
       </div>
     </div>
   {/if}
+  {#if showAddCharacteristicModal}
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        class="bg-white p-6 rounded-lg shadow-xl resize overflow-auto"
+        style="min-width: 300px; max-width: 500px; position: absolute; top: 150px; left: 150px;"
+        on:mousedown={handleMouseDown}
+      >
+        <button class="absolute top-2 right-2 text-gray-600" on:click={() => showAddCharacteristicModal = false}>✖</button>
+        <h2 class="text-xl font-semibold mb-4">Ajouter une nouvelle caractéristique</h2>
+        <input type="text" placeholder="Nom de la caractéristique" class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
+        {#if filteredSuggestions.length > 0}
+          <ul class="mt-2 border rounded bg-white max-h-40 overflow-auto text-sm z-50">
+            {#each filteredSuggestions as suggestion}
+              <!-- svelte-ignore a11y_click_events_have_key_events -->
+              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+              <li
+                class="p-2 hover:bg-gray-200 cursor-pointer"
+                on:click={() => newCharacteristicName = suggestion}
+              >
+                {suggestion}
+              </li>
+            {/each}
+          </ul>
+        {:else if newCharacteristicName.trim() !== ""}
+          <p class="text-xs text-gray-400 mt-2 italic">No matching characteristic found.</p>
+        {/if}
+        <button on:click={createNewCharacteristic} class="bg-blue-600 text-white px-4 py-2 rounded">Ajouter</button>
+      </div>
+    </div>
+  {/if}
+
 </main>
   
 <style>
