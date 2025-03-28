@@ -92,6 +92,7 @@
         console.error(error);
       }
     }
+
     let characteristicsEdited = false;
     let promise = fetchCharacteristics();
 
@@ -140,6 +141,100 @@
         dragging = false;
         window.removeEventListener('mousemove', drag);
         window.removeEventListener('mouseup', stopDrag);
+    }
+
+    // New state for autocomplete
+    let autocompleteOptions = $state({});
+    let currentAutocompleteField = $state(null);
+    let autocompleteInput = $state("");
+    let filteredAutocompleteOptions = $state([]);
+    let showAutocompleteDropdown = $state(false);
+
+    async function fetchCharacteristicOptions(characteristicName) {
+      try {
+        // Map of characteristics to their respective API endpoints
+        const characteristicEndpoints = {
+          'supplier': 'supplier',
+          'reference': 'instrument',
+          'supplierDescription': 'supplier',
+          // Add more mappings as needed
+        };
+
+        const endpoint = characteristicEndpoints[characteristicName.toLowerCase()];
+        
+        if (!endpoint) {
+          console.warn(`No options endpoint found for ${characteristicName}`);
+          return [];
+        }
+
+        const response = await apiFetch(`/api/${endpoint}/all`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch options for ${characteristicName}`);
+        }
+
+        const options = await response.json();
+        
+        // Store options for this characteristic
+        autocompleteOptions[characteristicName] = options;
+        
+        return options;
+      } catch (error) {
+        console.error(`Error fetching options for ${characteristicName}:`, error);
+        return [];
+      }
+    }
+
+    // Handle input for autocomplete
+    function handleAutocompleteInput(event) {
+      const inputValue = event.target.value;
+      autocompleteInput = inputValue;
+      showAutocompleteDropdown = true;
+
+      // Filter options based on input
+      if (currentAutocompleteField && autocompleteOptions[currentAutocompleteField]) {
+        filteredAutocompleteOptions = autocompleteOptions[currentAutocompleteField].filter(option =>
+          option.toLowerCase().includes(inputValue.toLowerCase())
+        );
+      }
+    }
+
+    // Select an option from autocomplete
+    function selectAutocompleteOption(option) {
+      // Find the characteristic and update its value
+      const characteristicIndex = characteristics.findIndex(
+        c => c.name.toLowerCase() === currentAutocompleteField.toLowerCase()
+      );
+
+      if (characteristicIndex !== -1) {
+        characteristics[characteristicIndex].value = option;
+        characteristicsEdited = true;
+      }
+
+      // Reset autocomplete states
+      autocompleteInput = option;
+      showAutocompleteDropdown = false;
+      currentAutocompleteField = null;
+    }
+
+    // Trigger autocomplete for a specific field
+    async function triggerAutocomplete(characteristicName) {
+      currentAutocompleteField = characteristicName;
+      
+      // Fetch options if not already loaded
+      if (!autocompleteOptions[characteristicName]) {
+        await fetchCharacteristicOptions(characteristicName);
+      }
+
+      // Reset and show dropdown
+      autocompleteInput = "";
+      filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
+      showAutocompleteDropdown = true;
     }
 </script>
 
@@ -277,8 +372,6 @@
                         <span class="sr-only">Chargement...</span>
                       </div>
                     {:then}
-                      <div class="my-2">
-                        <h3 class="text-base text-gray-900">Caractéristiques</h3>
                         <div class="grid grid-cols-2 gap-4">
                           {#each characteristics as characteristic}
                             {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'categoryId' && characteristic.name !== 'alt'} 
@@ -309,19 +402,40 @@
                                       Non
                                     </label>
                                   </div>
-                                {:else}
+                                {:else if characteristic.name === 'price'}
                                   <input
-                                    type="text"
+                                    type="number"
                                     bind:value={characteristic.value}
                                     onchange={() => (characteristicsEdited = true)}
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                   />
+                                {:else}
+                                  <div class="relative">
+                                    <input
+                                      type="text"
+                                      bind:value={characteristic.value}
+                                      onchange={() => (characteristicsEdited = true)}
+                                      onfocus={() => triggerAutocomplete(characteristic.name)}
+                                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    />
+                                    {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
+                                      <ul class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                        {#each filteredAutocompleteOptions as option}
+                                          <li
+                                            class="px-4 hover:bg-gray-200 cursor-pointer"
+                                            onclick={() => selectAutocompleteOption(option)}
+                                          >
+                                            {option}
+                                          </li>
+                                        {/each}
+                                        </ul>
+                                    {/if}
+                                  </div>
                                 {/if}
                               </div>
                             {/if}
                           {/each}
                         </div>
-                      </div>
                       <div class="mt-2">
                         <label class="block my-2 text-sm font-medium text-gray-900" for="user_avatar"
                           >Image</label
