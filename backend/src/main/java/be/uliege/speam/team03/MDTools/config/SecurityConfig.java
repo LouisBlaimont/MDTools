@@ -40,8 +40,13 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oAuth2UserService))
                         .successHandler((request, response, authentication) -> {
                             // Redirect to frontend after successful login
-                            response.sendRedirect(frontendUrl);
-                        }))
+                            response.sendRedirect(frontendUrl + "/?login=success");
+                        })
+                        .failureHandler((request, response, authentication) -> {
+                            // Redirect to frontend after failed login
+                            response.sendRedirect(frontendUrl + "/?login=failed");
+                        })
+                        )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {

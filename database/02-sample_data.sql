@@ -55,7 +55,11 @@ INSERT INTO logs (user_id, action) VALUES
 -- Insert into supplier table
 INSERT INTO supplier (supplier_name, sold_by_md, closed) VALUES 
 ('Medicon', TRUE, FALSE),
-('Geomed', TRUE, FALSE);
+('Geomed', TRUE, FALSE),
+('Maganovum', TRUE, FALSE),
+('SupplierNotSold', FALSE, FALSE),
+('SupplierClosed', TRUE, TRUE),
+('SupplierBoth', FALSE, TRUE);
 
 /* Add more categories linked to each sub_group */
 -- Categories for "Plastic Scalpels" (sub_group_id = 1)
@@ -288,7 +292,9 @@ INSERT INTO instruments (supplier_id, category_id, reference, supplier_descripti
 (1, 2, 'PLS-2001', 'Plastic Scalpel Type C', 9.99, FALSE),
 (2, 2, 'PLS-2002', 'Plastic Scalpel Type D', 10.49, FALSE),
 (1, 3, 'PLS-3001', 'Plastic Scalpel Type E', 9.99, FALSE),
-(2, 3, 'PLS-3002', 'Plastic Scalpel Type F', 10.49, FALSE);
+(2, 3, 'PLS-3002', 'Plastic Scalpel Type F', 10.49, FALSE),
+(3, 3, 'PLS-3003', 'Plastic Scalpel Type G', 10.5, FALSE),
+(4, 3, 'PLS-3003', 'Plastic Scalpel Type H', 10.2, FALSE);
 
 -- For Metal Scalpels (categories linked to sub_group_id = 2)
 INSERT INTO instruments (supplier_id, category_id, reference, supplier_description, price, obsolete) VALUES
@@ -297,7 +303,8 @@ INSERT INTO instruments (supplier_id, category_id, reference, supplier_descripti
 (1, 5, 'MTS-2001', 'Metal Scalpel Type C', 19.99, FALSE),
 (2, 5, 'MTS-2002', 'Metal Scalpel Type D', 20.49, FALSE),
 (1, 6, 'MTS-3001', 'Metal Scalpel Type E', 19.99, FALSE),
-(2, 6, 'MTS-3002', 'Metal Scalpel Type F', 20.49, FALSE);
+(2, 6, 'MTS-3002', 'Metal Scalpel Type F', 20.49, FALSE),
+(3, 6, 'MTS-3002', 'Metal Scalpel Type G', 18.99, FALSE);
 
 -- For Curved Scissors (categories linked to sub_group_id = 3)
 INSERT INTO instruments (supplier_id, category_id, reference, supplier_description, price, obsolete) VALUES
@@ -337,7 +344,12 @@ INSERT INTO instruments (supplier_id, category_id, reference, supplier_descripti
 
 -- Insert into alternatives table
 INSERT INTO alternatives (instruments_id_1, instruments_id_2) VALUES 
-(1, 2);
+(1, 4),
+(1, 7),
+(1, 6),
+(1, 8),
+(2, 5),
+(9, 15);
 
 -- Insert into orders table
 INSERT INTO orders (user_id, order_name) VALUES 
