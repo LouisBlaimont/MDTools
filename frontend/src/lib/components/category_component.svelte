@@ -142,12 +142,12 @@
                     {#if $isEditing}
                         <th class="text-center border border-solid border-[black] w-8"></th>
                     {/if}
-                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">GROUPE</th>
+                    <th class="text-center border border-solid border-[black] w-10 overflow-hidden">GROUPE</th>
                     <th class="text-center border border-solid border-[black] w-12 overflow-hidden">SOUS GP</th>
                     <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
                     <th class="text-center border border-solid border-[black] w-20 overflow-hidden">NOM</th>
                     <th class="text-center border border-solid border-[black] w-8 overflow-hidden">FORME</th>
-                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">DIM</th>
+                    <th class="text-center border border-solid border-[black] w-6 overflow-hidden">DIM</th>
                 </tr>
             </thead>
             {#if $showCategories}

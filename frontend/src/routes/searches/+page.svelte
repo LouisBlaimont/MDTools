@@ -288,7 +288,6 @@
         <!-- SEARCHES -->
         <div
           class="relative overflow-auto border border-gray-300 flex-none"
-         
           bind:this={div2}
         >
           <SearchComponent />
@@ -307,7 +306,6 @@
         <!-- INSTRUMENTS -->
         <div
           class="relative overflow-auto border border-gray-300 flex-none"
-          
           bind:this={div4}
         >
           <InstrumentComponent />
