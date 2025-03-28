@@ -3,8 +3,12 @@ const BASE_URL = PUBLIC_API_URL + "/api";
 import { apiFetch } from "$lib/utils/fetch.js"
 
 
+/**
+ * Fetches all instruments from the backend using the generic apiFetch wrapper.
+ * @returns {Promise<Array>} - A list of all instrument objects.
+ */
 export async function fetchTools() {
-  const res = await fetch(`${BASE_URL}/instruments`);
+  const res = await apiFetch("/api/instrument/all");
   if (!res.ok) throw new Error("Failed to fetch tools");
   return res.json();
 }

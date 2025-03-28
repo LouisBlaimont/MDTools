@@ -11,6 +11,7 @@
   import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
+  import Loading from "$lib/Loading.svelte";
 
   let groups_summary = $state([]);
 
@@ -37,21 +38,14 @@
   // Run this effect whenever isLoggedIn changes
   $effect(() => {
     if (isLoggedIn) {
-      console.log("Now logged in, fetching data...");
       fecthData();
     }
   });
 
-  onMount(() => {
-    if ($isLoggedIn) {
-      fecthData();
-    }
-  });
-
-  function moveToSearches(group, subgroup, row) {
+  function moveToSearches(group, subgroup) {
     clearTimeout(clickTimeout);
     goto(
-      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}`
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent("")}&instrument=${encodeURIComponent("")}`
     );
   }
 
@@ -271,7 +265,10 @@
           </div>
           {#if selectedGroup}
             <div class="flex flex-col">
-              <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button>
+              <button
+                class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
+                ><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button
+              >
             </div>
           {/if}
         {/if}
@@ -468,17 +465,12 @@
     
   {/if}
   {#if !$isLoggedIn}
-    <div class="flex flex-col items-center justify-center h-full">
-      <p class="text-lg">Connectez-vous pour accéder à cette page.</p>
+    <div class="flex flex-col items-center justify-center h-full max-height-[200px]">
+      <Loading />
     </div>
   {/if}
   </div>
 </div>
 
-<div
-  class="container mx-auto bg-gray-50 p-6 shadow-lg flex justify-center flex items-center space-x-6"
->
-  <div>
-    <span class="text-teal-600 font-semibold text-2xl">Set/commande</span>
-  </div>
-</div>
+
+
