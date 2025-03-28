@@ -9,7 +9,6 @@
         showChars, charValues, currentSuppliers, categories, characteristics, 
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
     findSubGroupsStore, findCharacteristicsStore, alternatives, selectedAlternativeIndex, hoveredAlternativeIndex} from "$lib/stores/searches";    
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
 
     /**

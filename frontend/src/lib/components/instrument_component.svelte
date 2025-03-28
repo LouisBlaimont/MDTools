@@ -9,7 +9,6 @@
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
     import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, 
         hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, selectedAlternativeIndex, hoveredAlternativeIndex} from "$lib/stores/searches";   
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
     import AddCategoryModal from "$lib/modals/AddCategoryModal.svelte";

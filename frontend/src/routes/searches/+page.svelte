@@ -183,7 +183,7 @@
 
 <div id="container" class="text-[14px]">
   <div class="flex flex-col gap-[5px] box-border w-full">
-    <div class="flex w-full h-[50vh] relative overflow-auto border border-gray-300" style="resize: none;" bind:this={div1}>
+    <div class="flex w-full h-[70vh] relative overflow-auto border border-gray-300" style="resize: none;" bind:this={div1}>
     <!-- TOP PART -->
         <!-- SEARCHES -->
         <div
