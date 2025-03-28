@@ -269,11 +269,11 @@
               ><a href="/admin/add_group">Ajouter un groupe</a></button
             >
           </div>
-        {#if selectedGroup}
-          <div class="flex flex-col">
-            <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button>
-          </div>
-        {/if}
+          {#if selectedGroup}
+            <div class="flex flex-col">
+              <button class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button>
+            </div>
+          {/if}
         {/if}
       </form>
     </div>
@@ -312,8 +312,8 @@
   <div
     class="w-full bg-white md:w-3/4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
   >
-  {#if !showKeywordsResult }
-    {#if $isLoggedIn}
+  {#if $isLoggedIn}
+    {#if !showKeywordsResult}    
       <div class="flex gap-2">
         <!-- Buttons div -->
         {#if selectedGroup}
@@ -336,7 +336,6 @@
             </svg>
           </button>
         {/if}
-      {/if}
 
         {#if $isAdmin}
           <button
@@ -411,6 +410,7 @@
           {/if}
         </div>
     {/if}
+  
     <!-- Results of the keywords search -->
     {#if showKeywordsResult}
       <button
@@ -463,13 +463,15 @@
                 </tr>
             {/each}
         </tbody>
-    </table>
+      </table>
     {/if}
-    {:else}
-      <div class="flex flex-col items-center justify-center h-full">
-        <p class="text-lg">Connectez-vous pour accéder à cette page.</p>
-      </div>
-    {/if}
+    
+  {/if}
+  {#if !$isLoggedIn}
+    <div class="flex flex-col items-center justify-center h-full">
+      <p class="text-lg">Connectez-vous pour accéder à cette page.</p>
+    </div>
+  {/if}
   </div>
 </div>
 
