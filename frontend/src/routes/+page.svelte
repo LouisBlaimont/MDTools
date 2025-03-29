@@ -128,7 +128,7 @@
         params.append('keywords', element.trim());
       });
 
-      let response = await apiFetch(`/api/instruments/search?${params}`);
+      let response = await apiFetch(`/api/instrument/search?${params}`);
       let data = await response.json();
       if (data.length == 0) {
         console.log("no data");
@@ -137,7 +137,7 @@
         let first = key[0];
         params.delete("keywords");
         params.append('keywords', first.trim());
-        response = await apiFetch(`/api/instruments/search?${params}`);
+        response = await apiFetch(`/api/instrument/search?${params}`);
         data = await response.json();
         keywordsResult.set(data);
         console.log("made new request with:");
@@ -153,7 +153,7 @@
 
   async function selectedInstrumentHome(row) {
     try {
-      let response = await apiFetch(`/api/instruments/getCategory/${row.categoryId}`);
+      let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
       let cat = await response.json();
       selectCategoryBis(row.categoryId);
       moveToSearches(cat.groupName, cat.subGroupName, row);
