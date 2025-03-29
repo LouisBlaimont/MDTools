@@ -20,9 +20,7 @@
   
     // Function to handle form submission
     async function handleSubmit(event) {
-      console.log("Submitting form with reference:", reference);
       event.preventDefault(); // Prevent the default form submission behavior
-      console.log("Characteristics before submission:", characteristics);
   
       // If a file is selected, upload it
       if (file) {
@@ -168,7 +166,10 @@
             endpoint: 'instrument',
             extractValue: (item) => item.supplierDescription,
           },
-          // Add more mappings as needed
+          'categoryId': {
+            endpoint: 'category',
+            extractValue: (item) => item.id,
+          },
         };
 
         const config = characteristicEndpoints[characteristicName];
@@ -219,12 +220,6 @@
       filteredAutocompleteOptions = rawOptions.filter(option =>
             option.toLowerCase().includes(inputValue.toLowerCase())
         );
-
-      // if (currentAutocompleteField && autocompleteOptions[currentAutocompleteField]) {
-      //   filteredAutocompleteOptions = autocompleteOptions[currentAutocompleteField].filter(option =>
-      //     option.toLowerCase().includes(inputValue.toLowerCase())
-      //   );
-      // }
     }
 
     // Select an option from autocomplete
@@ -411,11 +406,25 @@
                     {:then}
                         <div class="grid grid-cols-2 gap-4">
                           {#each characteristics as characteristic}
-                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'categoryId' && characteristic.name !== 'alt'} 
+                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt'} 
                               <div>
-                                <label class="text-sm font-medium text-gray-900" for="user_avatar"
-                                  >{characteristic.name}</label
-                                >
+                                <label class="text-sm font-medium text-gray-900" for="user_avatar">
+                                  {#if characteristic.name === 'supplier'}
+                                    Fournisseur
+                                  {:else if characteristic.name === 'categoryId'}
+                                    Catégorie
+                                  {:else if characteristic.name === 'reference'}
+                                    Référence
+                                  {:else if characteristic.name === 'supplierDescription'}
+                                    Description du fournisseur
+                                  {:else if characteristic.name === 'price'}
+                                    Prix
+                                  {:else if characteristic.name === 'obsolete'}
+                                    Obsolescence
+                                  {:else}
+                                    {characteristic.name}
+                                  {/if}
+                                </label>
 
                                 <!-- Check if the characteristic is 'obsolete' -->
                                 {#if characteristic.name === 'obsolete'}

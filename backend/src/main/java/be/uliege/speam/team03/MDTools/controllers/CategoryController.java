@@ -44,6 +44,22 @@ public class CategoryController {
     private final SubGroupService subGroupService;
 
     /**
+     * Retrieves a list of all categories.
+     *
+     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
+     *         status of OK
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> findAllCategories() {
+        List<CategoryDTO> categories = categoryService.findAll();
+        // Check if the list of categories is empty
+        if (categories == null || categories.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    }
+
+    /**
      * Retrieves a list of categories associated with a specific group name.
      *
      * @param groupName the name of the group whose categories are to be retrieved
