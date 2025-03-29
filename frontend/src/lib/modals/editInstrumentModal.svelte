@@ -452,7 +452,20 @@
                                   <input
                                     type="number"
                                     bind:value={characteristic.value}
-                                    onchange={() => (characteristicsEdited = true)}
+                                    min="0"
+                                    step="0.01"
+                                    onchange={() => {
+                                      (characteristicsEdited = true)
+                                      if(characteristic.value < 0) {
+                                        characteristic.value = 0;
+                                      }
+                                    }}
+                                    oninput={() => {
+                                      (characteristicsEdited = true)
+                                      if(characteristic.value < 0) {
+                                        characteristic.value = 0;
+                                      }
+                                    }}
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                   />
                                 {:else}
