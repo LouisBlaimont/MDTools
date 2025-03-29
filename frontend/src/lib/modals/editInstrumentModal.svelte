@@ -20,7 +20,9 @@
   
     // Function to handle form submission
     async function handleSubmit(event) {
+      console.log("Submitting form with reference:", reference);
       event.preventDefault(); // Prevent the default form submission behavior
+      console.log("Characteristics before submission:", characteristics);
   
       // If a file is selected, upload it
       if (file) {
@@ -170,9 +172,6 @@
         };
 
         const config = characteristicEndpoints[characteristicName];
-        console.log(`Config for ${characteristicName}:`, config);
-
-        console.log(`Fetching options for ${characteristicName} from endpoint: ${config?.endpoint}`);
         
         if (!config) {
           console.warn(`No options endpoint found for ${characteristicName}`);
@@ -194,7 +193,6 @@
 
         // Extract values using the provided function
         const extractedOptions = options.map(config.extractValue);
-        console.log(`Fetched options for ${characteristicName}:`, extractedOptions);
         
         // Store options for this characteristic
         autocompleteOptions[characteristicName] = extractedOptions;
@@ -217,15 +215,10 @@
             autocompleteOptions[currentAutocompleteField] || []
         ));
 
-      console.log(`Raw options for ${currentAutocompleteField}:`, rawOptions);
-      console.log(`Input value:`, inputValue);
-
       // Filter options based on input
       filteredAutocompleteOptions = rawOptions.filter(option =>
             option.toLowerCase().includes(inputValue.toLowerCase())
         );
-
-      console.log(`Filtered options in handleAutocompleteInput:`, filteredAutocompleteOptions);
 
       // if (currentAutocompleteField && autocompleteOptions[currentAutocompleteField]) {
       //   filteredAutocompleteOptions = autocompleteOptions[currentAutocompleteField].filter(option =>
@@ -253,7 +246,6 @@
     }
 
     function closeAutocomplete() {
-      console.log("Closing autocomplete dropdown");
       showAutocompleteDropdown = false;
       currentAutocompleteField = null;
     }
@@ -273,7 +265,6 @@
       // Fetch options if not already loaded
       if (!autocompleteOptions[characteristicName]) {
         await fetchCharacteristicOptions(characteristicName);
-        console.log(`Fetched options in triggerAutocomplete ${characteristicName}:`, autocompleteOptions[characteristicName]);
       }
 
       // Reset and show dropdown
@@ -529,8 +520,9 @@
           <!-- Modal Footer -->
           <div class="modal-footer">
             <button
-              type="submit"
+              type="button"
               class="btn-primary"
+              onclick={handleSubmit}
             >
               Enregistrer
             </button>
