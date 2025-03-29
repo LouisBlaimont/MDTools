@@ -14,7 +14,6 @@
   
     let file; // Variable to store the selected file
 
-
     let reference = $state(instrument.reference); // State for the instrument reference
     let characteristics = $state([]); // State for the instrument characteristics
   
@@ -56,7 +55,6 @@
           ),
             }
           );
-          console.log(response);
           if (!response.ok) {
             throw new Error("Failed to update the instrument characteristics");
           }
@@ -87,13 +85,15 @@
           value: value
         }));
 
-        console.log(characteristics);
       } catch (error) {
         console.error(error);
       }
     }
 
     let characteristicsEdited = false;
+
+    // Computed property for binding
+    let characteristicBoundValue = $state(null);
     let promise = fetchCharacteristics();
 
     // Function to handle instrument deletion
@@ -145,7 +145,9 @@
 
     // New state for autocomplete
     let autocompleteOptions = $state({});
+    let categorizedOptions = $state({});
     let currentAutocompleteField = $state(null);
+    let currentCategory = $state(null);
     let autocompleteInput = $state("");
     let filteredAutocompleteOptions = $state([]);
     let showAutocompleteDropdown = $state(false);
@@ -168,7 +170,7 @@
           },
           'categoryId': {
             endpoint: 'category',
-            extractValue: (item) => item.id,
+            extractValue: (item) => item
           },
         };
 
@@ -195,10 +197,42 @@
         // Extract values using the provided function
         const extractedOptions = options.map(config.extractValue);
         
-        // Store options for this characteristic
-        autocompleteOptions[characteristicName] = extractedOptions;
-        
-        return extractedOptions;
+        // For categoryId, organize data into categorized options
+        if (characteristicName === 'categoryId') {
+          // Process the data to create categorized options
+          categorizedOptions = {}; // Reset categorized options
+          
+          extractedOptions.forEach(item => {
+            // Create categories based on groupName + subGroupName
+            const categoryKey = `${item.groupName} - ${item.subGroupName}`;
+          
+            
+            if (!categorizedOptions[categoryKey]) {
+              categorizedOptions[categoryKey] = [];
+            }
+              
+            // Add characteristics with their IDs
+            let display = [];
+            if (item.name) display.push(item.name);
+            if (item.shape) display.push(item.shape);
+            if (item.lenAbrv) display.push(item.lenAbrv);
+            
+            const displayText = display.join(' - ');
+            
+            categorizedOptions[categoryKey].push({
+              id: item.id,
+              display: displayText
+            });
+          });
+          
+          // Set the initial options to be the category names
+          autocompleteOptions[characteristicName] = Object.keys(categorizedOptions);
+          return Object.keys(categorizedOptions);
+        } else {
+          // For other fields, just store the options directly
+          autocompleteOptions[characteristicName] = extractedOptions;
+          return extractedOptions;
+        }
       } catch (error) {
         console.error(`Error fetching options for ${characteristicName}:`, error);
         return [];
@@ -211,31 +245,72 @@
       autocompleteInput = inputValue;
       showAutocompleteDropdown = true;
 
-      // Ensure we're working with plain array, not a proxy
-      const rawOptions = JSON.parse(JSON.stringify(
+      if (currentAutocompleteField === 'categoryId') {
+        if (currentCategory === null) {
+          // Filter categories
+          filteredAutocompleteOptions = Object.keys(categorizedOptions)
+            .filter(category => category.toLowerCase().includes(inputValue.toLowerCase()));
+        } else {
+          // Filter characteristics within the selected category
+          filteredAutocompleteOptions = categorizedOptions[currentCategory]
+            .filter(item => item.display.toLowerCase().includes(inputValue.toLowerCase()))
+            .map(item => item.display);
+        }
+      } else {
+        // Standard filtering for other fields
+        const rawOptions = JSON.parse(JSON.stringify(
             autocompleteOptions[currentAutocompleteField] || []
         ));
-
-      // Filter options based on input
-      filteredAutocompleteOptions = rawOptions.filter(option =>
-            option.toLowerCase().includes(inputValue.toLowerCase())
+        filteredAutocompleteOptions = rawOptions.filter(option =>
+            String(option).toLowerCase().includes(inputValue.toLowerCase())
         );
+      }
     }
 
     // Select an option from autocomplete
     function selectAutocompleteOption(option) {
-      // Find the characteristic and update its value
-      const characteristicIndex = characteristics.findIndex(
-        c => c.name.toLowerCase() === currentAutocompleteField.toLowerCase()
-      );
+      if (currentAutocompleteField === 'categoryId') {
+        if (currentCategory === null) {
+          // User selected a category, now show characteristics for that category
+          currentCategory = option;
+          filteredAutocompleteOptions = categorizedOptions[option].map(item => item.display);
+          return; // Don't close dropdown yet
+        } else {
+          // User selected a characteristic
+          const selectedOption = categorizedOptions[currentCategory].find(item => item.display === option);
+          
+          if (selectedOption) {
+            // Find the characteristic and update its value
+            const characteristicIndex = characteristics.findIndex(
+              c => c.name === 'categoryId'
+            );
+            
+            if (characteristicIndex !== -1) {
+              // Update display value (for showing in the input)
+              characteristics[characteristicIndex].displayValue = option;
+              // Update actual value (ID for sending to API)
+              characteristics[characteristicIndex].value = selectedOption.id;
+              characteristicsEdited = true;
+            }
+          }
+          
+          // Reset category state
+          currentCategory = null;
+        }
+      } else {
+        // Standard selection for other fields
+        const characteristicIndex = characteristics.findIndex(
+          c => c.name === currentAutocompleteField
+        );
 
-      if (characteristicIndex !== -1) {
-        characteristics[characteristicIndex].value = option;
-        characteristicsEdited = true;
+        if (characteristicIndex !== -1) {
+          characteristics[characteristicIndex].value = option;
+          characteristicsEdited = true;
+        }
       }
 
       // Reset autocomplete states
-      autocompleteInput = option;
+      autocompleteInput = '';
       showAutocompleteDropdown = false;
       currentAutocompleteField = null;
     }
@@ -248,9 +323,11 @@
 
     // Trigger autocomplete for a specific field
     async function triggerAutocomplete(characteristicName) {
-      if (currentAutocompleteField === characteristicName) {
-        // If the same field is clicked again, toggle the dropdown
-        showAutocompleteDropdown = !showAutocompleteDropdown;
+      if (currentAutocompleteField === characteristicName && showAutocompleteDropdown) {
+        // If the same field is clicked again while dropdown is open, close it
+        showAutocompleteDropdown = false;
+        currentCategory = null;
+        currentAutocompleteField = null;
         return;
       }
       
@@ -264,7 +341,13 @@
 
       // Reset and show dropdown
       autocompleteInput = "";
-      filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
+      if (characteristicName === 'categoryId') {
+        // For categoryId, show categories first
+        filteredAutocompleteOptions = Object.keys(categorizedOptions);
+      } else {
+        // For other fields, show all options
+        filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
+      }
 
       showAutocompleteDropdown = true;
     }
@@ -469,7 +552,6 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                   />
                                 {:else}
-                                  <div class="relative">
                                     <input
                                       type="text"
                                       bind:value={characteristic.value}
@@ -489,16 +571,20 @@
                                         <!-- svelte-ignore a11y_role_has_required_aria_props -->
                                         <button
                                           type="button"
-                                          class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                          class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
                                           role="option"
                                           onclick={() => selectAutocompleteOption(option)}
                                         >
                                           {option}
+                                          {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
+                                            <span class="text-xs text-gray-500 ml-2">
+                                              ({categorizedOptions[option].length} items)
+                                            </span>
+                                          {/if}
                                         </button>
                                         {/each}
                                         </ul>
                                     {/if}
-                                  </div>
                                 {/if}
                               </div>
                             {/if}
