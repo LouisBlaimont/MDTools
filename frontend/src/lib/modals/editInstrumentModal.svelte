@@ -154,20 +154,32 @@
       try {
         // Map of characteristics to their respective API endpoints
         const characteristicEndpoints = {
-          'supplier': 'supplier',
-          'reference': 'instrument',
-          'supplierDescription': 'supplier',
+          'supplier': {
+            endpoint: 'supplier',
+            extractValue: (item) => item.name,
+          },
+          'reference': {
+            endpoint: 'instrument',
+            extractValue: (item) => item.reference,
+          },
+          'supplierDescription': {
+            endpoint: 'instrument',
+            extractValue: (item) => item.supplierDescription,
+          },
           // Add more mappings as needed
         };
 
-        const endpoint = characteristicEndpoints[characteristicName.toLowerCase()];
+        const config = characteristicEndpoints[characteristicName];
+        console.log(`Config for ${characteristicName}:`, config);
+
+        console.log(`Fetching options for ${characteristicName} from endpoint: ${config?.endpoint}`);
         
-        if (!endpoint) {
+        if (!config) {
           console.warn(`No options endpoint found for ${characteristicName}`);
           return [];
         }
 
-        const response = await apiFetch(`/api/${endpoint}/all`, {
+        const response = await apiFetch(`/api/${config.endpoint}/all`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -179,11 +191,15 @@
         }
 
         const options = await response.json();
+
+        // Extract values using the provided function
+        const extractedOptions = options.map(config.extractValue);
+        console.log(`Fetched options for ${characteristicName}:`, extractedOptions);
         
         // Store options for this characteristic
-        autocompleteOptions[characteristicName] = options;
+        autocompleteOptions[characteristicName] = extractedOptions;
         
-        return options;
+        return extractedOptions;
       } catch (error) {
         console.error(`Error fetching options for ${characteristicName}:`, error);
         return [];
@@ -196,12 +212,26 @@
       autocompleteInput = inputValue;
       showAutocompleteDropdown = true;
 
+      // Ensure we're working with plain array, not a proxy
+      const rawOptions = JSON.parse(JSON.stringify(
+            autocompleteOptions[currentAutocompleteField] || []
+        ));
+
+      console.log(`Raw options for ${currentAutocompleteField}:`, rawOptions);
+      console.log(`Input value:`, inputValue);
+
       // Filter options based on input
-      if (currentAutocompleteField && autocompleteOptions[currentAutocompleteField]) {
-        filteredAutocompleteOptions = autocompleteOptions[currentAutocompleteField].filter(option =>
-          option.toLowerCase().includes(inputValue.toLowerCase())
+      filteredAutocompleteOptions = rawOptions.filter(option =>
+            option.toLowerCase().includes(inputValue.toLowerCase())
         );
-      }
+
+      console.log(`Filtered options in handleAutocompleteInput:`, filteredAutocompleteOptions);
+
+      // if (currentAutocompleteField && autocompleteOptions[currentAutocompleteField]) {
+      //   filteredAutocompleteOptions = autocompleteOptions[currentAutocompleteField].filter(option =>
+      //     option.toLowerCase().includes(inputValue.toLowerCase())
+      //   );
+      // }
     }
 
     // Select an option from autocomplete
@@ -222,18 +252,34 @@
       currentAutocompleteField = null;
     }
 
+    function closeAutocomplete() {
+      console.log("Closing autocomplete dropdown");
+      showAutocompleteDropdown = false;
+      currentAutocompleteField = null;
+    }
+
+
     // Trigger autocomplete for a specific field
     async function triggerAutocomplete(characteristicName) {
+      if (currentAutocompleteField === characteristicName) {
+        // If the same field is clicked again, toggle the dropdown
+        showAutocompleteDropdown = !showAutocompleteDropdown;
+        return;
+      }
+      
+      // If a different field is clicked, fetch options for the new field
       currentAutocompleteField = characteristicName;
       
       // Fetch options if not already loaded
       if (!autocompleteOptions[characteristicName]) {
         await fetchCharacteristicOptions(characteristicName);
+        console.log(`Fetched options in triggerAutocomplete ${characteristicName}:`, autocompleteOptions[characteristicName]);
       }
 
       // Reset and show dropdown
       autocompleteInput = "";
       filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
+
       showAutocompleteDropdown = true;
     }
 </script>
@@ -416,17 +462,26 @@
                                       bind:value={characteristic.value}
                                       onchange={() => (characteristicsEdited = true)}
                                       onfocus={() => triggerAutocomplete(characteristic.name)}
+                                      oninput={handleAutocompleteInput}
+                                      onblur={() => closeAutocomplete()}
                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     />
                                     {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
-                                      <ul class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                                      <ul 
+                                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                        onmousedown={event => event.preventDefault()}
+                                      >
                                         {#each filteredAutocompleteOptions as option}
-                                          <li
-                                            class="px-4 hover:bg-gray-200 cursor-pointer"
-                                            onclick={() => selectAutocompleteOption(option)}
-                                          >
-                                            {option}
-                                          </li>
+                                        <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                                        <button
+                                          type="button"
+                                          class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                          role="option"
+                                          onclick={() => selectAutocompleteOption(option)}
+                                        >
+                                          {option}
+                                        </button>
                                         {/each}
                                         </ul>
                                     {/if}
