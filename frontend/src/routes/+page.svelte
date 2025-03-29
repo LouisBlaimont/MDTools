@@ -182,24 +182,24 @@
           >
         </div>
 
-        <button
+        <a href="/searches"><button
           type="submit"
-          class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg"
-          ><a href="/searches">Rechercher</a></button
-        >
+          class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg mt-2"
+          >Rechercher</button
+        ></a>
         {#if $isAdmin}
           <div class="flex flex-col">
-            <button
+            <a href="/admin/add_group"><button
               class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-              ><a href="/admin/add_group">Ajouter un groupe</a></button
-            >
+              >Ajouter un groupe</button
+            ></a>
           </div>
           {#if selectedGroup}
             <div class="flex flex-col">
-              <button
+              <a href="/admin/add_subgroup"><button
                 class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-                ><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button
-              >
+                >Ajouter un sous-groupe</button
+              ></a>
             </div>
           {/if}
         {/if}
