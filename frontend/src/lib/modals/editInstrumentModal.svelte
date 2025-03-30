@@ -350,7 +350,7 @@
 
 {#if isOpen}
 <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-15 transition-opacity" aria-hidden="true"></div>
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
         class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"

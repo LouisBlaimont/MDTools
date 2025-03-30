@@ -2,9 +2,13 @@
     import { createEventDispatcher } from "svelte";
     import { apiFetch } from "$lib/utils/fetch";
     import { reload } from "$lib/stores/searches";
+    import { modals } from "svelte-modals";
+    import AddCategoryModalFromInstrument from "./addCategoryModalFromInstrument.svelte";
 
     export let isOpen = false;
     export let close;
+    export let initInstrument = null;
+    export let initCategory = null;
 
     let reference = "";
     let supplier = "";
@@ -13,7 +17,7 @@
     let alt = "";
     let obsolete = false;
     let id = "";
-    let categoryId = null;
+    let categoryId = initCategory ? initCategory.id : ""; // Set default category ID
 
     const dispatch = createEventDispatcher();
 
@@ -37,6 +41,13 @@
     }
 
     async function submitForm() {
+        if (categoryId === "") {
+            modals.open(AddCategoryModalFromInstrument, {
+                title: "Aucune catégorie sélectionnée",
+                message: "Veuillez sélectionner une catégorie avant d'ajouter un instrument.",
+            });
+           return;
+        }
         const response = await apiFetch('/api/instrument', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -255,11 +266,8 @@
     }
 
     function closeAutocomplete() {
-        // Small delay to allow for click events on options
-        setTimeout(() => {
-            showAutocompleteDropdown = false;
-            currentAutocompleteField = null;
-        }, 200);
+        showAutocompleteDropdown = false;
+        currentAutocompleteField = null;
     }
 
     // Trigger autocomplete for a specific field
@@ -310,7 +318,7 @@
 
 {#if isOpen}
     <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-15 transition-opacity" aria-hidden="true"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div 
             class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
@@ -432,6 +440,7 @@
                         <input 
                             type="text" 
                             data-field="categoryId"
+                            bind:value={categoryId}
                             on:focus={() => triggerAutocomplete("categoryId")}
                             on:input={handleAutocompleteInput}
                             on:blur={closeAutocomplete}

@@ -15,6 +15,8 @@
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
+    import { modals } from "svelte-modals";
+    import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
   
     /**
      * Display the characteristic values of the category at line index in the table.
@@ -105,20 +107,20 @@
         overlay.style.display = "none";
     }
     
-    function openAddCategoryPage() {
-        if($selectedGroup == null){
-            console.log("Groups are not defined");
-            return;
-        } 
-        else if($selectedSubGroup == null){
-            console.log("SubGroups are not defined");
-            return;
-        }
-        else {
-            console.log("Groups and subgroups are defined");
-            goto("../../admin/add_category");
-        }
-    }
+    // function openAddCategoryPage() {
+    //     if($selectedGroup == null){
+    //         console.log("Groups are not defined");
+    //         return;
+    //     } 
+    //     else if($selectedSubGroup == null){
+    //         console.log("SubGroups are not defined");
+    //         return;
+    //     }
+    //     else {
+    //         console.log("Groups and subgroups are defined");
+    //         goto("../../admin/add_category");
+    //     }
+    // }
 
 </script>
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
@@ -172,7 +174,10 @@
     {#if $isEditing}
        {#if $isAdmin}
             <div class="flex justify-center">
-                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddCategoryPage()}>
+                <button 
+                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
+                    on:click={()=>modals.open(addCategoryModal)}
+                >
                     Ajouter une catégorie
                 </button>
             </div>

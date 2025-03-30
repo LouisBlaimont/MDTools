@@ -110,7 +110,7 @@ public class CategoryController {
      * @throws ResourceNotFoundException If no group or subgroup is found for the
      *                                   provided IDs.
      */
-    @PostMapping("/group/{groupId}/subgroup/{id}/add")
+    @PostMapping("/group/{groupId}/subgroup/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CategoryDTO> addCategory(@RequestBody Map<String, Object> body, @PathVariable Integer id,
             @PathVariable Integer groupId) {
