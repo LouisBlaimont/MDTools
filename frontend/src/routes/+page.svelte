@@ -51,6 +51,13 @@
     );
   }
 
+  function moveToSearchesBis(group, subgroup, catId, instrumentId) {
+    clearTimeout(clickTimeout);
+    goto(
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
+    );
+  }
+
   // Deal with group/subgroup navigation
   let selectedGroup = $state(null);
   let selectedSubgroups = $state([]);
@@ -147,34 +154,13 @@
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
       let cat = await response.json();
       showKeywordsResult = false;
-      selectCategoryBis(row.categoryId);
-      moveToSearches(cat.groupName, cat.subGroupName, row);
+      console.log("id insturment", row.id);
+      moveToSearchesBis(cat.groupName, cat.subGroupName, row.categoryId, row.id);
     } catch (error) {
       console.error(error);
       errorMessage.set(error.message);
     }
   }
-
-  /**
-   * Gets the suppliers of the category given directly by the categoryId
-   * @param categoryId
-   */
-   async function selectCategoryBis(categoryId) {
-    try{   
-        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-        if (!response.ok){
-            throw new Error("Failed to fetch instruments of category");
-        }
-        const answer = await response.json();
-        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
-        console.log("current suppliers from Home: ", $currentSuppliers);
-    }catch (error) {
-        console.error(error);
-        errorMessage.set(error.message);
-    }
-    return;
-  }
-
 
   function seePreviousOrders() {
     goto("/previous_orders");

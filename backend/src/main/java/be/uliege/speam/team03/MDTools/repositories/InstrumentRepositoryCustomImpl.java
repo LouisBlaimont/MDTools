@@ -13,30 +13,43 @@ public class InstrumentRepositoryCustomImpl implements InstrumentRepositoryCusto
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    String createCustomQuery(List<String> names){
+    String createCustomQuery(List<String> names, float similarityThreshold){
         StringBuilder query = new StringBuilder("SELECT d FROM instruments d WHERE ");
         int size = names.size();
+        
         for(int i = 0; i < size; i++){
-            // Use ILIKE for case-insensitive match
-            query.append("(d.reference ILIKE '%").append(names.get(i)).append("%' OR ");
-            query.append("d.supplierDescription ILIKE '%").append(names.get(i)).append("%')");
-            // Add pg_trgm similarity to the mix for fuzzy matching
-            query.append(" OR d.reference % '").append(names.get(i)).append("' OR ");
-            query.append("d.supplierDescription % '").append(names.get(i)).append("')");
+            query.append("(");
             
-            if(i != size-1){
-                query.append(" AND ");
+            // ILIKE for case-insensitive matching
+            // query.append("d.reference ILIKE '%").append(names.get(i)).append("%' OR ");
+            // query.append("d.supplierDescription ILIKE '%").append(names.get(i)).append("%'");
+    
+            // Trigram similarity matching with threshold
+            query.append(" CAST(similarity(d.reference, '").append(names.get(i)).append("') AS float  > ")
+                 .append(similarityThreshold).append(" AND d.reference % '").append(names.get(i)).append("')");
+    
+            query.append(" OR CAST(similarity(d.supplierDescription, '").append(names.get(i)).append("') AS float > ")
+                 .append(similarityThreshold).append(" AND d.supplierDescription % '").append(names.get(i)).append("')");
+    
+            query.append(")");
+    
+            // Append AND if it's not the last name
+            if(i != size - 1){
+                query.append(" OR "); // to change with AND when it works
             }
-        }
+        }    
+
         return query.toString();
-    }    
+    }  
+
     
     @SuppressWarnings("unchecked")
     @Override
     public List<Instruments> searchByKeywords(List<String> keywords) {
-        String queryString = createCustomQuery(keywords);
-        return entityManager.createQuery(queryString).getResultList();
-    }   
+        float threshold = 0.15f;
+        String queryString = createCustomQuery(keywords, threshold);
+        System.out.println("queryy " + queryString);
+        return entityManager.createQuery(queryString).getResultList();        
+    }  
 }
 
