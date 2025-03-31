@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.AlternativeReferenceDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.AlternativeService;
 import lombok.AllArgsConstructor;
@@ -57,6 +58,13 @@ public class AlternativesController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
+    @GetMapping("/all")
+    public ResponseEntity<List<AlternativeReferenceDTO>> getAllAlternatives() {
+        List<AlternativeReferenceDTO> alternatives = alternativeService.findAllAlternativesReferences();
+        if (alternatives == null || alternatives.isEmpty()) {
+            throw new ResourceNotFoundException("No alternatives found.");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(alternatives);
+    }
 
-    
 }

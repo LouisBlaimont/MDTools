@@ -10,7 +10,6 @@ import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.Supplier;
-import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
 
@@ -30,8 +29,8 @@ public class InstrumentMapper {
      */
     public InstrumentDTO convertToDTO(Instruments instrument) {
         InstrumentDTO dto = new InstrumentDTO(
-            instrument.getSupplier().getSupplierName(),
-            instrument.getCategory().getId(),
+            instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
+            instrument.getCategory() != null ? instrument.getCategory().getId() : null,
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
@@ -41,6 +40,7 @@ public class InstrumentMapper {
         );
         return dto;
     }
+
     /**
      * Convert a list of instruments to DTOs.
      * 
@@ -51,8 +51,8 @@ public class InstrumentMapper {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         for (Instruments instrument : instruments) {
             InstrumentDTO dto = new InstrumentDTO(
-                instrument.getSupplier().getSupplierName(),
-                instrument.getCategory().getId(),
+                instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
+                instrument.getCategory() != null ? instrument.getCategory().getId() : null,
                 instrument.getReference(),
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
@@ -82,7 +82,7 @@ public class InstrumentMapper {
 
         // retrieve supplier based on supplier name
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
-        if (supplierMaybe.isPresent() == false) {
+        if (supplierMaybe.isEmpty()) {
             return null;
         }
         Supplier supplier = supplierMaybe.get();
@@ -90,7 +90,7 @@ public class InstrumentMapper {
 
         // retrieve category based on category id
         Optional<Category> categoryMaybe = categoryRepository.findById(instrumentDTO.getCategoryId());
-        if (categoryMaybe.isPresent() == false) {
+        if (categoryMaybe.isEmpty()) {
             return null;
         }
         Category category = categoryMaybe.get();

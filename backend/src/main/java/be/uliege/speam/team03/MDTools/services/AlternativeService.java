@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import be.uliege.speam.team03.MDTools.DTOs.AlternativeReferenceDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
@@ -140,4 +141,8 @@ public class AlternativeService {
         List<InstrumentDTO> alternativesDTO = mapper.convertToDTO(alternatives);
         return alternativesDTO;    
     }  
+
+    public List<AlternativeReferenceDTO> findAllAlternativesReferences() {
+        return alternativesRepository.findAllAlternativesReferences();
+    }
 }
