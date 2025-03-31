@@ -51,7 +51,7 @@
         errorMessage.set(error.message);
         }
 
-        characteristics.set(subgroup.subGroupCharacteristics);
+        characteristics.set(subgroup.subGroupCharacteristics.map(c => c.name));
         return;
     }
 

@@ -104,7 +104,7 @@ public class SubGroupService {
                 charRepository.save(newChar);
             }
 
-            Integer newSubGroupId = newSubGroup.getId().intValue();
+            Long newSubGroupId = newSubGroup.getId();
 
             SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId,
                     newChar.getId());
@@ -294,15 +294,37 @@ public class SubGroupService {
         }
 
         SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(
-            subGroup.getId().intValue(),
-            characteristic.getId().intValue()
+            subGroup.getId(),
+            characteristic.getId()
         );
-        SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(subGroup, characteristic, 1);
+        SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(subGroup, characteristic, null);
         subGroupChar.setId(key);
 
         subGroupCharRepository.save(subGroupChar);
 
         subGroup = subGroupRepository.findByName(subGroupName).get();
         return SubGroupMapper.toDto(subGroup);
+    }
+
+    public SubGroupDTO updateCharacteristicOrder(String subGroupName, List<Map<String, Object>> newOrder)
+        throws ResourceNotFoundException, BadRequestException {
+    
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+            .orElseThrow(() -> new ResourceNotFoundException("SubGroup not found"));
+    
+        List<SubGroupCharacteristic> links = subGroupCharRepository.findBySubGroup(subGroup);
+    
+        for (Map<String, Object> entry : newOrder) {
+            String name = (String) entry.get("name");
+            Integer orderPosition = (Integer) entry.get("order_position");
+    
+            links.stream()
+                .filter(link -> link.getCharacteristic().getName().equals(name))
+                .findFirst()
+                .ifPresent(link -> link.setOrderPosition(orderPosition));
         }
+    
+        subGroupCharRepository.saveAll(links);
+        return SubGroupMapper.toDto(subGroup);
+    }
 }

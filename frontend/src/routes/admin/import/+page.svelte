@@ -1,9 +1,10 @@
 <script>
-  import { fetchGroups, fetchCharacteristics, sendExcelToBackend, fetchSuppliers, addCharacteristicToSubGroup} from "../../../api.js";
+  import { updateCharacteristicOrder ,fetchGroups, fetchCharacteristics, sendExcelToBackend, fetchSuppliers, addCharacteristicToSubGroup, fetchAllCharacteristics} from "../../../api.js";
   import { isAdmin } from "$lib/stores/user_stores";
   import { onMount } from "svelte";
   import * as XLSX from "xlsx";
   import { goto } from "$app/navigation";
+  import { dndzone } from "svelte-dnd-action";
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -13,9 +14,12 @@
   let errorMessage = "";
   let showModal = false;
   let showJsonModal = false;
-  let modalPosition = { x: 100, y: 100 };
-  let offset = { x: 0, y: 0 };
-  let isDraggingModal = false;
+  let modalPositions = {
+    importModal: { x: 100, y: 100 },
+    addCharacteristicModal: { x: 150, y: 150 },
+  };
+  let draggingModal = null;
+  let dragOffset = { x: 0, y: 0 };
   let currentView = "main";
   let viewHistory = [];
   let selectedGroup = "";
@@ -39,20 +43,10 @@
   let newCharacteristicName = "";
   let allCharacteristics = [];
   let filteredSuggestions = [];
+  let characteristicsInShape = [];
+  let characteristicsOutOfShape = [];
 
-  /**
-   * Loads all characteristics from the backend.
-   * This is used to suggest existing characteristics during creation.
-   */
-  async function loadAllCharacteristics() {
-    try {
-      const res = await apiFetch("/api/characteristics/all");
-      allCharacteristics = await res.json();
-    } catch (err) {
-      console.error("Failed to load all characteristics:", err);
-      allCharacteristics = [];
-    }
-  }
+
 
   /**
    * Updates the filteredSuggestions list based on user input and
@@ -76,11 +70,8 @@
     try {
       await addCharacteristicToSubGroup(selectedSubGroup, trimmedName);
 
-      requiredColumns = [
-        ...requiredColumns,
-        trimmedName,
-        `abbreviation_${trimmedName}`,
-      ];
+      // Re-fetch characteristics to update list
+      await loadCharacteristics(selectedSubGroup);
 
       showAddCharacteristicModal = false;
       newCharacteristicName = "";
@@ -91,7 +82,6 @@
   function handleCharacteristicChange(value) {
     if (value === "__add_new__") {
       showAddCharacteristicModal = true;
-      loadAllCharacteristics(); // Load available suggestions
     }
   }
 
@@ -194,15 +184,17 @@
    * @param {string} selectedSubGroup The selected subgroup.
    * @returns {Promise<string[]>} A promise resolving to the list of required columns.
    */
-   async function loadCharacteristics(selectedSubGroup) {
+  async function loadCharacteristics(selectedSubGroup) {
     try {
       const characteristics = await fetchCharacteristics(selectedSubGroup);
+      allCharacteristics = await fetchAllCharacteristics();
 
       if (!Array.isArray(characteristics)) {
         console.error("Unexpected format: expected an array but got", typeof characteristics);
         return [];
       }
 
+      // Set requiredColumns from characteristic names
       requiredColumns = [
         "reference",
         "supplier",
@@ -212,16 +204,42 @@
         "supplier_description",
         "price",
         "obsolete",
-        ...characteristics,  
-        ...characteristics.map(char => `abbreviation_${char}`),
+        ...characteristics.map(c => c.name),
+        ...characteristics.map(c => `abbreviation_${c.name}`),
       ];
+
+      // Separate characteristics in shape and out of shape
+      const shape = characteristics
+      .filter(c => c.orderPosition !== null)
+      .sort((a, b) => a.orderPosition - b.orderPosition)
+      .map((c, i) => ({
+        id: `${c.name}-${i}`, // id unique
+        name: c.name,
+        orderPosition: c.orderPosition
+      }));
+
+
+      const notInShape = characteristics
+      .filter(c => c.orderPosition === null)
+      .map((c, i) => ({
+        id: `${c.name}-out-${i}`,
+        name: c.name,
+        orderPosition: null
+      }));
+
+
+      characteristicsInShape = shape;
+      characteristicsOutOfShape = notInShape;
 
       return requiredColumns;
     } catch (error) {
       console.error("Error while retrieving characteristics:", error);
+      requiredColumns = [];
+      allCharacteristics = [];
       return [];
     }
   }
+
   /**
    * Normalizes a column header (lowercase, trims spaces, replaces spaces with underscores).
    * @param {string} header 
@@ -305,36 +323,42 @@
   };
 
   /**
-   * Handles the mouse down event to begin dragging the modal.
-   * @param {MouseEvent} event The mouse event.
+   * Handles the mousedown event when starting to drag a modal.
+   * Stores the offset and sets the currently dragged modal.
+   *
+   * @param {MouseEvent} event - The mouse down event.
+   * @param {string} modalKey - The key of the modal being dragged.
    */
-  const handleMouseDown = (event) => {
-    isDraggingModal = true;
-    offset = {
-      x: event.clientX - modalPosition.x,
-      y: event.clientY - modalPosition.y,
+  function handleModalMouseDown(event, modalKey) {
+    draggingModal = modalKey;
+    dragOffset = {
+      x: event.clientX - modalPositions[modalKey].x,
+      y: event.clientY - modalPositions[modalKey].y,
     };
-  };
+  }
 
   /**
-   * Handles mouse movement to reposition the modal if it is being dragged.
-   * @param {MouseEvent} event The mouse event.
+   * Handles the mousemove event while dragging a modal.
+   * Updates the position of the modal based on mouse movement.
+   *
+   * @param {MouseEvent} event - The mouse move event.
    */
-  const handleMouseMove = (event) => {
-    if (isDraggingModal) {
-      modalPosition = {
-        x: event.clientX - offset.x,
-        y: event.clientY - offset.y,
+  function handleModalMouseMove(event) {
+    if (draggingModal) {
+      modalPositions[draggingModal] = {
+        x: event.clientX - dragOffset.x,
+        y: event.clientY - dragOffset.y,
       };
     }
-  };
+  }
 
   /**
-   * Handles mouse up event to stop dragging the modal.
+   * Handles the mouseup event when dragging ends.
+   * Resets the dragging state.
    */
-  const handleMouseUp = () => {
-    isDraggingModal = false;
-  };
+  function handleModalMouseUp() {
+    draggingModal = null;
+  }
 
   /**
    * Handles selecting an option in the modal for importing.
@@ -439,11 +463,13 @@
    * Handles changing the selected sub-group.
    * @param {Event} event The change event.
    */
-  const handleSubGroupChange = (event) => {
-    selectedSubGroup = event.target.value;
-    isNextEnabled = selectedGroup !== "" && selectedSubGroup !== "";
-    loadCharacteristics(selectedSubGroup);
-  };
+   const handleSubGroupChange = (event) => {
+    const value = event.target.value;
+    selectedSubGroup = value;
+    isNextEnabled = selectedGroup !== "" && value !== "";
+    loadCharacteristics(value); // utilise value, pas selectedSubGroup
+  }; 
+
 
   /**
    * Handles changing the selected supplier.
@@ -594,8 +620,8 @@
           goto("/unauthorized");
       }
 
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener("mousemove", handleModalMouseMove);
+      window.addEventListener("mouseup", handleModalMouseUp);
 
       try {
           await loadGroups();
@@ -648,7 +674,9 @@
   {#if showModal}
     <div class="fixed inset-0 flex items-center justify-center overflow-auto" style="background: rgba(0, 0, 0, 0.1);">
       <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class="bg-white w-3/4 p-10 rounded-lg shadow-xl relative" style="left: {modalPosition.x}px; top: {modalPosition.y}px; position: absolute; min-height: 500px;" on:mousedown={handleMouseDown}>
+      <div class="bg-white w-3/4 p-10 rounded-lg shadow-xl relative"
+        style="left: {modalPositions.importModal.x}px; top: {modalPositions.importModal.y}px; position: absolute; min-height: 500px;"
+        on:mousedown={(e) => handleModalMouseDown(e, "importModal")}>
         <button class="absolute top-2 right-2 text-gray-600" on:click={handleCloseModal}>
           ✖
         </button>              
@@ -819,7 +847,10 @@
   {#if showJsonModal}
     <div class="fixed inset-0 flex items-center justify-center overflow-auto" style="background: rgba(0, 0, 0, 0.1);">
       <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class="bg-white w-3/4 p-10 rounded-lg shadow-xl relative" style="left: {modalPosition.x}px; top: {modalPosition.y}px; position: absolute; min-height: 500px; max-height: 80vh; overflow-y: auto;" on:mousedown={handleMouseDown}>
+      <div class="bg-white ..." 
+        style="left: {modalPositions.importModal.x}px; top: {modalPositions.importModal.y}px; position: absolute;" 
+        on:mousedown={(e) => handleModalMouseDown(e, "importModal")}
+      >
         <button class="absolute top-2 right-2 text-gray-600" on:click={handleCloseJsonModal}>
           ✖
         </button>
@@ -833,12 +864,19 @@
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
         class="bg-white p-6 rounded-lg shadow-xl resize overflow-auto"
-        style="min-width: 300px; max-width: 500px; position: absolute; top: 150px; left: 150px;"
-        on:mousedown={handleMouseDown}
+        style="min-width: 300px; max-width: 500px; position: absolute; top: {modalPositions.addCharacteristicModal.y}px; left: {modalPositions.addCharacteristicModal.x}px;"
+        on:mousedown={(e) => handleModalMouseDown(e, "addCharacteristicModal")}
       >
         <button class="absolute top-2 right-2 text-gray-600" on:click={() => showAddCharacteristicModal = false}>✖</button>
         <h2 class="text-xl font-semibold mb-4">Ajouter une nouvelle caractéristique</h2>
-        <input type="text" placeholder="Nom de la caractéristique" class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
+
+        <input
+          type="text"
+          placeholder="Nom de la caractéristique"
+          class="w-full p-2 border rounded mb-4"
+          bind:value={newCharacteristicName}
+        />
+
         {#if filteredSuggestions.length > 0}
           <ul class="mt-2 border rounded bg-white max-h-40 overflow-auto text-sm z-50">
             {#each filteredSuggestions as suggestion}
@@ -855,7 +893,60 @@
         {:else if newCharacteristicName.trim() !== ""}
           <p class="text-xs text-gray-400 mt-2 italic">No matching characteristic found.</p>
         {/if}
-        <button on:click={createNewCharacteristic} class="bg-blue-600 text-white px-4 py-2 rounded">Ajouter</button>
+
+        <button on:click={createNewCharacteristic} class="bg-blue-600 text-white px-4 py-2 rounded mt-4">Ajouter</button>
+
+        <hr class="my-4" />
+
+        <h3 class="text-lg font-semibold mb-2">Forme :</h3>
+        <div
+          use:dndzone={{
+            items: characteristicsInShape,
+            flipDurationMs: 300,
+            dropTargetStyle: { class: 'dnd-shadow' }
+          }}
+          on:mousedown={(e) => e.stopPropagation()} 
+          on:consider={({ detail }) => characteristicsInShape = detail.items}
+          on:finalize={async ({ detail }) => {
+            characteristicsInShape = detail.items;
+            try {
+              await updateCharacteristicOrder(
+                selectedSubGroup,
+                characteristicsInShape.map((item, idx) => ({
+                  name: item.name,
+                  order_position: idx + 1
+                }))
+              );
+            } catch (e) {
+              console.error("Erreur mise à jour ordre :", e);
+            }
+          }}
+          class="border rounded p-2 bg-gray-50"
+        >
+          {#each characteristicsInShape as char, index (char.id)}
+            <div class="p-2 bg-white border mb-1 rounded cursor-move flex items-center gap-2">
+              <span class="text-gray-500 w-6 text-right">{index + 1}.</span>
+              <span>{char.name}</span>
+            </div>
+          {/each}
+        </div>
+
+
+        <h4 class="mt-4 font-medium">Non incluses dans la forme :</h4>
+        <ul class="mt-2">
+          {#each characteristicsOutOfShape as char (char.name)}
+            <li class="flex justify-between items-center bg-gray-100 p-2 rounded mb-1">
+              <span>{char.name}</span>
+              <button
+                class="text-sm bg-blue-500 text-white px-2 py-1 rounded"
+                on:click={() => {
+                  characteristicsInShape = [...characteristicsInShape, { name: char.name }];
+                  characteristicsOutOfShape = characteristicsOutOfShape.filter(c => c.name !== char.name);
+                }}
+              >Ajouter à la forme</button>
+            </li>
+          {/each}
+        </ul>
       </div>
     </div>
   {/if}
@@ -887,6 +978,7 @@
     border-top-color: #3498db;
     animation: spinner 1.5s linear infinite;
   }
+
   @keyframes spinner {
     0% {
       transform: rotate(0deg);

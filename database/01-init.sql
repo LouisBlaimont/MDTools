@@ -231,7 +231,7 @@ BEGIN
     END LOOP;
 
     -- Remove the last '/' separator at the end of the string
-    shape_text := RTRIM(shape_text, '/');
+    shape_text := RTRIM(shape_text, ' ');
 
     -- Update the shape field in the category table
     UPDATE category
