@@ -215,6 +215,7 @@
       if (selectedSubGroup) {
         try {
           characteristics = await fetchCharacteristics(selectedSubGroup);
+          characteristics = characteristics.map(c => c.name);
           selectedCharacteristics = [...characteristics]; // Par défaut, toutes cochées
         } catch (error) {
           console.error("Error while retrieving characteristics:", error);
