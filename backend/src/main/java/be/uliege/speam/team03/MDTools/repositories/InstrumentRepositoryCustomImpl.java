@@ -18,7 +18,8 @@ public class InstrumentRepositoryCustomImpl implements InstrumentRepositoryCusto
         StringBuilder query = new StringBuilder("SELECT d FROM instruments d WHERE ");
         int size = names.size();
         for(int i = 0; i < size; i++){
-            query.append("d.supplierDescription ILIKE '%").append(names.get(i)).append("%'");
+            query.append("(d.reference ILIKE '%").append(names.get(i)).append("%' OR ");
+            query.append("d.supplierDescription ILIKE '%").append(names.get(i)).append("%')");
             if(i != size-1){
                 query.append(" AND ");
             }

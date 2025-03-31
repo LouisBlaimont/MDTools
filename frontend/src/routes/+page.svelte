@@ -15,9 +15,11 @@
 
   let groups_summary = $state([]);
 
-  async function fecthData() {
+  async function fetchData() {
     try {
       const response = await apiFetch("/api/groups/summary");
+      showKeywordsResult = false;
+      keywords.set(null);
 
       const response2 = await apiFetch(`/api/orders/user/${$userId}`);
       if (!response2.ok) {
@@ -38,7 +40,7 @@
   // Run this effect whenever isLoggedIn changes
   $effect(() => {
     if (isLoggedIn) {
-      fecthData();
+      fetchData();
     }
   });
 
@@ -73,7 +75,7 @@
   async function handleGroupClick(group) {
     if (isEditing) {
       await modals.open(editGroupModal, { group });
-      fecthData();
+      fetchData();
       return;
     }
     clickTimeout = setTimeout(() => {
@@ -118,43 +120,33 @@
     moveToSearches(group.name, subgroup.name);
   }
 
-  async function searchByKeywords() {
-    try {
-      // Build URL
-      let params = new URLSearchParams();
+  let searchByKeywords = throttle(async () => {
+      try {
+        console.log("here we enter searchByKeywords");
+        let params = new URLSearchParams();
+        $keywords.split(",").forEach((element) => {
+          params.append("keywords", element.trim());
+        });
 
-      // Split the $keywords on "," trim spaces
-      $keywords.split(",").forEach(element => {
-        params.append('keywords', element.trim());
-      });
+        let response = await apiFetch(`/api/instrument/search?${params}`);
+        let data = await response.json();
 
-      let response = await apiFetch(`/api/instrument/search?${params}`);
-      let data = await response.json();
-      if (data.length == 0) {
-        console.log("no data");
-        let key = [];
-        key = $keywords.split(",")
-        let first = key[0];
-        params.delete("keywords");
-        params.append('keywords', first.trim());
-        response = await apiFetch(`/api/instrument/search?${params}`);
-        data = await response.json();
-        keywordsResult.set(data);
-        console.log("made new request with:");
-        console.log(first);
+        keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
+        console.log("finished searching");
+        showKeywordsResult = true;
+
+      } catch (error) {
+        console.error(error);
+        errorMessage.set(error.message);
       }
-      keywordsResult.set(data);
-      showKeywordsResult = true;
-    } catch (error) {
-      console.error(error);
-      errorMessage.set(error.message);
-    }
-  }
+  }, 1000);
+
 
   async function selectedInstrumentHome(row) {
     try {
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
       let cat = await response.json();
+      showKeywordsResult = false;
       selectCategoryBis(row.categoryId);
       moveToSearches(cat.groupName, cat.subGroupName, row);
     } catch (error) {
@@ -198,6 +190,18 @@
     findOrderItems($selectedOrderId);
     goto(`/single_order_view?name=${name}`);
   }
+
+  function throttle(fn, delay) {
+    let lastCall = 0;
+    return (...args) => {
+      const now = Date.now();
+      if (now - lastCall >= delay) {
+        lastCall = now;
+        fn(...args);
+      }
+  };
+}
+
 </script>
 
 <svelte:head>
@@ -205,57 +209,52 @@
 </svelte:head>
 
 <div
-  class="flex flex-row justify-center items-start space-x-8 px-8 py-16 max-w-screen-xl mx-auto text-[14px]"
+  class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen-xl mx-auto text-[14px]"
 >
-  <div class="flex flex-col space-y-8 w-1/3">
+  <div class="flex flex-col space-y-6 w-1/2 lg:min-w-[90px] xl:min-w-[250px]">
     <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md">
-      <form class="space-y-6">
-        <div class="flex flex-col">
-          <label for="id_search_keyword" class="font-semibold text-lg"
-            >Recherche par mot(s) clé(s):</label
-          >
+      <form class="space-y-5">
+        <div class="relative w-full">
+          <label for="id_search_keyword" class="font-semibold text-lg block mb-2">
+            Recherche par mot(s) clé(s):
+          </label>
+          
           <input
             type="text"
             name="search_keyword"
             id="id_search_keyword"
             placeholder="Entrez un mot clé"
-            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-full"
             bind:value={$keywords}
+            oninput={searchByKeywords}
           />
+        
+          <!-- Search results dropdown -->
+          {#if showKeywordsResult}
+            <ul
+               class="absolute left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto text-gray-800"
+              style="width: calc(100% + 80px);"
+            >
+              {#each $keywordsResult as row, index}
+                <li
+                  class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
+                  onclick={() => selectedInstrumentHome(row)}
+                >
+                  <span class="text-black">{row.reference}</span>
+                  <span class="text-black">{row.supplier}</span>
+                  <span
+                  class="text-black line-clamp-2 w-full tooltip-container"
+                  data-tooltip={row.supplierDescription}
+                  title={row.supplierDescription} 
+                >
+                  {row.supplierDescription}
+                </span>                </li>
+              {/each}
+            </ul>
+          {/if}
         </div>
+             
 
-        <div class="flex flex-col">
-          <label for="id_search_by_groups" class="font-semibold text-lg"
-            >Recherche par groupe ou sous-groupe:</label
-          >
-          <input
-            type="text"
-            name="search_by_groups"
-            id="id_search_by_groups"
-            placeholder="Entrez un groupe"
-            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-          />
-        </div>
-
-        <div class="flex flex-col">
-          <label for="id_search_set" class="font-semibold text-lg">Recherche par référence:</label>
-          <input
-            list="ref"
-            name="ref"
-            placeholder="Entrez une référence"
-            class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-          />
-          <datalist id="ref">
-            <option value="ref1"> </option><option value="ref2"> </option><option value="ref3">
-            </option><option value="ref4"> </option><option value="ref5"> </option></datalist
-          >
-        </div>
-
-        <button
-        type="submit"
-        class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg" onclick={searchByKeywords}
-        >Rechercher</button
-        >
         {#if $isAdmin}
           <div class="flex flex-col">
             <button
@@ -276,7 +275,7 @@
     </div>
 
     <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md mt-6">
-      <div class="mb-6">
+      <div class="mb-4">
         <label for="search-order" class="font-semibold text-lg"> Rechercher une commande : </label>
         <select
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 mb-2"
@@ -292,7 +291,7 @@
         >
       </div>
 
-      <div class="mb-6">
+      <div class="mb-4">
         <label for="previous-orders" class="font-semibold text-lg">
           Voir les commandes précédentes:
         </label>
@@ -306,11 +305,9 @@
     </div>
   </div>
 
-  <div
-    class="w-full bg-white md:w-3/4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
+  <div class="bg-white md:w-2/4 lg:min-w-[800px] xl:min-w-[1100px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
   >
-  {#if $isLoggedIn}
-    {#if !showKeywordsResult}    
+  {#if $isLoggedIn}  
       <div class="flex gap-2">
         <!-- Buttons div -->
         {#if selectedGroup}
@@ -320,14 +317,8 @@
             onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
             >
               <path d="M15 18l-6-6 6-6" />
             </svg>
@@ -405,64 +396,7 @@
               </div>
             {/each}
           {/if}
-        </div>
-    {/if}
-  
-    <!-- Results of the keywords search -->
-    {#if showKeywordsResult}
-      <button
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2"
-            aria-label="back to groups"
-            onclick={() => ((showKeywordsResult = false), (keywordsResult.set(null)))}
-          >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-      </button>
-      <table data-testid = "suppliers-table" class="w-full border-collapse">
-        <thead class="bg-teal-400">
-            <tr>
-            <th class="text-center border border-solid border-[black] w-24">REF</th>
-            <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
-            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-            <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-            <th class="text-center border border-solid border-[black] w-16">ALT</th>
-            <th class="text-center border border-solid border-[black] w-16">OBS</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each $keywordsResult as row, index}
-            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                <tr
-                    class="cursor-pointer"
-                    class:bg-[cornflowerblue]={$selectedInstrumentIndex === index}
-                    class:bg-[lightgray]={$hoveredInstrumentIndex === index &&
-                    $selectedInstrumentIndex !== index}
-                    onclick={() => (selectedInstrumentIndex.set(index), selectedInstrumentHome(row))}
-                    onmouseover={() => (hoveredInstrumentIndex.set(index))}
-                    onmouseout={() => (hoveredInstrumentIndex.set(null))}
-                >
-                <td class="text-center border border-solid border-[black]">{row.reference}</td>
-                <td class="text-center border border-solid border-[black]">{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
-                <td class="text-center border border-solid border-[black]">{row.price}</td>
-                <td class="text-center border border-solid border-[black]">{row.alt}</td>
-                <td class="text-center border border-solid border-[black]">{row.obsolete}</td>
-                </tr>
-            {/each}
-        </tbody>
-      </table>
-    {/if}
-    
+        </div>    
   {/if}
   {#if !$isLoggedIn}
     <div class="flex flex-col items-center justify-center h-full max-height-[200px]">
