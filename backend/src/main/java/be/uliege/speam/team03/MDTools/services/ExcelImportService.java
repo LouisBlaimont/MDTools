@@ -89,16 +89,51 @@ public class ExcelImportService {
      * @param data The list of instrument data.
      */
     void processCatalogImport(String supplierName, List<Map<String, Object>> data) {
-        
-        // Retrieve all available columns from the data
+        Set<String> importedReferences = data.stream()
+                .map(row -> (String) row.get("reference"))
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .collect(Collectors.toSet());
+    
+        Supplier supplier = getOrCreateSupplier(Collections.emptyMap(), Collections.emptySet(), supplierName);
+        if (supplier == null) {
+            logger.warn("Supplier not found or could not be created.");
+            return;
+        }
+    
+        // Step 1: Mark obsolete instruments
+        List<Instruments> existingInstruments = instrumentRepository.findAllBySupplier(supplier);
+        for (Instruments instrument : existingInstruments) {
+            if (!importedReferences.contains(instrument.getReference())) {
+                if (Boolean.FALSE.equals(instrument.getObsolete())) {
+                    instrument.setObsolete(true);
+                    instrumentRepository.save(instrument);
+                }
+            }
+        }
+    
+        // Step 2: Import instruments and mark as not obsolete
         Set<String> availableColumns = data.stream()
                 .flatMap(row -> row.keySet().stream())
                 .collect(Collectors.toSet());
     
         for (Map<String, Object> row : data) {
             processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false, supplierName);
-        }   
-    }    
+    
+            // Check if it exists and obsolete = true → make obsolete = false
+            String reference = (String) row.get("reference");
+            if (reference != null) {
+                Optional<Instruments> existing = instrumentRepository.findByReference(reference.trim());
+                existing.ifPresent(instrument -> {
+                    if (Boolean.TRUE.equals(instrument.getObsolete())) {
+                        instrument.setObsolete(false);
+                        instrumentRepository.save(instrument);
+                    }
+                });
+            }
+        }
+    }
+     
     
     /**
      * Processes subgroup import and associates instruments with the subgroup.
