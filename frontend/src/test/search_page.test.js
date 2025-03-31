@@ -41,7 +41,10 @@ describe('search page functions', () => {
                 id : 1,
                 name : 'SubGroup3',
                 groupId : 1,
-                subGroupCharacteristics : ["Char1", "Char2"],
+                subGroupCharacteristics : [
+                    { name: "Char1", orderPosition: 1 },
+                    { name: "Char2", orderPosition: 2 },
+                ],
                 intrCount : 1,
                 categoriesId : [1],
                 pictureId : null
@@ -50,7 +53,10 @@ describe('search page functions', () => {
                 id : 2,
                 name : 'SubGroup4',
                 groupId : 1,
-                subGroupCharacteristics : ["Char3", "Char4"],
+                subGroupCharacteristics : [
+                    { name: "Char3", orderPosition: 1 },
+                    { name: "Char4", orderPosition: 2 },
+                ],
                 intrCount : 1,
                 categoriesId : [2],
                 pictureId : null
@@ -104,7 +110,11 @@ describe('search page functions', () => {
                 id : 1,
                 name : 'SubGroup3',
                 groupId : 1,
-                subGroupCharacteristics : ["Char1", "Char2", "Char3"],
+                subGroupCharacteristics : [
+                    { name: "Char1", orderPosition: 1 },
+                    { name: "Char2", orderPosition: 2 },
+                    { name: "Char3", orderPosition: null }
+                ],
                 intrCount : 1,
                 categoriesId : [1],
                 pictureId : null
