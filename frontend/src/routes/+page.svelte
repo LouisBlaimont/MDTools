@@ -231,26 +231,28 @@
         
           <!-- Search results dropdown -->
           {#if showKeywordsResult}
-            <ul
-               class="absolute left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto text-gray-800"
-              style="width: calc(100% + 80px);"
-            >
-              {#each $keywordsResult as row, index}
-                <li
-                  class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
-                  onclick={() => selectedInstrumentHome(row)}
-                >
-                  <span class="text-black">{row.reference}</span>
-                  <span class="text-black">{row.supplier}</span>
-                  <span
-                  class="text-black line-clamp-2 w-full tooltip-container"
-                  data-tooltip={row.supplierDescription}
-                  title={row.supplierDescription} 
-                >
-                  {row.supplierDescription}
-                </span>                </li>
-              {/each}
-            </ul>
+            {#if $keywords}
+              <ul
+                class="absolute left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto text-gray-800"
+                style="width: calc(100% + 80px);"
+              >
+                {#each $keywordsResult as row, index}
+                  <li
+                    class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
+                    onclick={() => selectedInstrumentHome(row)}
+                  >
+                    <span class="text-black">{row.reference}</span>
+                    <span class="text-black">{row.supplier}</span>
+                    <span
+                    class="text-black line-clamp-2 w-full tooltip-container"
+                    data-tooltip={row.supplierDescription}
+                    title={row.supplierDescription} 
+                  >
+                    {row.supplierDescription}
+                  </span>                </li>
+                {/each}
+              </ul>
+            {/if}
           {/if}
         </div>
              
