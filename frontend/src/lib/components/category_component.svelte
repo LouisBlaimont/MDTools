@@ -71,10 +71,12 @@
         currentSuppliers.set([]);
         alternatives.set([]);
         selectedCategoryIndex.set(index);
-
+        console.log(imageRefs);
         // Scroll the corresponding image into view
-        if (imageRefs[index]) {
+        if (imageRefs[index] instanceof HTMLElement) {
             imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else {
+            console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
         }
 
         // selecting the categoryId
@@ -82,10 +84,10 @@
         const categoryId = $categories[$selectedCategoryIndex].id;  
 
         try{
-        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-        let response2;
-        if( $isAdmin){
-            response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
+            const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+            let response2;
+            if($isAdmin){
+                response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
         }
         else{
             response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
@@ -101,8 +103,8 @@
         const answer2 = await response2.json();
         alternatives.set(Array.isArray(answer2)? answer2 : [answer2]);
         }catch (error) {
-        console.error(error);
-        errorMessage.set(error.message);
+            console.error(error);
+            errorMessage.set(error.message);
         }
         return;
     }
@@ -145,7 +147,6 @@
             imageRefs[index] = el; // Store the element in the array
         }
     }
-
 
 </script>
 <div class="flex">
@@ -240,9 +241,7 @@
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <img
                 alt="tool{row.id}"
-                src={row.pictureId
-                ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                : "/default/no_picture.png"}
+                src={row.pictureId ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png"}
                 bind:this={imageRefs[index]}
                 ref={el => registerImageRef(el, index)}
                 on:click={() =>
