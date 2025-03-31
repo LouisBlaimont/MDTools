@@ -2,8 +2,6 @@
   import "../app.css";
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import { Modals } from "svelte-modals";
-  import Loading from "$lib/Loading.svelte";
-  import { checkRole } from "$lib/rbacUtils";
   import { ROLES } from "../constants";
   import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
   import { login, checkUser, handleLogin, handleLogout } from "../auth";
@@ -87,6 +85,7 @@
       <!-- Keep these always visible -->
       <a href="/admin/users" class="text-white hover:text-teal-300 transition">Users</a>
       <a href="/admin/suppliers" class="text-white hover:text-teal-300 transition">Suppliers</a>
+      <a href="/admin/abbreviations" class="text-white hover:text-teal-300 transition">Abbreviations</a>
     {/if}
 
     {#if $isWebmaster}
