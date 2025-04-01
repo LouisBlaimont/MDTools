@@ -31,10 +31,8 @@ public class CategoryMapper {
         Optional<String> nameMaybe = categoryRepository.findCharacteristicVal((long) id, "Name");
         if (nameMaybe.isPresent()){ 
             name = nameMaybe.get();
-        } else if (category.getName() != null){
-            name = category.getName();
-        }
-        else{
+        } else {
+            System.out.println("Name is not present");
             name = null;
         }
 
@@ -75,9 +73,6 @@ public class CategoryMapper {
     public Category mapToCategory(CategoryDTO categoryDTO){
         Category category = new Category();
         category.setId(categoryDTO.getId());
-        // category.setName(categoryDTO.getName());
-        // category.setFunction(categoryDTO.getFunction());
-        // category.setLenAbrv(categoryDTO.getLenAbrv());
         category.setShape(categoryDTO.getShape());
         category.setPictureId(categoryDTO.getPictureId());
         return category;

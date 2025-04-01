@@ -3,6 +3,10 @@ package be.uliege.speam.team03.MDTools.controllers;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,19 +48,22 @@ public class CategoryController {
     private final SubGroupService subGroupService;
 
     /**
-     * Retrieves a list of categories associated with a specific group name.
+     * Retrieves a paginated and sorted list of categories associated with a
+     * specific group name.
      *
      * @param groupName the name of the group whose categories are to be retrieved
-     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
+     * @param pageable  the pagination and sorting parameters
+     * @return a ResponseEntity containing a Page of CategoryDTO objects and an HTTP
      *         status of OK
      * @throws ResourceNotFoundException if no categories are found for the
      *                                   specified group name
      */
     @GetMapping("/group/{groupName}")
-    public ResponseEntity<List<CategoryDTO>> getCategoryFromGroup(@PathVariable String groupName)
+    public ResponseEntity<Page<CategoryDTO>> getCategoryFromGroup(
+            @PathVariable String groupName,
+            @PageableDefault(size = 20, sort = {"subGroupName", "id"}, direction = Direction.ASC) Pageable pageable)
             throws ResourceNotFoundException {
-        List<CategoryDTO> categories = categoryService.findCategoriesOfGroup(groupName);
-
+        Page<CategoryDTO> categories = categoryService.findCategoriesOfGroup(groupName, pageable);
         if (categories == null || categories.isEmpty()) {
             throw new ResourceNotFoundException("No categories found for the group name: " + groupName);
         }
@@ -64,21 +71,25 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves a list of categories associated with a specific subgroup.
+     * Retrieves a paginated and sorted list of categories associated with a
+     * specific subgroup.
      *
      * @param subGroupName the name of the subgroup for which categories are to be
      *                     retrieved
-     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
+     * @param pageable     the pagination and sorting parameters
+     * @return a ResponseEntity containing a Page of CategoryDTO objects and an HTTP
      *         status of OK
      * @throws ResourceNotFoundException if no categories are found for the given
      *                                   subgroup name
      */
     @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<List<CategoryDTO>> getCategoriesFromSubGroup(@PathVariable String subGroupName)
+    public ResponseEntity<Page<CategoryDTO>> getCategoriesFromSubGroup(
+            @PathVariable String subGroupName,
+            @PageableDefault(size = 20, sort = {"subGroupName", "id"}, direction = Direction.ASC) Pageable pageable)
             throws ResourceNotFoundException {
-        List<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName);
+        Page<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName, pageable);
         if (categories == null || categories.isEmpty()) {
-            throw new ResourceNotFoundException("No categories found for the subgroup name :" + subGroupName);
+            throw new ResourceNotFoundException("No categories found for the subgroup name:" + subGroupName);
         }
         return ResponseEntity.status(HttpStatus.OK).body(categories);
     }
@@ -109,7 +120,7 @@ public class CategoryController {
         if (subGroup == null) {
             throw new ResourceNotFoundException("No subgroup found for the id :" + id);
         }
-        
+
         String subGroupName = subGroup.getName();
         String groupName = group.getName();
 
@@ -215,11 +226,13 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves a map of characteristic names and their values for a given category.
+     * Retrieves a map of characteristic names and their values for a given
+     * category.
      * Used for exporting instruments with characteristic values to Excel.
      *
      * @param id The ID of the category.
-     * @return A map where keys are characteristic names and values are the corresponding values (or empty strings).
+     * @return A map where keys are characteristic names and values are the
+     *         corresponding values (or empty strings).
      */
     @GetMapping("/{id}/characteristics")
     public ResponseEntity<Map<String, String>> getCharacteristicValuesFromCategory(@PathVariable Integer id) {
@@ -230,5 +243,5 @@ public class CategoryController {
         }
 
         return ResponseEntity.ok(characteristicValues);
-    }   
+    }
 }

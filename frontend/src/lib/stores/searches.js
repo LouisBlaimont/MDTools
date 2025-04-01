@@ -25,7 +25,7 @@ export let groups_summary = writable([]);
 export let hoveredCategoryIndex = writable("");
 export let hoveredCategoryImageIndex = writable(null);  
 export let selectedGroup = writable(null);
-export let selectedSubGroup = writable(null);
+export let selectedSubGroup = writable("");
 export let showSubGroups = writable(false);
 export let showCategories = writable(false);
 export let showChars = writable(false);
@@ -41,6 +41,8 @@ export let selectedOrderId = writable(null);
 export let userId = writable(1); //default value because for now no user but change!!
 export let orders = writable(null);
 export let alternatives = writable([]);
+
+export let categories_pageable = writable(null);
 export let addingAlt = writable(false);
 export let altToAdd = writable([]);
 export let removingAlt = writable(false);

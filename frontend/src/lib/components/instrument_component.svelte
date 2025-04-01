@@ -69,24 +69,31 @@
     </div>
     <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
         {#each $currentSuppliers as row, index}
-            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-            <img
-                alt="supplier{row.id}"
-                src={row.src
-                ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                : "/default/no_picture.png"}
-                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}
-                onmouseover={() => (hoveredSupplierImageIndex.set(index))}
-                onmouseout={() => (hoveredSupplierImageIndex.set(null))}
-                class="h-4/5 {$selectedSupplierIndex === index
-                ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-                : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index
-                ? 'cursor-pointer border-2 border-solid border-[lightgray]'
-                : ''}"
-            />
-            <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.ref}</div>
-    {/each}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+            class="flex shrink-0 flex-col h-[95%] max-w-[150px] text-center box-border border mr-[3px] border-solid border-[black]"
+            >
+                <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                <img
+                    alt="supplier{row.id}"
+                    
+                    src={row.picturesId && row.picturesId[0]
+                    ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`
+                    : "/default/no_picture.png"}
+                    onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}
+                    onmouseover={() => (hoveredSupplierImageIndex.set(index))}
+                    onmouseout={() => (hoveredSupplierImageIndex.set(null))}
+                    class="h-4/5 {$selectedSupplierIndex === index
+                    ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
+                    : ''} {$hoveredSupplierImageIndex === index && $selectedSupplierIndex !== index
+                    ? 'cursor-pointer border-2 border-solid border-[lightgray]'
+                    : ''}"
+                />
+                <div class="box-border p-[3px] border-t-[black] border-t border-solid">{row.reference}</div>
+            </div>
+        {/each}
     </div>
 
 

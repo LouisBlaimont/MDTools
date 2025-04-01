@@ -153,7 +153,7 @@
                         type="file"
                         onchange={(e) => (file = e.target.files[0])}
                       />
-                      {#if !category.pictureId}
+                      {#if category.pictureId != null}
                         <div class="mt-1 text-sm text-red-500">
                           Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,
                           l'image actuelle sera supprimée.
