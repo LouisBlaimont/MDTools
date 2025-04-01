@@ -65,10 +65,13 @@ public class InstrumentRepositoryCustomImpl implements InstrumentRepositoryCusto
     @SuppressWarnings("unchecked")
     @Override
     public List<Instruments> searchByKeywords(List<String> keywords) {
-        StringBuilder sql = new StringBuilder("SELECT d.\"instrument_id\" AS id, " +
-        "d.reference AS reference, " +
-        "d.supplier_description AS supplier_description, " +
-        "d.supplier_id AS supplier, ");
+        StringBuilder sql = new StringBuilder("SELECT d.instrument_id, " +
+                                                    "d.reference, " +
+                                                    "d.supplier_description, " +
+                                                    "d.supplier_id, " + 
+                                                    "d.category_id, " + 
+                                                    "d.price, " + "d.obsolete, "
+        );
 
         // Build GREATEST function for similarity scoring
         sql.append("GREATEST(");

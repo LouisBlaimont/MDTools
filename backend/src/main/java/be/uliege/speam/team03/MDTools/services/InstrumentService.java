@@ -280,6 +280,9 @@ public class InstrumentService {
     }
 
     public List<InstrumentDTO> searchInstrument(List<String> keywords) {
+        if (keywords.isEmpty()) {
+            return null;
+        }
         List<Instruments> instruments = instrumentRepository.searchByKeywords(keywords);
         return instrumentMapper.convertToDTO(instruments);
     }

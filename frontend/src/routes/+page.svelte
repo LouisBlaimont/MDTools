@@ -137,16 +137,20 @@
 
         let response = await apiFetch(`/api/instrument/search?${params}`);
         let data = await response.json();
+        console.log("in length: " , Object.keys(data).length);
+
 
         keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
         console.log("finished searching");
-        showKeywordsResult = true;
+        if (Object.keys(data).length > 0) {
+          showKeywordsResult = true;
+        }   
 
       } catch (error) {
         console.error(error);
         errorMessage.set(error.message);
       }
-  }, 1000);
+  }, 500);
 
 
   async function selectedInstrumentHome(row) {
