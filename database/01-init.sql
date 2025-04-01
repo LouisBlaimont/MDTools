@@ -140,8 +140,6 @@ CREATE TABLE sub_group_characteristic (
 CREATE TABLE alternatives (
     instruments_id_1 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     instruments_id_2 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
-    alternative_type TEXT,
-    alternative_comment TEXT,
     PRIMARY KEY (instruments_id_1, instruments_id_2)
 );
 

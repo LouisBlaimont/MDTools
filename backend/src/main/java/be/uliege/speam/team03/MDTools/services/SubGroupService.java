@@ -116,8 +116,6 @@ public class SubGroupService {
         // This is where it doesn't work
         subGroupCharRepository.saveAll(subGroupChars);
 
-        System.out.println("Print after save");
-
         newSubGroup.setInstrCount(0);
         newSubGroup.setCategories(null);
         newSubGroup.setSubGroupCharacteristics(subGroupChars);

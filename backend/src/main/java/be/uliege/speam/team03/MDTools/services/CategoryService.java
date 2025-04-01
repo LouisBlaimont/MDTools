@@ -75,9 +75,7 @@ public class CategoryService {
         if (categoryMaybe.isEmpty()){
             return null;
         }
-        System.out.println("Category found");
         Category category = categoryMaybe.get();
-        System.out.println("Category is " + category);
         return catMapper.mapToCategoryDto(category);
     }
 
@@ -205,9 +203,7 @@ public class CategoryService {
         }
         Category category = catMapper.mapToCategory(newCategory);
         category.setSubGroup(subGroupRepository.findByName(newCategory.getSubGroupName()).get());
-        System.out.println("Category is before saving in Service" + category);
         Category savedCategory = categoryRepository.save(category);
-        System.out.println("Category is after saving in Service" + savedCategory);
         return catMapper.mapToCategoryDto(savedCategory);
     }
 

@@ -1,7 +1,4 @@
 <script>
-    import { tools } from "../../tools.js";
-    import { suppliers } from "../../suppliers.js";
-    import { getOrder, addTool } from "../../order.js";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
@@ -10,7 +7,8 @@
     import { isAdmin } from "$lib/stores/user_stores";
     import { PUBLIC_API_URL } from "$env/static/public";
     import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex, alternatives} from "$lib/stores/searches";
+     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex, alternatives,
+     selectedSupplierIndex} from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
@@ -72,6 +70,7 @@
         currentSuppliers.set([]);
         alternatives.set([]);
         selectedCategoryIndex.set(index);
+        selectedSupplierIndex.set('');
 
         // selecting the categoryId
         const cat = $categories[$selectedCategoryIndex]; 
@@ -156,6 +155,7 @@
                 {#each $categories as row, index}
                     <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                     <tr
+                        class="cursor-pointer"
                         class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
                         class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
                         on:click={() => selectCategory(index)}

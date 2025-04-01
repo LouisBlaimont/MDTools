@@ -51,6 +51,8 @@ public class InstrumentService {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         instrumentDTOs.add(new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
@@ -76,6 +78,8 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         return new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
@@ -100,6 +104,8 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         return new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
@@ -194,7 +200,7 @@ public class InstrumentService {
             // get pictures of the instrument
             List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, pictures, instrumentId);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getSubGroup().getGroup().getId(), category.getSubGroup().getId(), category.getId(), reference, supplierDescription, price, obsolete, pictures, instrumentId);
 
             instrumentsDTO.add(instrumentDTO);
         }
