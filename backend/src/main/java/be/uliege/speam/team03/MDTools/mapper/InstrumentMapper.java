@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
-
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -20,6 +21,7 @@ import lombok.AllArgsConstructor;
 public class InstrumentMapper {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
+    private final PictureStorageService pictureStorageService;
 
     /**
      * Convert an instrument to a DTO.
@@ -30,12 +32,14 @@ public class InstrumentMapper {
     public InstrumentDTO convertToDTO(Instruments instrument) {
         InstrumentDTO dto = new InstrumentDTO(
             instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory() != null ? instrument.getCategory().getId() : null,
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
             instrument.getObsolete(),
-            null,
+            pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT),
             instrument.getId()
         );
         return dto;
@@ -52,12 +56,14 @@ public class InstrumentMapper {
         for (Instruments instrument : instruments) {
             InstrumentDTO dto = new InstrumentDTO(
                 instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
+                instrument.getCategory().getSubGroup().getGroup().getId(),
+                instrument.getCategory().getSubGroup().getId(),
                 instrument.getCategory() != null ? instrument.getCategory().getId() : null,
                 instrument.getReference(),
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
                 instrument.getObsolete(),
-                null,
+                pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT),
                 instrument.getId()
             );
             instrumentDTOs.add(dto);

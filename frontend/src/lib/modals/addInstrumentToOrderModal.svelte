@@ -15,6 +15,8 @@
         addInstrument(instrument.id, $userId, $selectedOrderId, $quantity);
         close();
     }
+    const isObsolete = instrument.obsolete;
+    const isNotObsolete = !isObsolete;
 
 </script>
 
@@ -32,6 +34,10 @@
 
     <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">Commander référence {instrument.reference} :</h2>
 
+    {#if isObsolete}
+      <h4 class="text-lg font-semibold text-red-500 text-center">L'instrument est obsolète, impossible de le commander.</h4>
+    {/if}
+
     <div class="max-w-4xl mx-auto mt-4" >
         <table class="w-full border-collapse">
             <thead class="bg-teal-400">
@@ -40,7 +46,6 @@
                 <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
                 <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
                 <th class="text-center border border-solid border-[black] w-16">PRIX</th>
-                <th class="text-center border border-solid border-[black] w-16">OBS</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,7 +54,6 @@
                     <td class="text-center border border-solid border-[black] text-black">{instrument.supplier}</td>
                     <td class="text-center border border-solid border-[black] text-black">{instrument.supplierDescription}</td>
                     <td class="text-center border border-solid border-[black] text-black">{instrument.price}</td>
-                    <td class="text-center border border-solid border-[black] text-black">{instrument.obsolete}</td>
                 </tr>
             </tbody>
         </table>
@@ -109,13 +113,15 @@
         >
           Annuler
         </button>
-        <button
-          type="button"
-          class="inline-block w-auto justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500"
-          onclick={handleAddInstrument}
-        >
-          Commander
-        </button>
+        {#if isNotObsolete}
+          <button
+            type="button"
+            class="inline-block w-auto justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500"
+            onclick={handleAddInstrument}
+          >
+            Commander
+          </button>
+        {/if}
       </div>
     </div>
 </div>

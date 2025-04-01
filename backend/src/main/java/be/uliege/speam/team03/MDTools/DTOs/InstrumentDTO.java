@@ -11,6 +11,8 @@ import java.util.List;
 @Setter
 public class InstrumentDTO {
     private String supplier;
+    private Long groupId;
+    private Long subGroupId;
     private Integer categoryId;
     private String reference;
     private String supplierDescription;

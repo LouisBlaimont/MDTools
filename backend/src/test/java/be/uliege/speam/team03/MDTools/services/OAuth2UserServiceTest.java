@@ -130,8 +130,6 @@ class OAuth2UserServiceTest {
                 "createOidcUserWithAuthorities", OidcUser.class, User.class);
         createMethod.setAccessible(true);
         OidcUser result = (OidcUser) createMethod.invoke(oAuth2UserService, oidcUser, user);
-
-        System.out.println("aaa " + result.getAuthorities());
     
         assertTrue(result.getAuthorities().contains((GrantedAuthority) new SimpleGrantedAuthority("ROLE_USER")));
         assertEquals("12345", ((DefaultOidcUser) result).getSubject());

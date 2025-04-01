@@ -8,7 +8,7 @@
         selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
         showChars, charValues, currentSuppliers, categories, characteristics, 
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
-    findSubGroupsStore, findCharacteristicsStore, alternatives, selectedAlternativeIndex, hoveredAlternativeIndex} from "$lib/stores/searches";    
+    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex} from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
 
@@ -30,7 +30,6 @@
         currentSuppliers.set([]);
         selectedSupplierIndex.set("");
         alternatives.set([]);
-        selectedAlternativeIndex.set("");
         let subgroup = [];
 
         try {
@@ -171,7 +170,6 @@
             characteristics.set([]);
             currentSuppliers.set([]);
             alternatives.set([]);
-            selectedAlternativeIndex.set("");
             return;
         }
         const previousGroup = $selectedGroup;
@@ -183,7 +181,6 @@
         selectedSupplierIndex.set("");
         selectedCategoryIndex.set("");
         alternatives.set([]);
-        selectedAlternativeIndex.set("");
 
         // Only reset subgroup if the group has changed
         if (previousGroup !== group) {

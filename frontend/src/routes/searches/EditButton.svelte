@@ -7,7 +7,7 @@
   function edit() {
     isEditing.update((value) => !value);
     if ($isEditing) {
-      toast.push("Vous entrez en mode édition. Sélectionnez une catégorie à modifier.");
+      toast.push("Vous entrez en mode édition.");
     } else {
       toast.push("Vous quittez le mode édition.");
     }

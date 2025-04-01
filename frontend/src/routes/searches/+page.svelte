@@ -50,9 +50,8 @@
   let initialized = false;
 
   async function findInstrumentsOfCategory(categoryId){
-    const cat = $categories.find(category => category.id === Number(categoryId));
-    categories.set([cat]);
-    selectedCategoryIndex.set(0);
+    const index = $categories.findIndex(category => category.id === Number(categoryId));
+    selectedCategoryIndex.set(index);
 
     currentSuppliers.set([]);
     alternatives.set([]);  

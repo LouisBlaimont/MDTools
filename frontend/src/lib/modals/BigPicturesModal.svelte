@@ -16,6 +16,7 @@
   } = $props();
 
   let instrument = $state(initInstrument);
+  console.log(initInstrument);
 
   async function deltePicture(id, index) {
     try {
