@@ -262,3 +262,11 @@ export async function updateCharacteristicOrder(subGroupName, orderedList) {
     throw new Error(`Failed to update characteristic order for ${subGroupName}`);
   }
 }
+
+export async function fetchAlternatives() {
+  const res = await apiFetch("/api/alternatives/all");
+  if (!res.ok) {
+    throw new Error("Failed to fetch alternatives");
+  }
+  return await res.json();
+}
