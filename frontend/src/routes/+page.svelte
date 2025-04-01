@@ -209,6 +209,7 @@
             type="text"
             name="search_keyword"
             id="id_search_keyword"
+            autocomplete="off"
             placeholder="Entrez un mot clé"
             class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-full"
             bind:value={$keywords}
