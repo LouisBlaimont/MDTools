@@ -20,11 +20,11 @@
 
   async function deltePicture(id, index) {
     try {
-      const response = await apiFetch(PUBLIC_API_URL + "/api/pictures/" + encodeURIComponent(id), {
+      const response = await apiFetch("/api/pictures/" + encodeURIComponent(id), {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Échec de la suppression de l'image");
+        throw new Error("Échec de la suppression de l'image. Erreur : " + response.statusText);
       }
       // remove from array
       instrument.picturesId.splice(index, 1);

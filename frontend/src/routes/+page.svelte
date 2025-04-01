@@ -11,6 +11,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
   import Loading from "$lib/Loading.svelte";
+  import { PUBLIC_API_URL } from "$env/static/public";
 
   let groups_summary = $state([]);
 
@@ -345,6 +346,3 @@
     {/if}
   </div>
 </div>
-
-
-
