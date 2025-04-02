@@ -12,11 +12,10 @@
     close,
 
     // your props
-    initInstrument,
+    instrument = $bindable(),
   } = $props();
 
-  let instrument = $state(initInstrument);
-  console.log(initInstrument);
+  console.log(instrument);
 
   async function deltePicture(id, index) {
     try {
