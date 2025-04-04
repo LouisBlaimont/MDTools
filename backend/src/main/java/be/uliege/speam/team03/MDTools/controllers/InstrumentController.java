@@ -12,6 +12,8 @@ import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.SupplierService;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,44 +115,13 @@ public class InstrumentController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> updateInstrument(@PathVariable Integer id, @RequestBody InstrumentDTO updatedInstrument) {
-        InstrumentDTO existingInstrument = instrumentService.findById(id);
+    public ResponseEntity<?> updateInstrument(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+        InstrumentDTO updatedInstrument = instrumentService.updateInstrument(body, id);
         // Check if the instrument exists
-        if (existingInstrument == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + id);
+        if (updatedInstrument == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Impossible to save the instrument");
         } 
-        if (existingInstrument.getReference().equals(updatedInstrument.getReference()) && id != updatedInstrument.getId()) {
-            Integer updatedInstrumentId = instrumentService.findByReference(updatedInstrument.getReference()).getId();
-            if (updatedInstrumentId != id) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists for another instrument. Existing instrument id: " + updatedInstrumentId + " - Instrument being edited: " + id);
-            }
-        }
-        if (updatedInstrument.getSupplier() != null) {
-            existingInstrument.setSupplier(updatedInstrument.getSupplier());
-        }
-        if (updatedInstrument.getCategoryId() != null) {
-            existingInstrument.setCategoryId(updatedInstrument.getCategoryId());
-        }
-        if (updatedInstrument.getReference() != null) {
-            existingInstrument.setReference(updatedInstrument.getReference());
-        }
-        if (updatedInstrument.getSupplierDescription() != null) {
-            existingInstrument.setSupplierDescription(updatedInstrument.getSupplierDescription());
-        }
-        if (updatedInstrument.getPrice() != null) {
-            existingInstrument.setPrice(updatedInstrument.getPrice());
-        }
-        if (updatedInstrument.isObsolete()) {
-            existingInstrument.setObsolete(updatedInstrument.isObsolete());
-        }
-        if (updatedInstrument.isAlt()) {
-            existingInstrument.setAlt(updatedInstrument.isAlt());
-        }
-        if (updatedInstrument.getPicturesId() != null) {
-            existingInstrument.setPicturesId(updatedInstrument.getPicturesId());
-        }
-        InstrumentDTO savedInstrument = instrumentService.save(existingInstrument);
-        return ResponseEntity.status(HttpStatus.OK).body(savedInstrument);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedInstrument);
     }
     
     /**

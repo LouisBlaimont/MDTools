@@ -2,6 +2,7 @@ package be.uliege.speam.team03.MDTools.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.sound.midi.Instrument;
@@ -152,6 +153,40 @@ public class InstrumentService {
         Supplier supplier = supplierMaybe.get();
         List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
         return instrumentMapper.convertToDTO(instruments);
+    }
+
+    public InstrumentDTO updateInstrument(Map<String, Object> body, Integer id) {
+        if (body == null || body.isEmpty()) {
+            return null;
+        }
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
+        if (!instrumentMaybe.isPresent()) {
+            return null;
+        }
+        Instruments instrument = instrumentMaybe.get();
+        String reference = (String) body.get("reference");
+        String supplier = (String) body.get("supplier");
+        Integer categoryId = (Integer) body.get("categoryId");
+        String supplierDescription = (String) body.get("supplierDescription");
+        Number priceValue = (Number) body.get("price");
+        Float price = priceValue != null ? priceValue.floatValue() : null;
+        boolean obsolete = (boolean) body.get("obsolete");
+
+        Optional<Instruments> instrumentByReference = instrumentRepository.findByReference(reference);
+        if (instrumentByReference.isPresent() && instrumentByReference.get().getId() != id) {
+            return null;
+        }
+
+        instrument.setReference(reference);
+        instrument.setSupplierDescription(supplierDescription);
+        instrument.setPrice(price);
+        instrument.setObsolete(obsolete);
+        instrument.setSupplier(supplierRepository.findBySupplierName(supplier).orElse(null));
+        instrument.setCategory(categoryRepository.findById(categoryId).orElse(null));
+
+        Instruments updatedInstrument = instrumentRepository.save(instrument);
+
+        return instrumentMapper.convertToDTO(updatedInstrument);
     }
 
     /**

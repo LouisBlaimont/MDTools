@@ -184,7 +184,7 @@
                     class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
                     class:bg-[lightgray]={$hoveredSupplierIndex === index &&
                     $selectedSupplierIndex !== index}
-                    on:click={() => selectedSupplierIndex.set(index)}
+                    on:click={() => {console.log("row: ", row); selectedSupplierIndex.set(index)}}
                     on:mouseover={() => (hoveredSupplierIndex.set(index))}
                     on:mouseout={() => (hoveredSupplierIndex.set(null))}
                 >

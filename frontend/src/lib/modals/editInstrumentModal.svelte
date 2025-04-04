@@ -43,7 +43,9 @@
     // If characteristics are edited, update them
     if (characteristicsEdited) {
       try {
-        const filteredCharacteristics = characteristics.filter(c => c.name !== 'id');
+        console.log("Characteristics:", characteristics);
+        const characteristicsData = Object.fromEntries(characteristics.map(c => [c.name, c.value]));
+        console.log("Characteristics Data:", characteristicsData);
         const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id),
           {
             method: "PATCH",
@@ -435,8 +437,22 @@
                                     <!-- Check if the characteristic is 'obsolete' -->
                                     {#if characteristic.name === 'obsolete'}
                                         <div class="flex gap-4 mb-4">
-                                            <label><input type="radio" bind:group={characteristic.value} value={true} /> Oui</label>
-                                            <label><input type="radio" bind:group={characteristic.value} value={false} /> Non</label>
+                                            <label>
+                                              <input 
+                                                type="radio" 
+                                                bind:group={characteristic.value} 
+                                                value={true} 
+                                                on:change={() => {console.log("obs set to true"); characteristicsEdited = true}}
+                                              /> Oui
+                                            </label>
+                                            <label>
+                                              <input 
+                                                type="radio" 
+                                                bind:group={characteristic.value} 
+                                                value={false} 
+                                                on:change={() => {console.log("obs set to false"); characteristicsEdited = true}}
+                                              /> Non
+                                            </label>
                                         </div>
                                     {:else if characteristic.name === 'price'}
                                         <input

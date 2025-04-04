@@ -58,8 +58,8 @@ public class InstrumentMapper {
                 instrument.getReference(),
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
-                instrument.getObsolete(),
                 !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+                instrument.getObsolete(),
                 null,
                 instrument.getId()
             );
@@ -82,6 +82,7 @@ public class InstrumentMapper {
         instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
         instrument.setPrice(instrumentDTO.getPrice());
         instrument.setObsolete(instrumentDTO.isObsolete());
+        instrument.setSupplier(null);
 
         // retrieve supplier based on supplier name
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
