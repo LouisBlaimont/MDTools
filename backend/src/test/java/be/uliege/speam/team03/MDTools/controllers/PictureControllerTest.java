@@ -125,7 +125,7 @@ public class PictureControllerTest {
     void uploadPicture_NegativeReferenceId_ThrowsIllegalArgumentException() {
         MockMultipartFile file = new MockMultipartFile("file", "test.png", "image/png", "content".getBytes());
 
-        when(storageService.storePicture(any(), any(), eq(-1L)))
+        when(storageService.storePicture(any(MultipartFile.class), any(PictureType.class), eq(-1L)))
                 .thenThrow(new IllegalArgumentException("Invalid reference ID"));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {

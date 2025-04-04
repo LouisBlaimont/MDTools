@@ -2,6 +2,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { toast } from "@zerodevx/svelte-toast";
   import { invalidateAll, invalidate } from "$app/navigation";
+  import Icon from "@iconify/svelte";
 
   const {
     // provided by <Modals />
@@ -15,7 +16,6 @@
   } = $props();
 
   let characteristicsEdited = false;
-
 
   let value = $state(abbreviation.value);
   let abbrev = $state(abbreviation.abbreviation);
@@ -75,19 +75,7 @@
                   <div
                     class="mx-auto fle size-12 shrink-0 items-center justify-center rounded-full bg-orange-100 sm:mx-0 sm:size-10"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L6 20l-4 1 1-4L16.5 3.5z" />
-                    </svg>
+                    <Icon icon="material-symbols:edit" width="24" height="24" />
                   </div>
                   <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 class="text-base font-semibold text-gray-900" id="modal-title">

@@ -3,10 +3,13 @@
   import { getContext } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { apiFetch } from "$lib/utils/fetch";
+  import { currentSuppliers } from "$lib/stores/searches";
+  import Icon from "@iconify/svelte";
 
-  const { isOpen, close, instrument = $bindable() } = $props();
+  const { isOpen, close, instrument, index } = $props();
 
   let files = [];
+
 
   async function submitForm() {
     if (files.length === 0) {
@@ -31,7 +34,14 @@
         toast.push("Images ajoutées avec succès !");
         const responseData = await response.json();
         responseData.forEach((picture) => {
-          instrument.picturesId.push(picture.id);
+          currentSuppliers.update((suppliers) => {
+            suppliers.forEach((supplier) => {
+              if (supplier.id === instrument.id) {
+                supplier.picturesId.push(picture.id);
+              }
+            });
+            return suppliers;
+          });
         });
         close();
       } else {
@@ -58,20 +68,7 @@
               <div
                 class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:size-10"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-camera"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1z"
-                  />
-                  <path
-                    d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"
-                  />
-                </svg>
+                <Icon icon="material-symbols:photo-rounded" width="24" height="24" />
               </div>
               <div class="text-center sm:mt-0 sm:ml-4 sm:text-left place-self-center">
                 <h3 class="text-base font-semibold text-gray-900" id="modal-title">

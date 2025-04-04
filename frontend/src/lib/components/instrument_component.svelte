@@ -18,6 +18,7 @@
     import { apiFetch } from "$lib/utils/fetch";
     import DeleteOrderModal from "$lib/modals/deleteOrderModal.svelte";
     import { selectAlternative, removeAlternative } from "./alternatives.js";
+    import Icon from "@iconify/svelte";
     
     $: notEditing = !$isEditing;
 
@@ -64,8 +65,8 @@
 
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
     <!-- PICTURES OF THE INSTRUMENTS -->
-    <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-        <span class="p-1">Photos des fournisseurs</span>
+    <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
+        <span class="">Fournisseurs</span>
     </div>
     <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
         {#each $currentSuppliers as row, index}
@@ -78,11 +79,10 @@
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <img
                     alt="supplier{row.id}"
-                    
                     src={row.picturesId && row.picturesId[0]
                     ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`
                     : "/default/no_picture.png"}
-                    onclick= {() => modals.open(BigPicturesModal, { instrument: row})}
+                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index })}
                     onmouseover={() => (hoveredSupplierImageIndex.set(index))}
                     onmouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index
@@ -111,15 +111,7 @@
             {#if notEditing}
                 <th class="text-center border border-solid border-[black]">
                 <div class="flex justify-center items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
-                    <path d="m15 11-1 9"/>
-                    <path d="m19 11-4-7"/>
-                    <path d="M2 11h20"/>
-                    <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
-                    <path d="M4.5 15.5h15"/>
-                    <path d="m5 11 4-7"/>
-                    <path d="m9 11 1 9"/>
-                    </svg>
+                    <Icon icon="material-symbols:shopping-basket-outline" width="24" height="24" />
                 </div>
                 </th>
             {/if}
@@ -144,7 +136,7 @@
                 {#if $isEditing}
                     <EditInstrumentButton instrument={row}/>
                 {/if}
-                {#if notEditing}
+                {#if !$isEditing}
                     <td
                     class="text-center border border-solid border-[black]"
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
@@ -169,7 +161,7 @@
     {/if}
 
     <!-- TABLE OF THE ALTERNATIVES -->
-    <table class="w-full border-collapse mt-4">
+    <table class="table-fixed w-full border-collapse mt-4">
         <thead>
             <tr class="bg-white text-teal-400">
                 <th colspan="2" class="text-center py-2">
@@ -185,19 +177,11 @@
                 <th class="text-center border border-solid border-[black]"></th>
             {/if}
             {#if notEditing}
-                <th class="border border-solid border-[black]">
-                    <div class="flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
-                        <path d="m15 11-1 9"/>
-                        <path d="m19 11-4-7"/>
-                        <path d="M2 11h20"/>
-                        <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
-                        <path d="M4.5 15.5h15"/>
-                        <path d="m5 11 4-7"/>
-                        <path d="m9 11 1 9"/>
-                        </svg>
-                    </div>
-                </th>
+            <th class="border border-solid border-black">
+                <div class="flex justify-center items-center">
+                    <Icon icon="material-symbols:shopping-basket-outline" width="24" height="24" />
+                </div>
+            </th>            
             {/if}
             <th class="text-center border border-solid border-[black]">REF</th>
             <th class="text-center border border-solid border-[black]">MARQUE</th>

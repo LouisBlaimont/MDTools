@@ -5,6 +5,9 @@
   import { modals } from "svelte-modals";
   import AddPictureModal from "./AddPictureModal.svelte";
   import { apiFetch } from "$lib/utils/fetch";
+  import { currentSuppliers } from "$lib/stores/searches";
+  import Icon from "@iconify/svelte";
+  import { isAdmin } from "$lib/stores/user_stores";
 
   const {
     // provided by <Modals />
@@ -12,10 +15,11 @@
     close,
 
     // your props
-    instrument = $bindable(),
+    instrument,
+    index, // index of the instrument in the list
   } = $props();
 
-  console.log(instrument);
+  let instrument_reactive = $state(instrument);
 
   async function deltePicture(id, index) {
     try {
@@ -26,7 +30,16 @@
         throw new Error("Échec de la suppression de l'image. Erreur : " + response.statusText);
       }
       // remove from array
-      instrument.picturesId.splice(index, 1);
+      instrument_reactive.picturesId.splice(index, 1);
+      // remove from the list of instruments
+      currentSuppliers.update((suppliers) => {
+        suppliers.forEach((supplier) => {
+          if (supplier.id === instrument.id) {
+            supplier.picturesId.splice(index, 1);
+          }
+        });
+        return suppliers;
+      });
     } catch (error) {
       console.error("Erreur:", error);
     }
@@ -84,21 +97,7 @@
               <div
                 class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:size-10"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-camera"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"
-                  />
-                  <path
-                    d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"
-                  />
-                </svg>
+                <Icon icon="material-symbols:photo-rounded" width="24" height="24" />
               </div>
               <div class="text-center sm:mt-0 sm:ml-4 sm:text-left place-self-center">
                 <h3 class="text-base font-semibold text-gray-900" id="modal-title">
@@ -106,34 +105,23 @@
                 </h3>
               </div>
             </div>
-            {#if instrument.picturesId.length == 0}
+            {#if instrument_reactive.picturesId.length == 0}
               <div class="text-center w-full m-5 my-12">
                 <p>Pas de photos pour cet instrument</p>
               </div>
             {/if}
             <div class="mx-10 grid grid-cols-2 md:grid-cols-3 gap-4">
-              {#each instrument.picturesId as id, index}
+              {#each instrument_reactive.picturesId as id, index}
                 <div class="relative">
-                  <button
-                    class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600"
-                    onclick={() => handleDelete(id, index)}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-trash"
-                      viewBox="0 0 16 16"
+                  <!-- svelte-ignore a11y_consider_explicit_label -->
+                  {#if $isAdmin}
+                    <button
+                      class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600"
+                      onclick={() => handleDelete(id, index)}
                     >
-                      <path
-                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"
-                      />
-                      <path
-                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"
-                      />
-                    </svg>
-                  </button>
+                      <Icon icon="material-symbols:delete-forever" width="16" height="16" />
+                    </button>
+                  {/if}
                   <img
                     class="h-auto max-w-full rounded-lg"
                     src={PUBLIC_API_URL + "/api/pictures/" + encodeURIComponent(id)}
@@ -149,7 +137,7 @@
               >
               <button
                 class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                onclick={() => modals.open(AddPictureModal, { instrument })}
+                onclick={() => modals.open(AddPictureModal, { instrument, index })}
                 >Ajouter une image
               </button>
             </div>

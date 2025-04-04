@@ -5,6 +5,7 @@
   import * as XLSX from "xlsx";
   import { goto } from "$app/navigation";
   import { dndzone } from "svelte-dnd-action";
+  import ZipImport from "./zipImport.svelte";
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -632,8 +633,13 @@
   });
 
 </script>
+
+<svelte:head>
+  <title>Importation de fichiers</title>
+</svelte:head>
   
 <main class="w-full flex flex-col items-center">
+  <h1 class="text-2xl font-bold mt-6">Importation de fichiers Excel</h1>
   <!-- File Drag and Drop Section -->
   <div class="w-3/4 h-64 border-4 border-dashed border-gray-500 rounded-lg flex items-center justify-center mt-6 bg-gray-100" role="button" tabindex="0"
     on:drop={handleDrop}
@@ -648,7 +654,7 @@
           <p class="text-gray-700">{file.name}</p>
         </div>
         <button class="bg-red-600 text-white rounded-full p-1 ml-4 flex items-center justify-center w-6 h-6" type="button" on:click={removeFile}>
-          <span class="text-sm">✖</span>
+          <Icon icon="material-symbols:delete-forever" width="24" height="24" />
         </button>
       </div>
     {:else}
@@ -950,6 +956,8 @@
       </div>
     </div>
   {/if}
+
+  <ZipImport />
 
 </main>
   
