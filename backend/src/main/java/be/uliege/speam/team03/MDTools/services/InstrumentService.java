@@ -79,8 +79,8 @@ public class InstrumentService {
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            instrument.getObsolete(),
             null,
             instrument.getId()
         );
@@ -104,8 +104,8 @@ public class InstrumentService {
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            instrument.getObsolete(),
             !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+            instrument.getObsolete(),
             null,
             instrument.getId()
         );
@@ -231,7 +231,7 @@ public class InstrumentService {
             // get pictures of the instrument
             List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, alt, pictures, instrumentId);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, alt, obsolete, pictures, instrumentId);
 
             instrumentsDTO.add(instrumentDTO);
         }

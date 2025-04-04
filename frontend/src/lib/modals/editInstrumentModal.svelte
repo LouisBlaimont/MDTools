@@ -43,9 +43,7 @@
     // If characteristics are edited, update them
     if (characteristicsEdited) {
       try {
-        console.log("Characteristics:", characteristics);
         const characteristicsData = Object.fromEntries(characteristics.map(c => [c.name, c.value]));
-        console.log("Characteristics Data:", characteristicsData);
         const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id),
           {
             method: "PATCH",
@@ -81,11 +79,14 @@
 
       const data = await response.json();
 
+      console.log("Fetched characteristics: ", data);
+
       // Convert object to an array of { name, value }
       characteristics = Object.entries(data).map(([key, value]) => ({
         name: key,
         value: value
       }));
+      console.log("Characteristics: ", characteristics);
 
     } catch (error) {
       console.error(error);
@@ -442,7 +443,7 @@
                                                 type="radio" 
                                                 bind:group={characteristic.value} 
                                                 value={true} 
-                                                on:change={() => {console.log("obs set to true"); characteristicsEdited = true}}
+                                                on:change={() => (characteristicsEdited = true)}
                                               /> Oui
                                             </label>
                                             <label>
@@ -450,7 +451,7 @@
                                                 type="radio" 
                                                 bind:group={characteristic.value} 
                                                 value={false} 
-                                                on:change={() => {console.log("obs set to false"); characteristicsEdited = true}}
+                                                on:change={() => (characteristicsEdited = true)}
                                               /> Non
                                             </label>
                                         </div>
