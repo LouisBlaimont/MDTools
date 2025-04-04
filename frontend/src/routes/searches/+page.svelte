@@ -10,7 +10,6 @@
     selectedSupplierIndex, charValues} from "$lib/stores/searches";
   import { user, isAdmin } from "$lib/stores/user_stores";
   import EditButton from "./EditButton.svelte";
-  import EditCategoryButton from "./EditCategoryButton.svelte";
   import EditInstrumentButton from "./EditInstrumentButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { checkRole } from "$lib/rbacUtils";

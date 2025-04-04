@@ -1,18 +1,34 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
-    import { isAdmin } from "$lib/stores/user_stores";
-    import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex, alternatives,
-     selectedSupplierIndex, findSubGroupsStore, findCharacteristicsStore, categories_pageable} from "$lib/stores/searches";
-    import EditButton from "../../routes/searches/EditButton.svelte";
-    import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
-    import { apiFetch } from "$lib/utils/fetch";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import { preventDefault } from "svelte/legacy";
+  import { get } from "svelte/store";
+  import { isAdmin } from "$lib/stores/user_stores";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import {
+    isEditing,
+    reload,
+    selectedGroup,
+    selectedSubGroup,
+    selectedCategoryIndex,
+    hoveredCategoryIndex,
+    charValues,
+    categories,
+    currentSuppliers,
+    showCategories,
+    errorMessage,
+    hoveredCategoryImageIndex,
+    alternatives,
+    selectedSupplierIndex,
+    findSubGroupsStore,
+    findCharacteristicsStore,
+    categories_pageable,
+  } from "$lib/stores/searches";
+  import EditButton from "../../routes/searches/EditButton.svelte";
+  import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
+  import { startResize, resize, stopResize } from "$lib/resizableUtils.js";
+  import { apiFetch } from "$lib/utils/fetch";
 
   /**
    * Display the characteristic values of the category at line index in the table.
@@ -60,15 +76,15 @@
     return;
   }
 
-    /**
-     * Gets the suppliers of the category given by the line index in the table
-     * @param index
-     */
-    async function selectCategory(index) {
-        currentSuppliers.set([]);
-        alternatives.set([]);
-        selectedCategoryIndex.set(index);
-        selectedSupplierIndex.set('');
+  /**
+   * Gets the suppliers of the category given by the line index in the table
+   * @param index
+   */
+  async function selectCategory(index) {
+    currentSuppliers.set([]);
+    alternatives.set([]);
+    selectedCategoryIndex.set(index);
+    selectedSupplierIndex.set("");
 
     // selecting the categoryId
     const cat = $categories[$selectedCategoryIndex];
@@ -141,6 +157,9 @@
 
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
   <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
+  <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
+    <span class="">Catégories</span>
+  </div>
   <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
     <thead class="bg-teal-400">
       <tr>
@@ -214,10 +233,7 @@
 </div>
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
-<div class="flex-1 max-h-[80vh] overflow-y-auto box-border ml-3 max-w-[150px]">
-  <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-    <span class="p-1">Photos des catégories</span>
-  </div>
+<div class="flex-1 max-h-[80vh] overflow-y-auto ml-3 max-w-[150px]">
   {#each $categories as row, index}
     <!-- svelte-ignore a11yå_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
