@@ -3,6 +3,8 @@ package be.uliege.speam.team03.MDTools.services;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.models.*;
@@ -14,6 +16,7 @@ import be.uliege.speam.team03.MDTools.mapper.SupplierMapper;
 @Service
 public class SupplierService {
     private final SupplierRepository supplierRepository;
+    private final SupplierPageRepository supplierPageRepository;
     private final SupplierMapper supplierMapper;
 
     /**
@@ -101,5 +104,15 @@ public class SupplierService {
         List<Supplier> suppliers = new ArrayList<>();
         supplierRepository.findAll().forEach(suppliers::add);
         return suppliers.isEmpty() ? null : supplierMapper.convertToDTOList(suppliers);
+    }
+
+    /**
+     * Find paginated suppliers.
+     * 
+     * @param pageable the pagination information
+     * @return a paginated list of SupplierDTOs
+     */
+    public Page<SupplierDTO> findPaginatedSuppliers(Pageable pageable) {
+        return supplierPageRepository.findAll(pageable).map(supplierMapper::convertToDTO);
     }
 }

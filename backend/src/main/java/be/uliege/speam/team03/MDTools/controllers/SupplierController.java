@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
@@ -70,6 +72,25 @@ public class SupplierController {
     public ResponseEntity<?> getAllSuppliers() {
         List<SupplierDTO> suppliers = supplierService.findAllSuppliers();
         if (suppliers == null || suppliers.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No suppliers found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(suppliers);
+    }
+
+    /**
+     * Get paginated suppliers.
+     * 
+     * @param page the page number (default is 0)
+     * @param size the number of suppliers per page (default is 10)
+     * @return a paginated list of suppliers
+     */
+    @GetMapping
+    public ResponseEntity<?> getPaginatedSuppliers(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<SupplierDTO> suppliers = supplierService.findPaginatedSuppliers(PageRequest.of(page, size));
+        if (suppliers.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No suppliers found");
         }
         return ResponseEntity.status(HttpStatus.OK).body(suppliers);
