@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.Supplier;
 
 @Repository
 public interface InstrumentRepository extends CrudRepository<Instruments, Integer> {
@@ -18,6 +19,7 @@ public interface InstrumentRepository extends CrudRepository<Instruments, Intege
     Optional<Instruments> findByCategoryId(Integer id);
     Optional<List<Instruments>> findByCategory(Category category); 
     Optional<List<Instruments>> findBySupplierId(Integer id); 
+    List<Instruments> findAllBySupplier(Supplier supplier);
     @NonNull
     Optional<Instruments> findById(@NonNull Integer id);
 

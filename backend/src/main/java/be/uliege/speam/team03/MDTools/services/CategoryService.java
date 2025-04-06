@@ -3,6 +3,8 @@ package be.uliege.speam.team03.MDTools.services;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,7 +54,9 @@ public class CategoryService {
         return categoriesDTO;
     }
 
-    /**
+    
+
+    /**/**
      * Gets the categories of the group given by groupName
      * 
      * @param groupName
@@ -61,22 +65,52 @@ public class CategoryService {
     public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false) {
-            return null;
+            return Page.empty();
         }
-        Group group = groupMaybe.get();
 
+        Group group = groupMaybe.get();
         List<SubGroup> subGroups = subGroupRepository.findByGroup(group);
-        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroupIn(subGroups);
-        if (categoriesMaybe.isPresent() == false) {
-            return null;
+
+        if (subGroups.isEmpty()) {
+            return Page.empty();
         }
-        List<Category> categories = categoriesMaybe.get();
-        List<CategoryDTO> categoriesDTO = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
-            categoriesDTO.add(categoryDTO);
+
+        Page<Category> categoriesPage = categoryRepository.findAllBySubGroupIn(subGroups, pageable);
+
+        if (categoriesPage.isEmpty()) {
+            return Page.empty();
         }
-        return categoriesDTO;
+
+        return categoriesPage.map(category -> catMapper.mapToCategoryDto(category));
+    }
+     
+    /**
+     * Gets the paginated and sorted categories of the group given by groupName
+     *
+     * @param groupName the name of the group
+     * @param pageable  the pagination and sorting parameters
+     * @return Page of CategoryDTO
+     */
+    public Page<CategoryDTO> findCategoriesOfGroup(String groupName, Pageable pageable) {
+        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
+        if (groupMaybe.isPresent() == false) {
+            return Page.empty();
+        }
+
+        Group group = groupMaybe.get();
+        List<SubGroup> subGroups = subGroupRepository.findByGroup(group);
+
+        if (subGroups.isEmpty()) {
+            return Page.empty();
+        }
+
+        Page<Category> categoriesPage = categoryRepository.findAllBySubGroupIn(subGroups, pageable);
+
+        if (categoriesPage.isEmpty()) {
+            return Page.empty();
+        }
+
+        return categoriesPage.map(category -> catMapper.mapToCategoryDto(category));
     }
 
     /**
@@ -87,12 +121,10 @@ public class CategoryService {
      */
     public CategoryDTO findById(Integer id) {
         Optional<Category> categoryMaybe = categoryRepository.findById((long) id);
-        if (categoryMaybe.isEmpty()){
+        if (categoryMaybe.isEmpty()) {
             return null;
         }
-        System.out.println("Category found");
         Category category = categoryMaybe.get();
-        System.out.println("Category is " + category);
         return catMapper.mapToCategoryDto(category);
     }
 
@@ -105,7 +137,6 @@ public class CategoryService {
     @SuppressWarnings("unchecked")
     public CategoryDTO addCategoryToSubGroup(Map<String, Object> body, Integer subGroupId) {
         String subGroupName = (String) body.get("subGroupName");
-        String name = (String) body.get("name");
         String function = (String) body.get("function");
         String shape = (String) body.get("shape");
         String lenAbrv = (String) body.get("lenAbrv");
@@ -116,10 +147,10 @@ public class CategoryService {
 
         SubGroup subGroup;
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (subGroupMaybe.isPresent()){
+        if (subGroupMaybe.isPresent()) {
             subGroup = subGroupMaybe.get();
             category.setSubGroup(subGroup);
-            if((long) subGroupId != subGroup.getId()){
+            if ((long) subGroupId != subGroup.getId()) {
                 throw new IllegalArgumentException("Subgroup name and id do not match.");
             }
         } else {
@@ -129,23 +160,22 @@ public class CategoryService {
 
         List<SubGroupCharacteristic> subGroupCharacteristics = subGroup.getSubGroupCharacteristics();
         List<String> characteristics = new ArrayList<>();
-        for (SubGroupCharacteristic subGroupCharacteristic : subGroupCharacteristics){
+        for (SubGroupCharacteristic subGroupCharacteristic : subGroupCharacteristics) {
             String characteristic = subGroupCharacteristic.getCharacteristic().getName();
             characteristics.add(characteristic);
         }
 
         List<Map<String, Object>> EntryChars;
         Object bodyChars = body.get("chars");
-        if(bodyChars == null){
+        if (bodyChars == null) {
             EntryChars = null;
-        }
-        else if (bodyChars instanceof List<?>) {
+        } else if (bodyChars instanceof List<?>) {
             EntryChars = (List<Map<String, Object>>) bodyChars;
         } else {
             throw new IllegalArgumentException("Expected a List<Map<String, Object>> for 'subGroupList'");
         }
 
-        if(EntryChars != null){
+        if (EntryChars != null) {
             Map<String, String> dictVal = new HashMap<>();
             Map<String, String> dictValAbrev = new HashMap<>();
             for (Map<String, Object> EntryChar : EntryChars) {
@@ -155,52 +185,55 @@ public class CategoryService {
                 dictVal.put(EntryCharName, EntryCharVal);
                 dictValAbrev.put(EntryCharName, EntryCharValAbrev);
             }
-    
+
             StringBuilder shapeBuilder = new StringBuilder();
-    
+
             // List<CategoryCharacteristic> newCatChars = new ArrayList<>();
             // for (String charSubGroup : characteristics){
-            //     if (dictVal.containsKey(charSubGroup) && dictValAbrev.containsKey(charSubGroup)){
-            //         Optional<Characteristic> charMaybe =  characteristicRepository.findByName(charSubGroup);
-            //         if (charMaybe.isPresent() == false){
-            //             return null;
-            //         }
-            //         Characteristic newChar = charMaybe.get();
-            //         Integer charId = newChar.getId(); 
-            //         String newCharVal = dictVal.get(charSubGroup);
-            //         String newCharAbrev = dictValAbrev.get(charSubGroup);
-    
-            //         if (newCharVal==null){
-            //             continue;
-            //         }
-    
-            //         CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCategoryId, charId);
-            //         CategoryCharacteristic catChar = new CategoryCharacteristic(category, newChar, newCharVal, newCharAbrev);
-            //         catChar.setId(key);
-            //         categoryCharRepository.save(catChar);
-            //         newCatChars.add(catChar);
-    
-            //         if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
-            //             continue;
-            //         }
-            //         if(charSubGroup.equals("Length")){
-            //             lenAbrv = newCharAbrev;
-            //         }
-            //         shapeBuilder.append(newCharAbrev).append("/");
-            //     }  
+            // if (dictVal.containsKey(charSubGroup) &&
+            // dictValAbrev.containsKey(charSubGroup)){
+            // Optional<Characteristic> charMaybe =
+            // characteristicRepository.findByName(charSubGroup);
+            // if (charMaybe.isPresent() == false){
+            // return null;
             // }
-    
+            // Characteristic newChar = charMaybe.get();
+            // Integer charId = newChar.getId();
+            // String newCharVal = dictVal.get(charSubGroup);
+            // String newCharAbrev = dictValAbrev.get(charSubGroup);
+
+            // if (newCharVal==null){
+            // continue;
+            // }
+
+            // CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCategoryId,
+            // charId);
+            // CategoryCharacteristic catChar = new CategoryCharacteristic(category,
+            // newChar, newCharVal, newCharAbrev);
+            // catChar.setId(key);
+            // categoryCharRepository.save(catChar);
+            // newCatChars.add(catChar);
+
+            // if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
+            // continue;
+            // }
+            // if(charSubGroup.equals("Length")){
+            // lenAbrv = newCharAbrev;
+            // }
+            // shapeBuilder.append(newCharAbrev).append("/");
+            // }
+            // }
+
             // if (shapeBuilder.length()> 0){
-            //     shapeBuilder.setLength(shapeBuilder.length()-1);
+            // shapeBuilder.setLength(shapeBuilder.length()-1);
             // }
-    
+
             shape = shapeBuilder.toString();
             category.setShape(shape);
-    
+
             // category.setCategoryCharacteristic(newCatChars);
         }
 
-        category.setName(name);
         category.setFunction(function);
         category.setShape(shape);
         category.setLenAbrv(lenAbrv);
@@ -215,47 +248,47 @@ public class CategoryService {
      * @return
      */
     public CategoryDTO save(CategoryDTO newCategory) {
-        if(newCategory.getGroupName() == null || newCategory.getSubGroupName() == null){
+        if (newCategory.getGroupName() == null || newCategory.getSubGroupName() == null) {
             throw new IllegalArgumentException("Group or Subgroup not found. Not adding category.");
         }
         Category category = catMapper.mapToCategory(newCategory);
         category.setSubGroup(subGroupRepository.findByName(newCategory.getSubGroupName()).get());
-        System.out.println("Category is before saving in Service" + category);
         Category savedCategory = categoryRepository.save(category);
-        System.out.println("Category is after saving in Service" + savedCategory);
         return catMapper.mapToCategoryDto(savedCategory);
     }
 
     /**
-     * Gets the categories of the subgroup given by subGroupName
+     * Gets the paginated and sorted categories of the subgroup given by
+     * subGroupName
+     * 
      * @param subGroupName the name of the subgroup
-     * @return List of categoryDTO
+     * @param pageable     the pagination and sorting parameters
+     * @return Page of CategoryDTO
      */
-    public List<CategoryDTO> findCategoriesOfSubGroup(String subGroupName) {
+    public Page<CategoryDTO> findCategoriesOfSubGroup(String subGroupName, Pageable pageable) {
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
         if (subGroupMaybe.isPresent() == false) {
-            return null;
-        }
-        SubGroup subGroup = subGroupMaybe.get();
-        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
-        if (categoriesMaybe.isPresent() == false) {
-            return null;
+            return Page.empty();
         }
 
-        List<Category> categories = categoriesMaybe.get();
-        List<CategoryDTO> categoriesDTO = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
-            categoriesDTO.add(categoryDTO);
+        SubGroup subGroup = subGroupMaybe.get();
+        Page<Category> categoriesPage = categoryRepository.findBySubGroup(subGroup, pageable);
+
+        if (categoriesPage.isEmpty()) {
+            return Page.empty();
         }
-        return categoriesDTO;
+
+        return categoriesPage.map(category -> catMapper.mapToCategoryDto(category));
     }
 
     /**
      * Gets the categories given a set of characteristics given in the body.
-     * The body contains every field corresponding to each characteristic of the particular subgroup,
-     * even the one where no conditions is requested. The function looks for the non-empty field
+     * The body contains every field corresponding to each characteristic of the
+     * particular subgroup,
+     * even the one where no conditions is requested. The function looks for the
+     * non-empty field
      * and filter the categories by their input value.
+     * 
      * @param body the map containing the characteristics
      * @return List of categoryDTO
      */
@@ -336,6 +369,7 @@ public class CategoryService {
 
     /**
      * Gets the characteristics (with their value) of the category given by catId
+     * 
      * @param catId the id of the category
      * @return List of CharacteristicDTO
      */
@@ -360,7 +394,8 @@ public class CategoryService {
 
     /**
      * Updates the characteristics of a category given by catId
-     * @param catId the id of the category
+     * 
+     * @param catId                  the id of the category
      * @param updatedCharacteristics the list of characteristics to update
      * @return List of CharacteristicDTO
      * @throws ResourceNotFoundException
@@ -401,11 +436,11 @@ public class CategoryService {
         return updatedCharacteristicDTOs;
     }
 
-
     /**
      * Set the picture of the category
+     * 
      * @param categoryId the id of the category
-     * @param picture the picture to set
+     * @param picture    the picture to set
      * @return the categoryDTO
      * @throws ResourceNotFoundException
      */
@@ -427,98 +462,129 @@ public class CategoryService {
         return catMapper.mapToCategoryDto(savedCategory);
     }
 
+    /**
+     * Retrieves a map of all characteristics and their values for a given category
+     * ID.
+     * This is used for exporting instruments with their associated characteristic
+     * values.
+     *
+     * @param categoryId The ID of the category.
+     * @return A map where each key is a characteristic name and each value is the
+     *         corresponding value (or empty string).
+     * @throws ResourceNotFoundException If the category is not found.
+     */
+    public Map<String, String> getCharacteristicValuesByCategoryId(Integer categoryId) {
+        Optional<Category> categoryMaybe = categoryRepository.findById((long) categoryId);
+        if (categoryMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+        }
+
+        // Get all characteristics linked to this category
+        List<CategoryCharacteristic> characteristics = categoryCharRepository.findByCategoryId(categoryId);
+
+        // Map: characteristic name -> value
+        return characteristics.stream()
+                .collect(Collectors.toMap(
+                        cc -> cc.getCharacteristic().getName(),
+                        cc -> cc.getVal() != null ? cc.getVal() : ""));
+    }
 }
 
+// public CategoryDTO addCategoryToSubGroup(String subGroupName, Map<String,
+// Object> body){
+// Optional<SubGroup> subGroupMaybe =
+// subGroupRepository.findByName(subGroupName);
+// if (subGroupMaybe.isPresent() == false){
+// return null;
+// }
+// SubGroup subGroup = subGroupMaybe.get();
 
+// Category newCat = new Category(subGroup);
+// Integer newCatId = newCat.getId();
 
+// String gName = subGroup.getGroup().getName();
+// String subgName = subGroup.getName();
 
+// List<SubGroupCharacteristic> subGroupCharacteristics =
+// subGroup.getSubGroupCharacteristics();
+// List<String> characteristics = new ArrayList<>();
+// for (SubGroupCharacteristic subGroupCharacteristic :
+// subGroupCharacteristics){
+// String characteristic = subGroupCharacteristic.getCharacteristic().getName();
+// characteristics.add(characteristic);
+// }
 
+// String function = (String) body.get("function");
+// if (function == null ){
+// return null;
+// }
+// String name = (String) body.get("name");
+// if (name == null){
+// return null;
+// }
 
-// public CategoryDTO addCategoryToSubGroup(String subGroupName, Map<String, Object> body){
-//     Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-//     if (subGroupMaybe.isPresent() == false){
-//         return null;
-//     }
-//     SubGroup subGroup = subGroupMaybe.get();
+// String lenAbrv = new String();
+// lenAbrv = null;
 
-//     Category newCat = new Category(subGroup);
-//     Integer newCatId = newCat.getId();
+// List<Map<String, Object>> EntryChars = (List<Map<String, Object>>)
+// body.get("chars");
+// Map<String, String> dictVal = new HashMap<>();
+// Map<String, String> dictValAbrev = new HashMap<>();
+// for (Map<String, Object> EntryChar : EntryChars) {
+// String EntryCharName = (String) EntryChar.get("name");
+// String EntryCharVal = (String) EntryChar.get("value");
+// String EntryCharValAbrev = (String) EntryChar.get("abrev");
+// dictVal.put(EntryCharName, EntryCharVal);
+// dictValAbrev.put(EntryCharName, EntryCharValAbrev);
+// }
 
-//     String gName = subGroup.getGroup().getName();
-//     String subgName = subGroup.getName();
+// StringBuilder shapeBuilder = new StringBuilder();
+// List<CategoryCharacteristic> newCatChars = new ArrayList<>();
+// for (String charSubGroup : characteristics){
+// if (dictVal.containsKey(charSubGroup) &&
+// dictValAbrev.containsKey(charSubGroup)){
+// Optional<Characteristic> charMaybe =
+// characteristicRepository.findByName(charSubGroup);
+// if (charMaybe.isPresent() == false){
+// return null;
+// }
+// Characteristic newChar = charMaybe.get();
+// Integer charId = newChar.getId();
+// String newCharVal = dictVal.get(charSubGroup);
+// String newCharAbrev = dictValAbrev.get(charSubGroup);
 
-//     List<SubGroupCharacteristic> subGroupCharacteristics = subGroup.getSubGroupCharacteristics();
-//     List<String> characteristics = new ArrayList<>();
-//     for (SubGroupCharacteristic subGroupCharacteristic : subGroupCharacteristics){
-//         String characteristic = subGroupCharacteristic.getCharacteristic().getName();
-//         characteristics.add(characteristic);
-//     }
+// if (newCharVal==null){
+// continue;
+// }
 
-//     String function = (String) body.get("function");
-//     if (function == null ){
-//         return null;
-//     }
-//     String name = (String) body.get("name");
-//     if (name == null){
-//         return null;
-//     }
+// CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCatId,
+// charId);
+// CategoryCharacteristic catChar = new CategoryCharacteristic(newCat, newChar,
+// newCharVal, newCharAbrev);
+// catChar.setId(key);
+// categoryCharRepository.save(catChar);
+// newCatChars.add(catChar);
 
-//     String lenAbrv = new String();
-//     lenAbrv = null;
+// if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
+// continue;
+// }
+// if(charSubGroup.equals("Length")){
+// lenAbrv = newCharAbrev;
+// }
+// shapeBuilder.append(newCharAbrev).append("/");
+// }
+// }
+// if (shapeBuilder.length()> 0){
+// shapeBuilder.setLength(shapeBuilder.length()-1);
+// }
+// String shape = shapeBuilder.toString();
+// newCat.setShape(shape);
+// newCat.setCategoryCharacteristic(newCatChars);
+// categoryRepository.save(newCat);
 
-//     List<Map<String, Object>> EntryChars = (List<Map<String, Object>>) body.get("chars");
-//     Map<String, String> dictVal = new HashMap<>();
-//     Map<String, String> dictValAbrev = new HashMap<>();
-//     for (Map<String, Object> EntryChar : EntryChars) {
-//         String EntryCharName = (String) EntryChar.get("name");
-//         String EntryCharVal = (String) EntryChar.get("value");
-//         String EntryCharValAbrev = (String) EntryChar.get("abrev");
-//         dictVal.put(EntryCharName, EntryCharVal);
-//         dictValAbrev.put(EntryCharName, EntryCharValAbrev);
-//     }
-
-    // StringBuilder shapeBuilder = new StringBuilder();
-    // List<CategoryCharacteristic> newCatChars = new ArrayList<>();
-    // for (String charSubGroup : characteristics){
-    //     if (dictVal.containsKey(charSubGroup) && dictValAbrev.containsKey(charSubGroup)){
-    //         Optional<Characteristic> charMaybe =  characteristicRepository.findByName(charSubGroup);
-    //         if (charMaybe.isPresent() == false){
-    //             return null;
-    //         }
-    //         Characteristic newChar = charMaybe.get();
-    //         Integer charId = newChar.getId();
-    //         String newCharVal = dictVal.get(charSubGroup);
-    //         String newCharAbrev = dictValAbrev.get(charSubGroup);
-
-    //         if (newCharVal==null){
-    //             continue;
-    //         }
-
-    //         CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCatId, charId);
-    //         CategoryCharacteristic catChar = new CategoryCharacteristic(newCat, newChar, newCharVal, newCharAbrev);
-    //         catChar.setId(key);
-    //         categoryCharRepository.save(catChar);
-    //         newCatChars.add(catChar);
-
-    //         if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
-    //             continue;
-    //         }
-    //         if(charSubGroup.equals("Length")){
-    //             lenAbrv = newCharAbrev;
-    //         }
-    //         shapeBuilder.append(newCharAbrev).append("/");
-    //     }
-    // }
-    // if (shapeBuilder.length()> 0){
-    //     shapeBuilder.setLength(shapeBuilder.length()-1);
-    // }
-    // String shape = shapeBuilder.toString();
-    // newCat.setShape(shape);
-    // newCat.setCategoryCharacteristic(newCatChars);
-//     categoryRepository.save(newCat);
-
-//     CategoryDTO newCatDTO = new CategoryDTO(gName, subgName, name, function, shape, lenAbrv);
-//     return newCatDTO;
+// CategoryDTO newCatDTO = new CategoryDTO(gName, subgName, name, function,
+// shape, lenAbrv);
+// return newCatDTO;
 // }
 
 // }

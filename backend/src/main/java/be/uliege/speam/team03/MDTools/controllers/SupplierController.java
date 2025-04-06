@@ -165,4 +165,20 @@ public class SupplierController {
         supplierService.deleteSupplierById(id);
         ResponseEntity.status(HttpStatus.NO_CONTENT).body("Supplier deleted successfully");
     }
+
+    /**
+     * Retrieves a supplier by its name.
+     *
+     * @param name The name of the supplier.
+     * @return The supplier details including flags such as 'closed' and 'soldByMD',
+     *         or a 404 status if the supplier does not exist.
+     */
+    @GetMapping("name/{name}")
+    public ResponseEntity<?> findSupplierByName(@PathVariable String name) {
+        SupplierDTO supplier = supplierService.findSupplierByName(name);
+        if (supplier == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier not found");
+        }
+        return ResponseEntity.ok(supplier);
+    }
 }

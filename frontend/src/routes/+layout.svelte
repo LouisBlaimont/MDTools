@@ -2,44 +2,62 @@
   import "../app.css";
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import { Modals } from "svelte-modals";
-  import Loading from "$lib/Loading.svelte";
-  import { checkRole } from "$lib/rbacUtils";
   import { ROLES } from "../constants";
   import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
-  import { login, checkUser } from "../auth";
+  import { login, checkUser, handleLogin, handleLogout } from "../auth";
   import { onMount } from "svelte";
   import { apiFetch } from "$lib/utils/fetch";
   import { toast } from "@zerodevx/svelte-toast";
+  import { goto } from "$app/navigation";
+  import { browser } from "$app/environment";
+  import { page } from '$app/stores';
+  import UserDropdown from "$lib/components/userDropdown.svelte";
+  import { replaceState, afterNavigate } from "$app/navigation";
 
-  // Handle authentication
-  async function handleAuth() {
-    if ($isLoggedIn) {
-      try {
-        const response = await apiFetch("/api/auth/logout", { method: "POST" });
-        if (response.ok) {
-          user.set(null);
-          toast.push("You have been logged out successfully.");
-        } else {
-          throw new Error("Logout failed.");
-        }
-      } catch (error) {
-        toast.push("An error occurred while logging out. Please try again.");
-      }
-    } else {
-      login();
+
+  let showDataMenu = false;
+  
+
+  function toggleDataMenu() {
+    showDataMenu = !showDataMenu;
+  }
+
+  function closeMenu() {
+    showDataMenu = false;
+  }
+
+  let showMoreMenu = false;
+
+  function toggleMoreMenu() {
+    showMoreMenu = !showMoreMenu;
+  }
+
+  function closeMoreMenu() {
+    showMoreMenu = false;
+  }
+
+
+  // Handle redirect to login page if not logged in
+  $: if(browser) {
+    if (!$isLoggedIn && !($page.url.searchParams.get("login") === "success") && window && window.location.pathname !== "/login") {
+        goto("/login");
     }
   }
 
   // Determine if we should check the user
   $: shouldCheckUser = !$user || ($user?.expiresAt ?? 0) < Date.now();
+
   onMount(() => {
-    console.log("shouldCheckUser", shouldCheckUser);
-    console.log("isLoggedIn", $isLoggedIn);
-    console.log("user", $user);
-    console.log("isAdmin", $isAdmin);
-    console.log("isWebmaster", $isWebmaster);
-    
-  });
+    if(shouldCheckUser) {
+      checkUser();
+    }
+
+    if(browser && $page.url.searchParams.get("login") === "success") {
+      toast.push("You have successfully log in !");
+    }
+  }
+)
+
 </script>
 
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
@@ -47,40 +65,73 @@
   <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
 
   <!-- Navigation Bar -->
-  <nav class="hidden md:flex space-x-6">
-    <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
-    <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
+  {#if $page.url.pathname !== '/login'}
+    <nav class="hidden md:flex space-x-6">
+      {#if $isLoggedIn}
+        <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
+        <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
+      {/if}
 
-    {#if $isLoggedIn}
-      <a href="/users" class="text-white hover:text-teal-300 transition">User Profile</a>
-    {/if}
+      {#if $isAdmin || $isWebmaster}
+        <div class="relative">
+          <button 
+            onclick={toggleDataMenu}
+            class="text-white hover:text-teal-300 transition flex items-center gap-1"
+          >
+            Data
+            <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+          </button>
 
-    {#if $isAdmin || $isWebmaster}
-      <a href="/admin/import" class="text-white hover:text-teal-300 transition">Import</a>
-      <a href="/admin/supplier" class="text-white hover:text-teal-300 transition">Suppliers</a>
-    {/if}
+          {#if showDataMenu}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div 
+              class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
+              onmouseleave={closeMenu}
+            >
+              <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
+              <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
+            </div>
+          {/if}
+        </div>
+      {/if}
 
-    {#if $isWebmaster}
-      <a href="/webmaster" class="text-white hover:text-teal-300 transition">Webmaster</a>
-    {/if}
-  </nav>
+      <!-- More Menu -->
+      <div class="relative">
+        <button 
+          onclick={toggleMoreMenu}
+          class="text-white hover:text-teal-300 transition flex items-center gap-1"
+        >
+          More
+          <span class="text-xs">{showMoreMenu ? "▲" : "▼"}</span>
+        </button>
+
+        {#if showMoreMenu}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div 
+            class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
+            onmouseleave={closeMoreMenu}
+          >
+          {#if $isLoggedIn}
+            <a href="/users" class="block px-4 py-2 hover:bg-teal-400 transition">User Profile</a>
+          {/if}
+          {#if $isAdmin || $isWebmaster}
+            <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Users</a>
+            <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Suppliers</a>
+            <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
+            {#if $isWebmaster}
+              <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition">Webmaster</a>
+            {/if}
+          {/if}
+          </div>
+        {/if}
+      </div>
+    </nav>
+  {/if}
+
 
   <!-- Login / Logout Button -->
-  <button
-    onclick={handleAuth}
-    class="px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition flex items-center justify-center"
-    style="width: 100px; height: 42px;"
-  >
-    <span class="size-fit">
-      {#await shouldCheckUser ? checkUser() : Promise.resolve()}
-        <Loading />
-      {:then}
-        {$isLoggedIn ? "Log out" : "Login"}
-      {:catch}
-        Login
-      {/await}
-    </span>
-  </button>
+  <UserDropdown />
+ 
 </header>
 
 <main class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">

@@ -1,9 +1,10 @@
 <script>
-  import { PUBLIC_API_URL } from "$env/static/public";
-  import { onMount, getContext } from "svelte";
-  import { reload } from "$lib/stores/searches";
+  import { alternatives, reload, selectedGroup, selectedSubGroup} from "$lib/stores/searches";
   import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
+  import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
+  import Icon from "@iconify/svelte";
+  import Loading from "$lib/Loading.svelte";
 
   // Destructure the props provided by <Modals />
   const {
@@ -11,6 +12,28 @@
     close,  // Function to close the modal
     instrument, // The instrument data passed as a prop
   } = $props();
+
+  let hoveredAlternativeIndex = $state(null);
+
+  //get alternative when displaying modal
+  let alternativesOfInstr = $state([]);
+  $effect(() => {
+    async function getAlternativesOfInstr(){
+      if(isOpen && instrument?.id){
+        try{
+          const response = await apiFetch(`/api/alternatives/admin/instrument/${instrument.id}`);
+          if(!response.ok){
+            throw new Error(`Failed get alternatives of ${instrument.id}`);
+          }
+          const data = await response.json();
+          alternativesOfInstr = data;
+        }catch(error){
+          console.log(error);
+        }
+      }
+    }
+    getAlternativesOfInstr();
+  });
 
   let file; // Variable to store the selected file
 
@@ -62,10 +85,48 @@
         console.error("Error:", error);
       }
     }
-    reload.set(true); // Trigger a reload
-    close(); // Close the modal
+    if($addingAlt){
+      addingAlt.set(false);
+      for (const instr2 of $altToAdd){
+        try {
+          const response = await apiFetch(`/api/alternatives?instr1=${instrument.id}&instr2=${instr2.id}`, {
+            method : "POST",
+            credentials: "include"
+          });
+          if (!response.ok){
+            throw new Error("Impossible to add alternative");
+          }
+          const data = await response.json();
+          alternatives.set(data);
+        }catch(error){
+          console.log(error);
+        }
+      }
+      altToAdd.set([]);
+    }
+
+    if($removingAlt){
+      removingAlt.set(false);
+      for (const instr2 of $altToRemove){
+        try { 
+          const response = await apiFetch(`/api/alternatives/${instr2}/instrument/${instrument.id}`,{
+          method : "DELETE",
+          });
+          if(!response.ok){
+              throw new Error(`Failed to remove alternative`);
+          }
+          const data = await response.json();
+          alternatives.set(result);
+        } catch(error) {
+            console.log("Error :", error);
+        }
+      }
+      altToRemove.set([]);
+    }
+    close();
+    goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
     reload.set(true);
-    goto("../../searches"); // Navigate to the searches page
+
   }
 
   // Function to fetch the characteristics of the instrument
@@ -346,6 +407,54 @@
 
     showAutocompleteDropdown = true;
   }
+  //change with addAlternative(row) after adding search by keyword
+  function addAlternative(){
+    const errorSameSupp = document.getElementById("error-same-supplier");
+    const errorAlreadyAlt = document.getElementById("error-already-alt");
+    const errorDifferentGroup = document.getElementById("error-different-group");
+    const instrumenttoAdd = {supplier: "Maganovum",
+    groupId : 1,
+    subGroupId : 1,
+    categoryId: 3,
+    reference: "PLS-3003",
+    supplierDescription: "Plastic Scalpel Type G",
+    price: 10.5,
+    obsolete: false,
+    picturesId: null,
+    id: 7};
+    if(instrument.supplier === instrumenttoAdd.supplier){
+      errorSameSupp.classList.remove('hidden');
+      return;
+    }
+    if(alternativesOfInstr.some(instr => instr.id === instrumenttoAdd.id) ||
+    $altToAdd.some(instr => instr.id === instrumenttoAdd.id)){
+      errorAlreadyAlt.classList.remove('hidden');
+      return;
+    }
+    if(instrument.groupId !== instrumenttoAdd.groupId){
+      errorDifferentGroup.classList.remove('hidden');
+      return;
+    }
+    errorSameSupp.classList.add('hidden');
+    errorAlreadyAlt.classList.add('hidden');
+    errorDifferentGroup.classList.add('hidden');
+    addingAlt.set(true);
+    altToAdd.update(alt => [...alt, instrumenttoAdd]);
+  }
+
+  async function removeAlt(instrId){
+    removingAlt.set(true);
+    altToRemove.update(alt => [...alt, instrId]);
+    alternativesOfInstr = alternativesOfInstr.filter(instr => instr.id !== instrId);
+  }
+
+  function canceling(){
+    addingAlt.set(false);
+    altToAdd.set([]);
+    removingAlt.set(false);
+    altToRemove.set([]);
+    close();
+  }
 </script>
 
 {#if isOpen}
@@ -523,6 +632,67 @@
                             Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.
                         </div>
                     {/if}
+                    <label class="block mb-2 flex items-center">
+                      Alternatives:
+                      <input type="text" class="ml-2 p-1 border rounded" />
+                      <button class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" onclick={() => addAlternative()}>
+                        Ajouter
+                      </button>
+                    </label>
+                    <span id="error-same-supplier" class="mb-5 text-red-600 text-sm hidden">Les alternatives doivent avoir des fournisseurs differents.</span>
+                    <span id="error-different-group" class="mb-5 text-red-600 text-sm hidden">Les alternatives doivent faire partie du même groupe.</span>
+                    <span id="error-already-alt" class="mb-5 text-red-600 text-sm hidden">Cette alternative existe déjà.</span>
+                    
+                    <table class="w-full border border-gray-200 text-sm">
+                      <thead>
+                        <tr class="bg-gray-200">
+                          <th class="p-2 text-center">Référence</th>
+                          <th class="p-2 text-center">Marque</th>
+                          <th class="p-2 text-center">Description</th>
+                          <th class="p-2 text-center">Prix</th>
+                          <th class="p-2 text-center">Supprimer</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {#each alternativesOfInstr as row, index}
+                          <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                          <tr class="border-t cursor-pointer {row.obsolete ? 'bg-red-500' : ''}"
+                          class:bg-[lightgray]={hoveredAlternativeIndex === index}
+                          ondblclick={() => selectAlternative(row, index)}
+                          onmouseover={() => (hoveredAlternativeIndex = index)}
+                          onmouseout={() => (hoveredAlternativeIndex = null)}
+                          >
+                            <td class="text-center p-2">{row.reference}</td>
+                            <td class="text-center p-2">{row.supplier}</td>
+                            <td class="text-center p-2">{row.supplierDescription}</td>
+                            <td class="text-center p-2">{row.price}</td>
+                            <td 
+                              class="text-center"
+                              onclick={() => removeAlt(row.id)}
+                            >
+                              <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
+                            </td>
+                          </tr>
+                        {/each}
+                          {#if $addingAlt}
+                            {#each $altToAdd as row, index}
+                              <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                              <tr class="border-t cursor-pointer {row.obsolete ? 'bg-red-500' : 'bg-green-500'}">
+                                <td class="text-center p-2">{row.reference}</td>
+                                <td class="text-center p-2">{row.supplier}</td>
+                                <td class="text-center p-2">{row.supplierDescription}</td>
+                                <td class="text-center p-2">{row.price}</td>
+                                <td 
+                                  class="text-center"
+                                  onclick={() => removeAlt(row.id)}
+                                >
+                                  <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
+                                </td>
+                              </tr>
+                            {/each}
+                          {/if}
+                      </tbody>
+                    </table>
                     
                     <div class="flex justify-end gap-4 mt-4">
                         <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>

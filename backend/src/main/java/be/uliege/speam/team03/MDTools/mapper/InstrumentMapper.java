@@ -9,19 +9,19 @@ import org.springframework.stereotype.Component;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.Supplier;
-import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
-
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Component
 public class InstrumentMapper {
-    private final AlternativesRepository alternativesRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
+    private final PictureStorageService pictureStorageService;
 
     /**
      * Convert an instrument to a DTO.
@@ -31,18 +31,20 @@ public class InstrumentMapper {
      */
     public InstrumentDTO convertToDTO(Instruments instrument) {
         InstrumentDTO dto = new InstrumentDTO(
-            instrument.getSupplier().getSupplierName(),
-            instrument.getCategory().getId(),
+            instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
+            instrument.getCategory() != null ? instrument.getCategory().getId() : null,
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
             instrument.getObsolete(),
-            null,
+            pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT),
             instrument.getId()
         );
         return dto;
     }
+
     /**
      * Convert a list of instruments to DTOs.
      * 
@@ -53,12 +55,14 @@ public class InstrumentMapper {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         for (Instruments instrument : instruments) {
             InstrumentDTO dto = new InstrumentDTO(
-                instrument.getSupplier().getSupplierName(),
-                instrument.getCategory().getId(),
+                instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
+                instrument.getCategory().getSubGroup().getGroup().getId(),
+                instrument.getCategory().getSubGroup().getId(),
+                instrument.getCategory() != null ? instrument.getCategory().getId() : null,
                 instrument.getReference(),
                 instrument.getSupplierDescription(),
                 instrument.getPrice(),
-                !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
+                pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT),
                 instrument.getObsolete(),
                 null,
                 instrument.getId()
@@ -94,7 +98,7 @@ public class InstrumentMapper {
 
         // retrieve category based on category id
         Optional<Category> categoryMaybe = categoryRepository.findById(instrumentDTO.getCategoryId());
-        if (categoryMaybe.isPresent() == false) {
+        if (categoryMaybe.isEmpty()) {
             return null;
         }
         Category category = categoryMaybe.get();

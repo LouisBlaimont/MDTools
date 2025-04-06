@@ -3,8 +3,12 @@ const BASE_URL = PUBLIC_API_URL + "/api";
 import { apiFetch } from "$lib/utils/fetch.js"
 
 
+/**
+ * Fetches all instruments from the backend using the generic apiFetch wrapper.
+ * @returns {Promise<Array>} - A list of all instrument objects.
+ */
 export async function fetchTools() {
-  const res = await fetch(`${BASE_URL}/instruments`);
+  const res = await apiFetch("/api/instrument/all");
   if (!res.ok) throw new Error("Failed to fetch tools");
   return res.json();
 }
@@ -152,4 +156,117 @@ export async function sendExcelToBackend(jsonData, columnMapping, selectedOption
   }
 
   return response.json();
+}
+
+/**
+ * Fetches all instruments for a given subgroup.
+ * Each instrument includes its reference and related attributes.
+ * @param {string} subGroupName - The name of the subgroup.
+ * @returns {Promise<Array>} - A list of instrument objects.
+ */
+export async function fetchInstrumentsBySubGroup(subGroupName) {
+  const response = await apiFetch(`/api/instrument/subgroup/${encodeURIComponent(subGroupName)}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch instruments for subgroup: ${subGroupName}`);
+  }
+  return await response.json();
+}
+
+/**
+ * Fetches a supplier by name.
+ *
+ * @param {string} supplierName - The name of the supplier to retrieve.
+ * @returns {Promise<Object>} - The supplier object containing fields like 'closed' and 'soldByMD'.
+ * @throws {Error} - If the fetch fails or the supplier is not found.
+ */
+export async function fetchSupplierByName(supplierName) {
+  const res = await apiFetch(`/api/supplier/name/${encodeURIComponent(supplierName)}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch supplier: ${supplierName}`);
+  }
+  return res.json();
+}
+
+/**
+ * Fetches all characteristic values for a given category.
+ * @param {number|string} categoryId - The ID of the category.
+ * @returns {Promise<Object>} - A mapping of characteristic name to value.
+ */
+export async function fetchCharacteristicValuesByCategory(categoryId) {
+  const res = await apiFetch(`/api/category/${categoryId}/characteristics`);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch characteristic values for category ${categoryId}`);
+  }
+
+  return res.json();
+}
+
+/**
+ * Fetches all instruments for a given supplier name.
+ * @param {string} supplierName - The name of the supplier.
+ * @returns {Promise<Array>} - A list of instrument objects.
+ * @throws {Error} - If the request fails.
+ */
+export async function fetchInstrumentsBySupplier(supplierName) {
+  const response = await apiFetch(`/api/instrument/supplier/${encodeURIComponent(supplierName)}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch instruments for supplier: ${supplierName}`);
+  }
+  return await response.json();
+}
+
+/**
+ * Adds a new characteristic to a specific subgroup.
+ * @param {string} subGroupName - The name of the subgroup to add the characteristic to.
+ * @param {string} characteristicName - The name of the new characteristic.
+ * @returns {Promise<void>}
+ */
+export async function addCharacteristicToSubGroup(subGroupName, characteristicName) {
+  const res = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroupName)}/characteristics`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: characteristicName })
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to add characteristic "${characteristicName}" to subgroup "${subGroupName}"`);
+  }
+}
+
+/**
+ * Fetches all characteristics from the backend.
+ * @returns {Promise<Array>} A list of all characteristic names.
+ */
+export async function fetchAllCharacteristics() {
+  const res = await apiFetch("/api/characteristics/all");
+  if (!res.ok) {
+    throw new Error("Failed to fetch all characteristics");
+  }
+  return res.json();
+}
+
+/**
+ * Updates the order of characteristics for a given subgroup.
+ * @param {string} subGroupName
+ * @param {Array<{ name: string, order: number }>} orderedList
+ */
+export async function updateCharacteristicOrder(subGroupName, orderedList) {
+  const res = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroupName)}/characteristics/order`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderedList),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to update characteristic order for ${subGroupName}`);
+  }
+}
+
+export async function fetchAlternatives() {
+  const res = await apiFetch("/api/alternatives/all");
+  if (!res.ok) {
+    throw new Error("Failed to fetch alternatives");
+  }
+  return await res.json();
 }

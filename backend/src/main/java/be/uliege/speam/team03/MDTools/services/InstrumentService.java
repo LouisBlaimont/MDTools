@@ -15,11 +15,13 @@ import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import lombok.AllArgsConstructor;
 
@@ -30,6 +32,7 @@ public class InstrumentService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final AlternativesRepository alternativesRepository;
+    private final SubGroupRepository subGroupRepository;
     private final InstrumentMapper instrumentMapper;
     private final PictureStorageService pictureStorageService;
 
@@ -49,12 +52,13 @@ public class InstrumentService {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         instrumentDTOs.add(new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
             instrument.getPrice(),
             instrument.getObsolete(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
             null,
             instrument.getId()
         ));
@@ -75,6 +79,8 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         return new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
@@ -100,6 +106,8 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         return new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
@@ -225,13 +233,11 @@ public class InstrumentService {
 
             // retrieve alternatives? 
             Integer instrumentId = instrument.getId();
-            List<Alternatives> alternatives = alternativesRepository.findByInstrumentsId1(instrumentId);
-            boolean alt = !alternatives.isEmpty();
             
             // get pictures of the instrument
             List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, alt, obsolete, pictures, instrumentId);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getSubGroup().getGroup().getId(), category.getSubGroup().getId(), category.getId(), reference, supplierDescription, price, obsolete, pictures, instrumentId);
 
             instrumentsDTO.add(instrumentDTO);
         }
@@ -277,5 +283,42 @@ public class InstrumentService {
         Instruments instrument = instrumentRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Instrument not found with id: " + id));
         instrumentRepository.delete(instrument);
+    }
+
+
+    /**
+     * Finds all instruments linked to the given sub-group name.
+     * Returns their DTOs or null if the sub-group or categories are not found.
+     *
+     * @param subGroupName the name of the sub-group
+     * @return list of InstrumentDTOs or null
+     */
+    public List<InstrumentDTO> findInstrumentsBySubGroup(String subGroupName) {
+        // Fetch the subgroup by name
+        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
+        if (!subGroupMaybe.isPresent()) {
+            return null; // No subgroup found
+        }
+        SubGroup subGroup = subGroupMaybe.get();
+
+        // Fetch all categories within this subgroup
+        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
+        if (!categoriesMaybe.isPresent() || categoriesMaybe.get().isEmpty()) {
+            return null; // No categories found
+        }
+
+        List<Category> categories = categoriesMaybe.get();
+        List<InstrumentDTO> instrumentsDTO = new ArrayList<>();
+
+        // Fetch instruments for each category
+        for (Category category : categories) {
+            Optional<List<Instruments>> instrumentsMaybe = instrumentRepository.findByCategory(category);
+            if (instrumentsMaybe.isPresent()) {
+                List<Instruments> instruments = instrumentsMaybe.get();
+                instrumentsDTO.addAll(instrumentMapper.convertToDTO(instruments));
+            }
+        }
+
+        return instrumentsDTO;
     }
 }

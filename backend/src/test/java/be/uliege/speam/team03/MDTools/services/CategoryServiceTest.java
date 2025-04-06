@@ -14,6 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 class CategoryServiceTest {
 
@@ -56,34 +61,39 @@ class CategoryServiceTest {
         category.setSubGroup(subGroup);
         category.setShape("Round");
 
+        List<Category> categories = List.of(category);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
+        Page<Category> categoryPage = new PageImpl<>(categories, pageable, categories.size());
+
         when(groupRepository.findByName(groupName)).thenReturn(Optional.of(group));
         when(subGroupRepository.findByGroup(group)).thenReturn(List.of(subGroup));
-        when(categoryRepository.findBySubGroupIn(List.of(subGroup))).thenReturn(Optional.of(List.of(category)));
+        when(categoryRepository.findAllBySubGroupIn(List.of(subGroup), pageable)).thenReturn(categoryPage);
         when(categoryRepository.findCharacteristicVal(1L, "Name")).thenReturn(Optional.of("Scalpel"));
         when(categoryRepository.findCharacteristicVal(1L, "Function")).thenReturn(Optional.of("Cutting"));
 
         // When
-        List<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName);
+        Page<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName, pageable);
 
         // Then
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Scalpel", result.get(0).getName());
-        assertEquals("Cutting", result.get(0).getFunction());
-        assertEquals("Round", result.get(0).getShape());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Scalpel", result.getContent().get(0).getName());
+        assertEquals("Cutting", result.getContent().get(0).getFunction());
+        assertEquals("Round", result.getContent().get(0).getShape());
     }
 
     @Test
     void testFindCategoriesOfGroup_WhenGroupDoesNotExist() {
         // Given
         String groupName = "NonExistentGroup";
+        Pageable pageable = PageRequest.of(0, 10);
         when(groupRepository.findByName(groupName)).thenReturn(Optional.empty());
 
         // When
-        List<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName);
+        Page<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName, pageable);
 
         // Then
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -102,32 +112,37 @@ class CategoryServiceTest {
         category.setSubGroup(subGroup);
         category.setShape("Round");
 
+        List<Category> categories = List.of(category);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
+        Page<Category> categoryPage = new PageImpl<>(categories, pageable, categories.size());
+
         when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
-        when(categoryRepository.findBySubGroup(subGroup)).thenReturn(Optional.of(List.of(category)));
+        when(categoryRepository.findBySubGroup(subGroup, pageable)).thenReturn(categoryPage);
         when(categoryRepository.findCharacteristicVal(1L, "Name")).thenReturn(Optional.of("Scalpel"));
         when(categoryRepository.findCharacteristicVal(1L, "Function")).thenReturn(Optional.of("Cutting"));
 
         // When
-        List<CategoryDTO> result = categoryService.findCategoriesOfSubGroup(subGroupName);
+        Page<CategoryDTO> result = categoryService.findCategoriesOfSubGroup(subGroupName, pageable);
 
         // Then
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Scalpel", result.get(0).getName());
-        assertEquals("Cutting", result.get(0).getFunction());
-        assertEquals("Round", result.get(0).getShape());
+        assertEquals(1, result.getContent().size());
+        assertEquals("Scalpel", result.getContent().get(0).getName());
+        assertEquals("Cutting", result.getContent().get(0).getFunction());
+        assertEquals("Round", result.getContent().get(0).getShape());
     }
 
     @Test
     void testFindCategoriesOfSubGroup_WhenSubGroupDoesNotExist() {
         // Given
         String subGroupName = "NonExistentSubGroup";
+        Pageable pageable = PageRequest.of(0, 10);
         when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.empty());
 
         // When
-        List<CategoryDTO> result = categoryService.findCategoriesOfSubGroup(subGroupName);
+        Page<CategoryDTO> result = categoryService.findCategoriesOfSubGroup(subGroupName, pageable);
 
         // Then
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 }

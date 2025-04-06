@@ -17,7 +17,7 @@ import lombok.Setter;
 @Embeddable
 public class SubGroupCharacteristicKey implements Serializable{
     @Column(name="sub_group_id")
-    private Integer subGroupId;
+    private Long subGroupId;
 
     @Column(name="characteristic_id")
     private Integer charId;

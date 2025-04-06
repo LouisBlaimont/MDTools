@@ -1,9 +1,9 @@
 import { PUBLIC_API_URL } from "$env/static/public";
 import { PUBLIC_OIDC_ENDPOINT } from "$env/static/public";
-import { user } from "$lib/stores/user_stores"; 
+import { user } from "$lib/stores/user_stores";
 import { apiFetch } from "$lib/utils/fetch";
 import { createPersistentStore, clearPersistentStore } from "$lib/utils/persistentStore";
-
+import { toast } from "@zerodevx/svelte-toast";
 
 export function login() {
   user.set(null);
@@ -13,7 +13,6 @@ export function login() {
 
 // check if user is logged in using the API
 export async function checkUser() {
-  console.log("Checking user");
   const res = await apiFetch("/api/auth/me");
   if (res.ok) {
     const data = await res.json();
@@ -21,5 +20,26 @@ export async function checkUser() {
   } else {
     user.set(null);
   }
-  console.log("User: ", $user);
+}
+
+// Handle authentication
+export async function handleLogin() {
+  login();
+}
+
+export async function handleLogout() {
+  const res = await apiFetch("/api/auth/logout");
+  if (res.ok) {
+    user.set(null);
+    clearPersistentStore("user");
+    toast.push("You have successfully log out !")
+  } else {
+    toast.push("Logout failed", {
+      theme: {
+        "--toastBackground": "#f44336",
+        "--toastColor": "#ffffff",
+      },
+    });
+    console.error("Logout failed");
+  }
 }
