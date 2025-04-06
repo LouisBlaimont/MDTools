@@ -16,13 +16,12 @@
     /**
      * Export the current order items to a styled Excel file.
      */
-     async function exportOrderToExcel() {
+    async function exportOrderToExcel() {
         const items = get(orderItems);
-        const id = get(selectedOrderId);
-        const orders = get(ordersNames);
-        const order = orders.find(o => o.id === id);
+        const orderId = get(selectedOrderId);
+        const orderName = get(ordersNames).find(o => o.id === orderId)?.name;
 
-        if (!items?.length || !order?.name) {
+        if (!items?.length || !orderName) {
             alert("Missing order data");
             return;
         }
@@ -37,7 +36,7 @@
             { header: "Quantité", key: "quantity", width: 10 },
             { header: "Prix HTVA", key: "price", width: 15 },
             { header: "Total HTVA", key: "totalHTVA", width: 15 },
-            { header: "Montant TVAC", key: "totalTVAC", width: 15 },
+            { header: "Montant TVAC", key: "totalTVAC", width: 15 }
         ];
 
         let totalHTVA = 0;
@@ -46,56 +45,62 @@
             const total = item.totalPrice || 0;
             totalHTVA += total;
 
+            const parts = [
+                item.category.groupName,
+                item.category.subGroupName,
+                item.category.function,
+                item.category.name,
+                item.category.shape,
+                item.category.lenAbrv ? `${item.category.lenAbrv} mm` : null
+            ].filter(Boolean);
+
+            const description = parts.join(" ");
+
             sheet.addRow({
                 reference: item.reference,
                 supplier: item.supplier,
-                description: `${item.category.groupName} - ${item.category.subGroupName || ""} - ${item.category.function} - ${item.category.name} - ${item.category.shape} - ${item.category.lenAbrv} mm`,
+                description,
                 quantity: item.quantity,
                 price: item.price,
                 totalHTVA: total.toFixed(2),
-                totalTVAC: (total * 1.21).toFixed(2),
+                totalTVAC: (total * 1.21).toFixed(2)
             });
         }
 
         const totalRow = sheet.addRow({
-            price: "Total:",
+            description: "Total",
             totalHTVA: totalHTVA.toFixed(2),
-            totalTVAC: (totalHTVA * 1.21).toFixed(2),
+            totalTVAC: (totalHTVA * 1.21).toFixed(2)
         });
 
         const lastRow = sheet.rowCount;
-        const rangeCols = 7;
+        const maxCol = sheet.columns.length;
 
         sheet.eachRow((row, rowNumber) => {
             row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                if (colNumber > rangeCols) return;
-
-                cell.border = {
-                    top: { style: "thin" },
-                    left: { style: "thin" },
-                    bottom: { style: "thin" },
-                    right: { style: "thin" },
-                };
-
-                cell.alignment = {
-                    vertical: "middle",
-                    horizontal: "center",
-                    wrapText: true,
-                };
+                if (colNumber > maxCol) return;
 
                 const isHeader = rowNumber === 1;
                 const isTotal = rowNumber === lastRow;
                 const isTop = isHeader;
                 const isBottom = isTotal;
                 const isLeft = colNumber === 1;
-                const isRight = colNumber === rangeCols;
+                const isRight = colNumber === maxCol;
+
+                cell.alignment = {
+                    vertical: "middle",
+                    horizontal: "center",
+                    wrapText: true
+                };
+
+                cell.font = { bold: isHeader || isTotal };
 
                 if (isHeader) {
                     cell.font = { bold: true };
                     cell.fill = {
                         type: "pattern",
                         pattern: "solid",
-                        fgColor: { argb: "FFD9E1F2" },
+                        fgColor: { argb: "FFD9E1F2" }
                     };
                 }
 
@@ -104,24 +109,23 @@
                     cell.fill = {
                         type: "pattern",
                         pattern: "solid",
-                        fgColor: { argb: "FFFCE4D6" },
+                        fgColor: { argb: "FFFCE4D6" }
                     };
                 }
 
-                if (isTop || isBottom || isLeft || isRight) {
-                    cell.border = {
-                        top: { style: isTop ? "medium" : "thin" },
-                        left: { style: isLeft ? "medium" : "thin" },
-                        bottom: { style: isBottom ? "medium" : "thin" },
-                        right: { style: isRight ? "medium" : "thin" },
-                    };
-                }
+                cell.border = {
+                    top: { style: isTop ? "medium" : "thin" },
+                    bottom: { style: isBottom ? "medium" : "thin" },
+                    left: { style: isLeft ? "medium" : "thin" },
+                    right: { style: isRight ? "medium" : "thin" }
+                };
             });
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
-        FileSaver.saveAs(new Blob([buffer]), `commande_${order.name}.xlsx`);
+        FileSaver.saveAs(new Blob([buffer]), `commande_${orderName}.xlsx`);
     }
+
 
     export async function findOrdersNames(){
         try{
@@ -136,6 +140,7 @@
         }
         return;
     }
+
     findOrdersNamesStore.set(findOrdersNames);
 
     async function removeInstrument(orderId, userId, instrId){
