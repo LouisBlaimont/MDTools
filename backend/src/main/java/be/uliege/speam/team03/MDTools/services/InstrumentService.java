@@ -260,11 +260,11 @@ public class InstrumentService {
      * @throws IllegalArgumentException if the supplier name is null or empty
      */
     public InstrumentDTO save(InstrumentDTO instrumentDTO) {
+        if (instrumentDTO.getReference() == null || instrumentDTO.getReference().isEmpty()) {
+            throw new IllegalArgumentException("Reference is required to identify an instrument");
+        }
         if (instrumentDTO.getSupplier() == null || instrumentDTO.getSupplier().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
-        }
-        if (instrumentDTO.getReference().isEmpty()) {
-            throw new IllegalArgumentException("Reference is required to identify an instrument");
         }
         if (instrumentDTO.getCategoryId() == null) {
             throw new IllegalArgumentException("Category ID is required to identify an instrument");

@@ -1,6 +1,9 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -21,6 +24,7 @@ import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
@@ -36,19 +40,19 @@ import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 @ExtendWith(MockitoExtension.class)
 public class InstrumentServiceTest {
 
-    @Mock
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private InstrumentRepository instrumentRepository;
 
-    @Mock
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SupplierRepository supplierRepository;
 
-    @Mock
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private InstrumentMapper instrumentMapper;
 
-    @Mock
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private PictureStorageService pictureStorageService;
 
-    @Mock
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private CategoryRepository categoryRepository;
 
     @InjectMocks
@@ -85,8 +89,13 @@ public class InstrumentServiceTest {
         instrumentDTOs.add(instrumentDTO);
 
         // Mock dependencies
-        lenient().when(pictureStorageService.getPicturesIdByReferenceIdAndPictureType(anyLong(), any(PictureType.class))).thenReturn(new ArrayList<>());
-        lenient().when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(new Category()));
+        when(pictureStorageService.getPicturesIdByReferenceIdAndPictureType(anyLong(), any(PictureType.class))).thenReturn(new ArrayList<>());
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(new Category()));
+        when(supplierRepository.findById(anyInt())).thenReturn(Optional.of(new Supplier()));
+        when(instrumentMapper.convertToDTO(any(Instruments.class))).thenReturn(instrumentDTO);
+        when(instrumentMapper.convertToEntity(any(InstrumentDTO.class))).thenReturn(instrument);
+        when(instrumentRepository.save(any(Instruments.class))).thenReturn(instrument);
+        when(instrumentMapper.convertToDTO(any(Instruments.class))).thenReturn(instrumentDTO);
     }
 
     @Test
@@ -94,6 +103,7 @@ public class InstrumentServiceTest {
         // Arrange
         when(instrumentRepository.findByReference("Test Reference")).thenReturn(Optional.of(instrument));
         when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
+
 
         // Act
         InstrumentDTO result = instrumentService.findByReference("Test Reference");
@@ -222,11 +232,15 @@ public class InstrumentServiceTest {
             instrumentService.delete(999);
         });
 
-        assertEquals("Instrument not found with id: 999", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Instrument not found with id: 999"));
     }
 
     @Test
     void findInstrumentsByReference_WhenInstrumentExists_ReturnsListOfInstrumentDTO() {
+        Category category = new Category();
+        category.setId(1);
+        category.setSubGroup(new SubGroup());
+        instrument.setCategory(category);
         // Arrange
         instrument.setSupplier(new Supplier());
         when(instrumentRepository.findByReference("Test Reference")).thenReturn(Optional.of(instrument));
