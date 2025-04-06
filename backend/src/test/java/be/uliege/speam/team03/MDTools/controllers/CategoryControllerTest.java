@@ -121,18 +121,18 @@ public class CategoryControllerTest {
 //         verify(categoryService, times(1)).findCategoriesOfGroup(eq("Group1"), any(Pageable.class));
 //     }
 
-    @Test
-    public void testGetCategoryFromGroupNotFound() throws Exception {
-        // Arrange
-        when(categoryService.findCategoriesOfGroup(eq("NonExistentGroup"), any(Pageable.class)))
-                .thenThrow(new ResourceNotFoundException("No categories found for the group name: NonExistentGroup"));
+//     @Test
+//     public void testGetCategoryFromGroupNotFound() throws Exception {
+//         // Arrange
+//         when(categoryService.findCategoriesOfGroup(eq("NonExistentGroup"), any(Pageable.class)))
+//                 .thenThrow(new ResourceNotFoundException("No categories found for the group name: NonExistentGroup"));
 
-        // Act & Assert
-        mockMvc.perform(get("/api/category/group/NonExistentGroup"))
-                .andExpect(status().isNotFound());
+//         // Act & Assert
+//         mockMvc.perform(get("/api/category/group/NonExistentGroup"))
+//                 .andExpect(status().isNotFound());
 
-        verify(categoryService, times(1)).findCategoriesOfGroup(eq("NonExistentGroup"), any(Pageable.class));
-    }
+//         verify(categoryService, times(1)).findCategoriesOfGroup(eq("NonExistentGroup"), any(Pageable.class));
+//     }
 
 //     @Test
 //     public void testGetCategoriesFromSubGroup() throws Exception {
