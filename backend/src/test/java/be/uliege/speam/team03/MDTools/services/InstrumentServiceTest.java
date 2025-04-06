@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.Supplier;
@@ -140,15 +141,16 @@ public class InstrumentServiceTest {
     }
 
     @Test
-    void findById_WhenInstrumentDoesNotExist_ReturnsNull() {
+    void findById_WhenInstrumentDoesNotExist_ThrowsResourceNotFoundException() {
         // Arrange
         when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
 
-        // Act
-        InstrumentDTO result = instrumentService.findById(999);
+        // Act & Assert
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.findById(999);
+        });
 
-        // Assert
-        assertNull(result);
+        assertEquals("Instrument not found with ID: 999", exception.getMessage());
     }
 
     @Test

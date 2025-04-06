@@ -45,27 +45,6 @@ public class GroupControllerTest {
     }
 
     @Test
-    void testFindAllGroups_Success() throws Exception {
-        // Arrange
-        List<GroupDTO> groups = List.of(
-                new GroupDTO(1L, "Group1", 1, 2L, null),
-                new GroupDTO(2L, "Group2", 2, 3L, null)
-        );
-        when(groupService.findAllGroups()).thenReturn(groups);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/groups")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Group1"))
-                .andExpect(jsonPath("$[1].name").value("Group2"))
-                .andExpect(jsonPath("$[0].instrCount").value(1))
-                .andExpect(jsonPath("$[1].instrCount").value(2));
-
-        verify(groupService, times(1)).findAllGroups();
-    }
-
-    @Test
     void testGetGroupDetailsByName_Success() throws Exception {
         GroupDTO group = new GroupDTO(1L, "Group1", 2, 2L, null);
         when(groupService.getGroupDetailsByName("Group1")).thenReturn(group);

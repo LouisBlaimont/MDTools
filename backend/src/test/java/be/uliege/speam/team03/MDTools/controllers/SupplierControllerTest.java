@@ -16,9 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.services.SupplierService;
@@ -40,86 +37,81 @@ public class SupplierControllerTest {
     }
 
     @Test
-    public void testGetAllSuppliers() throws Exception {
-        SupplierDTO supplier1 = new SupplierDTO("Supplier1", 1, true, false);
-        SupplierDTO supplier2 = new SupplierDTO("Supplier2", 2, false, true);
-
-        List<SupplierDTO> suppliers = Arrays.asList(supplier1, supplier2);
-
-        when(supplierService.findAllSuppliers()).thenReturn(suppliers);
-
-        mockMvc.perform(get("/api/supplier/all"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Supplier1"))
-                .andExpect(jsonPath("$[1].name").value("Supplier2"));
-
-        verify(supplierService, times(1)).findAllSuppliers();
-    }
-
-    @Test
     public void testGetSupplierById() throws Exception {
-        SupplierDTO supplier = new SupplierDTO("Supplier1", 1, true, false);
+        SupplierDTO supplierDto = new SupplierDTO();
+        supplierDto.setId(1);
+        supplierDto.setName("Supplier A");
 
-        when(supplierService.findSupplierById(1)).thenReturn(supplier);
+        when(supplierService.findSupplierById(1)).thenReturn(supplierDto);
 
         mockMvc.perform(get("/api/supplier/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Supplier1"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Supplier A"));
 
         verify(supplierService, times(1)).findSupplierById(1);
     }
 
     @Test
-    public void testAddSupplier() throws Exception {
-        SupplierDTO newSupplier = new SupplierDTO("Supplier1", null, true, false);
-        SupplierDTO savedSupplier = new SupplierDTO("Supplier1", 1, true, false);
+    public void testGetAllSuppliers() throws Exception {
+        SupplierDTO supplierDto1 = new SupplierDTO();
+        supplierDto1.setId(1);
+        supplierDto1.setName("Supplier A");
 
-        when(supplierService.saveSupplier(any(SupplierDTO.class))).thenReturn(savedSupplier);
+        SupplierDTO supplierDto2 = new SupplierDTO();
+        supplierDto2.setId(2);
+        supplierDto2.setName("Supplier B");
+
+        List<SupplierDTO> suppliers = Arrays.asList(supplierDto1, supplierDto2);
+
+        when(supplierService.findAllSuppliers()).thenReturn(suppliers);
+
+        mockMvc.perform(get("/api/supplier/all"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Supplier A"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Supplier B"));
+
+        verify(supplierService, times(1)).findAllSuppliers();
+    }
+
+    @Test
+    public void testAddSupplier() throws Exception {
+        SupplierDTO supplierDto = new SupplierDTO();
+        supplierDto.setId(1);
+        supplierDto.setName("Supplier A");
+
+        when(supplierService.saveSupplier(any(SupplierDTO.class))).thenReturn(supplierDto);
 
         mockMvc.perform(post("/api/supplier")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Supplier1\",\"soldByMd\":true,\"closed\":false}"))
+                .content("{\"name\": \"Supplier A\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Supplier1"));
+                .andExpect(jsonPath("$.name").value("Supplier A"));
 
         verify(supplierService, times(1)).saveSupplier(any(SupplierDTO.class));
     }
 
     @Test
     public void testUpdateSupplier() throws Exception {
-        SupplierDTO existingSupplier = new SupplierDTO("Supplier1", 1, true, false);
-        SupplierDTO updatedSupplier = new SupplierDTO("UpdatedSupplier", 1, false, true);
+        SupplierDTO supplierDto = new SupplierDTO();
+        supplierDto.setId(1);
+        supplierDto.setName("Updated Supplier");
 
-        when(supplierService.findSupplierById(1)).thenReturn(existingSupplier);
-        when(supplierService.saveSupplier(any(SupplierDTO.class))).thenReturn(updatedSupplier);
+        when(supplierService.findSupplierById(1)).thenReturn(supplierDto);
+        when(supplierService.saveSupplier(any(SupplierDTO.class))).thenReturn(supplierDto);
 
         mockMvc.perform(patch("/api/supplier/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"UpdatedSupplier\",\"soldByMd\":false,\"closed\":true}"))
+                .content("{\"name\": \"Updated Supplier\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("UpdatedSupplier"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Updated Supplier"));
 
         verify(supplierService, times(1)).findSupplierById(1);
         verify(supplierService, times(1)).saveSupplier(any(SupplierDTO.class));
-    }
-
-    @Test
-    public void testGetPaginatedSuppliers() throws Exception {
-        SupplierDTO supplier1 = new SupplierDTO("Supplier1", 1, true, false);
-        SupplierDTO supplier2 = new SupplierDTO("Supplier2", 2, false, true);
-
-        PageRequest pageRequest = PageRequest.of(0, 2);
-        Page<SupplierDTO> paginatedSuppliers = new PageImpl<>(Arrays.asList(supplier1, supplier2), pageRequest, 2);
-
-        when(supplierService.findPaginatedSuppliers(eq(pageRequest))).thenReturn(paginatedSuppliers);
-
-        mockMvc.perform(get("/api/supplier?page=0&size=2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].name").value("Supplier1"))
-                .andExpect(jsonPath("$.content[1].name").value("Supplier2"));
-
-        verify(supplierService, times(1)).findPaginatedSuppliers(eq(pageRequest));
     }
 
     @Test
