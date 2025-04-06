@@ -151,4 +151,18 @@ public class SupplierController {
         SupplierDTO savedSupplier = supplierService.saveSupplier(existingSupplier);
         return ResponseEntity.status(HttpStatus.OK).body(savedSupplier);
     }
+
+    /**
+     * Delete a supplier by its ID.
+     * 
+     * @param id the ID of the supplier to delete
+     * @return a 204 status if the supplier is deleted successfully, or a 404 status
+     *         if no supplier is found with the specified ID
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSupplier(@PathVariable Integer id) {
+        supplierService.deleteSupplierById(id);
+        ResponseEntity.status(HttpStatus.NO_CONTENT).body("Supplier deleted successfully");
+    }
 }

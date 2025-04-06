@@ -9,7 +9,6 @@
       close,  // Function to close the modal
     } = $props();
   
-    let file;
     let name = $state("");
     let soldByMd = $state(null);
     let closed = $state(null);
@@ -120,15 +119,7 @@
             if (closed === null) {
                 throw new Error("Closed is required");
             }
-            if (file) {
-                const fileData = new FormData();
-                fileData.append("file", file);
-                const response = await apiFetch(`/api/supplier/${encodeURIComponent(supplier.id)}/picture`, {
-                    method: "POST",
-                    body: fileData,
-                });
-                if (!response.ok) throw new Error("Failed to upload the image");    
-            }
+            
             const response = await apiFetch(`/api/supplier`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -264,12 +255,6 @@
               </label>
             </div>
           
-          <label class="block mb-2">Image:</label>
-          <input
-            type="file"
-            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
-            on:change={(e) => (file = e.target.files[0])}
-          />
           <div class="flex justify-end gap-4 mt-4">
             <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
             <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>

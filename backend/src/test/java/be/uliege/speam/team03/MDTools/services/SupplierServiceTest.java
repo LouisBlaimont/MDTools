@@ -18,6 +18,13 @@ import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.mapper.SupplierMapper;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import be.uliege.speam.team03.MDTools.repositories.SupplierPageRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import java.util.Arrays;
 
 @ExtendWith(MockitoExtension.class)
 public class SupplierServiceTest {
@@ -27,6 +34,9 @@ public class SupplierServiceTest {
 
     @Mock
     private SupplierMapper supplierMapper;
+
+    @Mock
+    private SupplierPageRepository supplierPageRepository;
 
     @InjectMocks
     private SupplierService supplierService;
@@ -151,18 +161,6 @@ public class SupplierServiceTest {
     }
 
     @Test
-    void deleteSupplier_CallsRepositoryDeleteById() {
-        // Arrange
-        doNothing().when(supplierRepository).deleteById(1);
-
-        // Act
-        supplierService.deleteSupplier(1);
-
-        // Assert
-        verify(supplierRepository).deleteById(1);
-    }
-
-    @Test
     void findSupplierById_WhenSupplierExists_ReturnsSupplierDTO() {
         // Arrange
         when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
@@ -265,18 +263,6 @@ public class SupplierServiceTest {
     }
 
     @Test
-    void deleteSupplier_WithNonexistentId_DoesNothing() {
-        // Arrange
-        doNothing().when(supplierRepository).deleteById(999);
-
-        // Act
-        supplierService.deleteSupplier(999);
-
-        // Assert
-        verify(supplierRepository).deleteById(999);
-    }
-
-    @Test
     void findAllSuppliers_WhenRepositoryThrowsException_ThrowsRuntimeException() {
         // Arrange
         when(supplierRepository.findAll()).thenThrow(new RuntimeException("Database error"));
@@ -317,5 +303,61 @@ public class SupplierServiceTest {
         assertEquals(supplierDTO.getName(), result.getName());
         assertTrue(result.isClosed());
         assertFalse(result.isSoldByMd());
+    }
+
+    @Test
+    void findPaginatedSuppliers_WhenSuppliersExist_ReturnsPageOfSupplierDTOs() {
+        // Arrange
+        Supplier supplier1 = new Supplier();
+        supplier1.setId(1);
+        supplier1.setSupplierName("Supplier1");
+        supplier1.setSoldByMd(true);
+        supplier1.setClosed(false);
+
+        Supplier supplier2 = new Supplier();
+        supplier2.setId(2);
+        supplier2.setSupplierName("Supplier2");
+        supplier2.setSoldByMd(false);
+        supplier2.setClosed(true);
+
+        Page<Supplier> paginatedSuppliers = new PageImpl<>(Arrays.asList(supplier1, supplier2));
+
+        when(supplierPageRepository.findAll(any(Pageable.class))).thenReturn(paginatedSuppliers);
+        when(supplierMapper.convertToDTO(supplier1)).thenReturn(new SupplierDTO("Supplier1", 1, true, false));
+        when(supplierMapper.convertToDTO(supplier2)).thenReturn(new SupplierDTO("Supplier2", 2, false, true));
+
+        // Act
+        Page<SupplierDTO> result = supplierService.findPaginatedSuppliers(PageRequest.of(0, 2));
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertEquals("Supplier1", result.getContent().get(0).getName());
+    }
+
+    @Test
+    void deleteSupplierById_WhenSupplierExists_DeletesSuccessfully() {
+        // Arrange
+        when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
+        doNothing().when(supplierRepository).delete(supplier);
+
+        // Act
+        supplierService.deleteSupplierById(1);
+
+        // Assert
+        verify(supplierRepository, times(1)).delete(supplier);
+    }
+
+    @Test
+    void deleteSupplierById_WhenSupplierDoesNotExist_ThrowsException() {
+        // Arrange
+        when(supplierRepository.findById(999)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            supplierService.deleteSupplierById(999);
+        });
+
+        assertEquals("Supplier with ID 999 does not exist", exception.getMessage());
     }
 }

@@ -67,15 +67,6 @@ public class SupplierService {
     }
 
     /**
-     * Delete a supplier by its ID.
-     * 
-     * @param supplierId the ID of the supplier to delete
-     */
-    public void deleteSupplier(Integer supplierId) {
-        supplierRepository.deleteById(supplierId);
-    }
-
-    /**
      * Find a supplier by its ID.
      * 
      * @param supplierId the ID of the supplier to find
@@ -114,5 +105,23 @@ public class SupplierService {
      */
     public Page<SupplierDTO> findPaginatedSuppliers(Pageable pageable) {
         return supplierPageRepository.findAll(pageable).map(supplierMapper::convertToDTO);
+    }
+
+    /**
+     * Delete a supplier by its ID.
+     * 
+     * @param supplierId the ID of the supplier to delete
+     * @throws IllegalArgumentException if the supplier ID is null or empty
+     */
+    public void deleteSupplierById(Integer supplierId) {
+        if (supplierId == null || supplierId <= 0) {
+            throw new IllegalArgumentException("Supplier ID cannot be null or empty");
+        }
+        Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
+        if (!supplierMaybe.isPresent()) {
+            throw new IllegalArgumentException("Supplier with ID " + supplierId + " does not exist");
+        }
+        Supplier supplier = supplierMaybe.get();
+        supplierRepository.delete(supplier);
     }
 }

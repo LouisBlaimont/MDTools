@@ -16,6 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.services.SupplierService;
@@ -99,5 +102,32 @@ public class SupplierControllerTest {
 
         verify(supplierService, times(1)).findSupplierById(1);
         verify(supplierService, times(1)).saveSupplier(any(SupplierDTO.class));
+    }
+
+    @Test
+    public void testGetPaginatedSuppliers() throws Exception {
+        SupplierDTO supplier1 = new SupplierDTO("Supplier1", 1, true, false);
+        SupplierDTO supplier2 = new SupplierDTO("Supplier2", 2, false, true);
+
+        Page<SupplierDTO> paginatedSuppliers = new PageImpl<>(Arrays.asList(supplier1, supplier2));
+
+        when(supplierService.findPaginatedSuppliers(any(PageRequest.class))).thenReturn(paginatedSuppliers);
+
+        mockMvc.perform(get("/api/supplier?page=0&size=2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Supplier1"))
+                .andExpect(jsonPath("$[1].name").value("Supplier2"));
+
+        verify(supplierService, times(1)).findPaginatedSuppliers(any(PageRequest.class));
+    }
+
+    @Test
+    public void testDeleteSupplier() throws Exception {
+        doNothing().when(supplierService).deleteSupplierById(1);
+
+        mockMvc.perform(delete("/api/supplier/1"))
+                .andExpect(status().isNoContent());
+
+        verify(supplierService, times(1)).deleteSupplierById(1);
     }
 }
