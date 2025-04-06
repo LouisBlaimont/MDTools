@@ -133,7 +133,7 @@
             <div class="flex justify-center">
                 <button
                     class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
-                    on:click={() => {
+                    onclick={() => {
                     const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
                     modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
                     }}

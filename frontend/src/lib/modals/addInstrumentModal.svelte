@@ -65,8 +65,8 @@
 
         if (response.ok) {
             dispatch("success", { message: "Instrument ajouté!" });
-            reload.set(true);
             close();
+            reload.set(true);
         } else {
             dispatch("error", { message: "Impossible d'ajouter un instrument." });
         }

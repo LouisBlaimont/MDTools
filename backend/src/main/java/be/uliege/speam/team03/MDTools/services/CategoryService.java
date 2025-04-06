@@ -53,36 +53,6 @@ public class CategoryService {
         }
         return categoriesDTO;
     }
-
-    
-
-    /**/**
-     * Gets the categories of the group given by groupName
-     * 
-     * @param groupName
-     * @return List of categoryDTO
-     */
-    public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
-        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
-        if (groupMaybe.isPresent() == false) {
-            return Page.empty();
-        }
-
-        Group group = groupMaybe.get();
-        List<SubGroup> subGroups = subGroupRepository.findByGroup(group);
-
-        if (subGroups.isEmpty()) {
-            return Page.empty();
-        }
-
-        Page<Category> categoriesPage = categoryRepository.findAllBySubGroupIn(subGroups, pageable);
-
-        if (categoriesPage.isEmpty()) {
-            return Page.empty();
-        }
-
-        return categoriesPage.map(category -> catMapper.mapToCategoryDto(category));
-    }
      
     /**
      * Gets the paginated and sorted categories of the group given by groupName

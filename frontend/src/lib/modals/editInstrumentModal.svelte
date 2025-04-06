@@ -167,9 +167,9 @@
               if (!response.ok) {
                   throw new Error("Failed to delete the instrument");
               }
-              reload.set(true); // Trigger a reload
               close(); // Close the modal
-              goto("../../searches"); // Navigate to the searches page
+              goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+              reload.set(true); // Trigger a reload
           } catch (error) {
               console.error("Error:", error);
           }
@@ -635,7 +635,7 @@
                     <label class="block mb-2 flex items-center">
                       Alternatives:
                       <input type="text" class="ml-2 p-1 border rounded" />
-                      <button class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" onclick={() => addAlternative()}>
+                      <button class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" on:click={() => addAlternative()}>
                         Ajouter
                       </button>
                     </label>
@@ -658,9 +658,9 @@
                           <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                           <tr class="border-t cursor-pointer {row.obsolete ? 'bg-red-500' : ''}"
                           class:bg-[lightgray]={hoveredAlternativeIndex === index}
-                          ondblclick={() => selectAlternative(row, index)}
-                          onmouseover={() => (hoveredAlternativeIndex = index)}
-                          onmouseout={() => (hoveredAlternativeIndex = null)}
+                          on:dblclick={() => selectAlternative(row, index)}
+                          on:mouseover={() => (hoveredAlternativeIndex = index)}
+                          on:mouseout={() => (hoveredAlternativeIndex = null)}
                           >
                             <td class="text-center p-2">{row.reference}</td>
                             <td class="text-center p-2">{row.supplier}</td>
@@ -668,7 +668,7 @@
                             <td class="text-center p-2">{row.price}</td>
                             <td 
                               class="text-center"
-                              onclick={() => removeAlt(row.id)}
+                              on:click={() => removeAlt(row.id)}
                             >
                               <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
                             </td>
@@ -684,7 +684,7 @@
                                 <td class="text-center p-2">{row.price}</td>
                                 <td 
                                   class="text-center"
-                                  onclick={() => removeAlt(row.id)}
+                                  on:click={() => removeAlt(row.id)}
                                 >
                                   <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
                                 </td>

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,15 @@ public class InstrumentServiceTest {
         instrument.setPrice(100.0f);
         instrument.setObsolete(false);
 
-        instrumentDTO = new InstrumentDTO("Test Supplier", 1, "Test Reference", "Test Description", 100.0f, false, false, null, 1);
+        instrumentDTO = new InstrumentDTO();
+        instrumentDTO.setId(1);
+        instrumentDTO.setSupplier("Test Supplier");
+        instrumentDTO.setCategoryId(1);
+        instrumentDTO.setReference("Test Reference");
+        instrumentDTO.setSupplierDescription("Test Description");
+        instrumentDTO.setPrice(100.0f);
+        instrumentDTO.setObsolete(false);
+        instrumentDTO.setPicturesId(null);
 
         instruments = new ArrayList<>();
         instruments.add(instrument);
@@ -158,7 +167,15 @@ public class InstrumentServiceTest {
     @Test
     void saveInstrument_WithNullReference_ThrowsIllegalArgumentException() {
         // Arrange
-        InstrumentDTO invalidInstrument = new InstrumentDTO("Test Supplier", 1, null, "Test Description", 100.0f, false, false, null, 1);
+        InstrumentDTO invalidInstrument = new InstrumentDTO();
+        invalidInstrument.setReference(null);
+        invalidInstrument.setSupplier("Test Supplier");
+        invalidInstrument.setCategoryId(1);
+        invalidInstrument.setSupplierDescription("Test Description");
+        invalidInstrument.setPrice(100.0f);
+        invalidInstrument.setObsolete(false);
+        invalidInstrument.setPicturesId(null);
+        invalidInstrument.setId(1);
 
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -192,5 +209,73 @@ public class InstrumentServiceTest {
         });
 
         assertEquals("Instrument not found with id: 999", exception.getMessage());
+    }
+
+    @Test
+    void findInstrumentsByReference_WhenInstrumentExists_ReturnsListOfInstrumentDTO() {
+        // Arrange
+        when(instrumentRepository.findByReference("Test Reference")).thenReturn(Optional.of(instrument));
+        when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
+
+        // Act
+        List<InstrumentDTO> result = instrumentService.findInstrumentsByReference("Test Reference");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Reference", result.get(0).getReference());
+    }
+
+    @Test
+    void findInstrumentsByReference_WhenInstrumentDoesNotExist_ReturnsNull() {
+        // Arrange
+        when(instrumentRepository.findByReference("Nonexistent Reference")).thenReturn(Optional.empty());
+
+        // Act
+        List<InstrumentDTO> result = instrumentService.findInstrumentsByReference("Nonexistent Reference");
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void updateInstrument_WithValidData_ReturnsUpdatedInstrumentDTO() {
+        // Arrange
+        when(instrumentRepository.findById(1)).thenReturn(Optional.of(instrument));
+        when(instrumentRepository.findByReference("Updated Reference")).thenReturn(Optional.empty());
+        when(instrumentRepository.save(instrument)).thenReturn(instrument);
+        when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
+
+        Map<String, Object> updateData = Map.of(
+            "reference", "Updated Reference",
+            "supplier", "Updated Supplier",
+            "categoryId", 2,
+            "supplierDescription", "Updated Description",
+            "price", 200.0f,
+            "obsolete", true
+        );
+
+        // Act
+        InstrumentDTO result = instrumentService.updateInstrument(updateData, 1);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Updated Reference", result.getReference());
+        assertEquals(200.0f, result.getPrice());
+        assertTrue(result.getObsolete());
+    }
+
+    @Test
+    void updateInstrument_WithNonexistentId_ReturnsNull() {
+        // Arrange
+        when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
+
+        Map<String, Object> updateData = Map.of("reference", "Nonexistent Reference");
+
+        // Act
+        InstrumentDTO result = instrumentService.updateInstrument(updateData, 999);
+
+        // Assert
+        assertNull(result);
     }
 }

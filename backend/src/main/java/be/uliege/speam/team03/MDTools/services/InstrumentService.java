@@ -77,19 +77,19 @@ public class InstrumentService {
             return null;
         }
         Instruments instrument = instrumentMaybe.get();
-        return new InstrumentDTO(
-            instrument.getSupplier().getSupplierName(),
-            instrument.getCategory().getSubGroup().getGroup().getId(),
-            instrument.getCategory().getSubGroup().getId(),
-            instrument.getCategory().getId(),
-            instrument.getReference(),
-            instrument.getSupplierDescription(),
-            instrument.getPrice(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
-            instrument.getObsolete(),
-            null,
-            instrument.getId()
-        );
+        InstrumentDTO dto = new InstrumentDTO();
+        dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
+        dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
+        dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
+        dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
+        dto.setReference(instrument.getReference());
+        dto.setSupplierDescription(instrument.getSupplierDescription());
+        dto.setPrice(instrument.getPrice());
+        dto.setObsolete(instrument.getObsolete());
+        dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+        dto.setId(instrument.getId());
+        
+        return dto;
     }
 
     /**
@@ -104,19 +104,18 @@ public class InstrumentService {
             return null;
         }
         Instruments instrument = instrumentMaybe.get();
-        return new InstrumentDTO(
-            instrument.getSupplier().getSupplierName(),
-            instrument.getCategory().getSubGroup().getGroup().getId(),
-            instrument.getCategory().getSubGroup().getId(),
-            instrument.getCategory().getId(),
-            instrument.getReference(),
-            instrument.getSupplierDescription(),
-            instrument.getPrice(),
-            !alternativesRepository.findByInstrumentsId1(instrument.getId()).isEmpty(),
-            instrument.getObsolete(),
-            null,
-            instrument.getId()
-        );
+        InstrumentDTO dto = new InstrumentDTO();
+        dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
+        dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
+        dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
+        dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
+        dto.setReference(instrument.getReference());
+        dto.setSupplierDescription(instrument.getSupplierDescription());
+        dto.setPrice(instrument.getPrice());
+        dto.setObsolete(instrument.getObsolete());
+        dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+        dto.setId(instrument.getId());
+        return dto;
     }
 
     /**

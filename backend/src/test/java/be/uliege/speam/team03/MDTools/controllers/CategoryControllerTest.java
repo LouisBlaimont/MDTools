@@ -53,8 +53,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ExtendWith(MockitoExtension.class)
 public class CategoryControllerTest {
 
-      @Mock
-      private CategoryService categoryService;
+   @Mock
+   private CategoryService categoryService;
 
    @Mock
    private InstrumentService instrumentService;
@@ -68,8 +68,8 @@ public class CategoryControllerTest {
    @InjectMocks
    private CategoryController categoryController;
 
-      @Mock
-      private GroupService groupService;
+   private MockMvc mockMvc;
+
    @BeforeEach
    void setUp() {
       mockMvc = MockMvcBuilders.standaloneSetup(categoryController)
