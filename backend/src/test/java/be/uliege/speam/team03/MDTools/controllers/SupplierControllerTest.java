@@ -115,8 +115,8 @@ public class SupplierControllerTest {
 
         mockMvc.perform(get("/api/supplier?page=0&size=2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Supplier1"))
-                .andExpect(jsonPath("$[1].name").value("Supplier2"));
+                .andExpect(jsonPath("$.content[0].name").value("Supplier1"))
+                .andExpect(jsonPath("$.content[1].name").value("Supplier2"));
 
         verify(supplierService, times(1)).findPaginatedSuppliers(any(PageRequest.class));
     }

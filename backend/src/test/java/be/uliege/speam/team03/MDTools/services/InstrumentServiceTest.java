@@ -21,6 +21,17 @@ import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
+import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
+import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.SubGroup;
+import be.uliege.speam.team03.MDTools.models.Picture;
+import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
+import be.uliege.speam.team03.MDTools.models.Group;
+import be.uliege.speam.team03.MDTools.models.Alternatives;
+import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class InstrumentServiceTest {
@@ -33,6 +44,12 @@ public class InstrumentServiceTest {
 
     @Mock
     private InstrumentMapper instrumentMapper;
+
+    @Mock
+    private PictureStorageService pictureStorageService;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private InstrumentService instrumentService;
@@ -66,6 +83,10 @@ public class InstrumentServiceTest {
 
         instrumentDTOs = new ArrayList<>();
         instrumentDTOs.add(instrumentDTO);
+
+        // Mock dependencies
+        when(pictureStorageService.getPicturesIdByReferenceIdAndPictureType(anyLong(), any(PictureType.class))).thenReturn(new ArrayList<>());
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(new Category()));
     }
 
     @Test

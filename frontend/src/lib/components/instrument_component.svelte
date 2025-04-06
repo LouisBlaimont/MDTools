@@ -12,7 +12,7 @@
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
-    import addCategoryModalFromInstrument from "$lib/modals/AddCategoryModalFromInstrument.svelte";
+    import addCategoryModalFromInstrument from "$lib/modals/addCategoryModalFromInstrument.svelte";
     import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";
     
     function selectSupplier(index) {
