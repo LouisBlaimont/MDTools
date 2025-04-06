@@ -4,6 +4,8 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import EditSupplierButton from "./EditSupplierButton.svelte";
+  import AddSupplierModal from "$lib/modals/addSupplierModal.svelte";
+  import { modals } from "svelte-modals";
 
   let suppliers = $state();
   let searchQuery = "";
@@ -83,7 +85,8 @@
       <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
         <h3 class="text-lg font-medium mb-4">Ajouter un fournisseur</h3>
         <button
-          class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition"
+          class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition"µ
+          onclick={() => modals.open(AddSupplierModal)}
         >
           Ajouter un fournisseur
         </button>

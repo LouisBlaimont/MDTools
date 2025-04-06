@@ -106,22 +106,6 @@
         pannel.style.display = "none";
         overlay.style.display = "none";
     }
-    
-    // function openAddCategoryPage() {
-    //     if($selectedGroup == null){
-    //         console.log("Groups are not defined");
-    //         return;
-    //     } 
-    //     else if($selectedSubGroup == null){
-    //         console.log("SubGroups are not defined");
-    //         return;
-    //     }
-    //     else {
-    //         console.log("Groups and subgroups are defined");
-    //         goto("../../admin/add_category");
-    //     }
-    // }
-
 </script>
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
     <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->

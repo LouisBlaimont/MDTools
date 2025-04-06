@@ -87,33 +87,6 @@
         return [...currentOrder, newTool]; // Return a new array with the new tool appended
     }
 
-    // /**
-    //  * Opens the add instrument page and set the category to the selected category or null if no category is selected
-    //  * 
-    //  * @param {number} index - The index of the selected category
-    //  * @returns {void}
-    //  */
-    // function openAddInstrumentPage() {
-
-    //     if ($selectedCategoryIndex == null || $selectedCategoryIndex == ""){
-    //         console.log("Categories are not defined");
-    //         category_to_addInstrument.set(null);
-
-    //         // Open the notification modal
-    //         modals.open(addCategoryModalFromInstrument, {
-    //             title: "Aucune catégorie sélectionnée",
-    //             message: "Veuillez sélectionner une catégorie ou en créer une nouvelle avant d'ajouter un instrument.",
-    //             onClose: () => {
-    //                 console.log("Notification modal closed");
-    //             }
-    //         });
-    //     } else {
-    //         console.log("Categories are defined");
-    //         category_to_addInstrument.set($categories[$selectedCategoryIndex].id);
-    //         open
-    //     }
-    // }
-
 </script>
 
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">

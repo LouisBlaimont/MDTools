@@ -79,14 +79,11 @@
 
       const data = await response.json();
 
-      console.log("Fetched characteristics: ", data);
-
       // Convert object to an array of { name, value }
       characteristics = Object.entries(data).map(([key, value]) => ({
         name: key,
         value: value
       }));
-      console.log("Characteristics: ", characteristics);
 
     } catch (error) {
       console.error(error);
