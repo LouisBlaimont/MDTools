@@ -28,7 +28,7 @@ public class SupplierService {
     public SupplierDTO findSupplierByName(String supplierName) {
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
-            return null;
+            throw new IllegalArgumentException("Supplier with name " + supplierName + " does not exist");
         }
         Supplier supplier = supplierMaybe.get();
         return new SupplierDTO(supplier.getSupplierName(), supplier.getId(), supplier.getSoldByMd(), supplier.getClosed());
@@ -61,6 +61,12 @@ public class SupplierService {
     public SupplierDTO saveSupplier(SupplierDTO supplier) {
         if (supplier.getName() == null || supplier.getName().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
+        }
+        if (supplier.getId() != null) {
+            Optional<Supplier> supplierMaybe = supplierRepository.findById(supplier.getId());
+            if (supplierMaybe.isPresent()) {
+                throw new IllegalArgumentException("Supplier with ID " + supplier.getId() + " already exists");
+            }
         }
         Supplier savedSupplier = supplierRepository.save(supplierMapper.convertToEntity(supplier));
         return supplierMapper.convertToDTO(savedSupplier);

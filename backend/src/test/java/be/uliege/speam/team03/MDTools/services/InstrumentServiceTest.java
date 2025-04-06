@@ -240,7 +240,10 @@ public class InstrumentServiceTest {
         Category category = new Category();
         category.setId(1);
         category.setSubGroup(new SubGroup());
+        category.getSubGroup().setGroup(new Group());
+        category.getSubGroup().getGroup().setId(1L);
         instrument.setCategory(category);
+
         // Arrange
         instrument.setSupplier(new Supplier());
         when(instrumentRepository.findByReference("Test Reference")).thenReturn(Optional.of(instrument));

@@ -46,13 +46,14 @@ public class GroupControllerTest {
 
     @Test
     void testFindAllGroups_Success() throws Exception {
+        // Arrange
         List<GroupDTO> groups = List.of(
                 new GroupDTO(1L, "Group1", 1, 2L, null),
                 new GroupDTO(2L, "Group2", 2, 3L, null)
         );
-
         when(groupService.findAllGroups()).thenReturn(groups);
 
+        // Act & Assert
         mockMvc.perform(get("/api/groups")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -101,7 +101,7 @@ public class InstrumentService {
     public InstrumentDTO findById(Integer id) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
         if (!instrumentMaybe.isPresent()) {
-            return null;
+            throw new ResourceNotFoundException("Instrument not found with ID: " + id);
         }
         Instruments instrument = instrumentMaybe.get();
         InstrumentDTO dto = new InstrumentDTO();

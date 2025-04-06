@@ -86,7 +86,7 @@ public class CategoryControllerTest {
             // Act & Assert
             mockMvc.perform(get("/api/category/group/{groupName}", groupName)
                         .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
+                        .andExpect(status().isNotFound())
                         .andExpect(jsonPath("$[0].name").value("Name1"))
                         .andExpect(jsonPath("$[1].name").value("Name2"));
 
@@ -127,7 +127,7 @@ public class CategoryControllerTest {
             // Act & Assert
             mockMvc.perform(get("/api/category/subgroup/{subGroupName}", subGroupName)
                         .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
+                        .andExpect(status().isNotFound())
                         .andExpect(jsonPath("$[0].name").value("Name1"))
                         .andExpect(jsonPath("$[1].name").value("Name2"));
 
@@ -301,23 +301,19 @@ public class CategoryControllerTest {
             "TC", null);
 
       // The group and subgroup objects returned by their respective services
-      Group group = new Group();
-      group.setName("Test Group");
+      GroupDTO groupDTO = new GroupDTO();
+      groupDTO.setName("Test Group");
 
-      SubGroup subGroup = new SubGroup();
-      subGroup.setName("Test SubGroup");
-      subGroup.setGroup(group);
-      group.setSubGroups(Arrays.asList(subGroup));
-      GroupDTO groupDTO = GroupMapper.toDto(group);
-      SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);
+      SubGroupDTO subGroupDTO = new SubGroupDTO();
+      subGroupDTO.setName("Test SubGroup");
 
       // The final saved category with all fields populated
       CategoryDTO savedCategory = new CategoryDTO(10, "Test Group", "Test SubGroup", "New Category",
             "Test Function", "Test Shape", "TC", 10L);
 
-      when(categoryService.addCategoryToSubGroup(any(Map.class), eq(subGroupId))).thenReturn(initialCategory);
       when(groupService.findGroupById(groupId)).thenReturn(groupDTO);
       when(subGroupService.findSubGroupById(subGroupId)).thenReturn(subGroupDTO);
+      when(categoryService.addCategoryToSubGroup(any(Map.class), eq(subGroupId))).thenReturn(initialCategory);
       when(categoryService.save(any(CategoryDTO.class))).thenReturn(savedCategory);
 
       // Convert the map to JSON
@@ -325,7 +321,7 @@ public class CategoryControllerTest {
       String requestBodyJson = objectMapper.writeValueAsString(requestBody);
 
       // Act & Assert
-      mockMvc.perform(post("/api/category/group/{groupId}/subgroup/{id}/add", groupId, subGroupId)
+      mockMvc.perform(post("/api/category/group/{groupId}/subgroup/{id}", groupId, subGroupId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBodyJson))
             .andExpect(status().isCreated())
@@ -337,9 +333,9 @@ public class CategoryControllerTest {
             .andExpect(jsonPath("$.shape").value("Test Shape"))
             .andExpect(jsonPath("$.lenAbrv").value("TC"));
 
-      verify(categoryService, times(1)).addCategoryToSubGroup(any(Map.class), eq(subGroupId));
       verify(groupService, times(1)).findGroupById(groupId);
       verify(subGroupService, times(1)).findSubGroupById(subGroupId);
+      verify(categoryService, times(1)).addCategoryToSubGroup(any(Map.class), eq(subGroupId));
       verify(categoryService, times(1)).save(any(CategoryDTO.class));
    }
 

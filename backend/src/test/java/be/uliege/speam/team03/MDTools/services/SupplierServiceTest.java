@@ -293,7 +293,7 @@ public class SupplierServiceTest {
         SupplierDTO partialUpdate = new SupplierDTO("Updated Supplier", 1, false, true); // Ensure name is not null or empty
         when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
         when(supplierMapper.convertToDTO(supplier)).thenReturn(supplierDTO);
-        when(supplierRepository.save(any(Supplier.class))).thenReturn(supplier);
+        doReturn(supplier).when(supplierRepository).save(any(Supplier.class)); // Use doReturn().when() for stubbing
 
         // Act
         SupplierDTO result = supplierService.saveSupplier(partialUpdate);

@@ -123,8 +123,8 @@ public class CategoryController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CategoryDTO> addCategory(@RequestBody Map<String, Object> body, @PathVariable Integer id,
             @PathVariable Integer groupId) {
-        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
 
+        // Validate group and subgroup existence first
         GroupDTO group = groupService.findGroupById(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("No group found for the id :" + groupId);
@@ -135,11 +135,14 @@ public class CategoryController {
             throw new ResourceNotFoundException("No subgroup found for the id :" + id);
         }
 
-        String subGroupName = subGroup.getName();
-        String groupName = group.getName();
+        // Call the service to add the category
+        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
 
-        newCategory.setSubGroupName(subGroupName);
-        newCategory.setGroupName(groupName);
+        // Set group and subgroup names
+        newCategory.setSubGroupName(subGroup.getName());
+        newCategory.setGroupName(group.getName());
+
+        // Save the category
         CategoryDTO savedCategory = categoryService.save(newCategory);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
