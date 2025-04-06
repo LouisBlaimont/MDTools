@@ -109,16 +109,17 @@ public class SupplierControllerTest {
         SupplierDTO supplier1 = new SupplierDTO("Supplier1", 1, true, false);
         SupplierDTO supplier2 = new SupplierDTO("Supplier2", 2, false, true);
 
-        Page<SupplierDTO> paginatedSuppliers = new PageImpl<>(Arrays.asList(supplier1, supplier2));
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        Page<SupplierDTO> paginatedSuppliers = new PageImpl<>(Arrays.asList(supplier1, supplier2), pageRequest, 2);
 
-        when(supplierService.findPaginatedSuppliers(any(PageRequest.class))).thenReturn(paginatedSuppliers);
+        when(supplierService.findPaginatedSuppliers(eq(pageRequest))).thenReturn(paginatedSuppliers);
 
         mockMvc.perform(get("/api/supplier?page=0&size=2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].name").value("Supplier1"))
                 .andExpect(jsonPath("$.content[1].name").value("Supplier2"));
 
-        verify(supplierService, times(1)).findPaginatedSuppliers(any(PageRequest.class));
+        verify(supplierService, times(1)).findPaginatedSuppliers(eq(pageRequest));
     }
 
     @Test
