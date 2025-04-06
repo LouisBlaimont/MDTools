@@ -35,6 +35,22 @@ public class SubGroupController {
 
     //TODO move "body" logic to controller by using DTOs as RequestParameters instead of Map<String, Object>
 
+    /**
+     * Get all subgroups of a group.
+     * 
+     * @param groupName the name of the group
+     * @return a list of all subgroups of the specified group, or a 404 status if no subgroups are found
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> findAllSubGroups() {
+        List<SubGroupDTO> subGroups = subGroupService.findAllSubGroups();
+        // Check if the list of subgroups is empty
+        if (subGroups == null || subGroups.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No subgroups found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(subGroups);
+    }
+
     @GetMapping("/group/{groupName}")
     public ResponseEntity<List<SubGroupDTO>> getSubGroupsOfAGroup(@PathVariable String groupName) throws ResourceNotFoundException, BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(subGroupService.findAllSubGroups(groupName));

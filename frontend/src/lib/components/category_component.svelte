@@ -29,6 +29,8 @@
   import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
   import { startResize, resize, stopResize } from "$lib/resizableUtils.js";
   import { apiFetch } from "$lib/utils/fetch";
+    import { modals } from "svelte-modals";
+    import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
 
   /**
    * Display the characteristic values of the category at line index in the table.
@@ -131,19 +133,6 @@
     overlay.style.display = "none";
   }
 
-  function openAddCategoryPage() {
-    if ($selectedGroup == null) {
-      console.log("Groups are not defined");
-      return;
-    } else if ($selectedSubGroup == null) {
-      console.log("SubGroups are not defined");
-      return;
-    } else {
-      console.log("Groups and subgroups are defined");
-      goto("../../admin/add_category");
-    }
-  }
-
   let findSubGroups = $findSubGroupsStore;
   let findCharacteristics = $findCharacteristicsStore;
   function loadMore() {
@@ -214,23 +203,23 @@
     </div>
   {/if}
 
-  <!-- PASS IN ADMIN MODE -->
-  {#if $isAdmin}
-    <EditButton />
-  {/if}
-  {#if $isEditing}
+    <!-- PASS IN ADMIN MODE -->
     {#if $isAdmin}
-      <div class="flex justify-center">
-        <button
-          class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
-          on:click={() => openAddCategoryPage()}
-        >
-          Ajouter une catégorie
-        </button>
-      </div>
+        <EditButton />
     {/if}
-  {/if}
-</div>
+    {#if $isEditing}
+       {#if $isAdmin}
+            <div class="flex justify-center">
+                <button 
+                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
+                    on:click={()=>modals.open(addCategoryModal)}
+                >
+                    Ajouter une catégorie
+                </button>
+            </div>
+        {/if}
+    {/if}
+    </div>
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
 <div class="flex-1 max-h-[80vh] overflow-y-auto ml-3 max-w-[150px]">

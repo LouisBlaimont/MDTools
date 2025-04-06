@@ -116,7 +116,7 @@
           {/if}
           {#if $isAdmin || $isWebmaster}
             <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Users</a>
-            <a href="/admin/suppliers" class="block px-4 py-2 hover:bg-teal-400 transition">Suppliers</a>
+            <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Suppliers</a>
             <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
             {#if $isWebmaster}
               <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition">Webmaster</a>

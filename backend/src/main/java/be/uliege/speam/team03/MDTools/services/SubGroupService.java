@@ -61,6 +61,20 @@ public class SubGroupService {
     }
 
     /**
+     * Finds all sub-groups in the system.
+     *
+     * @return a list of SubGroupDTO objects representing all sub-groups in the system
+     */
+    public List<SubGroupDTO> findAllSubGroups() {
+        List<SubGroup> subGroups = (List<SubGroup>) subGroupRepository.findAll();
+        List<SubGroupDTO> subGroupsDTO = new ArrayList<>();
+        subGroupsDTO = subGroups.stream()
+                    .map(SubGroupMapper::toDto)
+                    .toList();
+        return subGroupsDTO;
+    }
+
+    /**
      * Adds a new sub-group to an existing group.
      *
      * @param groupName the name of the group to which the sub-group will be added

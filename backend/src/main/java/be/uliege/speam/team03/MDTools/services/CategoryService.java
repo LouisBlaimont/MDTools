@@ -40,6 +40,21 @@ public class CategoryService {
     }
 
     /**
+     * Gets all the categories in the database
+     * 
+     * @return List of categoryDTO
+     */
+    public List<CategoryDTO> findAll() {
+        List<Category> categories = (List<Category>) categoryRepository.findAll();
+        List<CategoryDTO> categoriesDTO = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+            categoriesDTO.add(categoryDTO);
+        }
+        return categoriesDTO;
+    }
+     
+    /**
      * Gets the paginated and sorted categories of the group given by groupName
      *
      * @param groupName the name of the group

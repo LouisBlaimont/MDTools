@@ -32,10 +32,13 @@ import lombok.AllArgsConstructor;
 public class GroupController {
     private final GroupService groupService;
 
-    @GetMapping("")
-    public ResponseEntity<List<GroupDTO>> findallGroups() {
+    @GetMapping("/all")
+    public ResponseEntity<?> findallGroups() {
             List<GroupDTO> groups = groupService.findAllGroups();
-            return ResponseEntity.ok(groups);
+            if (groups == null || groups.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No groups found");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
     @GetMapping("/{groupName}")

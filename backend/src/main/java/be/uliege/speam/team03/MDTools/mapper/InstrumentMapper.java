@@ -30,18 +30,17 @@ public class InstrumentMapper {
      * @return the converted instrument DTO
      */
     public InstrumentDTO convertToDTO(Instruments instrument) {
-        InstrumentDTO dto = new InstrumentDTO(
-            instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
-            instrument.getCategory().getSubGroup().getGroup().getId(),
-            instrument.getCategory().getSubGroup().getId(),
-            instrument.getCategory() != null ? instrument.getCategory().getId() : null,
-            instrument.getReference(),
-            instrument.getSupplierDescription(),
-            instrument.getPrice(),
-            instrument.getObsolete(),
-            pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT),
-            instrument.getId()
-        );
+        InstrumentDTO dto = new InstrumentDTO();
+        dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
+        dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
+        dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
+        dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
+        dto.setReference(instrument.getReference());
+        dto.setSupplierDescription(instrument.getSupplierDescription());
+        dto.setPrice(instrument.getPrice());
+        dto.setObsolete(instrument.getObsolete());
+        dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+        dto.setId(instrument.getId());
         return dto;
     }
 
@@ -54,18 +53,17 @@ public class InstrumentMapper {
     public List<InstrumentDTO> convertToDTO(List<Instruments> instruments) {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         for (Instruments instrument : instruments) {
-            InstrumentDTO dto = new InstrumentDTO(
-                instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null,
-                instrument.getCategory().getSubGroup().getGroup().getId(),
-                instrument.getCategory().getSubGroup().getId(),
-                instrument.getCategory() != null ? instrument.getCategory().getId() : null,
-                instrument.getReference(),
-                instrument.getSupplierDescription(),
-                instrument.getPrice(),
-                instrument.getObsolete(),
-                pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT),
-                instrument.getId()
-            );
+            InstrumentDTO dto = new InstrumentDTO();
+            dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
+            dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
+            dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
+            dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
+            dto.setReference(instrument.getReference());
+            dto.setSupplierDescription(instrument.getSupplierDescription());
+            dto.setPrice(instrument.getPrice());
+            dto.setObsolete(instrument.getObsolete());
+            dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+            dto.setId(instrument.getId());
             instrumentDTOs.add(dto);
         }
         return instrumentDTOs;
@@ -85,10 +83,11 @@ public class InstrumentMapper {
         instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
         instrument.setPrice(instrumentDTO.getPrice());
         instrument.setObsolete(instrumentDTO.getObsolete());
+        instrument.setSupplier(null);
 
         // retrieve supplier based on supplier name
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(instrumentDTO.getSupplier());
-        if (supplierMaybe.isEmpty()) {
+        if (supplierMaybe.isPresent() == false) {
             return null;
         }
         Supplier supplier = supplierMaybe.get();

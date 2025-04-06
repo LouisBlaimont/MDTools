@@ -48,12 +48,26 @@ public class CategoryController {
     private final SubGroupService subGroupService;
 
     /**
-     * Retrieves a paginated and sorted list of categories associated with a
-     * specific group name.
+     * Retrieves a list of all categories.
+     *
+     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
+     *         status of OK
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> findAllCategories() {
+        List<CategoryDTO> categories = categoryService.findAll();
+        // Check if the list of categories is empty
+        if (categories == null || categories.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    }
+
+    /**
+     * Retrieves a list of categories associated with a specific group name.
      *
      * @param groupName the name of the group whose categories are to be retrieved
-     * @param pageable  the pagination and sorting parameters
-     * @return a ResponseEntity containing a Page of CategoryDTO objects and an HTTP
+     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
      *         status of OK
      * @throws ResourceNotFoundException if no categories are found for the
      *                                   specified group name
@@ -105,12 +119,12 @@ public class CategoryController {
      * @throws ResourceNotFoundException If no group or subgroup is found for the
      *                                   provided IDs.
      */
-    @PostMapping("/group/{groupId}/subgroup/{id}/add")
+    @PostMapping("/group/{groupId}/subgroup/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CategoryDTO> addCategory(@RequestBody Map<String, Object> body, @PathVariable Integer id,
             @PathVariable Integer groupId) {
-        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
 
+        // Validate group and subgroup existence first
         GroupDTO group = groupService.findGroupById(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("No group found for the id :" + groupId);
@@ -121,11 +135,14 @@ public class CategoryController {
             throw new ResourceNotFoundException("No subgroup found for the id :" + id);
         }
 
-        String subGroupName = subGroup.getName();
-        String groupName = group.getName();
+        // Call the service to add the category
+        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
 
-        newCategory.setSubGroupName(subGroupName);
-        newCategory.setGroupName(groupName);
+        // Set group and subgroup names
+        newCategory.setSubGroupName(subGroup.getName());
+        newCategory.setGroupName(group.getName());
+
+        // Save the category
         CategoryDTO savedCategory = categoryService.save(newCategory);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }

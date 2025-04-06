@@ -61,7 +61,7 @@ export async function fetchSuppliers() {
  * Fetches groups and their associated sub-groups dynamically from the backend.
  */
 export async function fetchGroups() {
-  const response = await apiFetch("/api/groups");
+  const response = await apiFetch("/api/groups/all");
   return await response.json();
 }
 

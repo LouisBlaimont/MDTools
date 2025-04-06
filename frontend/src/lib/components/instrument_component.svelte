@@ -12,7 +12,12 @@
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
-    import AddCategoryModal from "$lib/modals/AddCategoryModal.svelte";
+    import addCategoryModalFromInstrument from "$lib/modals/addCategoryModalFromInstrument.svelte";
+    import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";
+    
+    function selectSupplier(index) {
+        selectedSupplierIndex.set(index);
+    }
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { apiFetch } from "$lib/utils/fetch";
@@ -21,33 +26,6 @@
     import Icon from "@iconify/svelte";
     
     $: notEditing = !$isEditing;
-
-    /**
-     * Opens the add instrument page and set the category to the selected category or null if no category is selected
-     * 
-     * @param {number} index - The index of the selected category
-     * @returns {void}
-     */
-    function openAddInstrumentPage() {
-
-        if ($selectedCategoryIndex == null || $selectedCategoryIndex == ""){
-            console.log("Categories are not defined");
-            category_to_addInstrument.set(null);
-
-            // Open the notification modal
-            modals.open(AddCategoryModal, {
-                title: "Aucune catégorie sélectionnée",
-                message: "Veuillez sélectionner une catégorie ou en créer une nouvelle avant d'ajouter un instrument.",
-                onClose: () => {
-                    console.log("Notification modal closed");
-                }
-            });
-        } else {
-            console.log("Categories are defined");
-            category_to_addInstrument.set($categories[$selectedCategoryIndex].id);
-            goto("../../admin/add_instrument");
-        }
-    }
 
     function seeAllAlternatives(){
         console.log($selectedCategoryIndex);
@@ -153,8 +131,14 @@
     {#if $isEditing}
        {#if $isAdmin}
             <div class="flex justify-center">
-                <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" onclick={()=>openAddInstrumentPage()}>
-                    Ajouter un instrument
+                <button
+                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
+                    onclick={() => {
+                    const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
+                    modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
+                    }}
+                >
+                     Ajouter un instrument
                 </button>
             </div>
         {/if}
