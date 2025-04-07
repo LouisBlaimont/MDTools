@@ -2,7 +2,6 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -19,11 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -32,7 +27,6 @@ import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
-import be.uliege.speam.team03.MDTools.controllers.CategoryController;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.GroupService;

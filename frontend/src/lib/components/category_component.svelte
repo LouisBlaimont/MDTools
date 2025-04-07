@@ -22,8 +22,7 @@
     alternatives,
     selectedSupplierIndex,
     findSubGroupsStore,
-    findCharacteristicsStore,
-    categories_pageable,
+    findCharacteristicsStore
   } from "$lib/stores/searches";
   import EditButton from "../../routes/searches/EditButton.svelte";
   import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
@@ -135,13 +134,6 @@
 
   let findSubGroups = $findSubGroupsStore;
   let findCharacteristics = $findCharacteristicsStore;
-  function loadMore() {
-    if ($selectedSubGroup == "") {
-      findSubGroups($selectedGroup, $categories_pageable.pageable.pageNumber + 1);
-    } else {
-      findCharacteristics($selectedSubGroup, $categories_pageable.pageable.pageNumber + 1);
-    }
-  }
 </script>
 
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
@@ -190,18 +182,6 @@
       </tbody>
     {/if}
   </table>
-
-  <!-- Load More Button -->
-  {#if $categories_pageable != null && !$categories_pageable.last}
-    <div class="flex justify-center mt-4">
-      <button
-        class="px-4 py-2 rounded bg-teal-400 text-black hover:bg-teal-500 transition"
-        on:click={loadMore}
-      >
-        Charger plus
-      </button>
-    </div>
-  {/if}
 
     <!-- PASS IN ADMIN MODE -->
     {#if $isAdmin}

@@ -3,8 +3,7 @@ package be.uliege.speam.team03.MDTools.services;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,33 +54,29 @@ public class CategoryService {
     }
      
     /**
-     * Gets the paginated and sorted categories of the group given by groupName
-     *
-     * @param groupName the name of the group
-     * @param pageable  the pagination and sorting parameters
-     * @return Page of CategoryDTO
+     * Gets the categories of the group given by groupName
+     * 
+     * @param groupName
+     * @return List of categoryDTO
      */
-    public Page<CategoryDTO> findCategoriesOfGroup(String groupName, Pageable pageable) {
+    public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false) {
-            return Page.empty();
+            return null;
         }
-
         Group group = groupMaybe.get();
+
         List<SubGroup> subGroups = subGroupRepository.findByGroup(group);
+        List<Category> categories = categoryRepository.findAllBySubGroupIn(subGroups, Sort.by("subGroupName", "id"));
 
-        if (subGroups.isEmpty()) {
-            return Page.empty();
+        List<CategoryDTO> categoriesDTO = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+            categoriesDTO.add(categoryDTO);
         }
-
-        Page<Category> categoriesPage = categoryRepository.findAllBySubGroupIn(subGroups, pageable);
-
-        if (categoriesPage.isEmpty()) {
-            return Page.empty();
-        }
-
-        return categoriesPage.map(category -> catMapper.mapToCategoryDto(category));
+        return categoriesDTO;
     }
+
 
     /**
      * Gets the category given by id
@@ -228,27 +223,26 @@ public class CategoryService {
     }
 
     /**
-     * Gets the paginated and sorted categories of the subgroup given by
+     * Gets the sorted list of categories of the subgroup given by
      * subGroupName
      * 
      * @param subGroupName the name of the subgroup
-     * @param pageable     the pagination and sorting parameters
-     * @return Page of CategoryDTO
+     * @return List of CategoryDTO
      */
-    public Page<CategoryDTO> findCategoriesOfSubGroup(String subGroupName, Pageable pageable) {
+    public List<CategoryDTO> findCategoriesOfSubGroup(String subGroupName) {
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
         if (subGroupMaybe.isPresent() == false) {
-            return Page.empty();
+            throw new ResourceNotFoundException("Subgroup not found.");
         }
 
         SubGroup subGroup = subGroupMaybe.get();
-        Page<Category> categoriesPage = categoryRepository.findBySubGroup(subGroup, pageable);
+        List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
-        if (categoriesPage.isEmpty()) {
-            return Page.empty();
+        if (categories.isEmpty()) {
+            return List.of();
         }
 
-        return categoriesPage.map(category -> catMapper.mapToCategoryDto(category));
+        return categories.stream().map(category -> catMapper.mapToCategoryDto(category)).toList();
     }
 
     /**
@@ -294,11 +288,8 @@ public class CategoryService {
             }
         }
 
-        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
-        if (categoriesMaybe.isPresent() == false) {
-            return null;
-        }
-        List<Category> categories = categoriesMaybe.get();
+        List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
+
 
         // remove characteristics without value
         Map<String, String> filteredSearchBy = searchBy.entrySet().stream()
@@ -326,7 +317,10 @@ public class CategoryService {
 
         List<Category> filteredCategories = categoryToChar.entrySet().stream()
                 .filter(entry -> entry.getValue().entrySet().containsAll(filteredSearchBy.entrySet()))
-                .map(Map.Entry::getKey).toList();
+                .map(Map.Entry::getKey)
+                .sorted(Comparator.comparing(Category::getSubGroup, Comparator.comparing(SubGroup::getName))
+                        .thenComparing(Category::getId))
+                .toList();
 
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
         for (Category category : filteredCategories) {

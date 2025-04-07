@@ -12,7 +12,7 @@ import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
 
 public interface CategoryCharacteristicRepository
       extends CrudRepository<CategoryCharacteristic, CategoryCharacteristicKey> {
-   @Query("SELECT cc FROM CategoryCharacteristic cc JOIN FETCH cc.category JOIN FETCH cc.characteristic WHERE cc.category.id IN :categoryIds")
+   @Query("SELECT cc FROM CategoryCharacteristic cc JOIN FETCH cc.category JOIN FETCH cc.characteristic WHERE cc.category.id IN :categoryIds ORDER BY cc.category.subGroup.name ASC, cc.category.id ASC")
    List<CategoryCharacteristic> findByCategoryIds(@Param("categoryIds") List<Integer> categoryIds);
 
    List<CategoryCharacteristic> findByCategoryId(Integer categoryId);
