@@ -1,7 +1,9 @@
 package be.uliege.speam.team03.MDTools.mapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import be.uliege.speam.team03.MDTools.DTOs.SubGroupCharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
@@ -19,20 +21,28 @@ public class SubGroupMapper {
       dto.setId(subGroup.getId());
       dto.setName(subGroup.getName());
       dto.setGroupId(subGroup.getGroup().getId());
-      if (subGroup.getSubGroupCharacteristics() != null)
-         dto.setSubGroupCharacteristics(
-               subGroup.getSubGroupCharacteristics().stream()
-                     .map(SubGroupCharacteristic::getCharacteristic)
-                     .map(characteristic -> characteristic.getName()).toList());
+
+      if (subGroup.getSubGroupCharacteristics() != null) {
+         List<SubGroupCharacteristicDTO> characteristics = subGroup.getSubGroupCharacteristics().stream()
+               .map(sgc -> new SubGroupCharacteristicDTO(
+                     sgc.getCharacteristic().getName(),
+                     sgc.getOrderPosition()))
+               .collect(Collectors.toList());
+         dto.setSubGroupCharacteristics(characteristics);
+      }
+
       dto.setInstrCount(subGroup.getInstrCount());
-      if (subGroup.getCategories() != null)
-         dto.setCategoriesId(
-               subGroup.getCategories().stream()
-                     .map(category -> (long) category.getId()).toList());
+
+      if (subGroup.getCategories() != null) {
+         List<Long> categoryIds = subGroup.getCategories().stream()
+               .map(category -> (long) category.getId())
+               .collect(Collectors.toList());
+         dto.setCategoriesId(categoryIds);
+      }
+
       dto.setPictureId(subGroup.getPictureId());
 
       return dto;
-
    }
 
    /**

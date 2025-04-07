@@ -1,5 +1,5 @@
 <script>
-    import { fetchTools,fetchGroups, fetchCharacteristics, fetchInstrumentsBySubGroup, fetchSupplierByName, fetchInstrumentsBySupplier,fetchCharacteristicValuesByCategory, fetchSuppliers} from "../../../api.js";
+    import { fetchAlternatives, fetchTools,fetchGroups, fetchCharacteristics, fetchInstrumentsBySubGroup, fetchSupplierByName, fetchInstrumentsBySupplier,fetchCharacteristicValuesByCategory, fetchSuppliers} from "../../../api.js";
     import { onMount } from "svelte";
     import * as XLSX from "xlsx";
     import { goto } from "$app/navigation";
@@ -50,140 +50,189 @@
      * @param {string[]} selectedColumns - The list of selected columns to include in the Excel export.
      * @throws {Error} If the export fails due to missing input or API errors.
      */
-    async function exportToExcel(contextName, selectedColumns) {
-        const isCatalogue = selectedOption === "Catalogue";
-        const isCrossref = selectedOption === "Crossref";
-
-        // For SubGroup and Catalogue: validate inputs
-        if (!isCrossref) {
-            if (!contextName) {
-                alert(`Please select a ${isCatalogue ? "supplier" : "subgroup"} before exporting.`);
-                return;
-            }
-
-            if (!selectedColumns || selectedColumns.length === 0) {
-                alert("Please select at least one column to export.");
-                return;
-            }
-        }
-
+     async function exportToExcel(contextName, selectedColumns) {
         try {
-            if (isCrossref) {
-                // Handle Crossref export
-                const instruments = await fetchTools(); // Fetch all instruments
+          if (selectedOption === "Crossref") {
+            // --------- Crossref Export ----------
+            const instruments = await fetchTools();
 
-                const suppliersSet = new Set();
-                const categoriesMap = new Map();
+            const suppliersSet = new Set();
+            const categoriesMap = new Map();
 
-                // Group instruments by category and supplier
-                for (const instrument of instruments) {
-                    const category = instrument.categoryId;
-                    const supplier = instrument.supplier;
-                    const reference = instrument.reference;
+            for (const instrument of instruments) {
+              const category = instrument.categoryId;
+              const supplier = instrument.supplier;
+              const reference = instrument.reference;
 
-                    if (!category || !supplier) continue;
+              if (!category || !supplier) continue;
 
-                    suppliersSet.add(supplier);
+              suppliersSet.add(supplier);
 
-                    if (!categoriesMap.has(category)) {
-                        categoriesMap.set(category, new Map());
-                    }
+              if (!categoriesMap.has(category)) {
+                categoriesMap.set(category, new Map());
+              }
 
-                    const supplierMap = categoriesMap.get(category);
-                    if (!supplierMap.has(supplier)) {
-                        supplierMap.set(supplier, []);
-                    }
-                    supplierMap.get(supplier).push(reference);
-                }
-
-                // Keep only categories found in at least 2 different suppliers
-                const filteredRows = [];
-                for (const [categoryId, supplierMap] of categoriesMap.entries()) {
-                    if (supplierMap.size < 2) continue;
-
-                    const row = { Category: categoryId };
-                    for (const supplier of suppliersSet) {
-                        const refs = supplierMap.get(supplier);
-                        row[supplier] = refs && refs.length > 0 ? refs.join(", ") : "";
-                    }
-                    filteredRows.push(row);
-                }
-
-                if (filteredRows.length === 0) {
-                    alert("No categories found with instruments from at least two suppliers.");
-                    return;
-                }
-
-                // Export Crossref data
-                const worksheet = XLSX.utils.json_to_sheet(filteredRows);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Crossref");
-                XLSX.writeFile(workbook, `export_crossref.xlsx`);
-                return;
+              const supplierMap = categoriesMap.get(category);
+              if (!supplierMap.has(supplier)) {
+                supplierMap.set(supplier, []);
+              }
+              supplierMap.get(supplier).push(reference);
             }
 
-            // Handle SubGroup or Catalogue export
-            const instruments = isCatalogue
-                ? await fetchInstrumentsBySupplier(contextName)
-                : await fetchInstrumentsBySubGroup(contextName);
+            const filteredRows = [];
+            for (const [categoryId, supplierMap] of categoriesMap.entries()) {
+              if (supplierMap.size < 2) continue;
+
+              const row = { Category: categoryId };
+              for (const supplier of suppliersSet) {
+                const refs = supplierMap.get(supplier);
+                row[supplier] = refs && refs.length > 0 ? refs.join(", ") : "";
+              }
+              filteredRows.push(row);
+            }
+
+            if (filteredRows.length === 0) {
+              alert("No categories found with instruments from at least two suppliers.");
+              return;
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(filteredRows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Crossref");
+            XLSX.writeFile(workbook, `export_crossref.xlsx`);
+            return;
+          }
+
+          if (selectedOption === "Alternatives") {
+            // --------- Alternatives Export ----------
+            const alternatives = await fetchAlternatives();
+            if (!alternatives || alternatives.length === 0) {
+              alert("No alternatives found.");
+              return;
+            }
+
+            const data = alternatives.map((alt) => ({
+              Reference_1: alt.reference_1,
+              Reference_2: alt.reference_2,
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Alternatives");
+            XLSX.writeFile(workbook, `export_alternatives.xlsx`);
+            return;
+          }
+          if (selectedOption === "Full") {
+            // --------- Full Export ----------
+            if (!selectedColumns || selectedColumns.length === 0) {
+              alert("Please select at least one column to export.");
+              return;
+            }
+
+            const instruments = await fetchTools();
 
             if (!instruments || instruments.length === 0) {
-                alert("No data available to export.");
-                return;
+              alert("No data available to export.");
+              return;
             }
 
             const filteredData = [];
 
             for (const instrument of instruments) {
-                // In Catalogue mode, skip obsolete instruments if 'obsolete' column is not selected
-                if (isCatalogue && !selectedColumns.includes("obsolete") && instrument.obsolete === true) {
-                    continue;
+              let row = {};
+
+              selectedColumns.forEach((col) => {
+                if (instrument.hasOwnProperty(col)) {
+                  row[col] = instrument[col];
                 }
+              });
 
-                let row = {};
-
-                // Include selected basic fields
-                selectedColumns.forEach((col) => {
-                    if (instrument.hasOwnProperty(col)) {
-                        row[col] = instrument[col];
-                    }
-                });
-
-                // Optionally fetch supplier info (closed, sold_by_md)
-                if (selectedColumns.includes("closed") || selectedColumns.includes("sold_by_md")) {
-                    const supplier = await fetchSupplierByName(instrument.supplier);
-                    if (selectedColumns.includes("closed")) {
-                        row["closed"] = supplier.closed;
-                    }
-                    if (selectedColumns.includes("sold_by_md")) {
-                        row["sold_by_md"] = supplier.soldByMD;
-                    }
+              if (selectedColumns.includes("closed") || selectedColumns.includes("sold_by_md")) {
+                const supplier = await fetchSupplierByName(instrument.supplier);
+                if (selectedColumns.includes("closed")) {
+                  row["closed"] = supplier.closed;
                 }
-
-                // Optionally include characteristic values for SubGroup mode
-                if (!isCatalogue && selectedCharacteristics.length > 0 && instrument.categoryId) {
-                    const values = await fetchCharacteristicValuesByCategory(instrument.categoryId);
-                    for (const characteristic of selectedCharacteristics) {
-                        row[characteristic] = values[characteristic] ?? "";
-                    }
+                if (selectedColumns.includes("sold_by_md")) {
+                  row["sold_by_md"] = supplier.soldByMd;
                 }
+              }
 
-                filteredData.push(row);
+              filteredData.push(row);
             }
 
-            // Export standard instrument data
             const worksheet = XLSX.utils.json_to_sheet(filteredData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Instruments");
-            XLSX.writeFile(workbook, `export_${contextName}.xlsx`);
+            XLSX.utils.book_append_sheet(workbook, worksheet, "All_Instruments");
+            XLSX.writeFile(workbook, `export_all_instruments.xlsx`);
+            return;
+          }
+
+          // --------- SubGroup or Catalogue Export ----------
+          const isCatalogue = selectedOption === "Catalogue";
+
+          if (!contextName) {
+            alert(`Please select a ${isCatalogue ? "supplier" : "subgroup"} before exporting.`);
+            return;
+          }
+
+          if (!selectedColumns || selectedColumns.length === 0) {
+            alert("Please select at least one column to export.");
+            return;
+          }
+
+          const instruments = isCatalogue
+            ? await fetchInstrumentsBySupplier(contextName)
+            : await fetchInstrumentsBySubGroup(contextName);
+
+          if (!instruments || instruments.length === 0) {
+            alert("No data available to export.");
+            return;
+          }
+
+          const filteredData = [];
+
+          for (const instrument of instruments) {
+            if (isCatalogue && !selectedColumns.includes("obsolete") && instrument.obsolete === true) {
+              continue;
+            }
+
+            let row = {};
+
+            selectedColumns.forEach((col) => {
+              if (instrument.hasOwnProperty(col)) {
+                row[col] = instrument[col];
+              }
+            });
+            if (selectedColumns.includes("closed") || selectedColumns.includes("sold_by_md")) {
+              const supplier = await fetchSupplierByName(instrument.supplier);
+              if (selectedColumns.includes("closed")) {
+                row["closed"] = supplier.closed;
+              }
+              if (selectedColumns.includes("sold_by_md")) {
+                row["sold_by_md"] = supplier.soldByMd;
+                console.log(row["sold_by_md"])
+              }
+            }
+
+            if (!isCatalogue && selectedCharacteristics.length > 0 && instrument.categoryId) {
+              const values = await fetchCharacteristicValuesByCategory(instrument.categoryId);
+              for (const characteristic of selectedCharacteristics) {
+                row[characteristic] = values[characteristic] ?? "";
+              }
+            }
+
+            filteredData.push(row);
+          }
+
+          const worksheet = XLSX.utils.json_to_sheet(filteredData);
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Instruments");
+          XLSX.writeFile(workbook, `export_${contextName}.xlsx`);
         } catch (error) {
-            console.error("Error during export:", error);
-            alert("An error occurred while exporting.");
+          console.error("Error during export:", error);
+          alert("An error occurred while exporting.");
         }
-    }
-
-
-
+      }
 
     /**
      * Fetches the list of suppliers from the backend.
@@ -215,6 +264,7 @@
       if (selectedSubGroup) {
         try {
           characteristics = await fetchCharacteristics(selectedSubGroup);
+          characteristics = characteristics.map(c => c.name);
           selectedCharacteristics = [...characteristics]; // Par défaut, toutes cochées
         } catch (error) {
           console.error("Error while retrieving characteristics:", error);
@@ -288,7 +338,7 @@
       
       <div class="w-1/4 border p-4">
         <h2 class="text-lg font-semibold mb-2">Que voulez-vous exporter ?</h2>
-        {#each ["SubGroup", "Catalogue", "Alternatives", "Crossref"] as option}
+        {#each ["SubGroup", "Catalogue", "Alternatives", "Crossref", "Full"] as option}
           <label class="block">
             <input type="radio" name="exportOption" value={option} on:change={() => selectOption(option)} checked={selectedOption === option} />
             {option}
@@ -365,8 +415,32 @@
         </div>
       {/if}
 
+      {#if selectedOption === "Alternatives"}
+        <div class="w-1/4 border p-4">
+          <h2 class="text-lg font-semibold">Langues disponibles</h2>
+          {#each availableLanguages as language}
+            <label class="block">
+              <input
+                type="checkbox"
+                checked={selectedLanguages.includes(language)}
+                on:change={() => toggleLanguage(language)}
+              />
+              {language}
+            </label>
+          {/each}
+
+          <button
+            class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-4 w-full"
+            on:click={() => exportToExcel(null, [])}
+          >
+            Exporter
+          </button>
+        </div>
+      {/if}
+
+
   
-      {#if (selectedOption === "SubGroup" && selectedSubGroup) || (selectedOption === "Catalogue" && selectedSupplier)}
+      {#if (selectedOption === "SubGroup" && selectedSubGroup) || (selectedOption === "Catalogue" && selectedSupplier) || selectedOption === "Full"}
         <div class="w-1/4 border p-4">
           <h2 class="text-lg font-semibold">Sélectionnez les Colonnes</h2>
           {#each allColumns as column}
@@ -391,7 +465,8 @@
       {#if
         (selectedOption === "SubGroup" && selectedSubGroup && selectedColumns.length > 0) ||
         (selectedOption === "Catalogue" && selectedSupplier && selectedColumns.length > 0) ||
-        selectedOption === "Crossref"
+        selectedOption === "Crossref" ||
+        (selectedOption === "Full" && selectedColumns.length > 0)
       }      
         <div class="w-1/4 border p-4">
           <h2 class="text-lg font-semibold">Langues disponibles</h2>

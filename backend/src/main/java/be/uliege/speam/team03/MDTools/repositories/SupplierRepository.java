@@ -21,7 +21,7 @@ public interface SupplierRepository extends CrudRepository<Supplier, Integer> {
     List<Supplier> findAll();
 
     /**
-     * Find the maximum supplier ID, which is the one of the last element (supplier) in th database.
+     * Find the maximum supplier ID, which is the one of the last element (supplier) in the database.
      * 
      * @return the maximum supplier ID, or 0 if no suppliers are found
      */

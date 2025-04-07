@@ -140,8 +140,6 @@ CREATE TABLE sub_group_characteristic (
 CREATE TABLE alternatives (
     instruments_id_1 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     instruments_id_2 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
-    alternative_type TEXT,
-    alternative_comment TEXT,
     PRIMARY KEY (instruments_id_1, instruments_id_2)
 );
 
@@ -231,7 +229,7 @@ BEGIN
     END LOOP;
 
     -- Remove the last '/' separator at the end of the string
-    shape_text := RTRIM(shape_text, '/');
+    shape_text := RTRIM(shape_text, ' ');
 
     -- Update the shape field in the category table
     UPDATE category

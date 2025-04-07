@@ -2,8 +2,6 @@
   import "../app.css";
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import { Modals } from "svelte-modals";
-  import Loading from "$lib/Loading.svelte";
-  import { checkRole } from "$lib/rbacUtils";
   import { ROLES } from "../constants";
   import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
   import { login, checkUser, handleLogin, handleLogout } from "../auth";
@@ -18,6 +16,7 @@
 
 
   let showDataMenu = false;
+  
 
   function toggleDataMenu() {
     showDataMenu = !showDataMenu;
@@ -26,6 +25,17 @@
   function closeMenu() {
     showDataMenu = false;
   }
+
+  let showMoreMenu = false;
+
+  function toggleMoreMenu() {
+    showMoreMenu = !showMoreMenu;
+  }
+
+  function closeMoreMenu() {
+    showMoreMenu = false;
+  }
+
 
   // Handle redirect to login page if not logged in
   $: if(browser) {
@@ -55,44 +65,69 @@
   <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
 
   <!-- Navigation Bar -->
-  <nav class="hidden md:flex space-x-6">
-    {#if $isLoggedIn}
-      <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
-      <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
-      <a href="/users" class="text-white hover:text-teal-300 transition">User Profile</a>
-    {/if}
+  {#if $page.url.pathname !== '/login'}
+    <nav class="hidden md:flex space-x-6">
+      {#if $isLoggedIn}
+        <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
+        <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
+      {/if}
 
-    {#if $isAdmin || $isWebmaster}
+      {#if $isAdmin || $isWebmaster}
+        <div class="relative">
+          <button 
+            onclick={toggleDataMenu}
+            class="text-white hover:text-teal-300 transition flex items-center gap-1"
+          >
+            Data
+            <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+          </button>
+
+          {#if showDataMenu}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div 
+              class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
+              onmouseleave={closeMenu}
+            >
+              <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
+              <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
+            </div>
+          {/if}
+        </div>
+      {/if}
+
+      <!-- More Menu -->
       <div class="relative">
         <button 
-          onclick={toggleDataMenu}
+          onclick={toggleMoreMenu}
           class="text-white hover:text-teal-300 transition flex items-center gap-1"
         >
-          Data
-          <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+          More
+          <span class="text-xs">{showMoreMenu ? "▲" : "▼"}</span>
         </button>
 
-        {#if showDataMenu}
+        {#if showMoreMenu}
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div 
-            class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
-            onmouseleave={closeMenu}
+            class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
+            onmouseleave={closeMoreMenu}
           >
-            <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
-            <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
+          {#if $isLoggedIn}
+            <a href="/users" class="block px-4 py-2 hover:bg-teal-400 transition">User Profile</a>
+          {/if}
+          {#if $isAdmin || $isWebmaster}
+            <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Users</a>
+            <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Suppliers</a>
+            <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
+            {#if $isWebmaster}
+              <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition">Webmaster</a>
+            {/if}
+          {/if}
           </div>
         {/if}
       </div>
+    </nav>
+  {/if}
 
-      <!-- Keep these always visible -->
-      <a href="/admin/users" class="text-white hover:text-teal-300 transition">Users</a>
-      <a href="/admin/suppliers" class="text-white hover:text-teal-300 transition">Suppliers</a>
-    {/if}
-
-    {#if $isWebmaster}
-      <a href="/webmaster" class="text-white hover:text-teal-300 transition">Webmaster</a>
-    {/if}
-  </nav>
 
   <!-- Login / Logout Button -->
   <UserDropdown />

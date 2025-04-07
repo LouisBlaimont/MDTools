@@ -12,10 +12,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.exception.UserAlreadyExistsException;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.mapper.UserMapper;
 import be.uliege.speam.team03.MDTools.models.Authority;
 import be.uliege.speam.team03.MDTools.models.User;
@@ -165,5 +167,103 @@ public class UserServiceTest {
         assertEquals(1, user.getAuthorities().size());
         assertEquals(roles, result.getRoles());
         verify(userRepository).save(user);
+    }
+
+    @Test
+    void registerUser_ShouldCreateNewUser_WhenValidDataProvided() {
+        // Given
+        Map<String, Object> userData = Map.of(
+            "email", "newuser@example.com",
+            "username", "newuser"
+        );
+
+        when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByUsername("newuser")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        UserDto result = userService.registerUser(userData);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("newuser@example.com", result.getEmail());
+        assertEquals("newuser", result.getUsername());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void registerUser_ShouldThrowBadRequestException_WhenEmailIsInvalid() {
+        // Given
+        Map<String, Object> userData = Map.of(
+            "email", "invalid-email",
+            "username", "newuser"
+        );
+
+        // When & Then
+        assertThrows(BadRequestException.class, () -> userService.registerUser(userData));
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void updateUser_ShouldThrowBadRequestException_WhenEmailAlreadyExists() {
+        // Given
+        Map<String, Object> updateData = Map.of("email", "existing@example.com");
+        User existingUser = new User();
+        existingUser.setUserId(2L);
+        existingUser.setEmail("existing@example.com");
+
+        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existingUser));
+
+        // When & Then
+        assertThrows(BadRequestException.class, () -> userService.updateUser(user.getUserId(), updateData));
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository).findByEmail("existing@example.com");
+    }
+
+    @Test
+    void deleteUser_ShouldRemoveUser_WhenUserExists() {
+        // Given
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        // When
+        userService.deleteUser(user.getUsername());
+
+        // Then
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    void deleteUser_ShouldThrowResourceNotFoundException_WhenUserDoesNotExist() {
+        // Given
+        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser("nonexistent"));
+        verify(userRepository).findByUsername("nonexistent");
+    }
+
+    @Test
+    void isValidEmail_ShouldReturnTrue_ForValidEmail() {
+        // Given
+        String validEmail = "valid@example.com";
+
+        // When
+        boolean result = userService.isValidEmail(validEmail);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    void isValidEmail_ShouldReturnFalse_ForInvalidEmail() {
+        // Given
+        String invalidEmail = "invalid-email";
+
+        // When
+        boolean result = userService.isValidEmail(invalidEmail);
+
+        // Then
+        assertFalse(result);
     }
 }

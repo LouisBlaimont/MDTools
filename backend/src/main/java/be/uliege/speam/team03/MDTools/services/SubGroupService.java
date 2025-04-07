@@ -61,6 +61,20 @@ public class SubGroupService {
     }
 
     /**
+     * Finds all sub-groups in the system.
+     *
+     * @return a list of SubGroupDTO objects representing all sub-groups in the system
+     */
+    public List<SubGroupDTO> findAllSubGroups() {
+        List<SubGroup> subGroups = (List<SubGroup>) subGroupRepository.findAll();
+        List<SubGroupDTO> subGroupsDTO = new ArrayList<>();
+        subGroupsDTO = subGroups.stream()
+                    .map(SubGroupMapper::toDto)
+                    .toList();
+        return subGroupsDTO;
+    }
+
+    /**
      * Adds a new sub-group to an existing group.
      *
      * @param groupName the name of the group to which the sub-group will be added
@@ -104,7 +118,7 @@ public class SubGroupService {
                 charRepository.save(newChar);
             }
 
-            Integer newSubGroupId = newSubGroup.getId().intValue();
+            Long newSubGroupId = newSubGroup.getId();
 
             SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId,
                     newChar.getId());
@@ -115,8 +129,6 @@ public class SubGroupService {
 
         // This is where it doesn't work
         subGroupCharRepository.saveAll(subGroupChars);
-
-        System.out.println("Print after save");
 
         newSubGroup.setInstrCount(0);
         newSubGroup.setCategories(null);
@@ -257,4 +269,74 @@ public class SubGroupService {
         return SubGroupMapper.toDto(savedSubGroup);
     }
 
+    /**
+     * Adds a new characteristic to an existing subgroup.
+     *
+     * If the characteristic already exists in the system, it will be reused.
+     * A link between the subgroup and the characteristic is created and persisted.
+     *
+     * @param subGroupName the name of the subgroup to which the characteristic will be added
+     * @param characteristicName the name of the characteristic to add
+     * @return the updated SubGroupDTO with the new characteristic linked
+     * @throws ResourceNotFoundException if the subgroup is not found
+     * @throws BadRequestException if the subgroup name or characteristic name is missing or if the characteristic is already linked
+     */
+    public SubGroupDTO addCharacteristicToSubGroup(String subGroupName, String characteristicName)
+            throws ResourceNotFoundException, BadRequestException {
+
+        if (ObjectUtils.isEmpty(subGroupName)) {
+            throw new BadRequestException("Subgroup name is required.");
+        }
+
+        if (ObjectUtils.isEmpty(characteristicName)) {
+            throw new BadRequestException("Characteristic name is required.");
+        }
+
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+                .orElseThrow(() -> new ResourceNotFoundException("Subgroup not found: " + subGroupName));
+
+        Optional<Characteristic> existing = charRepository.findByName(characteristicName);
+        Characteristic characteristic;
+
+        if (existing.isPresent()) {
+            characteristic = existing.get();
+        } else {
+            characteristic = new Characteristic(characteristicName);
+            charRepository.save(characteristic);
+        }
+
+        SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(
+            subGroup.getId(),
+            characteristic.getId()
+        );
+        SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(subGroup, characteristic, null);
+        subGroupChar.setId(key);
+
+        subGroupCharRepository.save(subGroupChar);
+
+        subGroup = subGroupRepository.findByName(subGroupName).get();
+        return SubGroupMapper.toDto(subGroup);
+    }
+
+    public SubGroupDTO updateCharacteristicOrder(String subGroupName, List<Map<String, Object>> newOrder)
+        throws ResourceNotFoundException, BadRequestException {
+    
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+            .orElseThrow(() -> new ResourceNotFoundException("SubGroup not found"));
+    
+        List<SubGroupCharacteristic> links = subGroupCharRepository.findBySubGroup(subGroup);
+    
+        for (Map<String, Object> entry : newOrder) {
+            String name = (String) entry.get("name");
+            Integer orderPosition = (Integer) entry.get("order_position");
+    
+            links.stream()
+                .filter(link -> link.getCharacteristic().getName().equals(name))
+                .findFirst()
+                .ifPresent(link -> link.setOrderPosition(orderPosition));
+        }
+    
+        subGroupCharRepository.saveAll(links);
+        return SubGroupMapper.toDto(subGroup);
+    }
 }

@@ -159,7 +159,7 @@ public class UserService {
     * @param email The email to check.
     * @return True if the email is valid, false otherwise.
     */
-   private boolean isValidEmail(String email) {
+   protected boolean isValidEmail(String email) {
       // Define the regex for a valid email
       String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
   

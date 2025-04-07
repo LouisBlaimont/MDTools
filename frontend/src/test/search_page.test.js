@@ -6,6 +6,13 @@ import { apiFetch } from '$lib/utils/fetch';
 
 global.fetch = vi.fn();
 
+import { goto } from '$app/navigation';
+
+vi.mock('$app/navigation', () => ({
+  goto: vi.fn()
+}));
+
+
 describe('search page functions', () => {
     //Clear all mock ups and give the searchParameters
     beforeEach(()=> {
@@ -41,7 +48,10 @@ describe('search page functions', () => {
                 id : 1,
                 name : 'SubGroup3',
                 groupId : 1,
-                subGroupCharacteristics : ["Char1", "Char2"],
+                subGroupCharacteristics : [
+                    { name: "Char1", orderPosition: 1 },
+                    { name: "Char2", orderPosition: 2 },
+                ],
                 intrCount : 1,
                 categoriesId : [1],
                 pictureId : null
@@ -50,15 +60,21 @@ describe('search page functions', () => {
                 id : 2,
                 name : 'SubGroup4',
                 groupId : 1,
-                subGroupCharacteristics : ["Char3", "Char4"],
+                subGroupCharacteristics : [
+                    { name: "Char3", orderPosition: 1 },
+                    { name: "Char4", orderPosition: 2 },
+                ],
                 intrCount : 1,
                 categoriesId : [2],
                 pictureId : null
             }]; 
-        const mockCategories = [
-            { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
-            { id : 2, groupName : 'Group1', subGroupName : 'SubGroup4', function : 'Fct2', name : 'Name2', shape : 'FN2', lenAbrv :'L2CM', pictureId : null}
-        ]
+        const mockCategories = {
+            "content": [
+                { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
+                { id : 2, groupName : 'Group1', subGroupName : 'SubGroup4', function : 'Fct2', name : 'Name2', shape : 'FN2', lenAbrv :'L2CM', pictureId : null}
+            ]
+        }
+
         const mockGroupsResponse = {json : vi.fn().mockResolvedValue(mockGroups), ok:true};
         const mockSubGroupsResponse = {json : vi.fn().mockResolvedValue(mockSubGroups), ok:true};
         const mockCategoriesResponse = {json : vi.fn().mockResolvedValue(mockCategories), ok:true};
@@ -104,14 +120,20 @@ describe('search page functions', () => {
                 id : 1,
                 name : 'SubGroup3',
                 groupId : 1,
-                subGroupCharacteristics : ["Char1", "Char2", "Char3"],
+                subGroupCharacteristics : [
+                    { name: "Char1", orderPosition: 1 },
+                    { name: "Char2", orderPosition: 2 },
+                    { name: "Char3", orderPosition: null }
+                ],
                 intrCount : 1,
                 categoriesId : [1],
                 pictureId : null
         }; 
-        const mockCategories = [
-            { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
-        ]
+        const mockCategories = {
+            content:[
+                { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
+            ]
+        }
         const mockGroupsResponse = {json : vi.fn().mockResolvedValue(mockGroups), ok:true};
         const mockSubGroupsResponse = {json : vi.fn().mockResolvedValue(mockSubGroups), ok:true};
         const mockCategoriesResponse = {json : vi.fn().mockResolvedValue(mockCategories), ok:true};
@@ -152,9 +174,11 @@ describe('search page functions', () => {
     //Test of selectCategoryWithChar() and selectCategory() (since selectCategory() is called in selectCategoryWithChar())
     it('should fetch the instruments of the selected category and display the characteristic values of the category', async() => {
         const subGroups = ['SubGroup3'];
-        const categories = [
-            { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
-        ];
+        const categories = {
+            content: [
+                { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
+            ]
+        };
         const characteristics = ["Char1", "Char2", "Char3"];
         
         const mockGroups = [{name : 'Group1'}];

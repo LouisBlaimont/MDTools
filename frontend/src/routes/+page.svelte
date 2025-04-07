@@ -13,6 +13,8 @@
   import { findOrderItems } from "$lib/components/order_component.js";
   import Loading from "$lib/Loading.svelte";
   import editInstrumentModal from "$lib/modals/editInstrumentModal.svelte";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import Icon from "@iconify/svelte";
 
   let groups_summary = $state([]);
 
@@ -257,17 +259,17 @@
 
         {#if $isAdmin}
           <div class="flex flex-col">
-            <button
+            <a href="/admin/add_group"><button
               class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-              ><a href="/admin/add_group">Ajouter un groupe</a></button
-            >
+              >Ajouter un groupe</button
+            ></a>
           </div>
           {#if selectedGroup}
             <div class="flex flex-col">
-              <button
+              <a href="/admin/add_subgroup"><button
                 class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-                ><a href="/admin/add_subgroup">Ajouter un sous-groupe</a></button
-              >
+                >Ajouter un sous-groupe</button
+              ></a>
             </div>
           {/if}
         {/if}
@@ -312,16 +314,11 @@
         <!-- Buttons div -->
         {#if selectedGroup}
           <button
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2"
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 "
             aria-label="back to groups"
             onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+            <Icon icon="material-symbols:arrow-back-ios-new-rounded" width="24" height="24" />
           </button>
         {/if}
 
@@ -332,19 +329,7 @@
             id="editGroupsButton"
             onclick={() => startEditing()}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L6 20l-4 1 1-4L16.5 3.5z" />
-            </svg>
+            <Icon icon="material-symbols:edit" width="24" height="24" />
           </button>
         {/if}
       </div>
@@ -405,6 +390,3 @@
   {/if}
   </div>
 </div>
-
-
-
