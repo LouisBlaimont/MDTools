@@ -12,6 +12,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
   import Loading from "$lib/Loading.svelte";
+  import editInstrumentModal from "$lib/modals/editInstrumentModal.svelte";
 
   let groups_summary = $state([]);
 
@@ -51,8 +52,11 @@
     );
   }
 
-  function moveToSearchesBis(group, subgroup, catId, instrumentId) {
+  async function moveToSearchesBis(instrument, group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
+    if (catId == 1) {
+      await modals.open(editInstrumentModal, { instrument });
+    }
     goto(
       `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
     );
@@ -129,28 +133,31 @@
 
   let searchByKeywords = throttle(async () => {
       try {
-        console.log("here we enter searchByKeywords");
+        showKeywordsResult = false;
+        let data = null;
         let params = new URLSearchParams();
         $keywords.split(",").forEach((element) => {
-          params.append("keywords", element.trim());
+          const keyword = element.trim();
+          if (keyword.length > 0) {
+            params.append("keywords", keyword);
+          }
         });
-
-        let response = await apiFetch(`/api/instrument/search?${params}`);
-        let data = await response.json();
-        console.log("in length: " , Object.keys(data).length);
-
-
-        keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
-        console.log("finished searching");
-        if (Object.keys(data).length > 0) {
-          showKeywordsResult = true;
-        }   
-
+        if ($keywords == null) {
+          data = null;
+        }
+        else {
+          let response = await apiFetch(`/api/instrument/search?${params}`);
+          data = await response.json();
+          keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
+          if (Object.keys(data).length > 0) {
+            showKeywordsResult = true;
+          }
+        }
       } catch (error) {
         console.error(error);
         errorMessage.set(error.message);
       }
-  }, 500);
+  }, 300);
 
 
   async function selectedInstrumentHome(row) {
@@ -159,7 +166,7 @@
       let cat = await response.json();
       showKeywordsResult = false;
       console.log("id insturment", row.id);
-      moveToSearchesBis(cat.groupName, cat.subGroupName, row.categoryId, row.id);
+      moveToSearchesBis(row, cat.groupName, cat.subGroupName, row.categoryId, row.id);
     } catch (error) {
       console.error(error);
       errorMessage.set(error.message);

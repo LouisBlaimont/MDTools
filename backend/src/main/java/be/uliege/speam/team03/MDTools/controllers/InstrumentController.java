@@ -12,7 +12,10 @@ import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.services.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -224,10 +227,17 @@ public class InstrumentController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<InstrumentDTO>> searchInstrument(@RequestParam List<String> keywords) {
+    public ResponseEntity<List<InstrumentDTO>> searchInstrument(
+            @RequestParam(required = false) List<String> keywords) {
+        
+        if (keywords == null || keywords.stream().allMatch(k -> k == null || k.trim().isEmpty())) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
         List<InstrumentDTO> instruments = instrumentService.searchInstrument(keywords);
-        return ResponseEntity.status(HttpStatus.OK).body(instruments);
+        return ResponseEntity.ok(instruments);
     }
+
 
     // getting the category from an instrument
     @GetMapping("/getCategory/{categoryId}")
