@@ -1,7 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { apiFetch } from "$lib/utils/fetch";
-    import { reload } from "$lib/stores/searches";
+    import { instrumentCharacteristics, reload } from "$lib/stores/searches";
     import { modals } from "svelte-modals";
     import AddCategoryModalFromInstrument from "./addCategoryModalFromInstrument.svelte";
 
@@ -10,6 +10,7 @@
     export let initInstrument = null;
     export let initCategory = null;
 
+    let file = null;
     let reference = "";
     let supplier = "";
     let supplierDescription = "";
@@ -48,20 +49,44 @@
             });
            return;
         }
-        const response = await apiFetch('/api/instrument', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                reference, 
-                supplier, 
-                categoryId,
-                supplierDescription, 
-                price, 
-                alt, 
-                obsolete, 
-                id 
-            })
-        });
+        if (file)
+        {
+            try {
+                const response = await apiFetch('/api/instrument', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        reference, 
+                        supplier, 
+                        categoryId,
+                        supplierDescription, 
+                        price, 
+                        alt, 
+                        obsolete, 
+                        id 
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error("Failed to add instrument");
+                }
+                const formData = new FormData();
+                formData.append("file", file);
+                const img = await apiFetch("/api/instrument/" + encodeURIComponent(response.getbody(id)) + "/picture", {
+                    method: "POST",
+                    body: formData,
+                });
+                if (img.ok) {
+                    const data = await response.json();
+                    id = data.filePath; // Assuming the API returns the file path
+                } else if (!img.ok) {
+                    dispatch("error", { message: "Erreur lors du téléchargement de l'image." });
+                    return;
+                }
+            } catch (error) {
+                dispatch("error", { message: "Erreur lors dde l'ajout de l'instrument." });
+                return;
+            }
+        }
 
         if (response.ok) {
             dispatch("success", { message: "Instrument ajouté!" });
@@ -346,6 +371,7 @@
                             on:input={handleAutocompleteInput}
                             on:blur={closeAutocomplete}
                             class="w-full p-2 border rounded" 
+                            placeholder="Entrer une référence"
                         />
                         {#if showAutocompleteDropdown && currentAutocompleteField === "reference"}
                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -378,6 +404,7 @@
                             on:input={handleAutocompleteInput}
                             on:blur={closeAutocomplete}
                             class="w-full p-2 border rounded" 
+                            placeholder="Entrer un fournisseur"
                         />
                         {#if showAutocompleteDropdown && currentAutocompleteField === "supplier"}
                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -409,7 +436,8 @@
                             on:focus={() => triggerAutocomplete("supplierDescription")}
                             on:input={handleAutocompleteInput}
                             on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
+                            class="w-full p-2 border rounded"
+                            placeholder="Entrer la description du fournisseur" 
                         />
                         {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -433,7 +461,13 @@
                     </div>
 
                     <label class="block mb-2">Prix:</label>
-                    <input type="number" bind:value={price} min="0" step="0.01" class="w-full p-2 border rounded mb-4" />
+                    <input type="number" 
+                        bind:value={price} 
+                        min="0" 
+                        step="0.01" 
+                        class="w-full p-2 border rounded mb-4" 
+                        placeholder="Entrer le prix"
+                    />
 
                     <label class="block mb-2">Catégorie:</label>
                     <div class="relative mb-4">
@@ -474,7 +508,7 @@
                     </div>
 
                     <label class="block mb-2">Alternatives:</label>
-                    <input type="text" bind:value={alt} class="w-full p-2 border rounded mb-4" />
+                    <input type="text" bind:value={alt} class="w-full p-2 border rounded mb-4" placeholder="Sélectionner des alternatives"/>
 
                     <label class="block mb-2">Obsolescence:</label>
                     <div class="flex gap-4 mb-4">
@@ -482,9 +516,12 @@
                         <label><input type="radio" bind:group={obsolete} value={false} /> Non</label>
                     </div>
 
-                    <label class="block mb-2">Source de l'image:</label>
-                    <input type="text" bind:value={id} class="w-full p-2 border rounded mb-4" />
-
+                    <label class="block mb-2">Image:</label>
+                    <input
+                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
+                        type="file"
+                        on:change={(e) => (file = e.target.files[0])}
+                    />
                     <div class="flex justify-end gap-4">
                         <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
                         <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>

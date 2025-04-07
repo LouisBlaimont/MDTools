@@ -521,7 +521,7 @@
                 <form on:submit|preventDefault={handleSubmit} class="p-4">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
-                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt'} 
+                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
                                 <div>
                                     <label class="block mb-2">
                                         {#if characteristic.name === 'supplier'}

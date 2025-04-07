@@ -13,7 +13,11 @@
   import { page } from '$app/stores';
   import UserDropdown from "$lib/components/userDropdown.svelte";
   import { replaceState, afterNavigate } from "$app/navigation";
-
+  import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";
+  import { modals } from "svelte-modals";
+  import addSupplierModal from "$lib/modals/addSupplierModal.svelte";
+  import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
+  import { stopImmediatePropagation } from "svelte/legacy";
 
   let showDataMenu = false;
   
@@ -27,8 +31,10 @@
   }
 
   let showMoreMenu = false;
+  let moreButton;
 
-  function toggleMoreMenu() {
+  function toggleMoreMenu(event) {
+    event.stopPropagation();
     showMoreMenu = !showMoreMenu;
   }
 
@@ -36,6 +42,35 @@
     showMoreMenu = false;
   }
 
+  let showManageMenu = false;
+
+  function toggleManageMenu() {
+    showManageMenu = !showManageMenu;
+  }
+
+  function closeManageMenu() {
+    stopImmediatePropagation();
+    showManageMenu = false;
+  }
+
+  // Add a custom clickOutside directive
+  export function clickOutside(node, options = {}) {
+    const { exclude = [] } = options;
+
+    const handleClick = (event) => {
+      if (!node.contains(event.target) && !exclude.some(el => el.contains(event.target))) {
+        node.dispatchEvent(new CustomEvent("click_outside"));
+      }
+    };
+
+    document.addEventListener("click", handleClick, true);
+
+    return {
+      destroy() {
+        document.removeEventListener("click", handleClick, true);
+      },
+    };
+  }
 
   // Handle redirect to login page if not logged in
   $: if(browser) {
@@ -86,7 +121,8 @@
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div 
               class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
-              onmouseleave={closeMenu}
+              use:clickOutside
+              onclick_outside={closeMenu}
             >
               <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
               <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
@@ -98,6 +134,7 @@
       <!-- More Menu -->
       <div class="relative">
         <button 
+          bind:this={moreButton}
           onclick={toggleMoreMenu}
           class="text-white hover:text-teal-300 transition flex items-center gap-1"
         >
@@ -109,7 +146,8 @@
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div 
             class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
-            onmouseleave={closeMoreMenu}
+            use:clickOutside={{ exclude: [moreButton] }}
+            onclick_outside={closeMoreMenu}
           >
           {#if $isLoggedIn}
             <a href="/users" class="block px-4 py-2 hover:bg-teal-400 transition">User Profile</a>
@@ -118,9 +156,47 @@
             <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Users</a>
             <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Suppliers</a>
             <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
+            
             {#if $isWebmaster}
               <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition">Webmaster</a>
             {/if}
+
+            <!-- Manage Submenu -->
+            <div class="relative">
+              <button 
+                onclick={toggleManageMenu}
+                class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full flex items-center gap-1"
+              >
+                Add
+                <span class="text-xs">{showManageMenu ? "▲" : "▼"}</span>
+              </button>
+
+              {#if showManageMenu}
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div 
+                  class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
+                >
+                  <button 
+                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
+                    onclick={() => {modals.open(addInstrumentModal, { initInstrument: null, initCategory: null }); closeManageMenu();}}
+                  >
+                    Add Instrument
+                  </button>
+                  <button 
+                    class="block px-4 py-2 hover:bg-teal-400 transition"
+                    onclick={() =>{ modals.open(addSupplierModal); closeManageMenu();}}
+                  >
+                    Add Supplier
+                  </button>
+                  <button 
+                    class="block px-4 py-2 hover:bg-teal-400 transition"
+                    onclick={() => {modals.open(addCategoryModal); closeManageMenu();}}
+                  >
+                    Add Category
+                  </button>
+                </div>
+              {/if}
+            </div>
           {/if}
           </div>
         {/if}
