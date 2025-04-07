@@ -18,6 +18,18 @@
 
   let groups_summary = $state([]);
 
+  // deal with the "add group" and "add subgroup" buttons
+  let selected = $state(true);
+  $effect(() => {
+    if (isAdmin && selectedGroup) {
+      selected = false;
+    }
+    if (isAdmin && !selectedGroup) {
+      selected = true;
+    }
+  });
+
+  // tp fetch data when page is mounted
   async function fetchData() {
     try {
       const response = await apiFetch("/api/groups/summary");
@@ -47,20 +59,11 @@
     }
   });
 
+  // moving to the search page with selected group (and subgroup)
   function moveToSearches(group, subgroup) {
     clearTimeout(clickTimeout);
     goto(
       `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent("")}&instrument=${encodeURIComponent("")}`
-    );
-  }
-
-  async function moveToSearchesBis(instrument, group, subgroup, catId, instrumentId) {
-    clearTimeout(clickTimeout);
-    if (catId == 1) {
-      await modals.open(editInstrumentModal, { instrument });
-    }
-    goto(
-      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
     );
   }
 
@@ -72,6 +75,7 @@
   let showModal = $state(false);
   let showKeywordsResult = $state(false);
 
+  // deal with the editing of the groups and the subgroups
   function startEditing() {
     if (isEditing) {
       isEditing = false;
@@ -85,6 +89,7 @@
     }
   }
 
+  // handle when a group is selected and gets all the subgroups
   async function handleGroupClick(group) {
     if (isEditing) {
       await modals.open(editGroupModal, { group });
@@ -97,6 +102,7 @@
     }, 500);
   }
 
+  // getting all the subgroups of a given group
   async function getSubgroups(group) {
     if (!group || !group.name) {
       console.error("Group is null or undefined:", group);
@@ -124,6 +130,7 @@
     }
   }
 
+  // going to searches when a subgroup is selected
   async function handleSubGroupClick(group, subgroup) {
     if (isEditing) {
       await modals.open(editSubgroupModal, { subgroup });
@@ -133,41 +140,68 @@
     moveToSearches(group.name, subgroup.name);
   }
 
+  /* Dealing with the search by keywords */
+  // goto searches with the selected instrument found by keywords
+  async function moveToSearchesBis(instrument, group, subgroup, catId, instrumentId) {
+    clearTimeout(clickTimeout);
+    if (catId == null) {
+      await modals.open(editInstrumentModal, { 
+        instrument,
+        message: "You need to assign a category to this instrument!" // Add the message here
+      });
+    }
+    goto(
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
+    );
+  }
+
+  // function to handle the keyword inputs and calling endpoint
   let searchByKeywords = throttle(async () => {
-      try {
-        showKeywordsResult = false;
-        let data = null;
-        let params = new URLSearchParams();
-        $keywords.split(",").forEach((element) => {
-          const keyword = element.trim();
-          if (keyword.length > 0) {
-            params.append("keywords", keyword);
-          }
-        });
-        if ($keywords == null) {
-          data = null;
+    try {
+      showKeywordsResult = false;
+      let data = null;
+      let params = new URLSearchParams();
+      $keywords.split(",").forEach((element) => {
+        const keyword = element.trim();
+        if (keyword.length > 0) {
+          params.append("keywords", keyword);
         }
-        else {
-          let response = await apiFetch(`/api/instrument/search?${params}`);
-          data = await response.json();
-          keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
-          if (Object.keys(data).length > 0) {
-            showKeywordsResult = true;
-          }
-        }
-      } catch (error) {
-        console.error(error);
-        errorMessage.set(error.message);
+      });
+      if ($keywords == null) {
+        data = null;
       }
+      else {
+        let response = await apiFetch(`/api/instrument/search?${params}`);
+        data = await response.json();
+        keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
+        if (Object.keys(data).length > 0) {
+          showKeywordsResult = true;
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+    }
   }, 300);
 
+  // handles the delay between to search by keywords
+  function throttle(fn, delay) {
+    let lastCall = 0;
+    return (...args) => {
+      const now = Date.now();
+      if (now - lastCall >= delay) {
+        lastCall = now;
+        fn(...args);
+      }
+    };
+  }
 
+  // get category, group and subgroup from selected instrument, then call moveToSearchesBis
   async function selectedInstrumentHome(row) {
     try {
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
       let cat = await response.json();
       showKeywordsResult = false;
-      console.log("id insturment", row.id);
       moveToSearchesBis(row, cat.groupName, cat.subGroupName, row.categoryId, row.id);
     } catch (error) {
       console.error(error);
@@ -175,6 +209,8 @@
     }
   }
 
+
+  /* Functions for handling the orders */
   function seePreviousOrders() {
     goto("/previous_orders");
   }
@@ -189,18 +225,6 @@
     findOrderItems($selectedOrderId);
     goto(`/single_order_view?name=${name}`);
   }
-
-  function throttle(fn, delay) {
-    let lastCall = 0;
-    return (...args) => {
-      const now = Date.now();
-      if (now - lastCall >= delay) {
-        lastCall = now;
-        fn(...args);
-      }
-  };
-}
-
 </script>
 
 <svelte:head>
@@ -237,6 +261,8 @@
                 style="width: calc(100% + 80px);"
               >
                 {#each $keywordsResult as row, index}
+                  <!-- svelte-ignore a11y_click_events_have_key_events -->
+                  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                   <li
                     class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
                     onclick={() => selectedInstrumentHome(row)}
@@ -247,32 +273,15 @@
                     class="text-black line-clamp-2 w-full tooltip-container"
                     data-tooltip={row.supplierDescription}
                     title={row.supplierDescription} 
-                  >
-                    {row.supplierDescription}
-                  </span>                </li>
+                    >
+                      {row.supplierDescription}
+                    </span>                
+                  </li>
                 {/each}
               </ul>
             {/if}
           {/if}
         </div>
-             
-
-        {#if $isAdmin}
-          <div class="flex flex-col">
-            <a href="/admin/add_group"><button
-              class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-              >Ajouter un groupe</button
-            ></a>
-          </div>
-          {#if selectedGroup}
-            <div class="flex flex-col">
-              <a href="/admin/add_subgroup"><button
-                class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-                >Ajouter un sous-groupe</button
-              ></a>
-            </div>
-          {/if}
-        {/if}
       </form>
     </div>
 
@@ -331,6 +340,26 @@
           >
             <Icon icon="material-symbols:edit" width="24" height="24" />
           </button>
+        {/if}
+             
+
+        {#if $isAdmin}
+          {#if selected}
+            <div class="flex flex-col">
+              <a href="/admin/add_group"><button
+                class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+                >Ajouter un groupe</button
+              ></a>
+            </div>
+          {/if}
+          {#if selectedGroup}
+            <div class="flex flex-col">
+              <a href="/admin/add_subgroup"><button
+                class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+                >Ajouter un sous-groupe</button
+              ></a>
+            </div>
+          {/if}
         {/if}
       </div>
 

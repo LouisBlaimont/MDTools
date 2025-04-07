@@ -1,15 +1,5 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
-import be.uliege.speam.team03.MDTools.exception.BadRequestException;
-import be.uliege.speam.team03.MDTools.DTOs.AlternativeReferenceDTO;
-import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
-import be.uliege.speam.team03.MDTools.services.AlternativeService;
-import lombok.AllArgsConstructor;
-
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -18,7 +8,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import be.uliege.speam.team03.MDTools.DTOs.AlternativeReferenceDTO;
+import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.services.AlternativeService;
+import lombok.AllArgsConstructor;
 
 
 
@@ -63,6 +62,7 @@ public class AlternativesController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
+    
     @GetMapping("/all")
     public ResponseEntity<List<AlternativeReferenceDTO>> getAllAlternatives() {
         List<AlternativeReferenceDTO> alternatives = alternativeService.findAllAlternativesReferences();

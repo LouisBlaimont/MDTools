@@ -11,6 +11,7 @@
     isOpen, // Indicates if the modal is open
     close,  // Function to close the modal
     instrument, // The instrument data passed as a prop
+    message,
   } = $props();
 
   let hoveredAlternativeIndex = $state(null);
@@ -496,7 +497,9 @@
                 </g>
               </svg>
             </div>
-            
+            {#if message}
+              <p class="text-red-400 text-lg mt-4 ml-3">{message}</p>
+            {/if}
             {#await promise}
                 <div role="status" class="my-6 flex items-center justify-center p-4">
                     <svg

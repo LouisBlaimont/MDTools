@@ -58,11 +58,16 @@
   }
 )
 
+  function redirectToHome() {
+    goto('/'); // Redirect to the home page
+  }
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
   <!-- Logo -->
-  <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <img alt="Logo MD" src="/logo-blanc.png" class="h-10" onclick={redirectToHome} />
 
   <!-- Navigation Bar -->
   {#if $page.url.pathname !== '/login'}

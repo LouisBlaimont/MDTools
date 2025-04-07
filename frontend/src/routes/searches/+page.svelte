@@ -51,13 +51,13 @@
   async function findInstrumentsOfCategory(categoryId){
     const index = $categories.findIndex(category => category.id === Number(categoryId));
     selectedCategoryIndex.set(index);
-
+    
     currentSuppliers.set([]);
     alternatives.set([]);  
     try{
     const response = await apiFetch(`/api/category/instruments/${categoryId}`);
     let response2;
-    if( $isAdmin){
+    if($isAdmin){
         response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
     }
     else{
@@ -175,28 +175,6 @@
   function openEditPage(toolId) {
     goto(`/admin/instrument_edit/${toolId}`);
   }
-
-  /**
-   * Gets the suppliers of the category given directly by the categoryId
-   * @param categoryId
-   */
-  async function selectCategoryBis(categoryId) {
-    try{   
-        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-        if (!response.ok){
-            throw new Error("Failed to fetch instruments of category");
-        }
-        const answer = await response.json();
-        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
-        console.log("current suppliers from Home: ", $currentSuppliers);
-    }catch (error) {
-        console.error(error);
-        errorMessage.set(error.message);
-    }
-    return;
-  }
-
-
 </script>
 
 <svelte:head>
