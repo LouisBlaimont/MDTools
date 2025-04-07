@@ -82,11 +82,11 @@
    * Gets the suppliers of the category given by the line index in the table
    * @param index
    */
-  async function selectCategory(index) {
-    currentSuppliers.set([]);
-    alternatives.set([]);
-    selectedCategoryIndex.set(index);
-    selectedSupplierIndex.set("");
+   async function selectCategory(index) {
+        currentSuppliers.set([]);
+        alternatives.set([]);
+        selectedCategoryIndex.set(index);
+        selectedSupplierIndex.set('');
 
     // selecting the categoryId
     const cat = $categories[$selectedCategoryIndex];
@@ -105,9 +105,7 @@
       }
       const answer = await response.json();
       currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
-      if (!response2.ok) {
-        return;
-      }
+
       const answer2 = await response2.json();
       alternatives.set(Array.isArray(answer2) ? answer2 : [answer2]);
     } catch (error) {
@@ -116,7 +114,7 @@
     }
     return;
   }
-
+  
   function showBigPicture(img) {
     const pannel = document.getElementById("big-category-pannel");
     const overlay = document.getElementById("overlay");
