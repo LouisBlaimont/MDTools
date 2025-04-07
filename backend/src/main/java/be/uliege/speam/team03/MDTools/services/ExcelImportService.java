@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -329,7 +330,7 @@ public class ExcelImportService {
     Category getOrCreateCategory(SubGroup subGroup, Map<String, Object> row, List<String> subGroupCharacteristics) {
         Map<String, String> instrumentCharacteristics = extractCharacteristics(row, subGroupCharacteristics);
     
-        List<Category> existingCategories = categoryRepository.findBySubGroup(subGroup).orElse(new ArrayList<>());
+        List<Category> existingCategories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
     
         for (Category category : existingCategories) {
             if (matchCategory(category, instrumentCharacteristics)) return category;

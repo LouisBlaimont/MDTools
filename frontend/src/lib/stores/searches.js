@@ -42,7 +42,6 @@ export let userId = writable(1); //default value because for now no user but cha
 export let orders = writable(null);
 export let alternatives = writable([]);
 
-export let categories_pageable = writable(null);
 export let addingAlt = writable(false);
 export let altToAdd = writable([]);
 export let removingAlt = writable(false);

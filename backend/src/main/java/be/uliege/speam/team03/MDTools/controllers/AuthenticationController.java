@@ -1,8 +1,6 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
