@@ -179,50 +179,46 @@
 
 <div id="container" class="text-[14px]">
   <div class="flex flex-col gap-[5px] box-border w-full">
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="flex w-full h-[70vh] relative overflow-auto border border-gray-300" bind:this={div1}>
     <!-- TOP PART -->
-        <!-- SEARCHES -->
-        <div
-          class="relative overflow-auto border border-gray-300 flex-none"
-          bind:this={div2}
-          style="min-width: 20px;" 
-        >
-          <SearchComponent />
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div
-            class="absolute w-0.5 h-full bg-gray-300 bottom-0 right-0 cursor-ew-resize"
-            on:mousedown={(e) => startResizeLeftToRight(e, div2)}            
-          ></div>
-        </div>
+    <div class="flex w-full h-[70vh] relative overflow-hidden border border-gray-300" bind:this={div1}>
       
-        <!-- CATEGORIES -->
+      <!-- SEARCHES -->
+      <div
+        class="relative overflow-auto border border-gray-300 flex-none min-w-[150px] max-w-[50%] resize-x"
+        bind:this={div2}>
+        <SearchComponent />
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-grow"
-          style="min-width: 20px;" >
-          <CategoryComponent />
-        </div>
-      
-        <!-- INSTRUMENTS -->
+          class="absolute w-0.5 h-full bg-gray-300 bottom-0 right-0 cursor-ew-resize"
+          on:mousedown={(e) => startResizeLeftToRight(e, div2)}            
+        ></div>
+      </div>
+    
+      <!-- CATEGORIES -->
+      <div
+        class="relative overflow-auto border border-gray-300 flex-grow min-w-[150px]">
+        <CategoryComponent />
+      </div>
+    
+      <!-- INSTRUMENTS -->
+      <div
+        class="relative border border-gray-300 flex-none min-w-[150px] max-w-[55%] resize-x w-[600px]"
+        bind:this={div4}
+      >
+        <InstrumentComponent />
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-none"
-          bind:this={div4}
-          style="min-width: 20px;" 
-        >
-          <InstrumentComponent />
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div
-            class="absolute w-0.5 h-full bg-gray-300 bottom-0 left-0 cursor-ew-resize"
-            on:mousedown={(e) => startResizeRightToLeft(e, div4)}
-          ></div>
-        </div>
+          class="absolute w-0.5 h-full bg-gray-300 bottom-0 left-0 cursor-ew-resize"
+          on:mousedown={(e) => startResizeRightToLeft(e, div4)}
+      ></div>
+      </div>
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div class="absolute w-full h-0.5 bg-gray-300 bottom-0 left-0 cursor-ns-resize" on:mousedown={(e) => startResizeVertical(e, div1)}></div>
     </div>    
 
     <!-- BOTTOM PART -->
     <!-- ORDERS  -->
     <OrderComponent />
-
   </div>
 </div>
 

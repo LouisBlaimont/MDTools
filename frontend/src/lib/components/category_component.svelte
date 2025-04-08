@@ -166,15 +166,15 @@
 </script>
 <div class="flex">
     <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
-        <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
+        <!-- TABLE OF CATEGORIES CORRESPONDING TO SEARCH  -->
         <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
-            <span class="">Catégories</span>
+            <span class="">Types d'instruments</span>
         </div>
         <table id="tools-table" data-testid="categories-table" class="w-full border-collapse table-fixed">
             <thead class="bg-teal-400">
                 <tr>
                     {#if $isEditing}
-                        <th class="text-center border border-solid border-[black] w-8"></th>
+                        <th class="text-center border border-solid border-[black] w-8 overflow-hidden"></th>
                     {/if}
                     <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
                     <th class="text-center border border-solid border-[black] w-12 overflow-hidden">NOM</th>
@@ -209,8 +209,13 @@
                             >
                                 {row.name}
                             </td>
-                            <td class="text-center border border-solid border-[black]">{row.shape}</td>
-                            <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+                            <td 
+                                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{row.shape}"
+                            >
+                                {row.shape}
+                            </td>
+                            <td class="text-center border border-solid border-[black] overflow-hidden">{row.lenAbrv}</td>
                         </tr>
                     {/each}
                 </tbody>
@@ -238,7 +243,7 @@
     </div>
 
     <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
-    <div class="flex-[1] max-h-[150vh] overflow-y-auto box-border ml-3 max-w-[150px] bind:this={imageContainerRef}">
+    <div class="flex-[1] max-h-[150vh] overflow-y-auto box-border ml-3 max-w-[150px]" bind:this={imageContainerRef}>
         <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
             <span class="p-1">Photos</span>
         </div>

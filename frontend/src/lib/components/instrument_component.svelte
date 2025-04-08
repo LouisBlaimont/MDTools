@@ -73,9 +73,8 @@
         {/each}
     </div>
 
-
-    <!-- TABLE OF THE SUPPLIERS -->
-    <table data-testid = "suppliers-table" class="w-full border-collapse">
+    <!-- TABLE OF THE INSTRUMENTS -->
+    <table data-testid="suppliers-table" class="w-full border-collapse table-fixed mt-4">
         <thead class="bg-teal-400">
             <tr class="bg-white text-teal-400">
                 <th colspan="2"></th>
@@ -83,22 +82,22 @@
             </tr>
             <tr class="bg-teal-400">
                 {#if $isEditing}
-                  <th class="text-center border border-solid border-[black] w-10"></th>
+                  <th class="text-center border border-solid border-[black] w-10 overflow-hidden"></th>
                 {/if}
                 {#if notEditing}
                     <th class="text-center border border-solid border-[black] w-5 overflow-hidden">
                     <div class="flex justify-center items-center">
-                        <Icon icon="material-symbols:shopping-basket-outline" width="24" height="24" />
+                        <Icon icon="material-symbols:shopping-basket-outline" width="20" height="20" />
                     </div>
                     </th>
                 {/if}
-                <th class="text-center border border-solid border-[black] w-14 overflow-hidden">REF</th>
-                <th class="text-center border border-solid border-[black] w-14 overflow-hidden">MARQUE</th>
-                <th class="text-center border border-solid border-[black] w-18 overflow-hidden">DESCRIPTION</th> 
+                <th class="text-center border border-solid border-[black] w-10 overflow-hidden">REF</th>
+                <th class="text-center border border-solid border-[black] w-10 overflow-hidden">MARQUE</th>
+                <th class="text-center border border-solid border-[black] w-[50%] overflow-hidden">DESCRIPTION</th> 
                 <th class="text-center border border-solid border-[black] w-9 overflow-hidden">PRIX</th>
                 <th class="text-center border border-solid border-[black] w-8 overflow-hidden">ALT</th>
                 <th class="text-center border border-solid border-[black] w-8 overflow-hidden">OBS</th>
-              </tr>
+            </tr>
               
         </thead>
         <tbody>
@@ -139,7 +138,11 @@
                 >
                     {row.supplierDescription}
                 </td>                
-                <td class="text-center border border-solid border-[black] overflow-hidden">{row.price}</td>
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.price}"
+                >
+                    {row.price}
+                </td>   
                 <td class="text-center border border-solid border-[black] overflow-hidden">{row.alt ? 'Yes' : 'No'}</td>
                 <td class="text-center border border-solid border-[black] overflow-hidden">{row.obsolete ? 'Yes' : 'No'}</td>
                 </tr>
@@ -179,16 +182,16 @@
                 <th class="text-center border border-solid border-[black]"></th>
             {/if}
             {#if notEditing}
-            <th class="border border-solid border-black">
+            <th class="border border-solid border-black w-5">
                 <div class="flex justify-center items-center">
-                    <Icon icon="material-symbols:shopping-basket-outline" width="24" height="24" />
+                    <Icon icon="material-symbols:shopping-basket-outline" width="20" height="20" />
                 </div>
             </th>            
             {/if}
-            <th class="text-center border border-solid border-[black]">REF</th>
-            <th class="text-center border border-solid border-[black]">MARQUE</th>
-            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-            <th class="text-center border border-solid border-[black]">PRIX</th>
+            <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">REF</th>
+            <th class="text-center border border-solid border-[black] overflow-hidden w-14">MARQUE</th>
+            <th class="text-center border border-solid border-[black] overflow-hidden w-18">DESCRIPTION</th>
+            <th class="text-center border border-solid border-[black] overflow-hidden w-8">PRIX</th>
             </tr>
         </thead>
         <tbody>
@@ -215,10 +218,34 @@
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                     >
                 {/if}
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} >{row.reference}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}>{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}>{row.supplierDescription}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}>{row.price}</td>
+                <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                    title="{row.reference}"
+                    onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.reference}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplier}"
+                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.supplier}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[200px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplierDescription}"
+                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.supplierDescription}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.price}"
+                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.price}
+                </td> 
                 </tr>
             {/each}
         </tbody>
@@ -228,10 +255,12 @@
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
   id="big-category-pannel"
 >
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <span
     class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
     onclick={(event) => {

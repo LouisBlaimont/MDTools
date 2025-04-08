@@ -65,7 +65,7 @@ function stopResizeVertical() {
 }
 
 
-export function startResizeLeftToRight(e, div) {
+  export function startResizeLeftToRight(e, div) {
     e.preventDefault();
     document.body.style.cursor = "ew-resize";
   
