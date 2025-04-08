@@ -13,6 +13,7 @@
   import { page } from '$app/stores';
   import UserDropdown from "$lib/components/userDropdown.svelte";
   import { replaceState, afterNavigate } from "$app/navigation";
+  import EditButton from "./searches/EditButton.svelte";
 
 
   let showDataMenu = false;
@@ -68,8 +69,8 @@
   {#if $page.url.pathname !== '/login'}
     <nav class="hidden md:flex space-x-6">
       {#if $isLoggedIn}
-        <a href="/" class="text-white hover:text-teal-300 transition">Home</a>
-        <a href="/searches" class="text-white hover:text-teal-300 transition">Searches</a>
+        <a href="/" class="text-white hover:text-teal-300 transition">Acceuil</a>
+        <a href="/searches" class="text-white hover:text-teal-300 transition">Recherche</a>
       {/if}
 
       {#if $isAdmin || $isWebmaster}
@@ -112,11 +113,11 @@
             onmouseleave={closeMoreMenu}
           >
           {#if $isLoggedIn}
-            <a href="/users" class="block px-4 py-2 hover:bg-teal-400 transition">User Profile</a>
+            <a href="/users" class="block px-4 py-2 hover:bg-teal-400 transition">Profil</a>
           {/if}
           {#if $isAdmin || $isWebmaster}
-            <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Users</a>
-            <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Suppliers</a>
+            <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Utilisateurs</a>
+            <a href="/admin/suppliers" class="block px-4 py-2 hover:bg-teal-400 transition">Fournisseurs</a>
             <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
             {#if $isWebmaster}
               <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition">Webmaster</a>
@@ -128,9 +129,14 @@
     </nav>
   {/if}
 
-
-  <!-- Login / Logout Button -->
-  <UserDropdown />
+  <div class="flex items-center space-x-4">
+    <!-- PASS IN ADMIN MODE in searches-->
+    {#if $isAdmin && $page.url.pathname === '/searches'}
+      <EditButton />
+    {/if}
+    <!-- Login / Logout Button -->
+    <UserDropdown />
+  </div>
  
 </header>
 

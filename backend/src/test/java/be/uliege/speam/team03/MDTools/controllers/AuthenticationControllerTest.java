@@ -4,8 +4,10 @@ import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.when;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +15,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
+import be.uliege.speam.team03.MDTools.services.UserService;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -24,17 +28,20 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationControllerTest {
 
+    @InjectMocks
     private AuthenticationController authController;
 
     @Mock
     private OidcIdToken idToken;
+
+    @Mock
+    private UserService userService;
 
     private OidcUser oidcUser;
     private Object nonOidcUser;
 
     @BeforeEach
     void setUp() {
-        authController = new AuthenticationController();
         
         // Create authorities
         Collection<GrantedAuthority> authorities = List.of(
@@ -67,6 +74,9 @@ public class AuthenticationControllerTest {
 
     @Test
     void testGetAuthenticatedUser_WithOidcUser_ReturnsUserInfo() throws BadRequestException {
+        // Arange
+        when(userService.getUserIdByEmail("test@example.com")).thenReturn(123L);
+        
         // Act
         ResponseEntity<Map<String, Object>> response = authController.getAuthenticatedUser(oidcUser);
         

@@ -2,7 +2,8 @@
     import { getContext } from "svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { modals } from "svelte-modals";
-    import { ordersNames, userId, selectedOrderId, orderItems, orders } from "$lib/stores/searches";
+    import { ordersNames, selectedOrderId, orderItems, orders } from "$lib/stores/searches";
+    import { userId } from "$lib/stores/user_stores";
     import { apiFetch } from "$lib/utils/fetch";
 
     const {
