@@ -94,9 +94,13 @@ export function startResizeLeftToRight(e, div) {
     const startX = e.clientX;
     const startWidth = div.offsetWidth;
   
+    // Add a minimum width constraint
+    const minWidth = 50;
+  
     function onMouseMove(event) {
-      const newWidth = startWidth - (event.clientX - startX);
+      const newWidth = Math.max(minWidth, startWidth - (event.clientX - startX));
       div.style.width = `${newWidth}px`;
+      console.log(newWidth); 
     }
   
     function onMouseUp() {

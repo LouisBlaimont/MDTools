@@ -1,81 +1,80 @@
 <script>
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
-  import { onMount } from "svelte";
-  import { preventDefault } from "svelte/legacy";
-  import { get } from "svelte/store";
-  import { isAdmin } from "$lib/stores/user_stores";
-  import { PUBLIC_API_URL } from "$env/static/public";
-  import {
-    isEditing,
-    reload,
-    selectedGroup,
-    selectedSubGroup,
-    selectedCategoryIndex,
-    hoveredCategoryIndex,
-    charValues,
-    categories,
-    currentSuppliers,
-    showCategories,
-    errorMessage,
-    hoveredCategoryImageIndex,
-    alternatives,
-    selectedSupplierIndex,
-    findSubGroupsStore,
-    findCharacteristicsStore
-  } from "$lib/stores/searches";
-  import EditButton from "../../routes/searches/EditButton.svelte";
-  import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
-  import { startResize, resize, stopResize } from "$lib/resizableUtils.js";
-  import { apiFetch } from "$lib/utils/fetch";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
+    import { onMount } from "svelte";
+    import { preventDefault } from "svelte/legacy";
+    import { get } from "svelte/store";
+    import { isAdmin } from "$lib/stores/user_stores";
+    import { PUBLIC_API_URL } from "$env/static/public";
+    import {
+        isEditing,
+        reload,
+        selectedGroup,
+        selectedSubGroup,
+        selectedCategoryIndex,
+        hoveredCategoryIndex,
+        charValues,
+        categories,
+        currentSuppliers,
+        showCategories,
+        errorMessage,
+        hoveredCategoryImageIndex,
+        alternatives,
+        selectedSupplierIndex,
+        findSubGroupsStore,
+        findCharacteristicsStore
+    } from "$lib/stores/searches";
+    import EditButton from "../../routes/searches/EditButton.svelte";
+    import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
+    import { apiFetch } from "$lib/utils/fetch";
     import { modals } from "svelte-modals";
     import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
 
-  /**
-   * Display the characteristic values of the category at line index in the table.
-   * Update categories to have only the selected one.
-   * @param index
-   */
-  async function selectCategoryWithChar(index) {
-    selectCategory(index);
-    selectedCategoryIndex.set(index);
-    let cat = $categories[$selectedCategoryIndex];
-    let catId = $categories[$selectedCategoryIndex].id;
-    categories.set([cat]);
+    /**
+     * Display the characteristic values of the category at line index in the table.
+     * Update categories to have only the selected one.
+     * @param index
+     */
+    async function selectCategoryWithChar(index) {
+        selectCategory(index);
+        selectedCategoryIndex.set(index);
+        let cat = $categories[$selectedCategoryIndex];
+        let catId = $categories[$selectedCategoryIndex].id;
+        categories.set([cat]);
 
-    try {
-      const response = await apiFetch(`/api/category/${catId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch characteristics of category");
-      }
-      const categoryChars = await response.json();
-
-      charValues.update((currentValues) => {
-        let updatedValues = { ...currentValues }; // Clone current object
-
-        for (let i = 0; i < categoryChars.length; i++) {
-          let key = categoryChars[i].name;
-          let value = categoryChars[i].value;
-
-          if (key === "Length") {
-            value = value.replace(/[^\d.]/g, "");
-          }
-
-          const element = document.getElementById(key);
-          if (element) {
-            element.value = value;
-          }
-
-          updatedValues[key] = value;
+        try {
+        const response = await apiFetch(`/api/category/${catId}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch characteristics of category");
         }
-        return updatedValues;
-      });
-    } catch (error) {
-      console.log(error);
-      errorMessage.set(error.message);
+        const categoryChars = await response.json();
+
+        charValues.update((currentValues) => {
+            let updatedValues = { ...currentValues }; // Clone current object
+
+            for (let i = 0; i < categoryChars.length; i++) {
+            let key = categoryChars[i].name;
+            let value = categoryChars[i].value;
+
+            if (key === "Length") {
+                value = value.replace(/[^\d.]/g, "");
+            }
+
+            const element = document.getElementById(key);
+            if (element) {
+                element.value = value;
+            }
+
+            updatedValues[key] = value;
+            }
+            return updatedValues;
+        });
+        } catch (error) {
+        console.log(error);
+        errorMessage.set(error.message);
+        }
+        return;
     }
-    return;
-  }
 
     /**
      * Gets the suppliers of the category given by the line index in the table
@@ -123,14 +122,14 @@
         return;
     }
 
-  function showBigPicture(img) {
-    const pannel = document.getElementById("big-category-pannel");
-    const overlay = document.getElementById("overlay");
-    const picture = document.getElementById("big-category");
-    pannel.style.display = "flex";
-    overlay.style.display = "block";
-    picture.src = img;
-  }
+    function showBigPicture(img) {
+        const pannel = document.getElementById("big-category-pannel");
+        const overlay = document.getElementById("overlay");
+        const picture = document.getElementById("big-category");
+        pannel.style.display = "flex";
+        overlay.style.display = "block";
+        picture.src = img;
+    }
 
     function closeBigPicture() {
         const pannel = document.getElementById("big-category-pannel");
@@ -178,7 +177,7 @@
                         <th class="text-center border border-solid border-[black] w-8"></th>
                     {/if}
                     <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
-                    <th class="text-center border border-solid border-[black] w-20 overflow-hidden">NOM</th>
+                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">NOM</th>
                     <th class="text-center border border-solid border-[black] w-8 overflow-hidden">FORME</th>
                     <th class="text-center border border-solid border-[black] w-6 overflow-hidden">DIM</th>
                 </tr>
@@ -225,7 +224,7 @@
         <EditButton />
     {/if}
     {#if $isEditing}
-       {#if $isAdmin}
+    {#if $isAdmin}
             <div class="flex justify-center">
                 <button 
                     class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
@@ -281,17 +280,17 @@
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
 <div
-  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
-  id="big-category-pannel"
+class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
+id="big-category-pannel"
 >
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <span
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<span
     class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
     on:click={(event) => {
-      event.stopPropagation();
-      closeBigPicture();
+    event.stopPropagation();
+    closeBigPicture();
     }}>&times;</span
-  >
-  <img class="h-[300px]" id="big-category" alt="big category" />
+>
+<img class="h-[300px]" id="big-category" alt="big category" />
 </div>

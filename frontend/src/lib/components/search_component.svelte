@@ -8,7 +8,7 @@
         selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
         showChars, charValues, currentSuppliers, categories, characteristics, 
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
-    findSubGroupsStore, findCharacteristicsStore, alternatives, selectedAlternativeIndex, hoveredAlternativeIndex} from "$lib/stores/searches";    
+    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex} from "$lib/stores/searches";    
     import { apiFetch } from "$lib/utils/fetch";
 
   /**

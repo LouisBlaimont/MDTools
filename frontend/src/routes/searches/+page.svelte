@@ -18,9 +18,7 @@
   import InstrumentComponent from "$lib/components/instrument_component.svelte";
   import OrderComponent from "$lib/components/order_component.svelte";
   import SearchComponent from "$lib/components/search_component.svelte";
-
   import {startResizeBoth, startResizeVertical, startResizeLeftToRight, startResizeRightToLeft, startResizeMiddleLeft, startResizeMiddleRight} from "$lib/resizableUtils.js";
-
   import { apiFetch } from "$lib/utils/fetch.js";
 
 
@@ -182,24 +180,26 @@
 <div id="container" class="text-[14px]">
   <div class="flex flex-col gap-[5px] box-border w-full">
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="flex w-full h-[70vh] relative overflow-auto border border-gray-300" style="resize: none;" bind:this={div1}>
+    <div class="flex w-full h-[70vh] relative overflow-auto border border-gray-300" bind:this={div1}>
     <!-- TOP PART -->
         <!-- SEARCHES -->
         <div
           class="relative overflow-auto border border-gray-300 flex-none"
           bind:this={div2}
+          style="min-width: 20px;" 
         >
           <SearchComponent />
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
             class="absolute w-0.5 h-full bg-gray-300 bottom-0 right-0 cursor-ew-resize"
-            on:mousedown={(e) => startResizeLeftToRight(e, div2)}
+            on:mousedown={(e) => startResizeLeftToRight(e, div2)}            
           ></div>
         </div>
       
         <!-- CATEGORIES -->
         <div
-          class="relative overflow-auto border border-gray-300 flex-grow">
+          class="relative overflow-auto border border-gray-300 flex-grow"
+          style="min-width: 20px;" >
           <CategoryComponent />
         </div>
       
@@ -207,6 +207,7 @@
         <div
           class="relative overflow-auto border border-gray-300 flex-none"
           bind:this={div4}
+          style="min-width: 20px;" 
         >
           <InstrumentComponent />
           <!-- svelte-ignore a11y_no_static_element_interactions -->
