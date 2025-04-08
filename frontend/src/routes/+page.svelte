@@ -150,9 +150,11 @@
         message: "You need to assign a category to this instrument!" // Add the message here
       });
     }
-    goto(
-      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
-    );
+    else {
+      goto(
+        `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
+      );
+    }
   }
 
   // function to handle the keyword inputs and calling endpoint

@@ -18,7 +18,6 @@
   import InstrumentComponent from "$lib/components/instrument_component.svelte";
   import OrderComponent from "$lib/components/order_component.svelte";
   import SearchComponent from "$lib/components/search_component.svelte";
-
   import { modals } from "svelte-modals";
   import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
   import { apiFetch } from "$lib/utils/fetch.js";
@@ -48,57 +47,58 @@
   let findCharacteristics = null;
   let initialized = false;
 
-  async function findInstrumentsOfCategory(categoryId){
+  async function findInstrumentsOfCategory(categoryId) {
     const index = $categories.findIndex(category => category.id === Number(categoryId));
     selectedCategoryIndex.set(index);
-    
+    console.log("hreeeeee");
     currentSuppliers.set([]);
     alternatives.set([]);  
-    try{
-    const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-    let response2;
-    if($isAdmin){
-        response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
-    }
-    else{
-        response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
-    }
-    const response3 = await apiFetch(`/api/category/${categoryId}`);
-    if (!response.ok){
-        throw new Error("Failed to fetch instruments of category");
-    }
-    const answer = await response.json();
-    currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+    try {
+      const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+      let response2;
+      if($isAdmin){
+          console.log("Calling:", `/api/alternatives/admin/category/${categoryId}`);
+          response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
+      }
+      else{
+          response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
+      }
+      const response3 = await apiFetch(`/api/category/${categoryId}`);
+      if (!response.ok){
+          throw new Error("Failed to fetch instruments of category");
+      }
+      const answer = await response.json();
+      currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
 
-    const categoryChars = await response3.json();
+      const categoryChars = await response3.json();
 
-    charValues.update(currentValues => {
-        let updatedValues = { ...currentValues }; // Clone current object
+      charValues.update(currentValues => {
+          let updatedValues = { ...currentValues }; // Clone current object
 
-        for (let i = 0; i < categoryChars.length; i++) {
-            let key = categoryChars[i].name;
-            let value = categoryChars[i].value;
+          for (let i = 0; i < categoryChars.length; i++) {
+              let key = categoryChars[i].name;
+              let value = categoryChars[i].value;
 
-            if (key === "Length") {
-                value = value.replace(/[^\d.]/g, "");
-            }
+              if (key === "Length") {
+                  value = value.replace(/[^\d.]/g, "");
+              }
 
-            const element = document.getElementById(key);
-            if (element) {
-                element.value = value;
-            }
+              const element = document.getElementById(key);
+              if (element) {
+                  element.value = value;
+              }
 
-            updatedValues[key] = value;
-        }
-        return updatedValues;
-    });
+              updatedValues[key] = value;
+          }
+          return updatedValues;
+      });
 
-    if (!response2.ok){
-        return;
-    }
-    const answer2 = await response2.json();
-    alternatives.set(Array.isArray(answer2)? answer2 : [answer2]);
-    }catch (error) {
+      if (!response2.ok){
+          return;
+      }
+      const answer2 = await response2.json();
+      alternatives.set(Array.isArray(answer2)? answer2 : [answer2]);
+    } catch (error) {
       console.error(error);
       errorMessage.set(error.message);
     }

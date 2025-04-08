@@ -83,36 +83,36 @@
    * @param index
    */
    async function selectCategory(index) {
-        currentSuppliers.set([]);
-        alternatives.set([]);
-        selectedCategoryIndex.set(index);
-        selectedSupplierIndex.set('');
+      currentSuppliers.set([]);
+      alternatives.set([]);
+      selectedCategoryIndex.set(index);
+      selectedSupplierIndex.set('');
 
-    // selecting the categoryId
-    const cat = $categories[$selectedCategoryIndex];
-    const categoryId = $categories[$selectedCategoryIndex].id;
+      // selecting the categoryId
+      const cat = $categories[$selectedCategoryIndex];
+      const categoryId = $categories[$selectedCategoryIndex].id;
 
-    try {
-      const response = await apiFetch(`/api/category/instruments/${categoryId}`);
-      let response2;
-      if ($isAdmin) {
-        response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
-      } else {
-        response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
+      try {
+        const response = await apiFetch(`/api/category/instruments/${categoryId}`);
+        let response2;
+        if ($isAdmin) {
+          response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
+        } else {
+          response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
+        }
+        if (!response.ok) {
+          throw new Error("Failed to fetch instruments of category");
+        }
+        const answer = await response.json();
+        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+
+        const answer2 = await response2.json();
+        alternatives.set(Array.isArray(answer2) ? answer2 : [answer2]);
+      } catch (error) {
+        console.error(error);
+        errorMessage.set(error.message);
       }
-      if (!response.ok) {
-        throw new Error("Failed to fetch instruments of category");
-      }
-      const answer = await response.json();
-      currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
-
-      const answer2 = await response2.json();
-      alternatives.set(Array.isArray(answer2) ? answer2 : [answer2]);
-    } catch (error) {
-      console.error(error);
-      errorMessage.set(error.message);
-    }
-    return;
+      return;
   }
   
   function showBigPicture(img) {

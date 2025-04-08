@@ -1,6 +1,5 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -56,16 +55,12 @@ public class AlternativesController {
     }
 
     @GetMapping("/admin/category/{categoryId}")
-    // public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryAdmin(@PathVariable Integer categoryId) {
-    //     List<InstrumentDTO> alternatives = alternativeService.findAlternativesOfCategoryAdmin(categoryId);
-    //     if (alternatives == null || alternatives.isEmpty()){
-    //         throw new ResourceNotFoundException("No alternatives found for the category :" + categoryId);
-    //     }
-    //     return ResponseEntity.status(HttpStatus.OK).body(alternatives);
-    // }
     public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryAdmin(@PathVariable Integer categoryId) {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesOfCategoryAdmin(categoryId);
-        return ResponseEntity.ok(alternatives == null ? new ArrayList<>() : alternatives);
+        if (alternatives == null || alternatives.isEmpty()){
+            throw new ResourceNotFoundException("No alternatives found for the category :" + categoryId);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
 
     @GetMapping("/all")

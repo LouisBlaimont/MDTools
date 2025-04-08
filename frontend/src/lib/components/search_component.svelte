@@ -8,7 +8,7 @@
         selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
         showChars, charValues, currentSuppliers, categories, characteristics, 
         showSubGroups, showCategories, subGroups, groups, errorMessage, 
-    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, categories_pageable, keywords, keywordsResult}
+    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, categories_pageable, keywords2, keywordsResult2}
     from "$lib/stores/searches";    
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
@@ -317,7 +317,7 @@
     if (catId == null) {
       await modals.open(editInstrumentModal, { 
         instrument,
-        message: "You need to assign a category to this instrument!" // Add the message here
+        message: "You need to assign a category to this instrument!" 
       });
     }
     // goto(
@@ -332,19 +332,19 @@
       showKeywordsResult = false;
       let data = null;
       let params = new URLSearchParams();
-      $keywords.split(",").forEach((element) => {
+      $keywords2.split(",").forEach((element) => {
         const keyword = element.trim();
         if (keyword.length > 0) {
           params.append("keywords", keyword);
         }
       });
-      if ($keywords == null) {
+      if ($keywords2 == null) {
         data = null;
       }
       else {
         let response = await apiFetch(`/api/instrument/search?${params}`);
         data = await response.json();
-        keywordsResult.set(Array.isArray(data) ? data.slice(0, 5) : []);
+        keywordsResult2.set(Array.isArray(data) ? data.slice(0, 5) : []);
         if (Object.keys(data).length > 0) {
           showKeywordsResult = true;
         }
@@ -368,7 +368,7 @@
   }
 
   // get category, group and subgroup from selected instrument, then call moveToSearchesBis
-  async function selectedInstrumentHome(row) {
+  async function selectedInstrument(row) {
     try {
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
       let cat = await response.json();
@@ -384,7 +384,7 @@
 <div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
   <form class="space-y-5">
     <div class="relative w-full">
-      <label for="id_search_keyword" class="font-semibold text-lg block mb-2">
+      <label for="id_search_keyword" class="font-semibold">
         Recherche par mot(s) clé(s):
       </label>
       
@@ -394,24 +394,24 @@
         id="id_search_keyword"
         autocomplete="off"
         placeholder="Entrez un mot clé"
-        class="p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-3/5"
-        bind:value={$keywords}
+        class="p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-3/5 mb-1 "
+        bind:value={$keywords2}
         oninput={searchByKeywords}
       />
     
       <!-- Search results dropdown -->
       {#if showKeywordsResult}
-        {#if $keywords}
+        {#if $keywords2}
           <ul
             class="absolute left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto text-gray-800"
             style="width: calc(100% + 80px);"
           >
-            {#each $keywordsResult as row, index}
+            {#each $keywordsResult2 as row, index}
               <!-- svelte-ignore a11y_click_events_have_key_events -->
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
               <li
                 class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
-                onclick={() => selectedInstrumentHome(row)}
+                onclick={() => selectedInstrument(row)}
               >
                 <span class="text-black">{row.reference}</span>
                 <span class="text-black">{row.supplier}</span>
