@@ -473,15 +473,23 @@
         jsonData = [];
       } else {
         jsonData = [...tempJsonData];
-
-        // Auto-map headers to required columns
-        jsonData[0].forEach((header, index) => {
-          const normalized = normalizeHeader(header);
-          const match = requiredColumns.find(col => normalizeHeader(col) === normalized);
-          if (match) {
-            columnMapping[index] = match;
-          }
-        });
+        if (selectedOption === "Alternatives") {
+          // Force headers
+          jsonData[0] = ["ref_1", "ref_2"];
+          columnMapping = {
+            0: "ref_1",
+            1: "ref_2"
+          };
+        } else {
+          // Auto-map headers to required columns
+          jsonData[0].forEach((header, index) => {
+            const normalized = normalizeHeader(header);
+            const match = requiredColumns.find(col => normalizeHeader(col) === normalized);
+            if (match) {
+              columnMapping[index] = match;
+            }
+          });
+        }
         // Find the index of the 'reference' column
         const refIndex = Object.entries(columnMapping).find(([_, col]) => col === "reference")?.[0];
 
@@ -565,7 +573,7 @@
       try {
           const response = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
           
-          const data = await response.json();
+          const data = response;
 
           if (data.success) {
               alert("Success: " + (data.message || "Import completed successfully!"));
