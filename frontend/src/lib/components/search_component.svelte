@@ -469,13 +469,12 @@
         {/each}
 
         {#if $isEditing}
-        <button
-            type="button"
-            class="text-sm text-blue-700 mt-1 w-fit hover:underline self-end"
-            on:click={() => showAddCharacteristicModal = true}
-        >
-            + ajouter des caractéristiques
-        </button>
+            <button
+                class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none self-end mt-2"
+                on:click={() => showAddCharacteristicModal = true}
+            >
+                Ajouter
+            </button>
         {/if}
     </form>
     {/if}
