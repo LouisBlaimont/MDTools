@@ -184,7 +184,7 @@
       
       <!-- SEARCHES -->
       <div
-        class="relative overflow-auto border border-gray-300 flex-none min-w-[150px] max-w-[50%] resize-x"
+        class="relative overflow-auto border border-gray-300 flex-none min-w-[100px]"
         bind:this={div2}>
         <SearchComponent />
         <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -196,13 +196,13 @@
     
       <!-- CATEGORIES -->
       <div
-        class="relative overflow-auto border border-gray-300 flex-grow min-w-[150px]">
+        class="relative overflow-auto border border-gray-300 flex-grow min-w-[100px]">
         <CategoryComponent />
       </div>
     
       <!-- INSTRUMENTS -->
       <div
-        class="relative border border-gray-300 flex-none min-w-[150px] max-w-[55%] resize-x w-[600px]"
+        class="relative border border-gray-300 flex-none min-w-[100px] resize-x w-[600px]"
         bind:this={div4}
       >
         <InstrumentComponent />

@@ -178,20 +178,20 @@
                 <th colspan="3" class="text-center py-2">Alternatives</th>
             </tr>
             <tr class="bg-teal-400">
-            {#if $isEditing}
-                <th class="text-center border border-solid border-[black]"></th>
-            {/if}
-            {#if notEditing}
-            <th class="border border-solid border-black w-5">
-                <div class="flex justify-center items-center">
-                    <Icon icon="material-symbols:shopping-basket-outline" width="20" height="20" />
-                </div>
-            </th>            
-            {/if}
-            <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">REF</th>
-            <th class="text-center border border-solid border-[black] overflow-hidden w-14">MARQUE</th>
-            <th class="text-center border border-solid border-[black] overflow-hidden w-18">DESCRIPTION</th>
-            <th class="text-center border border-solid border-[black] overflow-hidden w-8">PRIX</th>
+                {#if $isEditing}
+                    <th class="text-center border border-solid border-[black]"></th>
+                {/if}
+                {#if notEditing}
+                <th class="border border-solid border-black w-5">
+                    <div class="flex justify-center items-center">
+                        <Icon icon="material-symbols:shopping-basket-outline" width="20" height="20" />
+                    </div>
+                </th>            
+                {/if}
+                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">REF</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-14">MARQUE</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-18">DESCRIPTION</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">PRIX</th>
             </tr>
         </thead>
         <tbody>
@@ -219,28 +219,28 @@
                     >
                 {/if}
                 <td 
-                    class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                    class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
                     title="{row.reference}"
                     onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
                 >
                     {row.reference}
                 </td> 
                 <td 
-                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
                 title="{row.supplier}"
                 onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
                 >
                     {row.supplier}
                 </td> 
                 <td 
-                class="text-center border border-solid border-[black] truncate max-w-[200px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
                 title="{row.supplierDescription}"
                 onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
                 >
                     {row.supplierDescription}
                 </td> 
                 <td 
-                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
                 title="{row.price}"
                 onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
                 >
