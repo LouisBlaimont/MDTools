@@ -158,8 +158,6 @@
                     {#if $isEditing}
                         <th class="text-center border border-solid border-[black] w-8"></th>
                     {/if}
-                    <th class="text-center border border-solid border-[black] w-10 overflow-hidden">GROUPE</th>
-                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">SOUS GP</th>
                     <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
                     <th class="text-center border border-solid border-[black] w-20 overflow-hidden">NOM</th>
                     <th class="text-center border border-solid border-[black] w-8 overflow-hidden">FORME</th>
@@ -181,17 +179,6 @@
                             {#if $isEditing}
                                 <EditCategoryButton category={row}/>
                             {/if}
-                            <td 
-                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title="{row.groupName}">
-                                {row.groupName}
-                            </td>
-                            <td 
-                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title="{row.subGroupName}"
-                            >
-                                {row.subGroupName}
-                            </td>
                             <td 
                                 class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
                                 title="{row.function}"
