@@ -134,6 +134,9 @@
         console.error("Error loading suppliers:", error);
         requiredColumns = []; 
       }
+    } 
+    else if (selectedOption === "Alternatives") {
+      requiredColumns = ["ref_1", "ref_2"];
     }
   };
 
@@ -358,7 +361,17 @@
         verifyColumns();
         extractExcelDataToJson();
         setRequiredColumns();
-      } else {
+      } else if (selectedOption === "Alternatives") {
+        isLoading = true;
+        loadingProgress = 0;
+        await simulateLoadingProgress();
+        isLoading = false;
+
+        currentView = "verification";
+        setRequiredColumns(); 
+        extractExcelDataToJson();
+      }
+      else {
         currentView = "SubGroup";
         isNextEnabled = false;
         selectedSubGroup = "";
@@ -472,7 +485,8 @@
         // Find the index of the 'reference' column
         const refIndex = Object.entries(columnMapping).find(([_, col]) => col === "reference")?.[0];
 
-        if (refIndex !== undefined) {
+        if (selectedOption === "Alternatives") {
+        } else if (refIndex !== undefined) {
           // Filter out rows without a valid 'reference' value
           const headerRow = jsonData[0];
           const validRows = jsonData.slice(1).filter(row =>
@@ -736,30 +750,40 @@
                   <table class="border-collapse border border-gray-400 w-full text-sm">
                       <thead>
                           <tr>
-                              {#each jsonData[0] as header, index}
-                                  <th class="border border-gray-400 p-2 bg-gray-200">
-                                    <select
-                                      bind:value={columnMapping[index]}
-                                      class="w-full"
-                                      style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
-                                      on:change={(e) => {
-                                        if (e.target.value === "__add_new__") {
-                                          showAddCharacteristicModal = true;
-                                          e.target.value = "";
-                                        } else {
-                                          columnMapping[index] = e.target.value;
-                                          updateColumnMapping(index);
-                                        }
-                                      }}
-                                    >
-                                      <option value="">vide</option>
-                                      {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
-                                        <option value={column}>{column}</option>
-                                      {/each}
+                            {#each jsonData[0] as header, index}
+                              <th class="border border-gray-400 p-2 bg-gray-200">
+                                {#if selectedOption === "Alternatives"}
+                                  <input 
+                                    class="w-full bg-gray-100 border-none" 
+                                    value={columnMapping[index]} 
+                                    readonly 
+                                  />
+                                {:else}
+                                  <select
+                                    bind:value={columnMapping[index]}
+                                    class="w-full"
+                                    style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
+                                    on:change={(e) => {
+                                      if (e.target.value === "__add_new__") {
+                                        showAddCharacteristicModal = true;
+                                        e.target.value = "";
+                                      } else {
+                                        columnMapping[index] = e.target.value;
+                                        updateColumnMapping(index);
+                                      }
+                                    }}
+                                  >
+                                    <option value="">vide</option>
+                                    {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                      <option value={column}>{column}</option>
+                                    {/each}
+                                    {#if selectedOption === "SubGroup"}
                                       <option value="__add_new__">➕ Autre...</option>
-                                    </select>
-                                  </th>
-                              {/each}
+                                    {/if}
+                                  </select>
+                                {/if}
+                              </th>
+                            {/each}         
                           </tr>
                       </thead>
                       <tbody>

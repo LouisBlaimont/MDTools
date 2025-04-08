@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
+import be.uliege.speam.team03.MDTools.compositeKeys.AlternativesKey;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
@@ -28,6 +29,8 @@ public class ExcelImportService {
     private final CategoryRepository categoryRepository;
     private final CategoryCharacteristicRepository categoryCharacteristicRepository;
     private final CharacteristicAbbreviationService abbreviationService;
+    private final AlternativesRepository alternativesRepository;
+
 
     /**
      * Processes an import request based on its type.
@@ -45,8 +48,8 @@ public class ExcelImportService {
                 processCatalogImport(request.getSupplier(), request.getData());
                 break;
             case "Alternatives":
-                //processAlternativesImport(request.getData());
-                break;
+                processAlternativesImport(request.getData());
+            break;
             case "Crossref":
                 processCrossrefImport(request.getData());
                 break;
@@ -578,5 +581,56 @@ public class ExcelImportService {
                 instrumentRepository.save(newInstrument);
             }
         }
-    }    
+    }
+    /**
+     * Imports alternative instrument pairs from Excel data.
+     * If an instrument doesn't exist, it is created with reference and price = 0.
+     * Already existing pairs (A-B or B-A) are skipped.
+     *
+     * @param data The list of rows containing "ref_1" and "ref_2".
+     */
+    void processAlternativesImport(List<Map<String, Object>> data) {
+        for (Map<String, Object> row : data) {
+            String rawRef1 = (String) row.get("ref_1");
+            String rawRef2 = (String) row.get("ref_2");
+
+            if (rawRef1 == null || rawRef2 == null || rawRef1.equals(rawRef2)) {
+                continue;
+            }
+            String ref1 = rawRef1.trim();
+            String ref2 = rawRef2.trim();
+
+            if (ref1.isEmpty() || ref2.isEmpty()) {
+                continue;
+            }
+
+            Instruments instr1 = instrumentRepository.findByReference(ref1)
+                    .orElseGet(() -> {
+                        Instruments newInstr = new Instruments();
+                        newInstr.setReference(ref1);
+                        newInstr.setPrice(0.0f);
+                        return instrumentRepository.save(newInstr);
+                    });
+
+            Instruments instr2 = instrumentRepository.findByReference(ref2)
+                    .orElseGet(() -> {
+                        Instruments newInstr = new Instruments();
+                        newInstr.setReference(ref2);
+                        newInstr.setPrice(0.0f); 
+                        return instrumentRepository.save(newInstr);
+                    });
+
+            AlternativesKey keyAB = new AlternativesKey(instr1.getId(), instr2.getId());
+            AlternativesKey keyBA = new AlternativesKey(instr2.getId(), instr1.getId());
+
+            if (alternativesRepository.existsById(keyAB) || alternativesRepository.existsById(keyBA)) {
+                continue;
+            }
+
+            Alternatives alt = new Alternatives(instr1, instr2);
+            alternativesRepository.save(alt);
+        }
+    }
+
+
 }
