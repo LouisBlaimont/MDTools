@@ -14,6 +14,7 @@ export default defineConfig( ({mode}) => ({
         coverage: {
             exclude: ['coverage', 'node_modules', '.svelte-kit', '*.config.js', ...coverageConfigDefaults.exclude]
         },
+        setupFiles: ['./vitest.setup.ts'],
         environment : 'jsdom'    
     },
 
