@@ -2,15 +2,14 @@ package be.uliege.speam.team03.MDTools.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import javax.sound.midi.Instrument;
-
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
-import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
@@ -51,6 +50,8 @@ public class InstrumentService {
         List<InstrumentDTO> instrumentDTOs = new ArrayList<>();
         instrumentDTOs.add(new InstrumentDTO(
             instrument.getSupplier().getSupplierName(),
+            instrument.getCategory().getSubGroup().getGroup().getId(),
+            instrument.getCategory().getSubGroup().getId(),
             instrument.getCategory().getId(),
             instrument.getReference(),
             instrument.getSupplierDescription(),
@@ -74,16 +75,19 @@ public class InstrumentService {
             return null;
         }
         Instruments instrument = instrumentMaybe.get();
-        return new InstrumentDTO(
-            instrument.getSupplier().getSupplierName(),
-            instrument.getCategory().getId(),
-            instrument.getReference(),
-            instrument.getSupplierDescription(),
-            instrument.getPrice(),
-            instrument.getObsolete(),
-            null,
-            instrument.getId()
-        );
+        InstrumentDTO dto = new InstrumentDTO();
+        dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
+        dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
+        dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
+        dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
+        dto.setReference(instrument.getReference());
+        dto.setSupplierDescription(instrument.getSupplierDescription());
+        dto.setPrice(instrument.getPrice());
+        dto.setObsolete(instrument.getObsolete());
+        dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+        dto.setId(instrument.getId());
+        
+        return dto;
     }
 
     /**
@@ -95,19 +99,21 @@ public class InstrumentService {
     public InstrumentDTO findById(Integer id) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
         if (!instrumentMaybe.isPresent()) {
-            return null;
+            throw new ResourceNotFoundException("Instrument not found with ID: " + id);
         }
         Instruments instrument = instrumentMaybe.get();
-        return new InstrumentDTO(
-            instrument.getSupplier().getSupplierName(),
-            instrument.getCategory().getId(),
-            instrument.getReference(),
-            instrument.getSupplierDescription(),
-            instrument.getPrice(),
-            instrument.getObsolete(),
-            null,
-            instrument.getId()
-        );
+        InstrumentDTO dto = new InstrumentDTO();
+        dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
+        dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
+        dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
+        dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
+        dto.setReference(instrument.getReference());
+        dto.setSupplierDescription(instrument.getSupplierDescription());
+        dto.setPrice(instrument.getPrice());
+        dto.setObsolete(instrument.getObsolete());
+        dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+        dto.setId(instrument.getId());
+        return dto;
     }
 
     /**
@@ -154,6 +160,40 @@ public class InstrumentService {
         return instrumentMapper.convertToDTO(instruments);
     }
 
+    public InstrumentDTO updateInstrument(Map<String, Object> body, Integer id) {
+        if (body == null || body.isEmpty()) {
+            return null;
+        }
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
+        if (!instrumentMaybe.isPresent()) {
+            return null;
+        }
+        Instruments instrument = instrumentMaybe.get();
+        String reference = (String) body.get("reference");
+        String supplier = (String) body.get("supplier");
+        Integer categoryId = (Integer) body.get("categoryId");
+        String supplierDescription = (String) body.get("supplierDescription");
+        Number priceValue = (Number) body.get("price");
+        Float price = priceValue != null ? priceValue.floatValue() : null;
+        boolean obsolete = (boolean) body.get("obsolete");
+
+        Optional<Instruments> instrumentByReference = instrumentRepository.findByReference(reference);
+        if (instrumentByReference.isPresent() && instrumentByReference.get().getId() != id) {
+            return null;
+        }
+
+        instrument.setReference(reference);
+        instrument.setSupplierDescription(supplierDescription);
+        instrument.setPrice(price);
+        instrument.setObsolete(obsolete);
+        instrument.setSupplier(supplierRepository.findBySupplierName(supplier).orElse(null));
+        instrument.setCategory(categoryRepository.findById(categoryId).orElse(null));
+
+        Instruments updatedInstrument = instrumentRepository.save(instrument);
+
+        return instrumentMapper.convertToDTO(updatedInstrument);
+    }
+
     /**
      * Find all instruments of a specific category.
      * 
@@ -194,7 +234,7 @@ public class InstrumentService {
             // get pictures of the instrument
             List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getId(), reference, supplierDescription, price, obsolete, pictures, instrumentId);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getSubGroup().getGroup().getId(), category.getSubGroup().getId(), category.getId(), reference, supplierDescription, price, obsolete, pictures, instrumentId);
 
             instrumentsDTO.add(instrumentDTO);
         }
@@ -218,11 +258,11 @@ public class InstrumentService {
      * @throws IllegalArgumentException if the supplier name is null or empty
      */
     public InstrumentDTO save(InstrumentDTO instrumentDTO) {
+        if (instrumentDTO.getReference() == null || instrumentDTO.getReference().isEmpty()) {
+            throw new IllegalArgumentException("Reference is required to identify an instrument");
+        }
         if (instrumentDTO.getSupplier() == null || instrumentDTO.getSupplier().isEmpty()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
-        }
-        if (instrumentDTO.getReference().isEmpty()) {
-            throw new IllegalArgumentException("Reference is required to identify an instrument");
         }
         if (instrumentDTO.getCategoryId() == null) {
             throw new IllegalArgumentException("Category ID is required to identify an instrument");
@@ -259,12 +299,8 @@ public class InstrumentService {
         SubGroup subGroup = subGroupMaybe.get();
 
         // Fetch all categories within this subgroup
-        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
-        if (!categoriesMaybe.isPresent() || categoriesMaybe.get().isEmpty()) {
-            return null; // No categories found
-        }
+        List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
-        List<Category> categories = categoriesMaybe.get();
         List<InstrumentDTO> instrumentsDTO = new ArrayList<>();
 
         // Fetch instruments for each category

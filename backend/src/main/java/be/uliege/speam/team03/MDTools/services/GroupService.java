@@ -149,7 +149,7 @@ public class GroupService {
                 charRepository.save(newChar);
             }
             
-            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId().intValue(), newChar.getId());
+            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId(), newChar.getId());
             SubGroupCharacteristic subGroupDetail = new SubGroupCharacteristic(newSubGroup, newChar, 1);
             subGroupDetail.setId(key);
             subGroupDetails.add(subGroupDetail); 

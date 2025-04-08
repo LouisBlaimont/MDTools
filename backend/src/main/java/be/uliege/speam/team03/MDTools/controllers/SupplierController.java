@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
@@ -76,6 +78,25 @@ public class SupplierController {
     }
 
     /**
+     * Get paginated suppliers.
+     * 
+     * @param page the page number (default is 0)
+     * @param size the number of suppliers per page (default is 10)
+     * @return a paginated list of suppliers
+     */
+    @GetMapping
+    public ResponseEntity<?> getPaginatedSuppliers(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<SupplierDTO> suppliers = supplierService.findPaginatedSuppliers(PageRequest.of(page, size));
+        if (suppliers.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No suppliers found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(suppliers);
+    }
+
+    /**
      * Add a new supplier.
      * 
      * @param newSupplier the supplier to add
@@ -129,6 +150,20 @@ public class SupplierController {
 
         SupplierDTO savedSupplier = supplierService.saveSupplier(existingSupplier);
         return ResponseEntity.status(HttpStatus.OK).body(savedSupplier);
+    }
+
+    /**
+     * Delete a supplier by its ID.
+     * 
+     * @param id the ID of the supplier to delete
+     * @return a 204 status if the supplier is deleted successfully, or a 404 status
+     *         if no supplier is found with the specified ID
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSupplier(@PathVariable Integer id) {
+        supplierService.deleteSupplierById(id);
+        ResponseEntity.status(HttpStatus.NO_CONTENT).body("Supplier deleted successfully");
     }
 
     /**

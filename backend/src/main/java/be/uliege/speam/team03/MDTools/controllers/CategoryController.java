@@ -44,6 +44,22 @@ public class CategoryController {
     private final SubGroupService subGroupService;
 
     /**
+     * Retrieves a list of all categories.
+     *
+     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
+     *         status of OK
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> findAllCategories() {
+        List<CategoryDTO> categories = categoryService.findAll();
+        // Check if the list of categories is empty
+        if (categories == null || categories.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No categories found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    }
+
+    /**
      * Retrieves a list of categories associated with a specific group name.
      *
      * @param groupName the name of the group whose categories are to be retrieved
@@ -53,10 +69,10 @@ public class CategoryController {
      *                                   specified group name
      */
     @GetMapping("/group/{groupName}")
-    public ResponseEntity<List<CategoryDTO>> getCategoryFromGroup(@PathVariable String groupName)
+    public ResponseEntity<List<CategoryDTO>> getCategoryFromGroup(
+            @PathVariable String groupName)
             throws ResourceNotFoundException {
         List<CategoryDTO> categories = categoryService.findCategoriesOfGroup(groupName);
-
         if (categories == null || categories.isEmpty()) {
             throw new ResourceNotFoundException("No categories found for the group name: " + groupName);
         }
@@ -64,21 +80,24 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves a list of categories associated with a specific subgroup.
+     * Retrieves a paginated and sorted list of categories associated with a
+     * specific subgroup.
      *
      * @param subGroupName the name of the subgroup for which categories are to be
      *                     retrieved
-     * @return a ResponseEntity containing a list of CategoryDTO objects and an HTTP
+     * @param pageable     the pagination and sorting parameters
+     * @return a ResponseEntity containing a Page of CategoryDTO objects and an HTTP
      *         status of OK
      * @throws ResourceNotFoundException if no categories are found for the given
      *                                   subgroup name
      */
     @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<List<CategoryDTO>> getCategoriesFromSubGroup(@PathVariable String subGroupName)
+    public ResponseEntity<List<CategoryDTO>> getCategoriesFromSubGroup(
+            @PathVariable String subGroupName)
             throws ResourceNotFoundException {
         List<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName);
         if (categories == null || categories.isEmpty()) {
-            throw new ResourceNotFoundException("No categories found for the subgroup name :" + subGroupName);
+            throw new ResourceNotFoundException("No categories found for the subgroup name:" + subGroupName);
         }
         return ResponseEntity.status(HttpStatus.OK).body(categories);
     }
@@ -94,12 +113,12 @@ public class CategoryController {
      * @throws ResourceNotFoundException If no group or subgroup is found for the
      *                                   provided IDs.
      */
-    @PostMapping("/group/{groupId}/subgroup/{id}/add")
+    @PostMapping("/group/{groupId}/subgroup/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CategoryDTO> addCategory(@RequestBody Map<String, Object> body, @PathVariable Integer id,
             @PathVariable Integer groupId) {
-        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
 
+        // Validate group and subgroup existence first
         GroupDTO group = groupService.findGroupById(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("No group found for the id :" + groupId);
@@ -109,12 +128,15 @@ public class CategoryController {
         if (subGroup == null) {
             throw new ResourceNotFoundException("No subgroup found for the id :" + id);
         }
-        
-        String subGroupName = subGroup.getName();
-        String groupName = group.getName();
 
-        newCategory.setSubGroupName(subGroupName);
-        newCategory.setGroupName(groupName);
+        // Call the service to add the category
+        CategoryDTO newCategory = categoryService.addCategoryToSubGroup(body, id);
+
+        // Set group and subgroup names
+        newCategory.setSubGroupName(subGroup.getName());
+        newCategory.setGroupName(group.getName());
+
+        // Save the category
         CategoryDTO savedCategory = categoryService.save(newCategory);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
@@ -215,11 +237,13 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves a map of characteristic names and their values for a given category.
+     * Retrieves a map of characteristic names and their values for a given
+     * category.
      * Used for exporting instruments with characteristic values to Excel.
      *
      * @param id The ID of the category.
-     * @return A map where keys are characteristic names and values are the corresponding values (or empty strings).
+     * @return A map where keys are characteristic names and values are the
+     *         corresponding values (or empty strings).
      */
     @GetMapping("/{id}/characteristics")
     public ResponseEntity<Map<String, String>> getCharacteristicValuesFromCategory(@PathVariable Integer id) {
@@ -230,5 +254,5 @@ public class CategoryController {
         }
 
         return ResponseEntity.ok(characteristicValues);
-    }   
+    }
 }

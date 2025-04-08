@@ -1,67 +1,81 @@
 <script>
-    import { tools } from "../../tools.js";
-    import { suppliers } from "../../suppliers.js";
-    import { getOrder, addTool } from "../../order.js";
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
-    import { isAdmin } from "$lib/stores/user_stores";
-    import { PUBLIC_API_URL } from "$env/static/public";
-    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex, hoveredCategoryIndex, 
-     charValues, categories, currentSuppliers, showCategories, errorMessage, hoveredCategoryImageIndex, alternatives} from "$lib/stores/searches";
-    import EditButton from "../../routes/searches/EditButton.svelte";
-    import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
-    import { apiFetch } from "$lib/utils/fetch";
-  
-    /**
-     * Display the characteristic values of the category at line index in the table.
-     * Update categories to have only the selected one.
-     * @param index
-     */
-    async function selectCategoryWithChar(index) {
-        selectCategory(index);
-        selectedCategoryIndex.set(index);
-        let cat = $categories[$selectedCategoryIndex];
-        let catId = $categories[$selectedCategoryIndex].id;
-        categories.set([cat]);
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import { preventDefault } from "svelte/legacy";
+  import { get } from "svelte/store";
+  import { isAdmin } from "$lib/stores/user_stores";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import {
+    isEditing,
+    reload,
+    selectedGroup,
+    selectedSubGroup,
+    selectedCategoryIndex,
+    hoveredCategoryIndex,
+    charValues,
+    categories,
+    currentSuppliers,
+    showCategories,
+    errorMessage,
+    hoveredCategoryImageIndex,
+    alternatives,
+    selectedSupplierIndex,
+    findSubGroupsStore,
+    findCharacteristicsStore
+  } from "$lib/stores/searches";
+  import EditButton from "../../routes/searches/EditButton.svelte";
+  import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
+  import { startResize, resize, stopResize } from "$lib/resizableUtils.js";
+  import { apiFetch } from "$lib/utils/fetch";
+    import { modals } from "svelte-modals";
+    import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
 
-        try{
-            const response = await apiFetch(`/api/category/${catId}`);
-            if(!response.ok){
-                throw new Error("Failed to fetch characteristics of category");
-            }
-            const categoryChars = await response.json();
+  /**
+   * Display the characteristic values of the category at line index in the table.
+   * Update categories to have only the selected one.
+   * @param index
+   */
+  async function selectCategoryWithChar(index) {
+    selectCategory(index);
+    selectedCategoryIndex.set(index);
+    let cat = $categories[$selectedCategoryIndex];
+    let catId = $categories[$selectedCategoryIndex].id;
+    categories.set([cat]);
 
-            charValues.update(currentValues => {
-                let updatedValues = { ...currentValues }; // Clone current object
+    try {
+      const response = await apiFetch(`/api/category/${catId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch characteristics of category");
+      }
+      const categoryChars = await response.json();
 
-                for (let i = 0; i < categoryChars.length; i++) {
-                    let key = categoryChars[i].name;
-                    let value = categoryChars[i].value;
+      charValues.update((currentValues) => {
+        let updatedValues = { ...currentValues }; // Clone current object
 
-                    if (key === "Length") {
-                        value = value.replace(/[^\d.]/g, "");
-                    }
+        for (let i = 0; i < categoryChars.length; i++) {
+          let key = categoryChars[i].name;
+          let value = categoryChars[i].value;
 
-                    const element = document.getElementById(key);
-                    if (element) {
-                        element.value = value;
-                    }
+          if (key === "Length") {
+            value = value.replace(/[^\d.]/g, "");
+          }
 
-                    updatedValues[key] = value;
-                }
-                return updatedValues;
-            });
-            
-        } catch(error) {
-            console.log(error);
-            errorMessage.set(error.message);
+          const element = document.getElementById(key);
+          if (element) {
+            element.value = value;
+          }
+
+          updatedValues[key] = value;
         }
-        return;
-
+        return updatedValues;
+      });
+    } catch (error) {
+      console.log(error);
+      errorMessage.set(error.message);
     }
+    return;
+  }
 
     /**
      * Gets the suppliers of the category given by the line index in the table
@@ -79,9 +93,9 @@
             console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
         }
 
-        // selecting the categoryId
-        const cat = $categories[$selectedCategoryIndex]; 
-        const categoryId = $categories[$selectedCategoryIndex].id;  
+    // selecting the categoryId
+    const cat = $categories[$selectedCategoryIndex];
+    const categoryId = $categories[$selectedCategoryIndex].id;
 
         try{
             const response = await apiFetch(`/api/category/instruments/${categoryId}`);
@@ -109,14 +123,14 @@
         return;
     }
 
-    function showBigPicture(img) {
-        const pannel = document.getElementById("big-category-pannel");
-        const overlay = document.getElementById("overlay");
-        const picture = document.getElementById("big-category");
-        pannel.style.display = "flex";
-        overlay.style.display = "block";
-        picture.src = img;
-    }
+  function showBigPicture(img) {
+    const pannel = document.getElementById("big-category-pannel");
+    const overlay = document.getElementById("overlay");
+    const picture = document.getElementById("big-category");
+    pannel.style.display = "flex";
+    overlay.style.display = "block";
+    picture.src = img;
+  }
 
     function closeBigPicture() {
         const pannel = document.getElementById("big-category-pannel");
@@ -141,6 +155,8 @@
     }
     let imageContainerRef;
     let imageRefs = [];
+    let findSubGroups = $findSubGroupsStore;
+    let findCharacteristics = $findCharacteristicsStore;
 
     function registerImageRef(el, index) {
         if (el) {
@@ -152,6 +168,9 @@
 <div class="flex">
     <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
         <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
+        <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
+            <span class="">Catégories</span>
+        </div>
         <table id="tools-table" data-testid="categories-table" class="w-full border-collapse table-fixed">
             <thead class="bg-teal-400">
                 <tr>
@@ -201,19 +220,22 @@
         
 
 
-        <!-- PASS IN ADMIN MODE -->
-        {#if $isAdmin}
-            <EditButton />
+    <!-- PASS IN ADMIN MODE -->
+    {#if $isAdmin}
+        <EditButton />
+    {/if}
+    {#if $isEditing}
+       {#if $isAdmin}
+            <div class="flex justify-center">
+                <button 
+                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
+                    on:click={()=>modals.open(addCategoryModal)}
+                >
+                    Ajouter une catégorie
+                </button>
+            </div>
         {/if}
-        {#if $isEditing}
-        {#if $isAdmin}
-                <div class="flex justify-center">
-                    <button class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" on:click={()=>openAddCategoryPage()}>
-                        Ajouter une catégorie
-                    </button>
-                </div>
-            {/if}
-        {/if}
+    {/if}
     </div>
 
     <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->

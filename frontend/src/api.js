@@ -61,7 +61,7 @@ export async function fetchSuppliers() {
  * Fetches groups and their associated sub-groups dynamically from the backend.
  */
 export async function fetchGroups() {
-  const response = await apiFetch("/api/groups");
+  const response = await apiFetch("/api/groups/all");
   return await response.json();
 }
 
@@ -216,4 +216,57 @@ export async function fetchInstrumentsBySupplier(supplierName) {
   return await response.json();
 }
 
+/**
+ * Adds a new characteristic to a specific subgroup.
+ * @param {string} subGroupName - The name of the subgroup to add the characteristic to.
+ * @param {string} characteristicName - The name of the new characteristic.
+ * @returns {Promise<void>}
+ */
+export async function addCharacteristicToSubGroup(subGroupName, characteristicName) {
+  const res = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroupName)}/characteristics`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: characteristicName })
+  });
 
+  if (!res.ok) {
+    throw new Error(`Failed to add characteristic "${characteristicName}" to subgroup "${subGroupName}"`);
+  }
+}
+
+/**
+ * Fetches all characteristics from the backend.
+ * @returns {Promise<Array>} A list of all characteristic names.
+ */
+export async function fetchAllCharacteristics() {
+  const res = await apiFetch("/api/characteristics/all");
+  if (!res.ok) {
+    throw new Error("Failed to fetch all characteristics");
+  }
+  return res.json();
+}
+
+/**
+ * Updates the order of characteristics for a given subgroup.
+ * @param {string} subGroupName
+ * @param {Array<{ name: string, order: number }>} orderedList
+ */
+export async function updateCharacteristicOrder(subGroupName, orderedList) {
+  const res = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroupName)}/characteristics/order`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderedList),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to update characteristic order for ${subGroupName}`);
+  }
+}
+
+export async function fetchAlternatives() {
+  const res = await apiFetch("/api/alternatives/all");
+  if (!res.ok) {
+    throw new Error("Failed to fetch alternatives");
+  }
+  return await res.json();
+}

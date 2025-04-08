@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,10 +22,12 @@ import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.Picture;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Service for handling picture storage operations.
  */
+@Log4j2
 @Service
 public class PictureStorageService {
 
@@ -61,6 +64,39 @@ public class PictureStorageService {
             // Save file to filesystem
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Create and save metadata
+            Picture metadata = new Picture();
+            metadata.setFileName(fileName);
+
+            metadata.setPictureType(pictureType);
+            metadata.setReferenceId(referenceId);
+            metadata.setUploadDate(LocalDateTime.now());
+
+            return pictureRepository.save(metadata);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to store file", ex);
+        }
+    }
+
+    public Picture storePicture(InputStream file, PictureType pictureType, Long referenceId) {
+        try {
+            // Create upload directory if it doesn't exist
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            log.info("Storing " + file.toString());
+            // Generate unique filename
+            String fileName = UUID.randomUUID().toString() +
+                    getFileExtension(file.toString());
+
+            log.info("File name: " + fileName);
+
+            // Save file to filesystem
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file, filePath, StandardCopyOption.REPLACE_EXISTING);
 
             // Create and save metadata
             Picture metadata = new Picture();

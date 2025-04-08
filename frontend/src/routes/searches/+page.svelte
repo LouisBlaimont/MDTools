@@ -10,7 +10,6 @@
     selectedSupplierIndex, charValues} from "$lib/stores/searches";
   import { user, isAdmin } from "$lib/stores/user_stores";
   import EditButton from "./EditButton.svelte";
-  import EditCategoryButton from "./EditCategoryButton.svelte";
   import EditInstrumentButton from "./EditInstrumentButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { checkRole } from "$lib/rbacUtils";
@@ -50,9 +49,8 @@
   let initialized = false;
 
   async function findInstrumentsOfCategory(categoryId){
-    const cat = $categories.find(category => category.id === Number(categoryId));
-    categories.set([cat]);
-    selectedCategoryIndex.set(0);
+    const index = $categories.findIndex(category => category.id === Number(categoryId));
+    selectedCategoryIndex.set(index);
 
     currentSuppliers.set([]);
     alternatives.set([]);  

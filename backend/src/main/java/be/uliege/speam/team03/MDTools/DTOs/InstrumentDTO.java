@@ -11,6 +11,8 @@ import java.util.List;
 @Setter
 public class InstrumentDTO {
     private String supplier;
+    private Long groupId;
+    private Long subGroupId;
     private Integer categoryId;
     private String reference;
     private String supplierDescription;
@@ -19,4 +21,15 @@ public class InstrumentDTO {
     private List<Long> picturesId;
     private Integer id;
 
+    // Add a constructor matching the test cases
+    public InstrumentDTO(String supplier, Integer categoryId, String reference, String supplierDescription, Float price, Boolean obsolete, List<Long> picturesId, Integer id) {
+        this.supplier = supplier;
+        this.categoryId = categoryId;
+        this.reference = reference;
+        this.supplierDescription = supplierDescription;
+        this.price = price;
+        this.obsolete = obsolete;
+        this.picturesId = picturesId;
+        this.id = id;
+    }
 }

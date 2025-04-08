@@ -15,7 +15,7 @@ public class SubGroupDTO {
     private Long id;
     private String name;
     private Long groupId;
-    private List<String> subGroupCharacteristics;
+    private List<SubGroupCharacteristicDTO> subGroupCharacteristics;
     private Integer instrCount = 0;
     private List<Long> categoriesId;
     private Long pictureId;

@@ -30,23 +30,17 @@ public class CategoryMapper {
         String name;
         Optional<String> nameMaybe = categoryRepository.findCharacteristicVal((long) id, "Name");
         if (nameMaybe.isPresent()){ 
-            System.out.println("Name is present: " + nameMaybe.get());
             name = nameMaybe.get();
-        } else if (category.getName() != null){
-            System.out.println("Name is present by argument: " + category.getName());
-            name = category.getName();
-        }
-        else{
+        } else {
+            System.out.println("Name is not present");
             name = null;
         }
 
         String function;
         Optional<String> functionMaybe = categoryRepository.findCharacteristicVal((long) id, "Function");
         if (functionMaybe.isPresent()){
-            System.out.println("Function is present: " + functionMaybe.get());
             function = functionMaybe.get();
         } else if (category.getFunction() != null){
-            System.out.println("Function is present by argument: " + category.getFunction());
             function = category.getFunction();
         }
         else{
@@ -58,10 +52,8 @@ public class CategoryMapper {
         String lenAbrv;
         Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicVal((long) id, "Length");
         if (lenAbrvMaybe.isPresent()){
-            System.out.println("Length is present: " + lenAbrvMaybe.get());
             lenAbrv = lenAbrvMaybe.get();
         } else if (category.getLenAbrv() != null){
-            System.out.println("Length is present by argument: " + category.getLenAbrv());
             lenAbrv = category.getLenAbrv();
         }
         else{
@@ -81,9 +73,6 @@ public class CategoryMapper {
     public Category mapToCategory(CategoryDTO categoryDTO){
         Category category = new Category();
         category.setId(categoryDTO.getId());
-        // category.setName(categoryDTO.getName());
-        // category.setFunction(categoryDTO.getFunction());
-        // category.setLenAbrv(categoryDTO.getLenAbrv());
         category.setShape(categoryDTO.getShape());
         category.setPictureId(categoryDTO.getPictureId());
         return category;

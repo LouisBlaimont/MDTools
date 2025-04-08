@@ -6,15 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.*;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -125,7 +122,7 @@ public class PictureControllerTest {
     void uploadPicture_NegativeReferenceId_ThrowsIllegalArgumentException() {
         MockMultipartFile file = new MockMultipartFile("file", "test.png", "image/png", "content".getBytes());
 
-        when(storageService.storePicture(any(), any(), eq(-1L)))
+        when(storageService.storePicture(any(MultipartFile.class), any(PictureType.class), eq(-1L)))
                 .thenThrow(new IllegalArgumentException("Invalid reference ID"));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
