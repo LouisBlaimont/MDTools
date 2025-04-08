@@ -172,9 +172,49 @@
         </div>
         <table id="tools-table" data-testid="categories-table" class="w-full border-collapse table-fixed">
             <thead class="bg-teal-400">
+                {#if $showCategories}
+                    {#if $selectedSubGroup}
+                        <tr class="bg-white text-teal-400">
+                            {#if $isEditing}
+                            <th colspan="2" class="text-center py-2">
+                                <button
+                                class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                                on:click={() => openAddCategoryPage()}
+                                >
+                                Ajouter
+                                </button>
+                            </th>
+                            <th colspan="1" class="text-center pb-1">{$selectedGroup}</th>
+                            <th colspan="1" class="text-center pb-1">{$selectedSubGroup}</th>
+                        {:else}
+                        <th colspan="2" class="text-center pb-1">{$selectedGroup}</th>
+                        <th colspan="2" class="text-center pb-1">{$selectedSubGroup}</th>
+                        {/if}
+                    </tr>
+                    {:else}
+                <tr class="bg-white text-teal-400">
+                {#if $isEditing}
+                    <th colspan="2" class="text-center pb-1">
+                    <button
+                        class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                        on:click={() => openAddCategoryPage()}
+                    >
+                        Ajouter
+                    </button>
+                    </th>
+                    <th colspan="3" class="text-center pb-1">{$selectedGroup}</th>
+                {:else}
+                    <th colspan="5" class="text-center pb-1">{$selectedGroup}</th>
+                {/if}
+                </tr>
+                {/if}
+            {/if}
                 <tr>
                     {#if $isEditing}
                         <th class="text-center border border-solid border-[black] w-8 overflow-hidden"></th>
+                    {/if}
+                    {#if !$selectedSubGroup}
+                        <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
                     {/if}
                     <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
                     <th class="text-center border border-solid border-[black] w-12 overflow-hidden">NOM</th>
@@ -196,6 +236,9 @@
                         >
                             {#if $isEditing}
                                 <EditCategoryButton category={row}/>
+                            {/if}
+                            {#if !$selectedSubGroup}
+                                <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
                             {/if}
                             <td 
                                 class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"

@@ -296,7 +296,11 @@ public class CategoryService {
                 .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        if (filteredSearchBy.isEmpty()) {
+        
+        Double minLength = body.containsKey("minLength") ? ((Number) body.get("minLength")).doubleValue() : 0.0;
+        Double maxLength = body.containsKey("maxLength") ? ((Number) body.get("maxLength")).doubleValue() : Double.POSITIVE_INFINITY;
+
+        if (filteredSearchBy.isEmpty() && minLength == 0.0 && maxLength == Double.POSITIVE_INFINITY) {
             List<CategoryDTO> categoriesDTO = new ArrayList<>();
             for (Category category : categories) {
                 CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
@@ -316,7 +320,20 @@ public class CategoryService {
                                 CategoryCharacteristic::getVal, (existing, replacement) -> existing)));
 
         List<Category> filteredCategories = categoryToChar.entrySet().stream()
-                .filter(entry -> entry.getValue().entrySet().containsAll(filteredSearchBy.entrySet()))
+                .filter(entry -> {
+                    Map<String, String> charMap = entry.getValue();
+                    boolean matchesNormalChars = charMap.entrySet().containsAll(filteredSearchBy.entrySet());
+                    boolean matchesLength  = true;
+                    if(charMap.containsKey("Length")){
+                        try{
+                            double length = Double.parseDouble(charMap.get("Length"));
+                            matchesLength = length >= minLength && length <= maxLength;
+                        }catch(NumberFormatException e){
+                            matchesLength = false;
+                        }
+                    }
+                    return matchesNormalChars && matchesLength;
+                })
                 .map(Map.Entry::getKey)
                 .sorted(Comparator.comparing(Category::getSubGroup, Comparator.comparing(SubGroup::getName))
                         .thenComparing(Category::getId))

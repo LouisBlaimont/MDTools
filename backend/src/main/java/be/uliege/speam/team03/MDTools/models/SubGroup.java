@@ -41,11 +41,6 @@ public class SubGroup {
         this.group = group;
     }
 
-    @PostLoad //happens each time data is fetched, replaced, .. in the DB so I must add cond so that it doesn't change the number when patch and get (post value is manually given)
-    private void calculateInstrumentCount() {
-        this.instrCount = 3;
-    }
-
     public void incrInstrCount(){
         instrCount+=1;
     }

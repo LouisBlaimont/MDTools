@@ -3,11 +3,11 @@ package be.uliege.speam.team03.MDTools.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import be.uliege.speam.team03.MDTools.models.Group;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
-
 /**
  * Repository interface for managing SubGroup entities.
  * Extends the CrudRepository interface to provide CRUD operations.
@@ -27,4 +27,12 @@ public interface SubGroupRepository extends CrudRepository<SubGroup, Integer>{
      * @return an Optional containing the found SubGroup, or an empty Optional if no SubGroup with the given name exists
      */
     Optional<SubGroup> findByName(String name);
+
+    /**
+     * Retrieves the number of instruments in the subgroup given by subGroupId.
+     * @param subGroupId
+     * @return
+     */
+    @Query("SELECT COUNT(i) FROM Instruments i WHERE i.category.subGroup.id = :subGroupId")
+    int nbInstrOfSubGroup(Long subGroupId);
 }

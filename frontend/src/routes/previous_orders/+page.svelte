@@ -1,5 +1,6 @@
 <script>
-    import {ordersNames, userId, errorMessage, orders, selectedOrderId, orderItems} from "$lib/stores/searches";
+    import {ordersNames, errorMessage, orders, selectedOrderId, orderItems} from "$lib/stores/searches";
+    import { userId } from "$lib/stores/user_stores";
     import { onMount } from "svelte";
     import createOrderModal from "$lib/modals/createOrderModal.svelte";
     import { modals } from "svelte-modals";

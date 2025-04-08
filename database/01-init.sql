@@ -225,7 +225,7 @@ BEGIN
         ORDER BY sgc_rel.order_position
     LOOP
         -- Concatenate each value_abreviation with a '/' as a separator
-        shape_text := shape_text || characteristic_record.value_abreviation || '/';
+        shape_text := shape_text || characteristic_record.value_abreviation || ' ';
     END LOOP;
 
     -- Remove the last '/' separator at the end of the string
@@ -246,3 +246,30 @@ CREATE TRIGGER trigger_update_shape
 AFTER INSERT OR UPDATE ON category_characteristic
 FOR EACH ROW
 EXECUTE FUNCTION update_shape();
+
+CREATE OR REPLACE FUNCTION refresh_shapes_for_subgroup()
+RETURNS TRIGGER AS $$
+DECLARE
+    cat_id INTEGER;
+BEGIN
+    -- For each category in the affected subgroup
+    FOR cat_id IN
+        SELECT category_id
+        FROM category
+        WHERE sub_group_id = NEW.sub_group_id
+    LOOP
+        -- Force an update on category_characteristic to trigger update_shape
+        UPDATE category_characteristic
+        SET characteristic_value = characteristic_value
+        WHERE category_id = cat_id;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trigger_refresh_shapes
+AFTER UPDATE OR INSERT ON sub_group_characteristic
+FOR EACH ROW
+EXECUTE FUNCTION refresh_shapes_for_subgroup();
