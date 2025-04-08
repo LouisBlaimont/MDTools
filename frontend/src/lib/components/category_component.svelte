@@ -214,7 +214,7 @@
                         <th class="text-center border border-solid border-[black] w-8 overflow-hidden"></th>
                     {/if}
                     {#if !$selectedSubGroup}
-                        <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
+                        <th class="text-center border border-solid border-[black] overflow-hidden">SOUS GROUPE</th>
                     {/if}
                     <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
                     <th class="text-center border border-solid border-[black] w-12 overflow-hidden">NOM</th>
@@ -238,7 +238,12 @@
                                 <EditCategoryButton category={row}/>
                             {/if}
                             {#if !$selectedSubGroup}
-                                <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+                                <td 
+                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{row.subGroupName}"
+                            >
+                                {row.function}
+                            </td>
                             {/if}
                             <td 
                                 class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"

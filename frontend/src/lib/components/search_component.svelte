@@ -1,15 +1,15 @@
 <script>
-      import { goto } from "$app/navigation";
-      import { page } from "$app/stores";
-      import { onMount } from "svelte";
-      import { preventDefault } from "svelte/legacy";
-      import { get } from "svelte/store";
-      import { isEditing, orderItems, reload, selectedCategoryIndex, 
-          selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
-          showChars, charValues, currentSuppliers, categories, characteristics, 
-          showSubGroups, showCategories, subGroups, groups, errorMessage, 
-      findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, autocompleteOptions} from "$lib/stores/searches";    
-        import { apiFetch } from "$lib/utils/fetch";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
+    import { onMount } from "svelte";
+    import { preventDefault } from "svelte/legacy";
+    import { get } from "svelte/store";
+    import { isEditing, orderItems, reload, selectedCategoryIndex, 
+        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
+        showChars, charValues, currentSuppliers, categories, characteristics, 
+        showSubGroups, showCategories, subGroups, groups, errorMessage, 
+    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, autocompleteOptions} from "$lib/stores/searches";    
+    import { apiFetch } from "$lib/utils/fetch";   
     import { toast } from "@zerodevx/svelte-toast";
     import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
   let showAddCharacteristicModal = false;
@@ -337,8 +337,8 @@
 </script>
 
 
-<div class="flex-[1.3] ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
-    <form class="flex flex-col w-[90%] mb-2.5">
+<div class="flex-1 ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
+    <form class="flex flex-col w-full mb-2.5">
         <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
         <input
         type="text"
@@ -381,7 +381,7 @@
   {/if}
 
   {#if $showChars}
-    <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
+    <form class="flex flex-col gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
         <div class="flex gap-2 mb-2 mt-4">
         <button
             type="submit"
@@ -397,29 +397,31 @@
         {#each $characteristics as char}
         {#if char === "Length"}
             <div class="flex items-center">
-            <label for={char} class="w-2/5">{char}:</label>
-            <div class="flex w-3/5 gap-2">
-                <input
-                id="min-length-input"
-                type="number"
-                min="0"
-                step="0.01"
-                class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
-                placeholder="min"
-                bind:value={minLength}
-                on:keydown={handleMinLengthInput}
-                />
-                <input
-                id="max-length-input"
-                type="number"
-                min={minLength || 0}
-                step="0.01"
-                class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
-                placeholder="max"
-                bind:value={maxLength}
-                on:keydown={handleMaxLengthInput}
-                />
-            </div>
+              <label for={char} class="w-2/5">{char}:</label>
+              <div class="flex w-3/5 gap-2">
+                  <input
+                  id="min-length-input"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
+                  placeholder="min"
+                  bind:value={minLength}
+                  on:keydown={handleMinLengthInput}
+                  autocomplete="off"
+                  />
+                  <input
+                  id="max-length-input"
+                  type="number"
+                  min={minLength || 0}
+                  step="0.01"
+                  class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
+                  placeholder="max"
+                  bind:value={maxLength}
+                  on:keydown={handleMaxLengthInput}
+                  autocomplete="off"
+                  />
+              </div>
             <button
                 class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
                 on:click={() => deleteCharacteristic(char)}
@@ -438,6 +440,7 @@
                 bind:value={$charValues[char]}
                 on:focus={() => triggerAutocomplete(char)}
                 on:input={handleAutocompleteInput}
+                autocomplete="off"
                 />
                 {#if showAutocompleteDropDown && currentAutocompleteField === char}
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->

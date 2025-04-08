@@ -75,7 +75,7 @@
     </div>
 
     <!-- TABLE OF THE INSTRUMENTS -->
-    <table data-testid="suppliers-table" class="w-full border-collapse table-fixed mt-4">
+    <table data-testid="suppliers-table" class="w-full border-collapse mt-4">
         <thead class="bg-teal-400">
             <tr class="bg-white text-teal-400">
                 {#if $isEditing && $selectedCategoryIndex >=0 && $selectedCategoryIndex !== null && $selectedCategoryIndex !== '' }
@@ -112,12 +112,12 @@
                     </div>
                     </th>
                 {/if}
-                <th class="text-center border border-solid border-[black] w-10 overflow-hidden">REF</th>
-                <th class="text-center border border-solid border-[black] w-10 overflow-hidden">MARQUE</th>
-                <th class="text-center border border-solid border-[black] w-[50%] overflow-hidden">DESCRIPTION</th> 
-                <th class="text-center border border-solid border-[black] w-9 overflow-hidden">PRIX</th>
-                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">ALT</th>
-                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">OBS</th>
+                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">REF</th>
+                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">MARQUE</th>
+                <th class="text-center border border-solid border-[black] w-16 overflow-hidden">DESCRIPTION</th> 
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">PRIX</th>
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">ALT</th>
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">OBS</th>
             </tr>
               
         </thead>
@@ -202,9 +202,9 @@
                     </div>
                 </th>            
                 {/if}
-                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">REF</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-14">MARQUE</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-18">DESCRIPTION</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">REF</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">MARQUE</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">DESCRIPTION</th>
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">PRIX</th>
             </tr>
         </thead>
