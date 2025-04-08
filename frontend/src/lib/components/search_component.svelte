@@ -11,6 +11,9 @@
   findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex} from "$lib/stores/searches";    
   import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
   import { apiFetch } from "$lib/utils/fetch";
+  import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";
+    
+  let showAddCharacteristicModal = false;
 
   /**
    * Gets characteristics and categories of subgroup with the name subGroup
@@ -295,6 +298,25 @@
               >
               </div>
           {/each}
+          {#if $isEditing}
+            <button
+                type="button"
+                class="text-sm text-blue-700 mt-1 w-fit hover:underline self-end"
+                on:click={() => showAddCharacteristicModal = true}
+            >
+                + ajouter des characteristiques
+            </button>
+          {/if}
+
       </form>
   {/if}
 </div>
+<AddCharacteristicModal
+  isOpen={showAddCharacteristicModal}
+  onClose={() => showAddCharacteristicModal = false}
+  selectedSubGroup={$selectedSubGroup}
+  on:added={async () => {
+    await findCharacteristics($selectedSubGroup); 
+  }}
+/>
+

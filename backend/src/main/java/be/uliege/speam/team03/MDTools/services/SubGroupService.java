@@ -339,4 +339,39 @@ public class SubGroupService {
         subGroupCharRepository.saveAll(links);
         return SubGroupMapper.toDto(subGroup);
     }
+
+    /**
+     * Removes a characteristic from a given subgroup.
+     * This works whether the characteristic is ordered (in the form) or not.
+     *
+     * @param subGroupName the name of the subgroup
+     * @param characteristicName the name of the characteristic to remove
+     * @return the updated SubGroupDTO
+     * @throws ResourceNotFoundException if the subgroup or characteristic is not found
+     * @throws BadRequestException if the input is invalid
+     */
+    public SubGroupDTO removeCharacteristicFromSubGroup(String subGroupName, String characteristicName)
+            throws ResourceNotFoundException, BadRequestException {
+
+        if (ObjectUtils.isEmpty(subGroupName) || ObjectUtils.isEmpty(characteristicName)) {
+            throw new BadRequestException("Subgroup name and characteristic name are required.");
+        }
+
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+            .orElseThrow(() -> new ResourceNotFoundException("Subgroup not found: " + subGroupName));
+
+        Characteristic characteristic = charRepository.findByName(characteristicName)
+            .orElseThrow(() -> new ResourceNotFoundException("Characteristic not found: " + characteristicName));
+
+        SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(subGroup.getId(), characteristic.getId());
+
+        SubGroupCharacteristic link = subGroupCharRepository.findById(key)
+            .orElseThrow(() -> new ResourceNotFoundException("Characteristic not associated with this subgroup."));
+
+        subGroupCharRepository.delete(link);
+
+        // Reload and return updated DTO
+        subGroup = subGroupRepository.findByName(subGroupName).get();
+        return SubGroupMapper.toDto(subGroup);
+    }
 }
