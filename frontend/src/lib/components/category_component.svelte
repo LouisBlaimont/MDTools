@@ -138,17 +138,52 @@
 
 <div class="flex-[3] h-full overflow-y-auto box-border ml-3">
   <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-  <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
-    <span class="">Catégories</span>
-  </div>
   <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
     <thead class="bg-teal-400">
+      {#if $showCategories}
+        {#if $selectedSubGroup}
+          <tr class="bg-white text-teal-400">
+            {#if $isEditing}
+              <th colspan="2" class="text-center py-2">
+                <button
+                  class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                  on:click={() => openAddCategoryPage()}
+                >
+                  Ajouter
+                </button>
+              </th>
+              <th colspan="1" class="text-center pb-1">{$selectedGroup}</th>
+              <th colspan="1" class="text-center pb-1">{$selectedSubGroup}</th>
+            {:else}
+              <th colspan="2" class="text-center pb-1">{$selectedGroup}</th>
+              <th colspan="2" class="text-center pb-1">{$selectedSubGroup}</th>
+            {/if}
+          </tr>
+        {:else}
+        <tr class="bg-white text-teal-400">
+          {#if $isEditing}
+            <th colspan="2" class="text-center pb-1">
+              <button
+                class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                on:click={() => openAddCategoryPage()}
+              >
+                Ajouter
+              </button>
+            </th>
+            <th colspan="3" class="text-center pb-1">{$selectedGroup}</th>
+          {:else}
+            <th colspan="5" class="text-center pb-1">{$selectedGroup}</th>
+          {/if}
+        </tr>
+        {/if}
+      {/if}
       <tr>
         {#if $isEditing}
           <th class="text-center border border-solid border-[black]"></th>
         {/if}
-        <th class="text-center border border-solid border-[black]">GROUPE</th>
-        <th class="text-center border border-solid border-[black]">SOUS GP</th>
+        {#if !$selectedSubGroup}
+        <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
+        {/if}
         <th class="text-center border border-solid border-[black]">FCT</th>
         <th class="text-center border border-solid border-[black]">NOM</th>
         <th class="text-center border border-solid border-[black]">FORME</th>
@@ -171,8 +206,9 @@
             {#if $isEditing}
               <EditCategoryButton category={row} />
             {/if}
-            <td class="text-center border border-solid border-[black]">{row.groupName}</td>
+            {#if !$selectedSubGroup}
             <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+            {/if}
             <td class="text-center border border-solid border-[black]">{row.function}</td>
             <td class="text-center border border-solid border-[black]">{row.name}</td>
             <td class="text-center border border-solid border-[black]">{row.shape}</td>
@@ -182,24 +218,7 @@
       </tbody>
     {/if}
   </table>
-
-    <!-- PASS IN ADMIN MODE -->
-    {#if $isAdmin}
-        <EditButton />
-    {/if}
-    {#if $isEditing}
-       {#if $isAdmin}
-            <div class="flex justify-center">
-                <button 
-                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
-                    on:click={()=>modals.open(addCategoryModal)}
-                >
-                    Ajouter une catégorie
-                </button>
-            </div>
-        {/if}
-    {/if}
-    </div>
+</div>
 
 <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
 <div class="flex-1 max-h-[80vh] overflow-y-auto ml-3 max-w-[150px]">

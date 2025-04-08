@@ -35,6 +35,13 @@ public class UserService {
       return UserMapper.toDto(user);
    }
 
+   public Long getUserIdByEmail(String email){
+      User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received email: " + email));
+      Long id = user.getUserId();
+      return id;
+   }
+
    /**
     * Retrieves a list of all users from the database.
     *

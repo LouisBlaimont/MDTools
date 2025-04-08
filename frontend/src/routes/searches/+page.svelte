@@ -8,7 +8,7 @@
     errorMessage, findSubGroupsStore, findCharacteristicsStore, findOrdersNamesStore, categories, 
     selectedCategoryIndex, currentSuppliers, alternatives,
     selectedSupplierIndex, charValues} from "$lib/stores/searches";
-  import { user, isAdmin } from "$lib/stores/user_stores";
+  import { user, isAdmin} from "$lib/stores/user_stores";
   import EditButton from "./EditButton.svelte";
   import EditInstrumentButton from "./EditInstrumentButton.svelte";
   import { toast } from "@zerodevx/svelte-toast";

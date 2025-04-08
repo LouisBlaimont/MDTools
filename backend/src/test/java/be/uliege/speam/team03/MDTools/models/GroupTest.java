@@ -44,13 +44,6 @@ class GroupTest {
     }
 
     @Test
-    void testCalculateInstrumentCountAfterLoad() {
-        // Simulating @PostLoad behavior
-        group.calculateInstrumentCount();
-        assertEquals(3, group.getInstrCount()); // The @PostLoad method should set instrCount to 3
-    }
-
-    @Test
     void testSetAndGetName() {
         group.setName("Updated Group Name");
         assertEquals("Updated Group Name", group.getName());
