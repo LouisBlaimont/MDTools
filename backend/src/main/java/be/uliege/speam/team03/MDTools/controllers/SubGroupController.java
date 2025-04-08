@@ -101,4 +101,13 @@ public class SubGroupController {
         return ResponseEntity.status(HttpStatus.OK)
             .body(subGroupService.updateCharacteristicOrder(subGroupName, newOrder));
     }
+
+    @DeleteMapping("/{subGroupName}/characteristics/{characteristicName}")
+    public ResponseEntity<SubGroupDTO> removeCharacteristicFromSubGroup(
+        @PathVariable String subGroupName,
+        @PathVariable String characteristicName
+    ) throws ResourceNotFoundException, BadRequestException {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(subGroupService.removeCharacteristicFromSubGroup(subGroupName, characteristicName));
+    }
 }

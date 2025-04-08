@@ -12,6 +12,8 @@
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { apiFetch } from "$lib/utils/fetch";
     import { toast } from "@zerodevx/svelte-toast";
+    import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
+  let showAddCharacteristicModal = false;
 
   // Initialize from URL params when component mounts
   onMount(() => {
@@ -381,24 +383,24 @@
 
   {#if $showChars}
     <form class="flex flex-col w-full gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
-      <div class="flex gap-2 mb-2 mt-4">
+        <div class="flex gap-2 mb-2 mt-4">
         <button
-          type="submit"
-          class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm"
-          >Chercher</button
-        >
+            type="submit"
+            class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm"
+        >Chercher</button>
         <button
-          type="button"
-          class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm"
-          on:click={deleteAllCharacteristics}>Tout effacer</button
-        >
-      </div>
-      {#each $characteristics as char}
+            type="button"
+            class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm"
+            on:click={deleteAllCharacteristics}
+        >Tout effacer</button>
+        </div>
+
+        {#each $characteristics as char}
         {#if char === "Length"}
-          <div class="flex items-center">
+            <div class="flex items-center">
             <label for={char} class="w-2/5">{char}:</label>
             <div class="flex w-3/5 gap-2">
-              <input
+                <input
                 id="min-length-input"
                 type="number"
                 min="0"
@@ -407,8 +409,8 @@
                 placeholder="min"
                 bind:value={minLength}
                 on:keydown={handleMinLengthInput}
-              />
-              <input
+                />
+                <input
                 id="max-length-input"
                 type="number"
                 min={minLength || 0}
@@ -417,56 +419,72 @@
                 placeholder="max"
                 bind:value={maxLength}
                 on:keydown={handleMaxLengthInput}
-              />
+                />
             </div>
             <button
-              class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
-              on:click={() => deleteCharacteristic(char)}
-            >
-              &times;
-            </button>
-          </div>
+                class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
+                on:click={() => deleteCharacteristic(char)}
+            >&times;</button>
+            </div>
         {:else}
-          <div class="flex items-center relative">
+            <div class="flex items-center relative">
             <label for={char} class="w-2/5">{char}:</label>
             <div class="relative w-3/5">
-              <input
+                <input
                 type="text"
                 class="w-full border border-gray-400 rounded p-0.5 border-solid border-[black] mb-2"
                 id={char}
                 name={char}
                 data-testid={char}
                 bind:value={$charValues[char]}
-                on:focus={()=> triggerAutocomplete(char)}
+                on:focus={() => triggerAutocomplete(char)}
                 on:input={handleAutocompleteInput}
-              />
-              {#if showAutocompleteDropDown && currentAutocompleteField === char}
+                />
+                {#if showAutocompleteDropDown && currentAutocompleteField === char}
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <ul 
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
-                on:mousedown={event => event.preventDefault()}
+                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
+                    on:mousedown={event => event.preventDefault()}
                 >
-                {#each filteredAutocompleteOptions as option}
-                <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                <button
-                    type="button"
-                    class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                    role="option"
-                    on:click={() => selectAutocompleteOption(option)}
-                >
-                    {option}
-                </button>
-                {/each}
+                    {#each filteredAutocompleteOptions as option}
+                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                    <button
+                        type="button"
+                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                        role="option"
+                        on:click={() => selectAutocompleteOption(option)}
+                    >
+                        {option}
+                    </button>
+                    {/each}
                 </ul>
-              {/if}
+                {/if}
             </div>
             <button
-              class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
-              on:click={() => deleteCharacteristic(char)}>&times;</button
-            >
-          </div>
+                class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
+                on:click={() => deleteCharacteristic(char)}
+            >&times;</button>
+            </div>
         {/if}
-      {/each}
+        {/each}
+
+        {#if $isEditing}
+            <button
+                class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none self-end mt-2"
+                on:click={() => showAddCharacteristicModal = true}
+            >
+                Ajouter
+            </button>
+        {/if}
     </form>
-  {/if}
+    {/if}
 </div>
+<AddCharacteristicModal
+  isOpen={showAddCharacteristicModal}
+  onClose={() => showAddCharacteristicModal = false}
+  selectedSubGroup={$selectedSubGroup}
+  on:added={async () => {
+    await findCharacteristics($selectedSubGroup); 
+  }}
+/>
+

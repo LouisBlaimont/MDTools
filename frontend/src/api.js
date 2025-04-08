@@ -270,3 +270,19 @@ export async function fetchAlternatives() {
   }
   return await res.json();
 }
+
+/**
+ * Removes a characteristic from a given subgroup.
+ * @param {string} subGroupName - The name of the subgroup.
+ * @param {string} characteristicName - The name of the characteristic to remove.
+ * @returns {Promise<void>}
+ */
+export async function removeCharacteristicFromSubGroup(subGroupName, characteristicName) {
+  const res = await apiFetch(`/api/subgroups/${encodeURIComponent(subGroupName)}/characteristics/${encodeURIComponent(characteristicName)}`, {
+    method: "DELETE"
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to remove characteristic "${characteristicName}" from subgroup "${subGroupName}"`);
+  }
+}
