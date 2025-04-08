@@ -442,33 +442,6 @@ public class CategoryService {
         Category savedCategory = categoryRepository.save(category);
         return catMapper.mapToCategoryDto(savedCategory);
     }
-
-    /**
-     * Retrieves a map of all characteristics and their values for a given category
-     * ID.
-     * This is used for exporting instruments with their associated characteristic
-     * values.
-     *
-     * @param categoryId The ID of the category.
-     * @return A map where each key is a characteristic name and each value is the
-     *         corresponding value (or empty string).
-     * @throws ResourceNotFoundException If the category is not found.
-     */
-    public Map<String, String> getCharacteristicValuesByCategoryId(Integer categoryId) {
-        Optional<Category> categoryMaybe = categoryRepository.findById((long) categoryId);
-        if (categoryMaybe.isEmpty()) {
-            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
-        }
-
-        // Get all characteristics linked to this category
-        List<CategoryCharacteristic> characteristics = categoryCharRepository.findByCategoryId(categoryId);
-
-        // Map: characteristic name -> value
-        return characteristics.stream()
-                .collect(Collectors.toMap(
-                        cc -> cc.getCharacteristic().getName(),
-                        cc -> cc.getVal() != null ? cc.getVal() : ""));
-    }
 }
 
 // public CategoryDTO addCategoryToSubGroup(String subGroupName, Map<String,

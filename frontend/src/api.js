@@ -193,7 +193,7 @@ export async function fetchSupplierByName(supplierName) {
  * @returns {Promise<Object>} - A mapping of characteristic name to value.
  */
 export async function fetchCharacteristicValuesByCategory(categoryId) {
-  const res = await apiFetch(`/api/category/${categoryId}/characteristics`);
+  const res = await apiFetch(`/api/category/${categoryId}`);
 
   if (!res.ok) {
     throw new Error(`Failed to fetch characteristic values for category ${categoryId}`);
@@ -263,6 +263,12 @@ export async function updateCharacteristicOrder(subGroupName, orderedList) {
   }
 }
 
+
+/**
+ * Fetches all available alternatives from the backend.
+ * @returns {Promise<Object[]>} A list of alternative instruments.
+ * @throws {Error} If the request fails.
+ */
 export async function fetchAlternatives() {
   const res = await apiFetch("/api/alternatives/all");
   if (!res.ok) {
