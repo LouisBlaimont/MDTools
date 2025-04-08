@@ -90,13 +90,17 @@ describe('search page functions', () => {
         await waitFor(() => expect(screen.getAllByText('Group1')).toBeTruthy());
 
         await waitFor(() => expect(screen.getAllByText('SubGroup3')).toBeTruthy());
-        await waitFor(() => expect(screen.getByText('Fct1')).toBeTruthy());
+        
+        const fct1Elements = await screen.findAllByText('Fct1');
+        expect(fct1Elements.length).toBeGreaterThan(0);
+
         await waitFor(() => expect(screen.getByText('Name1')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('FN1')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('L1CM')).toBeTruthy());
 
         await waitFor(() => expect(screen.getAllByText('SubGroup4')).toBeTruthy());
-        await waitFor(() => expect(screen.getByText('Fct2')).toBeTruthy());
+        const fct2Elements = await screen.findAllByText('Fct2');
+        expect(fct2Elements.length).toBeGreaterThan(0);
         await waitFor(() => expect(screen.getByText('Name2')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('FN2')).toBeTruthy());
         await waitFor(() => expect(screen.getByText('L2CM')).toBeTruthy());

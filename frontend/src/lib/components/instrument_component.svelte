@@ -10,7 +10,6 @@
     import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, 
         hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, hoveredAlternativeIndex,
         showCategories} from "$lib/stores/searches";   
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
     import addCategoryModalFromInstrument from "$lib/modals/addCategoryModalFromInstrument.svelte";
@@ -75,10 +74,9 @@
         {/each}
     </div>
 
-
-    <!-- TABLE OF THE SUPPLIERS -->
-    <table data-testid = "suppliers-table" class="w-full border-collapse">
-        <thead>
+    <!-- TABLE OF THE INSTRUMENTS -->
+    <table data-testid="suppliers-table" class="w-full border-collapse mt-4">
+        <thead class="bg-teal-400">
             <tr class="bg-white text-teal-400">
                 {#if $isEditing && $selectedCategoryIndex >=0 && $selectedCategoryIndex !== null && $selectedCategoryIndex !== '' }
                 <th colspan="2" class="text-center py-2">
@@ -96,29 +94,32 @@
                 <th colspan="3" class="text-center py-2">Instruments</th>
             </tr>
             <tr class="bg-teal-400">
-            {#if $isEditing}
-                <th class="text-center border border-solid border-[black]"></th>
-            {/if}
-            {#if notEditing}
-                <th class="text-center border border-solid border-[black]">
-                <div class="flex justify-center items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
-                        <path d="m15 11-1 9"/>
-                        <path d="m19 11-4-7"/>
-                        <path d="M2 11h20"/>
-                        <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
-                        <path d="M4.5 15.5h15"/>
-                        <path d="m5 11 4-7"/>
-                        <path d="m9 11 1 9"/>
-                        </svg>
-                </div>
-                </th>
-            {/if}
-            <th class="text-center border border-solid border-[black]">REF</th>
-            <th class="text-center border border-solid border-[black]">MARQUE</th>
-            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-            <th class="text-center border border-solid border-[black]">PRIX</th>
+                {#if $isEditing}
+                  <th class="text-center border border-solid border-[black] w-10 overflow-hidden"></th>
+                {/if}
+                {#if notEditing}
+                    <th class="text-center border border-solid border-[black] w-5 overflow-hidden">
+                    <div class="flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                            <path d="m15 11-1 9"/>
+                            <path d="m19 11-4-7"/>
+                            <path d="M2 11h20"/>
+                            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+                            <path d="M4.5 15.5h15"/>
+                            <path d="m5 11 4-7"/>
+                            <path d="m9 11 1 9"/>
+                            </svg>
+                    </div>
+                    </th>
+                {/if}
+                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">REF</th>
+                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">MARQUE</th>
+                <th class="text-center border border-solid border-[black] w-16 overflow-hidden">DESCRIPTION</th> 
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">PRIX</th>
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">ALT</th>
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">OBS</th>
             </tr>
+              
         </thead>
         <tbody>
             {#each $currentSuppliers as row, index}
@@ -141,10 +142,30 @@
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                     >
                 {/if}
-                <td class="text-center border border-solid border-[black]">{row.reference}</td>
-                <td class="text-center border border-solid border-[black]">{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]">{row.supplierDescription}</td>
-                <td class="text-center border border-solid border-[black]">{row.price}</td>
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.reference}"
+                >
+                    {row.reference}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplier}"
+                >
+                    {row.supplier}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
+                >
+                    {row.supplierDescription}
+                </td>                
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.price}"
+                >
+                    {row.price}
+                </td>   
+                <td class="text-center border border-solid border-[black] overflow-hidden">{row.alt ? 'Yes' : 'No'}</td>
+                <td class="text-center border border-solid border-[black] overflow-hidden">{row.obsolete ? 'Yes' : 'No'}</td>
                 </tr>
             {/each}
         </tbody>
@@ -163,28 +184,28 @@
                 <th colspan="3" class="text-center py-2">Alternatives</th>
             </tr>
             <tr class="bg-teal-400">
-            {#if $isEditing}
-                <th class="text-center border border-solid border-[black]"></th>
-            {/if}
-            {#if notEditing}
-            <th class="border border-solid border-black">
-                <div class="flex justify-center items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
-                        <path d="m15 11-1 9"/>
-                        <path d="m19 11-4-7"/>
-                        <path d="M2 11h20"/>
-                        <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
-                        <path d="M4.5 15.5h15"/>
-                        <path d="m5 11 4-7"/>
-                        <path d="m9 11 1 9"/>
-                    </svg>
-                </div>
-            </th>            
-            {/if}
-            <th class="text-center border border-solid border-[black]">REF</th>
-            <th class="text-center border border-solid border-[black]">MARQUE</th>
-            <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-            <th class="text-center border border-solid border-[black]">PRIX</th>
+                {#if $isEditing}
+                    <th class="text-center border border-solid border-[black]"></th>
+                {/if}
+                {#if notEditing}
+                <th class="border border-solid border-black w-5">
+                    <div class="flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                            <path d="m15 11-1 9"/>
+                            <path d="m19 11-4-7"/>
+                            <path d="M2 11h20"/>
+                            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+                            <path d="M4.5 15.5h15"/>
+                            <path d="m5 11 4-7"/>
+                            <path d="m9 11 1 9"/>
+                        </svg>
+                    </div>
+                </th>            
+                {/if}
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">REF</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">MARQUE</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">DESCRIPTION</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">PRIX</th>
             </tr>
         </thead>
         <tbody>
@@ -211,13 +232,56 @@
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                     >
                 {/if}
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} >{row.reference}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}>{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}>{row.supplierDescription}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})}>{row.price}</td>
+                <td 
+                    class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
+                    title="{row.reference}"
+                    onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.reference}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplier}"
+                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.supplier}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplierDescription}"
+                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.supplierDescription}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.price}"
+                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
+                >
+                    {row.price}
+                </td> 
                 </tr>
             {/each}
         </tbody>
     </table>
 
 </div>
+
+<div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
+  id="big-category-pannel"
+>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <span
+    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
+    onclick={(event) => {
+      event.stopPropagation();
+      closeBigPicture();
+    }}>&times;</span
+  >
+  <img class="h-[300px]" id="big-category" alt="big category" />
+</div>
+
