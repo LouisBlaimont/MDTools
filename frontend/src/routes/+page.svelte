@@ -6,8 +6,8 @@
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { modals } from "svelte-modals";
   import { ROLES } from "../constants";
-  import { ordersNames, userId, selectedOrderId } from "$lib/stores/searches";
-  import { user, isAdmin, isWebmaster, isLoggedIn } from "$lib/stores/user_stores";
+  import { ordersNames, selectedOrderId } from "$lib/stores/searches";
+  import { user, isAdmin, isWebmaster, isLoggedIn, userId } from "$lib/stores/user_stores";
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
   import Loading from "$lib/Loading.svelte";
@@ -61,12 +61,12 @@
     if (isEditing) {
       isEditing = false;
       toast.push("Fin de l'édition des groupes.");
-      document.getElementById("editGroupsButton").classList.remove("bg-orange-600");
+      document.getElementById("editGroupsButton").classList.remove("bg-yellow-500");
       return;
     } else {
       isEditing = true;
       toast.push("Choisissez un groupe pour le modifier.");
-      document.getElementById("editGroupsButton").classList.add("bg-orange-600");
+      document.getElementById("editGroupsButton").classList.add("bg-yellow-500");
     }
   }
 
@@ -259,7 +259,7 @@
 
         {#if $isAdmin}
           <button
-            class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
+            class="px-4 py-2 bg-gray-100 hover:bg-yellow-500 rounded-lg mb-2"
             aria-label="edit groups"
             id="editGroupsButton"
             onclick={() => startEditing()}

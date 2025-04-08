@@ -53,6 +53,7 @@ public class SubGroupService {
         }
         Group group = groupMaybe.get();
         List<SubGroup> subGroups = group.getSubGroups();
+        subGroups.forEach(subGroup -> subGroup.setInstrCount(nbInstrOfSubGroup(subGroup.getId())));
         List<SubGroupDTO> subGroupsDTO = new ArrayList<>();
         subGroupsDTO = subGroups.stream()
                     .map(SubGroupMapper::toDto)
@@ -163,6 +164,7 @@ public class SubGroupService {
             throw new ResourceNotFoundException(name + " not found.");
 
         SubGroup subGroup = subgroupMaybe.get();
+        subGroup.setInstrCount(nbInstrOfSubGroup(subGroup.getId()));
         SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);
         return subGroupDTO;
     }
@@ -180,6 +182,7 @@ public class SubGroupService {
             throw new ResourceNotFoundException("Subgroup not found.");
 
         SubGroup subGroup = subgroupMaybe.get();
+        subGroup.setInstrCount(nbInstrOfSubGroup(subGroup.getId()));
         SubGroupDTO subGroupDTO = SubGroupMapper.toDto(subGroup);
         return subGroupDTO;
     }
@@ -338,5 +341,17 @@ public class SubGroupService {
     
         subGroupCharRepository.saveAll(links);
         return SubGroupMapper.toDto(subGroup);
+    }
+
+     /**
+     * Retrieves the number of instruments of a subgroup.
+     * 
+     * This method uses a specific function of the repository to fetch the number of instruments contained in the
+     * categories related to the subgroup.
+     * @param subGroupId the id of the subgroup whose instruments have to be counted.
+     * @return an integer being the number of instruments.
+     */
+    public Integer nbInstrOfSubGroup(Long subGroupId){
+        return subGroupRepository.nbInstrOfSubGroup(subGroupId);
     }
 }

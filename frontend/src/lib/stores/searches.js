@@ -14,6 +14,7 @@ export let charValues = writable({});
 export let groups = writable([]);
 export let subGroups = writable([]);
 export let characteristics = writable([]);
+export let autocompleteOptions = writable({});
 export let instrumentCharacteristics = writable([]);
 export let category_to_addInstrument = writable(null);
 export let categories = writable([]);
@@ -38,7 +39,6 @@ export let findSubGroupsStore = writable(null);
 export let findCharacteristicsStore = writable(null);
 export let findOrdersNamesStore = writable(null);
 export let selectedOrderId = writable(null);
-export let userId = writable(1); //default value because for now no user but change!!
 export let orders = writable(null);
 export let alternatives = writable([]);
 

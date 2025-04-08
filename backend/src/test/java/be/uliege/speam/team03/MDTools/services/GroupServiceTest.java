@@ -32,6 +32,9 @@ class GroupServiceTest {
    @Mock
    private SubGroupCharacteristicRepository subGroupCharRepository;
 
+   @Mock
+   private SubGroupService subGroupService;
+
    @InjectMocks
    private GroupService groupService;
 
@@ -244,10 +247,14 @@ class GroupServiceTest {
       // Arrange
       Group group1 = new Group("Group1");
       group1.setInstrCount(10);
+      group1.setId(1L);
       Group group2 = new Group("Group2");
       group2.setInstrCount(20);
+      group2.setId(2L);
 
       when(groupRepository.findAll()).thenReturn(Arrays.asList(group1, group2));
+      when(groupRepository.nbInstrOfGroup(1L)).thenReturn(10);
+      when(groupRepository.nbInstrOfGroup(2L)).thenReturn(20);
 
       // Act
       List<GroupSummaryDTO> result = groupService.getGroupsSummary();

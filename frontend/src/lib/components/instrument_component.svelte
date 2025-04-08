@@ -8,7 +8,8 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
     import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, 
-        hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, hoveredAlternativeIndex} from "$lib/stores/searches";   
+        hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, hoveredAlternativeIndex,
+        showCategories} from "$lib/stores/searches";   
     import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
@@ -79,7 +80,19 @@
     <table data-testid = "suppliers-table" class="w-full border-collapse">
         <thead>
             <tr class="bg-white text-teal-400">
+                {#if $isEditing && $selectedCategoryIndex >=0 && $selectedCategoryIndex !== null && $selectedCategoryIndex !== '' }
+                <th colspan="2" class="text-center py-2">
+                    <button class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                    onclick={() => {
+                        const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
+                        modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
+                        }}>
+                        Ajouter
+                    </button>
+                </th>
+                {:else}
                 <th colspan="2"></th>
+                {/if}
                 <th colspan="3" class="text-center py-2">Instruments</th>
             </tr>
             <tr class="bg-teal-400">
@@ -89,7 +102,15 @@
             {#if notEditing}
                 <th class="text-center border border-solid border-[black]">
                 <div class="flex justify-center items-center">
-                    <Icon icon="material-symbols:shopping-basket-outline" width="24" height="24" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                        <path d="m15 11-1 9"/>
+                        <path d="m19 11-4-7"/>
+                        <path d="M2 11h20"/>
+                        <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+                        <path d="M4.5 15.5h15"/>
+                        <path d="m5 11 4-7"/>
+                        <path d="m9 11 1 9"/>
+                        </svg>
                 </div>
                 </th>
             {/if}
@@ -128,24 +149,9 @@
             {/each}
         </tbody>
     </table>
-    {#if $isEditing}
-       {#if $isAdmin}
-            <div class="flex justify-center">
-                <button
-                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition"
-                    onclick={() => {
-                    const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
-                    modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
-                    }}
-                >
-                     Ajouter un instrument
-                </button>
-            </div>
-        {/if}
-    {/if}
 
     <!-- TABLE OF THE ALTERNATIVES -->
-    <table class="table-fixed w-full border-collapse mt-4">
+    <table class="w-full border-collapse mt-4">
         <thead>
             <tr class="bg-white text-teal-400">
                 <th colspan="2" class="text-center py-2">
@@ -163,7 +169,15 @@
             {#if notEditing}
             <th class="border border-solid border-black">
                 <div class="flex justify-center items-center">
-                    <Icon icon="material-symbols:shopping-basket-outline" width="24" height="24" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                        <path d="m15 11-1 9"/>
+                        <path d="m19 11-4-7"/>
+                        <path d="M2 11h20"/>
+                        <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+                        <path d="M4.5 15.5h15"/>
+                        <path d="m5 11 4-7"/>
+                        <path d="m9 11 1 9"/>
+                    </svg>
                 </div>
             </th>            
             {/if}

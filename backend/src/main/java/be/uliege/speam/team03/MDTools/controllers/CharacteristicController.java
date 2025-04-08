@@ -3,9 +3,11 @@ package be.uliege.speam.team03.MDTools.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.CharacteristicService;
 import lombok.AllArgsConstructor;
 
@@ -30,5 +32,11 @@ public class CharacteristicController {
     public ResponseEntity<List<String>> getAllCharacteristics() {
         List<String> names = characteristicService.getAllCharacteristicNames();
         return ResponseEntity.status(HttpStatus.OK).body(names);
+    }
+
+    @GetMapping("/{charName}/values-in/{subGroupName}")
+    public ResponseEntity<List<String>> getPossibleValuesOfChar(@PathVariable String charName, @PathVariable String subGroupName) throws ResourceNotFoundException{
+        List<String> values = characteristicService.getPossibleValuesOfChar(charName, subGroupName);
+        return ResponseEntity.status(HttpStatus.OK).body(values);
     }
 }

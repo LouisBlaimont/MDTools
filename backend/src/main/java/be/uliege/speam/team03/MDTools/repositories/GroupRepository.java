@@ -2,6 +2,7 @@ package be.uliege.speam.team03.MDTools.repositories;
 
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import be.uliege.speam.team03.MDTools.models.Group;
@@ -29,4 +30,12 @@ public interface GroupRepository extends CrudRepository<Group, Long>{
      * @return
      */
     Optional<Group> findById(Integer id);
+
+    /**
+     * Retrieves the number of instruments in the group given by groupId.
+     * @param groupId
+     * @return
+     */
+    @Query("SELECT COUNT(i) FROM Instruments i WHERE i.category.subGroup.group.id = :groupId")
+    int nbInstrOfGroup(Long groupId);
 }
