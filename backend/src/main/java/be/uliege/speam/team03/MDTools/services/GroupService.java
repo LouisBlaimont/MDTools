@@ -56,6 +56,7 @@ public class GroupService {
     private final CharacteristicRepository charRepository;
     private final SubGroupRepository subGroupRepository;
     private final SubGroupCharacteristicRepository subGroupCharRepository;
+    private final SubGroupService subGroupService;
 
     private final PictureStorageService pictureStorageService;
 
@@ -66,6 +67,12 @@ public class GroupService {
      */
     public List<GroupDTO> findAllGroups(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
+        groups.forEach(group -> {
+            group.setInstrCount(nbInstrOfGroup(group.getId()));
+            group.getSubGroups().forEach(subgroup -> 
+                subgroup.setInstrCount(subGroupService.nbInstrOfSubGroup(subgroup.getId()))
+            );
+        });
         List<GroupDTO> groupsDTO = groups.stream()
             .map(GroupMapper::toDto)
             .toList();
@@ -84,7 +91,8 @@ public class GroupService {
             return null;
         }
         Group group = groupMaybe.get();
-
+        group.setInstrCount(nbInstrOfGroup(groupId.longValue()));
+        group.getSubGroups().forEach(subgroup -> subgroup.setInstrCount(subGroupService.nbInstrOfSubGroup(subgroup.getId())));
         GroupDTO groupDTO = GroupMapper.toDto(group);
         return groupDTO;
     }
@@ -101,7 +109,8 @@ public class GroupService {
             return null;
         }
         Group group = groupMaybe.get();
-
+        group.setInstrCount(nbInstrOfGroup(group.getId()));
+        group.getSubGroups().forEach(subgroup -> subgroup.setInstrCount(subGroupService.nbInstrOfSubGroup(subgroup.getId())));
         GroupDTO groupDTO = GroupMapper.toDto(group);
         return groupDTO;
     }
@@ -240,6 +249,18 @@ public class GroupService {
     }
 
     /**
+     * Retrieves the number of instruments of a group
+     * 
+     * This method uses a specific function of the repository to fetch the number of instruments contained in the
+     * categories related to the subgroups of the group.
+     * @param groupId the id of the group whose instruments have to be counted.
+     * @return an integer being the number of instruments.
+     */
+    public Integer nbInstrOfGroup(Long groupId){
+        return groupRepository.nbInstrOfGroup(groupId);
+    }
+
+    /**
      * Retrieves a summary of all groups.
      *
      * This method fetches all groups from the repository and maps them to a list of
@@ -249,7 +270,7 @@ public class GroupService {
      */
     public List<GroupSummaryDTO> getGroupsSummary(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
-        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), group.getInstrCount(), group.getPictureId())).toList();
+        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), nbInstrOfGroup(group.getId()), group.getPictureId())).toList();
         return groupsSummaryDTO;
     }
 

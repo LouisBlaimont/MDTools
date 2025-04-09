@@ -30,11 +30,6 @@ public class Group {
     @Column(name="picture_id", nullable = true)
     private Long pictureId;
 
-    @PostLoad //happens each time data is fetched, replaced, .. in the DB so I must add cond so that it doesn't change the number when patch and get (post value is manually given)
-    void calculateInstrumentCount() {
-        this.instrCount = 3;
-    }
-
     public Group(String groupName){
         this.name = groupName;
     }
@@ -47,6 +42,5 @@ public class Group {
         if (instrCount < 0){
             instrCount=0;
         }
-
     }
 }

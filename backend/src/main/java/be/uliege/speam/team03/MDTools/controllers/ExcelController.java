@@ -27,7 +27,6 @@ public class ExcelController {
      */
     @RequestMapping(value = "/excel", method = RequestMethod.OPTIONS)
     public ResponseEntity<?> handleOptions() {
-        logger.info("✅ Preflight OPTIONS request received!");
         return ResponseEntity.ok().build();
     }
 
