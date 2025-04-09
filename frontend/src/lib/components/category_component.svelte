@@ -84,7 +84,6 @@
         currentSuppliers.set([]);
         alternatives.set([]);
         selectedCategoryIndex.set(index);
-        console.log(imageRefs);
         // Scroll the corresponding image into view
         if (imageRefs[index] instanceof HTMLElement) {
             imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -270,12 +269,7 @@
             {/if}
         </table>
         
-
-
     <!-- PASS IN ADMIN MODE -->
-    {#if $isAdmin}
-        <EditButton />
-    {/if}
     {#if $isEditing}
     {#if $isAdmin}
             <div class="flex justify-center">

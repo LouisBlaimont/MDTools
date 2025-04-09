@@ -407,6 +407,7 @@
 
     showAutocompleteDropdown = true;
   }
+  
   //change with addAlternative(row) after adding search by keyword
   function addAlternative(){
     const errorSameSupp = document.getElementById("error-same-supplier");
