@@ -174,7 +174,7 @@
       on:mouseup={stopDrag}
     >
       <div
-        class="bg-white rounded-lg shadow-lg w-1/2 absolute"
+        class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
         style="transform: translate({posX}px, {posY}px);"
       >
         <div
@@ -196,6 +196,7 @@
                 on:input={handleAutocompleteInput}
                 on:blur={closeAutocomplete}
                 class="w-full p-2 border rounded mb-4"
+                placeholder="Entrer le nom du fournisseur"
               />
               {#if showAutocompleteDropdown && currentAutocompleteField === "name"}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -215,7 +216,7 @@
               {/if}
             </div>
 
-            <label class="block mb-2">En vente:</label>
+            <label class="block">En vente:</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
