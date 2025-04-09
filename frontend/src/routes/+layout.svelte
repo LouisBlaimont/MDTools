@@ -178,19 +178,19 @@
                 >
                   <button 
                     class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
-                    onclick={() => {modals.open(addInstrumentModal, { initInstrument: null, initCategory: null }); closeManageMenu();}}
+                    onclick={() => { closeManageMenu(); closeMoreMenu(); modals.open(addInstrumentModal, { initInstrument: null, initCategory: null });}}
                   >
                     Add Instrument
                   </button>
                   <button 
                     class="block px-4 py-2 hover:bg-teal-400 transition"
-                    onclick={() =>{ modals.open(addSupplierModal); closeManageMenu();}}
+                    onclick={() =>{ closeManageMenu(); closeMoreMenu(); modals.open(addSupplierModal);}}
                   >
                     Add Supplier
                   </button>
                   <button 
                     class="block px-4 py-2 hover:bg-teal-400 transition"
-                    onclick={() => {modals.open(addCategoryModal); closeManageMenu();}}
+                    onclick={() => {closeManageMenu(); closeMoreMenu(); modals.open(addCategoryModal);}}
                   >
                     Add Category
                   </button>

@@ -185,7 +185,7 @@
     on:mouseup={stopDrag}
   >
     <div
-      class="bg-white rounded-lg shadow-lg w-1/2 absolute"
+      class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
       style="transform: translate({posX}px, {posY}px);"
     >
       <div
