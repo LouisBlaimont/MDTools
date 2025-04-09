@@ -5,6 +5,7 @@
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { modals } from "svelte-modals";
+  import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
   import { ROLES } from "../constants";
   import { ordersNames, selectedOrderId } from "$lib/stores/searches";
   import { user, isAdmin, isWebmaster, isLoggedIn, userId } from "$lib/stores/user_stores";
@@ -132,6 +133,12 @@
     findOrderItems($selectedOrderId);
     goto(`/single_order_view?name=${name}`);
   }
+
+  async function editInstrumentButton() {
+    event.stopPropagation();
+    await modals.open(AddGroupModal);
+  }
+
 </script>
 
 <svelte:head>
@@ -193,6 +200,7 @@
           <div class="flex flex-col">
             <a href="/admin/add_group"><button
               class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
+              onclick={() => modals.open(AddGroupModal)}
               >Ajouter un groupe</button
             ></a>
           </div>
