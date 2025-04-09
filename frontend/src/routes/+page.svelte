@@ -2,10 +2,11 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
-  import editGroupModal from "$lib/modals/editGroupModal.svelte";
-  import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { modals } from "svelte-modals";
   import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
+  import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
+  import editGroupModal from "$lib/modals/editGroupModal.svelte";
+  import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
   import { ROLES } from "../constants";
   import { ordersNames, selectedOrderId } from "$lib/stores/searches";
   import { user, isAdmin, isWebmaster, isLoggedIn, userId } from "$lib/stores/user_stores";
@@ -16,6 +17,17 @@
   import Icon from "@iconify/svelte";
 
   let groups_summary = $state([]);
+
+  // deal with the "add group" and "add subgroup" buttons
+  let selected = $state(true);
+  $effect(() => {
+    if (isAdmin && selectedGroup) {
+      selected = false;
+    }
+    if (isAdmin && !selectedGroup) {
+      selected = true;
+    }
+  });
 
   async function fecthData() {
     try {
@@ -119,6 +131,7 @@
     moveToSearches(group.name, subgroup.name);
   }
 
+  /* Handling the orders */
   function seePreviousOrders() {
     goto("/previous_orders");
   }
@@ -132,11 +145,6 @@
     const name = getSelectedOrderName($selectedOrderId);
     findOrderItems($selectedOrderId);
     goto(`/single_order_view?name=${name}`);
-  }
-
-  async function editInstrumentButton() {
-    event.stopPropagation();
-    await modals.open(AddGroupModal);
   }
 
 </script>
@@ -196,23 +204,6 @@
           class="w-full bg-teal-500 text-white py-3 rounded-lg hover:bg-teal-600 text-lg mt-2"
           >Rechercher</button
         ></a>
-        {#if $isAdmin}
-          <div class="flex flex-col">
-            <a href="/admin/add_group"><button
-              class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-              onclick={() => modals.open(AddGroupModal)}
-              >Ajouter un groupe</button
-            ></a>
-          </div>
-          {#if selectedGroup}
-            <div class="flex flex-col">
-              <a href="/admin/add_subgroup"><button
-                class="w-full bg-yellow-400 text-white py-3 rounded-lg hover:bg-yellow-500 text-lg"
-                >Ajouter un sous-groupe</button
-              ></a>
-            </div>
-          {/if}
-        {/if}
       </form>
     </div>
 
@@ -274,6 +265,26 @@
           >
             <Icon icon="material-symbols:edit" width="24" height="24" />
           </button>
+        {/if}
+        {#if $isAdmin}
+          {#if selected}
+            <div class="flex flex-col">
+              <button
+              class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              onclick={()=> modals.open(AddGroupModal)}
+              >Ajouter un groupe</button
+            >
+            </div>
+          {/if}
+          {#if selectedGroup}
+          <div class="flex flex-col">
+            <button
+              class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              onclick={()=> modals.open(AddSubGroupModal)}
+              >Ajouter un sous-groupe</button
+            >
+          </div>
+          {/if}
         {/if}
       </div>
 
