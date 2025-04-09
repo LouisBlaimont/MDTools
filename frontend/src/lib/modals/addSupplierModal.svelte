@@ -216,7 +216,7 @@
               {/if}
             </div>
 
-            <label class="block mb-2">En vente:</label>
+            <label class="block">En vente:</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input

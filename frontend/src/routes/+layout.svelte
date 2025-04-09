@@ -155,7 +155,7 @@
           {/if}
           {#if $isAdmin || $isWebmaster}
             <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Utilisateurs</a>
-            <a href="/admin/suppliers" class="block px-4 py-2 hover:bg-teal-400 transition">Fournisseurs</a>
+            <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Fournisseurs</a>
             <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
             
             {#if $isWebmaster}
@@ -168,7 +168,7 @@
                 onclick={toggleManageMenu}
                 class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full flex items-center gap-1"
               >
-                Add
+                Ajouter
                 <span class="text-xs">{showManageMenu ? "▲" : "▼"}</span>
               </button>
 
@@ -181,19 +181,19 @@
                     class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
                     onclick={() => { closeManageMenu(); closeMoreMenu(); modals.open(addInstrumentModal, { initInstrument: null, initCategory: null });}}
                   >
-                    Add Instrument
+                    Ajouter un instrument
                   </button>
                   <button 
-                    class="block px-4 py-2 hover:bg-teal-400 transition"
+                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
                     onclick={() =>{ closeManageMenu(); closeMoreMenu(); modals.open(addSupplierModal);}}
                   >
-                    Add Supplier
+                    Ajouter un fournisseur
                   </button>
                   <button 
-                    class="block px-4 py-2 hover:bg-teal-400 transition"
+                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
                     onclick={() => {closeManageMenu(); closeMoreMenu(); modals.open(addCategoryModal);}}
                   >
-                    Add Category
+                    Ajouter une catégorie
                   </button>
                 </div>
               {/if}
