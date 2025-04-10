@@ -1,20 +1,31 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
-import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.repositories.*;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.Group;
+import be.uliege.speam.team03.MDTools.models.SubGroup;
+import be.uliege.speam.team03.MDTools.repositories.CategoryCharacteristicRepository;
+import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
+import be.uliege.speam.team03.MDTools.repositories.CharacteristicRepository;
+import be.uliege.speam.team03.MDTools.repositories.GroupRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 
 class CategoryServiceTest {
 
@@ -53,7 +64,7 @@ class CategoryServiceTest {
             subGroup.setName("TestSubGroup");
 
             Category category = new Category();
-            category.setId(1);
+            category.setId((long) 1);
             category.setSubGroup(subGroup);
             category.setShape("Round");
 
@@ -99,7 +110,7 @@ class CategoryServiceTest {
             subGroup.setGroup(group);
 
             Category category = new Category();
-            category.setId(1);
+            category.setId((long) 1);
             category.setSubGroup(subGroup);
             category.setShape("Round");
 

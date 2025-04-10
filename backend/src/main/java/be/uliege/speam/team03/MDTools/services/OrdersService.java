@@ -40,7 +40,7 @@ public class OrdersService {
      * @param id
      * @return List of OrdersDTO
      */
-    public List<OrderItemDTO> findInstrumentsOfOrder(Integer id){
+    public List<OrderItemDTO> findInstrumentsOfOrder(Long id){
         Optional<Orders> orderMaybe = ordersRepository.findById(id);
         if(orderMaybe.isEmpty()){
             throw new ResourceNotFoundException("Order not found.");  
@@ -62,7 +62,7 @@ public class OrdersService {
      * @param id
      * @return List of String (names of orders)
      */
-    public List<OrdersDTO> findOrdersOfUser(Integer id){
+    public List<OrdersDTO> findOrdersOfUser(Long id){
         Optional<User> userMaybe = userRepository.findByUserId(id);
         if(userMaybe.isEmpty()){
             throw new ResourceNotFoundException("User not found.");
@@ -77,9 +77,9 @@ public class OrdersService {
      * @return List of OrderItemDTO
      */
     public List<OrderItemDTO> addInstrumentToOrder(Map<String, Object> body){
-        Integer orderId = (Integer) body.get("orderId");
-        Integer userId = (Integer) body.get("userId");
-        Integer instrumentId = (Integer) body.get("instrId");
+        Long orderId = (Long) body.get("orderId");
+        Long userId = (Long) body.get("userId");
+        Long instrumentId = (Long) body.get("instrId");
 
         Optional<User> userMaybe = userRepository.findByUserId(userId);
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
@@ -137,7 +137,7 @@ public class OrdersService {
      * @param instrumentId Id of the instrument to be removed
      * @return True if instrument was successfully removed, else throws an error
      */
-    public List<OrderItemDTO> removeInstrumentFromOrder(Integer orderId, Integer userId, Integer instrumentId){
+    public List<OrderItemDTO> removeInstrumentFromOrder(Long orderId, Long userId, Long instrumentId){
         Optional<User> userMaybe = userRepository.findByUserId(userId);
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(instrumentId);
@@ -174,7 +174,7 @@ public class OrdersService {
      * @return True if successfully created
      */
     public List<OrdersDTO> createNewOrder(Map<String, Object> body){
-        Integer userId = (Integer) body.get("userId");
+        Long userId = (Long) body.get("userId");
         String orderName = (String) body.get("orderName");
 
         Optional<User> userMaybe = userRepository.findByUserId(userId);
@@ -202,7 +202,7 @@ public class OrdersService {
      * @param orderId
      * @return true if order successfully deleted
      */
-    public Boolean removeOrder(Integer orderId){
+    public Boolean removeOrder(Long orderId){
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
 
         if(orderMaybe.isEmpty()){
@@ -224,7 +224,7 @@ public class OrdersService {
      * @param body
      * @return
      */
-    public List<OrderItemDTO> editOrder(Integer orderId, Map<String, Object> body){
+    public List<OrderItemDTO> editOrder(Long orderId, Map<String, Object> body){
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
 
         if(orderMaybe.isEmpty()){
@@ -232,7 +232,7 @@ public class OrdersService {
         }
 
         Orders order = orderMaybe.get();
-        Integer userId = order.getUserId();
+        Long userId = order.getUserId();
 
         String newName = (String) body.get("orderName");
         if(newName == null){

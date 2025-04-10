@@ -24,7 +24,7 @@ public class Instruments {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "instrument_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")

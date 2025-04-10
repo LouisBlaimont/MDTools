@@ -1,18 +1,19 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import java.time.Instant;
-import java.util.Optional;
 import java.sql.Timestamp;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
-import be.uliege.speam.team03.MDTools.exception.*;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.UserMapper;
 import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.repositories.UserRepository;
@@ -119,7 +120,7 @@ public class UserService {
             throw new BadRequestException("Invalid email address.");
          }
          Optional<User> user = userRepository.findByEmail(email);
-         if (user.isPresent() && user.get().getUserId() != userToUpdate.getUserId()) {
+         if (user.isPresent() && !Objects.equals(user.get().getUserId(), userToUpdate.getUserId())) {
             throw new BadRequestException("User with email " + email + " already exists.");
          }
          userToUpdate.setEmail(email);
@@ -127,7 +128,7 @@ public class UserService {
       String newUsername = (String) body.get("username");
       if (newUsername != null) {
          Optional<User> user = userRepository.findByUsername(newUsername);
-         if (user.isPresent() && user.get().getUserId() != userToUpdate.getUserId()) {
+         if (user.isPresent() && !Objects.equals(user.get().getUserId(), userToUpdate.getUserId())) {
             throw new BadRequestException("User with username " + newUsername + " already exists.");
          }
          userToUpdate.setUsername(newUsername);

@@ -10,5 +10,5 @@ import be.uliege.speam.team03.MDTools.models.OrderItems;
 
 public interface OrderItemsRepository extends CrudRepository<OrderItems, OrderItemsKey>{
     @Query("SELECT oi FROM OrderItems oi WHERE oi.order.id = :orderId")
-    List<OrderItems> findOrderItemsByOrderId(Integer orderId);
+    List<OrderItems> findOrderItemsByOrderId(Long orderId);
 }

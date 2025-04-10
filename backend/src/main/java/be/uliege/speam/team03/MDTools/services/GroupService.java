@@ -85,7 +85,7 @@ public class GroupService {
      * @param groupId
      * @return
      */
-    public GroupDTO findGroupById(Integer groupId){
+    public GroupDTO findGroupById(Long groupId){
         Optional<Group> groupMaybe = groupRepository.findById(groupId);
         if (groupMaybe.isPresent() == false){
             return null;

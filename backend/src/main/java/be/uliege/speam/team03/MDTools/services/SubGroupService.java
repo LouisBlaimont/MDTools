@@ -12,8 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.SubGroupCharacteristicKey;
-import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.GroupMapper;
 import be.uliege.speam.team03.MDTools.mapper.SubGroupMapper;
 import be.uliege.speam.team03.MDTools.models.Characteristic;
@@ -176,7 +176,7 @@ public class SubGroupService {
      * @return
      * @throws ResourceNotFoundException
      */
-    public SubGroupDTO findSubGroupById(Integer id) throws ResourceNotFoundException {
+    public SubGroupDTO findSubGroupById(Long id) throws ResourceNotFoundException {
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findById(id);
         if (subgroupMaybe.isEmpty())
             throw new ResourceNotFoundException("Subgroup not found.");

@@ -1,16 +1,19 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
-import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.repositories.*;
-import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.mapper.SupplierMapper;
+import be.uliege.speam.team03.MDTools.models.Supplier;
+import be.uliege.speam.team03.MDTools.repositories.SupplierPageRepository;
+import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Service
@@ -78,7 +81,7 @@ public class SupplierService {
      * @param supplierId the ID of the supplier to find
      * @return the SupplierDTO with the specified ID, or null if no supplier is found
      */
-    public SupplierDTO findSupplierById(Integer supplierId) {
+    public SupplierDTO findSupplierById(Long supplierId) {
         Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
         return supplierMaybe.map(supplierMapper::convertToDTO).orElse(null);
     }
@@ -88,7 +91,7 @@ public class SupplierService {
      * 
      * @return the maximum supplier ID
      */
-    public Integer findMaxSupplierId() {
+    public Long findMaxSupplierId() {
         return supplierRepository.findMaxSupplierId();
     }
 
@@ -119,7 +122,7 @@ public class SupplierService {
      * @param supplierId the ID of the supplier to delete
      * @throws IllegalArgumentException if the supplier ID is null or empty
      */
-    public void deleteSupplierById(Integer supplierId) {
+    public void deleteSupplierById(Long supplierId) {
         if (supplierId == null || supplierId <= 0) {
             throw new IllegalArgumentException("Supplier ID cannot be null or empty");
         }

@@ -12,7 +12,7 @@ import be.uliege.speam.team03.MDTools.models.SubGroup;
  * Repository interface for managing SubGroup entities.
  * Extends the CrudRepository interface to provide CRUD operations.
  */
-public interface SubGroupRepository extends CrudRepository<SubGroup, Integer>{
+public interface SubGroupRepository extends CrudRepository<SubGroup, Long>{
     /**
      * Finds and returns a list of SubGroup entities that belong to the specified Group.
      *

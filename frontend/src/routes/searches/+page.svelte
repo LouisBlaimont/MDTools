@@ -21,6 +21,7 @@
   import { modals } from "svelte-modals";
   import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
   import { apiFetch } from "$lib/utils/fetch.js";
+  import {startResizeRightToLeft, startResizeLeftToRight, startResizeVertical} from "$lib/resizableUtils";
   import { _ } from "svelte-i18n";
 
 

@@ -17,10 +17,10 @@ import lombok.Setter;
 @Embeddable
 public class OrderItemsKey implements Serializable{
     @Column(name="order_id")
-    private Integer orderId;
+    private Long orderId;
 
     @Column(name="instrument_id")
-    private Integer instrumentId;
+    private Long instrumentId;
 
     @Override
     public boolean equals(Object o){

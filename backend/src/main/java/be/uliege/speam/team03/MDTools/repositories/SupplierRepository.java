@@ -6,17 +6,16 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Repository;
 
 import be.uliege.speam.team03.MDTools.models.Supplier;
 
-import org.springframework.stereotype.Repository;
-
 
 @Repository
-public interface SupplierRepository extends CrudRepository<Supplier, Integer> {
+public interface SupplierRepository extends CrudRepository<Supplier, Long> {
     Optional<Supplier> findBySupplierName(String supplierName);
     @NonNull
-    Optional<Supplier> findById(@NonNull Integer supplierId);
+    Optional<Supplier> findById(@NonNull Long supplierId);
     @NonNull
     List<Supplier> findAll();
 
@@ -26,5 +25,5 @@ public interface SupplierRepository extends CrudRepository<Supplier, Integer> {
      * @return the maximum supplier ID, or 0 if no suppliers are found
      */
     @Query("SELECT COALESCE(MAX(s.id), 0) FROM Supplier s")
-    Integer findMaxSupplierId();
+    Long findMaxSupplierId();
 }

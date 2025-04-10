@@ -29,7 +29,7 @@ public interface GroupRepository extends CrudRepository<Group, Long>{
      * @param id
      * @return
      */
-    Optional<Group> findById(Integer id);
+    Optional<Group> findById(Long id);
 
     /**
      * Retrieves the number of instruments in the group given by groupId.

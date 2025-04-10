@@ -28,7 +28,7 @@ public class AlternativesController {
     private final AlternativeService alternativeService;
 
     @GetMapping("/user/instrument/{instrId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrUser(@PathVariable Integer instrId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrUser(@PathVariable Long instrId) {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesUser(instrId);
         if (alternatives == null || alternatives.isEmpty()){
             throw new ResourceNotFoundException("No alternatives found for the instrument :" + instrId);
@@ -37,7 +37,7 @@ public class AlternativesController {
     }
 
     @GetMapping("/admin/instrument/{instrId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrAdmin(@PathVariable Integer instrId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrAdmin(@PathVariable Long instrId) {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesAdmin(instrId);
         if (alternatives == null || alternatives.isEmpty()){
             throw new ResourceNotFoundException("No alternatives found for the instrument :" + instrId);
@@ -46,7 +46,7 @@ public class AlternativesController {
     }
 
     @GetMapping("/user/category/{categoryId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryUser(@PathVariable Integer categoryId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryUser(@PathVariable Long categoryId) {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesOfCategoryUser(categoryId);
         if (alternatives == null || alternatives.isEmpty()){
             throw new ResourceNotFoundException("No alternatives found for the category :" + categoryId);
@@ -55,7 +55,7 @@ public class AlternativesController {
     }
 
     @GetMapping("/admin/category/{categoryId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryAdmin(@PathVariable Integer categoryId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryAdmin(@PathVariable Long categoryId) {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesOfCategoryAdmin(categoryId);
         if (alternatives == null || alternatives.isEmpty()){
             throw new ResourceNotFoundException("No alternatives found for the category :" + categoryId);
@@ -74,7 +74,7 @@ public class AlternativesController {
 
 
     @DeleteMapping("{altId}/category/{categoryId}")
-    public ResponseEntity<?> deleteAlternativeFromcategory(@PathVariable Integer altId, @PathVariable Integer categoryId){
+    public ResponseEntity<?> deleteAlternativeFromcategory(@PathVariable Long altId, @PathVariable Long categoryId){
         Boolean deleted = alternativeService.removeAlternativeFromCategory(categoryId, altId);
         if (deleted != true){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete alternative");
@@ -83,7 +83,7 @@ public class AlternativesController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addAlternative(@RequestParam Integer instr1, @RequestParam Integer instr2) {
+    public ResponseEntity<?> addAlternative(@RequestParam Long instr1, @RequestParam Long instr2) {
         try {
             List<InstrumentDTO> newAlternative = alternativeService.addAlternative(instr1, instr2);
             return ResponseEntity.status(HttpStatus.OK).body(newAlternative);
@@ -95,7 +95,7 @@ public class AlternativesController {
     }
 
     @DeleteMapping("{altId}/instrument/{instrId}")
-    public ResponseEntity<?> deleteAlternative(@PathVariable Integer instrId, @PathVariable Integer altId){
+    public ResponseEntity<?> deleteAlternative(@PathVariable Long instrId, @PathVariable Long altId){
         List<InstrumentDTO> newAltOfCat = alternativeService.removeAlternative(instrId, altId);
         if (newAltOfCat == null || newAltOfCat.isEmpty()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete alternative");
