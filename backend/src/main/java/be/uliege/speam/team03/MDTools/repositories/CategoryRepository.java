@@ -57,4 +57,5 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
      *         not found.
      */
     Optional<Category> findById(Integer category_id);
+
 }

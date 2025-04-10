@@ -91,9 +91,9 @@
             console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
         }
 
-    // selecting the categoryId
-    const cat = $categories[$selectedCategoryIndex];
-    const categoryId = $categories[$selectedCategoryIndex].id;
+      // selecting the categoryId
+      const cat = $categories[$selectedCategoryIndex];
+      const categoryId = $categories[$selectedCategoryIndex].id;
 
         try{
             const response = await apiFetch(`/api/category/instruments/${categoryId}`);

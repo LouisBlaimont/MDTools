@@ -1,18 +1,49 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
-    import { isEditing, orderItems, reload, selectedCategoryIndex, 
-        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
-        showChars, charValues, currentSuppliers, categories, characteristics, 
-        showSubGroups, showCategories, subGroups, groups, errorMessage, 
-    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, autocompleteOptions} from "$lib/stores/searches";    
-    import { apiFetch } from "$lib/utils/fetch";   
-    import { toast } from "@zerodevx/svelte-toast";
-    import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
-  let showAddCharacteristicModal = false;
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import { preventDefault } from "svelte/legacy";
+  import { get } from "svelte/store";
+  import { isEditing, orderItems, reload, selectedCategoryIndex, 
+      selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
+      showChars, charValues, currentSuppliers, categories, characteristics, 
+      showSubGroups, showCategories, subGroups, groups, errorMessage, 
+  findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, categories_pageable, keywords2, keywordsResult2, autocompleteOptions}
+  from "$lib/stores/searches";    
+  import { apiFetch } from "$lib/utils/fetch";
+  import { browser } from "$app/environment";
+  import { derived } from 'svelte/store';
+  import { toast } from "@zerodevx/svelte-toast";
+  import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
+  let showAddCharacteristicModal = $state(false);
+
+  let page_size = 2;
+
+  export const updateURLParams = derived(
+    [selectedGroup, selectedSubGroup],  // Dependencies
+    ([$selectedGroup, $selectedSubGroup]) => {
+      if (!browser) return; // Only run in browser environment
+
+      // Get the current URL from the page store
+      const currentUrl = new URL($page.url);
+
+      // Update the URL with group and subgroup parameters
+      if ($selectedGroup) {
+        currentUrl.searchParams.set("group", $selectedGroup);
+      } else {
+        currentUrl.searchParams.delete("group");
+      }
+
+      if ($selectedSubGroup) {
+        currentUrl.searchParams.set("subgroup", $selectedSubGroup);
+      } else {
+        currentUrl.searchParams.delete("subgroup");
+      }
+
+      // Use Svelte's goto function to update the URL (replaceState prevents page reload)
+      goto(currentUrl.toString(), { replaceState: true, noScroll: true });
+    }
+  );
 
   // Initialize from URL params when component mounts
   onMount(() => {
@@ -254,6 +285,82 @@
   findSubGroupsStore.set(findSubGroups);
   findCharacteristicsStore.set(findCharacteristics);
 
+
+  /* Dealing with the search by keywords */
+  let showKeywordsResult = $state(false);
+  let clickTimeout = 500;
+
+  // goto searches with the selected instrument found by keywords
+  async function moveToSearchesBis(group, subgroup, catId, instrumentId) {
+    clearTimeout(clickTimeout);
+    // handle when the instrument has no category
+    if (catId == null) {
+      await modals.open(editInstrumentModal, { 
+        instrument,
+        message: "You need to assign a category to this instrument!" 
+      });
+    }
+    keywords2.set(null);
+    goto(
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup)}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
+    );
+    reload.set(true);
+  }
+
+  // function to handle the keyword inputs and calling endpoint
+  let searchByKeywords = throttle(async () => {
+    try {
+      showKeywordsResult = false;
+      let data = null;
+      let params = new URLSearchParams();
+      $keywords2.split(",").forEach((element) => {
+        const keyword = element.trim();
+        if (keyword.length > 0) {
+          params.append("keywords", keyword);
+        }
+      });
+      if ($keywords2 == null) {
+        data = null;
+      }
+      else {
+        let response = await apiFetch(`/api/instrument/search?${params}`);
+        data = await response.json();
+        keywordsResult2.set(Array.isArray(data) ? data.slice(0, 5) : []);
+        if (Object.keys(data).length > 0) {
+          showKeywordsResult = true;
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+    }
+  }, 300);
+
+  // handles the delay between to search by keywords
+  function throttle(fn, delay) {
+    let lastCall = 0;
+    return (...args) => {
+      const now = Date.now();
+      if (now - lastCall >= delay) {
+        lastCall = now;
+        fn(...args);
+      }
+    };
+  }
+
+  // get category, group and subgroup from selected instrument, then call moveToSearchesBis
+  async function selectedInstrument(row) {
+    try {
+      let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
+      let cat = await response.json();
+      showKeywordsResult = false;
+      moveToSearchesBis(cat.groupName, cat.subGroupName, row.categoryId, row.id);
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+    }
+  }
+
   let autocompleteInput = '';
   let showAutocompleteDropDown = false;
   let filteredAutocompleteOptions = [];
@@ -336,18 +443,54 @@
   }
 </script>
 
-
-<div class="flex-1 ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
-    <form class="flex flex-col w-full mb-2.5">
-        <label for="google-search" class="font-semibold mt-1">Recherche par mot(s) clé(s):</label>
-        <input
+<div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
+  <form class="space-y-5">
+    <div class="relative w-full">
+      <label for="id_search_keyword" class="font-semibold">
+        Recherche par mot(s) clé(s):
+      </label>
+      
+      <input
         type="text"
-        class="border border-gray-400 rounded p-0.5 border-solid border-[black]"
-        id="google-search"
-        name="google-search"
+        name="search_keyword"
+        id="id_search_keyword"
+        autocomplete="off"
         placeholder="Entrez un mot clé"
-        />
-    </form>
+        class="p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-3/5 mb-1 "
+        bind:value={$keywords2}
+        oninput={searchByKeywords}
+      />
+    
+      <!-- Search results dropdown -->
+      {#if showKeywordsResult}
+        {#if $keywords2}
+          <ul
+            class="absolute left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto text-gray-800"
+            style="width: calc(100% + 80px);"
+          >
+            {#each $keywordsResult2 as row, index}
+              <!-- svelte-ignore a11y_click_events_have_key_events -->
+              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+              <li
+                class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
+                onclick={() => selectedInstrument(row)}
+              >
+                <span class="text-black">{row.reference}</span>
+                <span class="text-black">{row.supplier}</span>
+                <span
+                class="text-black line-clamp-2 w-full tooltip-container"
+                data-tooltip={row.supplierDescription}
+                title={row.supplierDescription} 
+                >
+                  {row.supplierDescription}
+                </span>                
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      {/if}
+    </div>
+  </form>
 
   <label class="font-semibold">Recherche par caractéristiques:</label>
   <div class="flex items-center">
@@ -355,8 +498,11 @@
       <select
       id="groupOptions"
       bind:value={$selectedGroup}
-      on:change={(e) => findSubGroups(e.target.value)}
-      >
+      onchange={(e) => {
+        selectedSubGroup.set("");
+        findSubGroups(e.target.value);
+      }}
+    >
       <option value="none">---</option>
       {#each $groups as group}
           <option value={group}>{group}</option>
@@ -368,9 +514,9 @@
       <div class="flex items-center">
       <label class="w-2/5 mb-2" for="subGroupOptions">Sous gp:</label>
       <select
-          id="subGroupOptions"
-          bind:value={$selectedSubGroup}
-          on:change={(e) => findCharacteristics(e.target.value)}
+        id="subGroupOptions"
+        bind:value={$selectedSubGroup}
+        onchange={(e) => findCharacteristics(e.target.value)}
       >
           <option value="none">---</option>
           {#each $subGroups as subGroup}
@@ -381,8 +527,8 @@
   {/if}
 
   {#if $showChars}
-    <form class="flex flex-col gap-2.5" on:submit|preventDefault={searchByCharacteristics}>
-        <div class="flex gap-2 mb-2 mt-4">
+    <form class="flex flex-col w-full gap-2.5" onsubmit={searchByCharacteristics} preventdefault>
+      <div class="flex gap-2 mb-2 mt-4">
         <button
             type="submit"
             class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm"
@@ -390,7 +536,7 @@
         <button
             type="button"
             class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm"
-            on:click={deleteAllCharacteristics}
+            onclick={deleteAllCharacteristics}
         >Tout effacer</button>
         </div>
 
@@ -407,7 +553,7 @@
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
                   placeholder="min"
                   bind:value={minLength}
-                  on:keydown={handleMinLengthInput}
+                  onkeydown={handleMinLengthInput}
                   autocomplete="off"
                   />
                   <input
@@ -418,13 +564,13 @@
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
                   placeholder="max"
                   bind:value={maxLength}
-                  on:keydown={handleMaxLengthInput}
+                  onkeydown={handleMaxLengthInput}
                   autocomplete="off"
                   />
               </div>
             <button
                 class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
-                on:click={() => deleteCharacteristic(char)}
+                onclick={() => deleteCharacteristic(char)}
             >&times;</button>
             </div>
         {:else}
@@ -438,15 +584,15 @@
                 name={char}
                 data-testid={char}
                 bind:value={$charValues[char]}
-                on:focus={() => triggerAutocomplete(char)}
-                on:input={handleAutocompleteInput}
+                onfocus={() => triggerAutocomplete(char)}
+                oninput={handleAutocompleteInput}
                 autocomplete="off"
                 />
                 {#if showAutocompleteDropDown && currentAutocompleteField === char}
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <ul 
                     class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
-                    on:mousedown={event => event.preventDefault()}
+                    onmousedown={event => event.preventDefault()}
                 >
                     {#each filteredAutocompleteOptions as option}
                     <!-- svelte-ignore a11y_role_has_required_aria_props -->
@@ -454,7 +600,7 @@
                         type="button"
                         class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
                         role="option"
-                        on:click={() => selectAutocompleteOption(option)}
+                        onclick={() => selectAutocompleteOption(option)}
                     >
                         {option}
                     </button>
@@ -464,7 +610,7 @@
             </div>
             <button
                 class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
-                on:click={() => deleteCharacteristic(char)}
+                onclick={() => deleteCharacteristic(char)}
             >&times;</button>
             </div>
         {/if}
@@ -473,7 +619,7 @@
         {#if $isEditing}
             <button
                 class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none self-end mt-2"
-                on:click={() => showAddCharacteristicModal = true}
+                onclick={() => showAddCharacteristicModal = true}
             >
                 Ajouter
             </button>

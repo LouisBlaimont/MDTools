@@ -7,17 +7,13 @@
     import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, quantity, currentSuppliers, hoveredSupplierImageIndex, 
-        hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, hoveredAlternativeIndex,
-        showCategories} from "$lib/stores/searches";   
+    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, 
+            quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, 
+            hoveredAlternativeIndex, showCategories} from "$lib/stores/searches";   
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
     import addCategoryModalFromInstrument from "$lib/modals/addCategoryModalFromInstrument.svelte";
-    import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";
-    
-    function selectSupplier(index) {
-        selectedSupplierIndex.set(index);
-    }
+    import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";    
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { apiFetch } from "$lib/utils/fetch";
@@ -26,6 +22,10 @@
     import Icon from "@iconify/svelte";
     
     $: notEditing = !$isEditing;
+
+    function selectSupplier(index) {
+        selectedSupplierIndex.set(index);
+    }
 
     function seeAllAlternatives(){
         console.log($selectedCategoryIndex);
