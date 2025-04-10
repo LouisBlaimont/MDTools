@@ -17,6 +17,7 @@
   import editInstrumentModal from "$lib/modals/editInstrumentModal.svelte";
   import { PUBLIC_API_URL } from "$env/static/public";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   let groups_summary = $state([]);
 
@@ -32,26 +33,21 @@
   });
 
   async function fetchData() {
-    try {
-      const response = await apiFetch("/api/groups/summary");
-
       if ($userId != null) {
         const response2 = await apiFetch(`/api/orders/user/${$userId}`);
         if (!response2.ok) {
           throw new Error(`Failed to fetch orders: ${response2.statusText}`);
+        } else {
+          ordersNames.set(await response2.json());
         }
       }
+
+      const response = await apiFetch("/api/groups/summary");
       if (!response.ok) {
         throw new Error(`Failed to fetch groups: ${response.statusText}`);
       }
-      if ($userId != null) {
-      ordersNames.set(await response2.json());
-      }
       groups_summary = await response.json();
       groups_summary.sort((a, b) => a.name.localeCompare(b.name));
-    } catch (error) {
-      console.error(error);
-    }
   }
 
   // Run this effect whenever isLoggedIn changes
@@ -233,28 +229,30 @@
     findOrderItems($selectedOrderId);
     goto(`/single_order_view?name=${name}`);
   }
+
   </script>
 
-  <svelte:head>
-  <title>Accueil</title>
-  </svelte:head>
 
-  <div
-  class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen-xl mx-auto text-[14px]"
-  >
-  <div class="flex flex-col space-y-6 w-1/2 lg:min-w-[90px] xl:min-w-[250px]">
-    <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md">
-      <form class="space-y-5">
-        <div class="relative w-full">
-          <label for="id_search_keyword" class="font-semibold text-lg block mb-2">
-            Recherche par mot(s) clé(s):
-          </label>          
+<svelte:head>
+  <title>{$_('header.home')}</title>
+</svelte:head>
+
+<div
+class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen-xl mx-auto text-[14px]"
+>
+<div class="flex flex-col space-y-6 w-1/2 lg:min-w-[90px] xl:min-w-[250px]">
+  <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md">
+    <form class="space-y-5">
+      <div class="relative w-full">
+        <label for="id_search_keyword" class="font-semibold text-lg block mb-2">
+            {$_('homepage.keyword_search.label')}:
+          </label>
           <input
             type="text"
             name="search_keyword"
             id="id_search_keyword"
             autocomplete="off"
-            placeholder="Entrez un mot clé"
+            placeholder={$_('homepage.keyword_search.placeholder')}
             class="p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-full"
             bind:value={$keywords}
             oninput={searchByKeywords}
@@ -292,9 +290,10 @@
       </form>
     </div>
 
+
     <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md mt-6">
-      <div class="mb-4">
-        <label for="search-order" class="font-semibold text-lg"> Rechercher une commande : </label>
+      <div class="mb-6">
+        <label for="search-order" class="font-semibold text-lg"> {$_('homepage.search_order.label')}: </label>
         <select
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 mb-2"
           bind:value={$selectedOrderId}
@@ -305,38 +304,40 @@
         </select>
         <button
           class="w-full p-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
-          onclick={() => singleOrderView()}>Rechercher</button
+          onclick={() => singleOrderView()}>{$_('homepage.button.search')}</button
         >
       </div>
 
-      <div class="mb-4">
+      <div class="mb-6">
         <label for="previous-orders" class="font-semibold text-lg">
-          Voir les commandes précédentes:
+          {$_('homepage.previous_orders.label')}:
         </label>
         <button
           class="w-full p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 flex items-center justify-center"
           onclick={() => seePreviousOrders()}
         >
-          Voir
+          {$_('homepage.previous_orders.button')}
         </button>
       </div>
     </div>
   </div>
 
-  <div class="bg-white md:w-2/4 lg:min-w-[800px] xl:min-w-[1100px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
+  <div
+    class="w-full bg-white md:w-3/4 lg:min-w-[900px] xl:min-w-[1200px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
   >
-  {#if $isLoggedIn}  
-    <div class="flex gap-2">
-      <!-- Buttons div -->
-      {#if selectedGroup}
-        <button
-          class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 "
-          aria-label="back to groups"
-          onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
-        >
-          <Icon icon="material-symbols:arrow-back-ios-new-rounded" width="24" height="24" />
-        </button>
-      {/if}
+      <div class="flex gap-2 h-14">
+        <!-- Buttons div -->
+        {#if selectedGroup}
+          <button
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 "
+            aria-label="back to groups"
+            onclick={() => (
+              (selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null
+            )}
+          >
+            <Icon icon="material-symbols:arrow-back-ios-new-rounded" width="24" height="24" />
+          </button>
+        {/if}
 
         {#if $isAdmin}
           <button
@@ -350,79 +351,69 @@
         {/if}
         {#if $isAdmin}
           {#if selected}
-            <div class="flex flex-col">
               <button
-              class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              class="px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg"
               onclick={()=> modals.open(AddGroupModal)}
-              >Ajouter un groupe</button
-            >
-            </div>
+              >{$_('homepage.admin.button.add_group')}
+            </button>
           {/if}
           {#if selectedGroup}
-          <div class="flex flex-col">
             <button
-              class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              class="px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg"
               onclick={()=> modals.open(AddSubGroupModal)}
-              >Ajouter un sous-groupe</button
-            >
-          </div>
+              >{$_('homepage.admin.button.add_subgroup')}
+            </button>
           {/if}
         {/if}
       </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
-      {#if !selectedGroup}
-        {#each groups_summary as group}
-          <div class="relative group w-64 h-40">
-            <button
-              class="cursor-pointer w-full h-full object-cover rounded-lg"
-              style="background-image: url({group.pictureId
-                ? PUBLIC_API_URL + `/api/pictures/${group.pictureId}`
-                : '/default/group_picture_default.png'}); background-size: cover;"
-              aria-label="group image"
-              onclick={() => handleGroupClick(group)}
-              ondblclick={() => moveToSearches(group.name)}
-              onkeydown={(e) => {
-                if (e.key === "Enter") handleGroupClick(group);
-              }}
-            ></button>
-            <div
-              class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-            >
-              {group.name} ({group.instrCount})
+      <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
+        {#if !selectedGroup}
+          {#each groups_summary as group}
+            <div class="relative group w-64 h-40">
+              <button
+                class="cursor-pointer w-full h-full object-cover rounded-lg"
+                style="background-image: url({group.pictureId
+                  ? PUBLIC_API_URL + `/api/pictures/${group.pictureId}`
+                  : '/default/group_picture_default.png'}); background-size: cover;"
+                aria-label="group image"
+                onclick={() => handleGroupClick(group)}
+                ondblclick={() => moveToSearches(group.name)}
+                onkeydown={(e) => {
+                  if (e.key === "Enter") handleGroupClick(group);
+                }}
+              ></button>
+              <div
+                class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+              >
+                {group.name} ({group.instrCount})
+              </div>
             </div>
-          </div>
-        {/each}
-      {/if}
+          {/each}
+        {/if}
 
-      {#if selectedGroup}
-        {#each selectedSubgroups as subgroup}
-          <div class="relative group w-64 h-40">
-            <button
-              class="cursor-pointer w-full h-full object-cover rounded-lg"
-              style="background-image: url({subgroup.pictureId
-                ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
-                : '/default/group_picture_default.png'}); background-size: cover;"
-              aria-label="subgroup image"
-              onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
-              onkeydown={(e) => {
-                if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
-              }}
-            ></button>
-            <div
-              class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-            >
-              {subgroup.name} ({subgroup.instrCount})
+        {#if selectedGroup}
+          {#each selectedSubgroups as subgroup}
+            <div class="relative group w-64 h-40">
+              <button
+                class="cursor-pointer w-full h-full object-cover rounded-lg"
+                style="background-image: url({subgroup.pictureId
+                  ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
+                  : '/default/group_picture_default.png'}); background-size: cover;"
+                aria-label="subgroup image"
+                onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
+                onkeydown={(e) => {
+                  if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
+                }}
+              ></button>
+              <div
+                class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+              >
+                {subgroup.name} ({subgroup.instrCount})
+              </div>
             </div>
-          </div>
-        {/each}
-      {/if}
-    </div>    
-  {/if}
-  {#if !$isLoggedIn}
-    <div class="flex flex-col items-center justify-center h-full max-height-[200px]">
-      <Loading />
-    </div>
-  {/if}
+          {/each}
+        {/if}
+      </div>
   </div>
 </div>

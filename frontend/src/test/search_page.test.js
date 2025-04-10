@@ -3,6 +3,17 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import  SearchPage  from '../routes/searches/+page.svelte';
 import { page } from '$app/stores';
 import { apiFetch } from '$lib/utils/fetch';
+import { register, init, getLocaleFromNavigator, waitLocale } from 'svelte-i18n';
+
+register('en', () => import('$lib/i18n/locales/en.json'));
+// Add other locales as needed
+
+init({
+  fallbackLocale: 'en',
+  initialLocale: 'en',
+});
+
+await waitLocale();
 
 global.fetch = vi.fn();
 
@@ -84,7 +95,7 @@ describe('search page functions', () => {
         })
 
         render(SearchPage);
-        fireEvent.change(screen.getByLabelText('Groupe:'), { target : {value : 'Group1'}});
+        fireEvent.change(screen.getByLabelText('Group'), { target : {value : 'Group1'}});
         
         
         await waitFor(() => expect(screen.getAllByText('Group1')).toBeTruthy());
@@ -146,7 +157,7 @@ describe('search page functions', () => {
 
         render(SearchPage , {props: {subGroups , showSubGroups : true, showCategories : true }});
 
-        fireEvent.change(screen.getByLabelText('Sous gp:'), { target : {value : 'SubGroup3'}});
+        fireEvent.change(screen.getByLabelText('Subgroup'), { target : {value : 'SubGroup3'}});
 
         await waitFor(() => expect(screen.getAllByText('Group1')).toBeTruthy());
 

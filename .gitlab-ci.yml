@@ -115,7 +115,7 @@ frontend_test:
     - npm install
     - npm run build
     - npm run test:unit -- --run --coverage
-  coverage: '/All\s+files\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+(\d+(?:\.\d+)?)\s+\|/'
+  # coverage: '/All\s+files\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+\d+(?:\.\d+)?\s+\|\s+(\d+(?:\.\d+)?)\s+\|/'
 
 backend_test:
   stage: test

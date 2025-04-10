@@ -16,6 +16,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
   let showAddCharacteristicModal = $state(false);
+  import { _ } from "svelte-i18n";
 
   let page_size = 2;
 
@@ -446,21 +447,19 @@
 <div class="flex-[1.3] h-full ml-3 p-2 bg-gray-100 rounded-lg shadow-md">
   <form class="space-y-5">
     <div class="relative w-full">
-      <label for="id_search_keyword" class="font-semibold">
-        Recherche par mot(s) clé(s):
-      </label>
-      
+        <label for="google-search" class="font-semibold mt-1">{$_('search_page.label.keyword')}</label>
       <input
         type="text"
         name="search_keyword"
         id="id_search_keyword"
         autocomplete="off"
-        placeholder="Entrez un mot clé"
+        placeholder={$_('search_page.placeholder.keyword')}
         class="p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-3/5 mb-1 "
         bind:value={$keywords2}
         oninput={searchByKeywords}
       />
     
+      <!-- Search results dropdown -->
       <!-- Search results dropdown -->
       {#if showKeywordsResult}
         {#if $keywords2}
@@ -492,9 +491,9 @@
     </div>
   </form>
 
-  <label class="font-semibold">Recherche par caractéristiques:</label>
+  <label class="font-semibold">{$_('search_page.label.characteristics')}</label>
   <div class="flex items-center">
-      <label class="w-2/5 mt-2 mb-2" for="groupOptions">Groupe:</label>
+      <label class="w-2/5 mt-2 mb-2" for="groupOptions">{$_('search_page.label.group')}</label>
       <select
       id="groupOptions"
       bind:value={$selectedGroup}
@@ -512,7 +511,7 @@
 
   {#if $showSubGroups}
       <div class="flex items-center">
-      <label class="w-2/5 mb-2" for="subGroupOptions">Sous gp:</label>
+      <label class="w-2/5 mb-2" for="subGroupOptions">{$_('search_page.label.subgroup')}</label>
       <select
         id="subGroupOptions"
         bind:value={$selectedSubGroup}
@@ -532,12 +531,12 @@
         <button
             type="submit"
             class="w-[90px] border border-gray-400 rounded bg-gray-400 border-solid border-[black] rounded-sm"
-        >Chercher</button>
+        >{$_('search_page.button.search')}</button>
         <button
             type="button"
             class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm"
             onclick={deleteAllCharacteristics}
-        >Tout effacer</button>
+        >{$_('search_page.button.clear')}</button>
         </div>
 
         {#each $characteristics as char}
@@ -551,7 +550,7 @@
                   min="0"
                   step="0.01"
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
-                  placeholder="min"
+                  placeholder={$_('search_page.placeholder.min')}
                   bind:value={minLength}
                   onkeydown={handleMinLengthInput}
                   autocomplete="off"
@@ -562,7 +561,7 @@
                   min={minLength || 0}
                   step="0.01"
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
-                  placeholder="max"
+                  placeholder={$_('search_page.placeholder.max')}
                   bind:value={maxLength}
                   onkeydown={handleMaxLengthInput}
                   autocomplete="off"
@@ -621,7 +620,7 @@
                 class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none self-end mt-2"
                 onclick={() => showAddCharacteristicModal = true}
             >
-                Ajouter
+            {$_('search_page.button.add')}
             </button>
         {/if}
     </form>
@@ -635,4 +634,3 @@
     await findCharacteristics($selectedSubGroup); 
   }}
 />
-

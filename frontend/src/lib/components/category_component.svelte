@@ -29,6 +29,7 @@
     import { apiFetch } from "$lib/utils/fetch";
     import { modals } from "svelte-modals";
     import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
+    import { _ } from "svelte-i18n";
 
     /**
      * Display the characteristic values of the category at line index in the table.
@@ -167,7 +168,7 @@
     <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
         <!-- TABLE OF CATEGORIES CORRESPONDING TO SEARCH  -->
         <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
-            <span class="">Types d'instruments</span>
+            <span class="">{$_('category_component.title.instruments_types')}</span>
         </div>
         <table id="tools-table" data-testid="categories-table" class="w-full border-collapse table-fixed">
             <thead class="bg-teal-400">
@@ -213,12 +214,12 @@
                         <th class="text-center border border-solid border-[black] w-8 overflow-hidden"></th>
                     {/if}
                     {#if !$selectedSubGroup}
-                        <th class="text-center border border-solid border-[black] overflow-hidden">SOUS GROUPE</th>
+                        <th class="text-center border border-solid border-[black] overflow-hidden">{$_('category_component.title.table.subgroup')}</th>
                     {/if}
-                    <th class="text-center border border-solid border-[black] w-14 overflow-hidden">FCT</th>
-                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">NOM</th>
-                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">FORME</th>
-                    <th class="text-center border border-solid border-[black] w-6 overflow-hidden">DIM</th>
+                    <th class="text-center border border-solid border-[black] w-14 overflow-hidden">{$_('category_component.title.table.function')}</th>
+                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">{$_('category_component.title.table.name')}</th>
+                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('category_component.title.table.shape')}</th>
+                    <th class="text-center border border-solid border-[black] w-6 overflow-hidden">{$_('category_component.title.table.dimension')}</th>
                 </tr>
             </thead>
             {#if $showCategories}
@@ -277,7 +278,7 @@
                     class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
                     on:click={()=>modals.open(addCategoryModal)}
                 >
-                    Ajouter une catégorie
+                {$_('category_component.admin.button.add_category')}
                 </button>
             </div>
         {/if}
@@ -285,9 +286,9 @@
     </div>
 
     <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
-    <div class="flex-[1] max-h-[150vh] overflow-y-auto box-border ml-3 max-w-[150px]" bind:this={imageContainerRef}>
-        <div class="border bg-teal-400 mb-[5px] border-solid border-[black]">
-            <span class="p-1">Photos</span>
+    <div class="flex-[1] max-h-[150vh] overflow-y-auto ml-3 max-w-[150px]" bind:this={imageContainerRef}>
+        <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
+            <span class="p-1">{$_('category_component.pictures.title')}</span>
         </div>
         {#each $categories as row, index}
             <!-- svelte-ignore a11yå_click_events_have_key_events -->
