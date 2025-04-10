@@ -62,7 +62,7 @@ class ExcelControllerTest {
                         .content(objectMapper.writeValueAsString(emptyRequest))
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("The received JSON is empty."));
+                .andExpect(jsonPath("$.error").value("The received JSON is empty."));
     }
 
     @WithMockUser(username = "testuser", roles = {"USER"})
@@ -81,7 +81,7 @@ class ExcelControllerTest {
                         .content(objectMapper.writeValueAsString(validRequest))
                         .with(csrf())) // Ensure CSRF token is included
                 .andExpect(status().isOk())
-                .andExpect(content().string("Data imported successfully!"));
+                .andExpect(jsonPath("$.message").value("Data imported successfully!"));
     }
 
 
@@ -100,7 +100,7 @@ class ExcelControllerTest {
                         .content(objectMapper.writeValueAsString(validRequest))
                         .with(csrf()))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Internal error during import."));
+                .andExpect(jsonPath("$.error").value("Internal error during import."));
     }
 
     @TestConfiguration
