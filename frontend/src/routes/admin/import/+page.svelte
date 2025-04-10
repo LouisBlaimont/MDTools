@@ -8,6 +8,10 @@
   import ZipImport from "./zipImport.svelte";
   import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";
   import Icon from '@iconify/svelte';
+  import { modals } from "svelte-modals";
+  import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
+  import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
+
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -134,6 +138,9 @@
         console.error("Error loading suppliers:", error);
         requiredColumns = []; 
       }
+    } 
+    else if (selectedOption === "Alternatives") {
+      requiredColumns = ["ref_1", "ref_2"];
     }
   };
 
@@ -358,7 +365,17 @@
         verifyColumns();
         extractExcelDataToJson();
         setRequiredColumns();
-      } else {
+      } else if (selectedOption === "Alternatives") {
+        isLoading = true;
+        loadingProgress = 0;
+        await simulateLoadingProgress();
+        isLoading = false;
+
+        currentView = "verification";
+        setRequiredColumns(); 
+        extractExcelDataToJson();
+      }
+      else {
         currentView = "SubGroup";
         isNextEnabled = false;
         selectedSubGroup = "";
@@ -460,19 +477,28 @@
         jsonData = [];
       } else {
         jsonData = [...tempJsonData];
-
-        // Auto-map headers to required columns
-        jsonData[0].forEach((header, index) => {
-          const normalized = normalizeHeader(header);
-          const match = requiredColumns.find(col => normalizeHeader(col) === normalized);
-          if (match) {
-            columnMapping[index] = match;
-          }
-        });
+        if (selectedOption === "Alternatives") {
+          // Force headers
+          jsonData[0] = ["ref_1", "ref_2"];
+          columnMapping = {
+            0: "ref_1",
+            1: "ref_2"
+          };
+        } else {
+          // Auto-map headers to required columns
+          jsonData[0].forEach((header, index) => {
+            const normalized = normalizeHeader(header);
+            const match = requiredColumns.find(col => normalizeHeader(col) === normalized);
+            if (match) {
+              columnMapping[index] = match;
+            }
+          });
+        }
         // Find the index of the 'reference' column
         const refIndex = Object.entries(columnMapping).find(([_, col]) => col === "reference")?.[0];
 
-        if (refIndex !== undefined) {
+        if (selectedOption === "Alternatives") {
+        } else if (refIndex !== undefined) {
           // Filter out rows without a valid 'reference' value
           const headerRow = jsonData[0];
           const validRows = jsonData.slice(1).filter(row =>
@@ -551,7 +577,7 @@
       try {
           const response = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
           
-          const data = await response.json();
+          const data = response;
 
           if (data.success) {
               alert("Success: " + (data.message || "Import completed successfully!"));
@@ -692,6 +718,23 @@
                   <option value={subGroup}>{subGroup}</option>
                 {/each}
               </datalist>
+              <div class="flex justify-start gap-3 mt-2">
+                <button
+                  class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
+                  on:click={() => modals.open(AddGroupModal)}
+                >
+                  Ajouter un groupe
+                </button>
+            
+                {#if selectedGroup !== ""}
+                  <button
+                    class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
+                    on:click={() => modals.open(AddSubGroupModal)}
+                  >
+                    Ajouter un sous-groupe
+                  </button>
+                {/if}
+              </div>            
             </div>
             {:else if currentView === "Supplier"}
             <!-- Sub-group Selection View -->
@@ -736,30 +779,40 @@
                   <table class="border-collapse border border-gray-400 w-full text-sm">
                       <thead>
                           <tr>
-                              {#each jsonData[0] as header, index}
-                                  <th class="border border-gray-400 p-2 bg-gray-200">
-                                    <select
-                                      bind:value={columnMapping[index]}
-                                      class="w-full"
-                                      style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
-                                      on:change={(e) => {
-                                        if (e.target.value === "__add_new__") {
-                                          showAddCharacteristicModal = true;
-                                          e.target.value = "";
-                                        } else {
-                                          columnMapping[index] = e.target.value;
-                                          updateColumnMapping(index);
-                                        }
-                                      }}
-                                    >
-                                      <option value="">vide</option>
-                                      {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
-                                        <option value={column}>{column}</option>
-                                      {/each}
+                            {#each jsonData[0] as header, index}
+                              <th class="border border-gray-400 p-2 bg-gray-200">
+                                {#if selectedOption === "Alternatives"}
+                                  <input 
+                                    class="w-full bg-gray-100 border-none" 
+                                    value={columnMapping[index]} 
+                                    readonly 
+                                  />
+                                {:else}
+                                  <select
+                                    bind:value={columnMapping[index]}
+                                    class="w-full"
+                                    style="min-width: {Math.max(80, (columnMapping[index]?.length || 4) * 10)}px"
+                                    on:change={(e) => {
+                                      if (e.target.value === "__add_new__") {
+                                        showAddCharacteristicModal = true;
+                                        e.target.value = "";
+                                      } else {
+                                        columnMapping[index] = e.target.value;
+                                        updateColumnMapping(index);
+                                      }
+                                    }}
+                                  >
+                                    <option value="">vide</option>
+                                    {#each requiredColumns.filter(col => !Object.values(columnMapping).includes(col) || columnMapping[index] === col) as column}
+                                      <option value={column}>{column}</option>
+                                    {/each}
+                                    {#if selectedOption === "SubGroup"}
                                       <option value="__add_new__">➕ Autre...</option>
-                                    </select>
-                                  </th>
-                              {/each}
+                                    {/if}
+                                  </select>
+                                {/if}
+                              </th>
+                            {/each}         
                           </tr>
                       </thead>
                       <tbody>

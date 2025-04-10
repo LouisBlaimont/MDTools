@@ -424,34 +424,43 @@ public class CategoryControllerTest {
 
     @Test
     public void testGetCharacteristicValuesFromCategory() throws Exception {
-        // Arrange
-        Map<String, String> characteristicValues = new HashMap<>();
-        characteristicValues.put("Material", "Wood");
-        characteristicValues.put("Size", "Large");
-        characteristicValues.put("Weight", "Heavy");
+        List<CharacteristicDTO> characteristics = List.of(
+            new CharacteristicDTO("Material", "Wood", "WD"),
+            new CharacteristicDTO("Size", "Large", "LG"),
+            new CharacteristicDTO("Weight", "Heavy", "HV")
+        );
 
-        when(categoryService.getCharacteristicValuesByCategoryId((long) 1)).thenReturn(characteristicValues);
+        when(categoryService.findCategoryById((long)1)).thenReturn(characteristics);
 
-        // Act & Assert
-        mockMvc.perform(get("/api/category/1/characteristics"))
+        mockMvc.perform(get("/api/category/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.Material").value("Wood"))
-                .andExpect(jsonPath("$.Size").value("Large"))
-                .andExpect(jsonPath("$.Weight").value("Heavy"));
+                .andExpect(jsonPath("$[0].name").value("Material"))
+                .andExpect(jsonPath("$[0].value").value("Wood"))
+                .andExpect(jsonPath("$[0].abrev").value("WD"))
+                .andExpect(jsonPath("$[1].name").value("Size"))
+                .andExpect(jsonPath("$[1].value").value("Large"))
+                .andExpect(jsonPath("$[1].abrev").value("LG"))
+                .andExpect(jsonPath("$[2].name").value("Weight"))
+                .andExpect(jsonPath("$[2].value").value("Heavy"))
+                .andExpect(jsonPath("$[2].abrev").value("HV"));
 
-        verify(categoryService, times(1)).getCharacteristicValuesByCategoryId((long) 1);
+        verify(categoryService, times(1)).findCategoryById((long)1);
     }
+
 
     @Test
     public void testGetCharacteristicValuesFromCategoryNotFound() throws Exception {
+        when(categoryService.findCategoryById((long)999)).thenReturn(null);
+    
+        mockMvc.perform(get("/api/category/999"));
         // Arrange
-        when(categoryService.getCharacteristicValuesByCategoryId((long) 999)).thenReturn(new HashMap<>());
 
         // Act & Assert
         mockMvc.perform(get("/api/category/999/characteristics"))
                 .andExpect(status().isNotFound());
+    
+        verify(categoryService, times(1)).findCategoryById((long)999);
 
-        verify(categoryService, times(1)).getCharacteristicValuesByCategoryId((long) 999);
     }
 
     // Helper methods to create test objects

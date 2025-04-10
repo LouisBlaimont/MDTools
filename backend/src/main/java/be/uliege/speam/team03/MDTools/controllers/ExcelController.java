@@ -2,6 +2,9 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
 import be.uliege.speam.team03.MDTools.services.ExcelImportService;
+
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,15 +43,15 @@ public class ExcelController {
     public ResponseEntity<?> receiveJsonData(@RequestBody ImportRequestDTO importRequest) {
         if (importRequest == null || importRequest.getData().isEmpty()) {
             logger.warn("Received request with empty JSON payload!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The received JSON is empty.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "The received JSON is empty."));
         }
 
         try {
             excelImportService.processImport(importRequest);
-            return ResponseEntity.ok("Data imported successfully!");
+            return ResponseEntity.ok().body(Map.of("message", "Data imported successfully!"));
         } catch (Exception e) {
             logger.error("Error while processing data: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error during import.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal error during import."));
         }
     }
 }

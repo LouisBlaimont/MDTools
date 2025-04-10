@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { preventDefault } from "svelte/legacy";
   import { get } from "svelte/store";
+  import { modals } from "svelte-modals";
   import { isEditing, orderItems, reload, selectedCategoryIndex, 
       selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
       showChars, charValues, currentSuppliers, categories, characteristics, 
@@ -17,6 +18,8 @@
   import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
   let showAddCharacteristicModal = $state(false);
   import { _ } from "svelte-i18n";
+  import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
+  import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
 
   let page_size = 2;
 
@@ -507,6 +510,16 @@
           <option value={group}>{group}</option>
       {/each}
       </select>
+      {#if $isEditing}
+        <!-- svelte-ignore node_invalid_placement_ssr -->
+        <button
+          type="button"
+          class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+          onclick={()=> modals.open(AddGroupModal)}
+        >
+          Ajouter
+        </button>
+      {/if}
   </div>
 
   {#if $showSubGroups}
@@ -522,6 +535,16 @@
           <option value={subGroup}>{subGroup}</option>
           {/each}
       </select>
+      {#if $isEditing && $selectedGroup}
+        <!-- svelte-ignore node_invalid_placement_ssr -->
+        <button
+          type="button"
+          class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+          onclick={()=> modals.open(AddSubGroupModal)}
+        >
+          Ajouter
+        </button>
+      {/if}
       </div>
   {/if}
 
@@ -630,7 +653,8 @@
   isOpen={showAddCharacteristicModal}
   onClose={() => showAddCharacteristicModal = false}
   selectedSubGroup={$selectedSubGroup}
-  on:added={async () => {
-    await findCharacteristics($selectedSubGroup); 
+  on:added={async (e) => {
+    const sub = $selectedSubGroup;
+    await findCharacteristics(sub);
   }}
 />

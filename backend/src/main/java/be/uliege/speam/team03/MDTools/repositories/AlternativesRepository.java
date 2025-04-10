@@ -23,4 +23,6 @@ public interface AlternativesRepository extends CrudRepository<Alternatives, Alt
         FROM Alternatives a
     """)
     List<AlternativeReferenceDTO> findAllAlternativesReferences();
+    @SuppressWarnings("null")
+    boolean existsById(AlternativesKey id);
 }
