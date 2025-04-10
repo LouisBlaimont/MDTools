@@ -1,22 +1,21 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
-    import { isEditing, orderItems, reload, selectedCategoryIndex, 
-        selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
-        showChars, charValues, currentSuppliers, categories, characteristics, 
-        showSubGroups, showCategories, subGroups, groups, errorMessage, 
-    findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, categories_pageable, keywords2, keywordsResult2, autocompleteOptions}
-    from "$lib/stores/searches";    
-    import {startResize, resize, stopResize} from "$lib/resizableUtils.js";
-    import { apiFetch } from "$lib/utils/fetch";
-    import { browser } from "$app/environment";
-    import { derived } from 'svelte/store';
-    import { toast } from "@zerodevx/svelte-toast";
-    import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
-  let showAddCharacteristicModal = false;
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import { preventDefault } from "svelte/legacy";
+  import { get } from "svelte/store";
+  import { isEditing, orderItems, reload, selectedCategoryIndex, 
+      selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
+      showChars, charValues, currentSuppliers, categories, characteristics, 
+      showSubGroups, showCategories, subGroups, groups, errorMessage, 
+  findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, categories_pageable, keywords2, keywordsResult2, autocompleteOptions}
+  from "$lib/stores/searches";    
+  import { apiFetch } from "$lib/utils/fetch";
+  import { browser } from "$app/environment";
+  import { derived } from 'svelte/store';
+  import { toast } from "@zerodevx/svelte-toast";
+  import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";    
+  let showAddCharacteristicModal = $state(false);
 
   let page_size = 2;
 
@@ -44,7 +43,7 @@
       // Use Svelte's goto function to update the URL (replaceState prevents page reload)
       goto(currentUrl.toString(), { replaceState: true, noScroll: true });
     }
-);
+  );
 
   // Initialize from URL params when component mounts
   onMount(() => {
@@ -537,7 +536,7 @@
         <button
             type="button"
             class="w-[90px] border border-red-700 rounded bg-red-700 border-solid border-[black] rounded-sm"
-            on:click={deleteAllCharacteristics}
+            onclick={deleteAllCharacteristics}
         >Tout effacer</button>
         </div>
 
@@ -554,7 +553,7 @@
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
                   placeholder="min"
                   bind:value={minLength}
-                  on:keydown={handleMinLengthInput}
+                  onkeydown={handleMinLengthInput}
                   autocomplete="off"
                   />
                   <input
@@ -565,13 +564,13 @@
                   class="w-1/2 border border-gray-400 rounded p-0.5 border-solid border-[black]"
                   placeholder="max"
                   bind:value={maxLength}
-                  on:keydown={handleMaxLengthInput}
+                  onkeydown={handleMaxLengthInput}
                   autocomplete="off"
                   />
               </div>
             <button
                 class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
-                on:click={() => deleteCharacteristic(char)}
+                onclick={() => deleteCharacteristic(char)}
             >&times;</button>
             </div>
         {:else}
@@ -585,15 +584,15 @@
                 name={char}
                 data-testid={char}
                 bind:value={$charValues[char]}
-                on:focus={() => triggerAutocomplete(char)}
-                on:input={handleAutocompleteInput}
+                onfocus={() => triggerAutocomplete(char)}
+                oninput={handleAutocompleteInput}
                 autocomplete="off"
                 />
                 {#if showAutocompleteDropDown && currentAutocompleteField === char}
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <ul 
                     class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
-                    on:mousedown={event => event.preventDefault()}
+                    onmousedown={event => event.preventDefault()}
                 >
                     {#each filteredAutocompleteOptions as option}
                     <!-- svelte-ignore a11y_role_has_required_aria_props -->
@@ -601,7 +600,7 @@
                         type="button"
                         class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
                         role="option"
-                        on:click={() => selectAutocompleteOption(option)}
+                        onclick={() => selectAutocompleteOption(option)}
                     >
                         {option}
                     </button>
@@ -611,7 +610,7 @@
             </div>
             <button
                 class="text-gray-900 text-sm bg-gray-400 w-[20px] h-[20px] ml-0.5 rounded-[50%] border-[none] cursor-pointer"
-                on:click={() => deleteCharacteristic(char)}
+                onclick={() => deleteCharacteristic(char)}
             >&times;</button>
             </div>
         {/if}
@@ -620,7 +619,7 @@
         {#if $isEditing}
             <button
                 class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none self-end mt-2"
-                on:click={() => showAddCharacteristicModal = true}
+                onclick={() => showAddCharacteristicModal = true}
             >
                 Ajouter
             </button>

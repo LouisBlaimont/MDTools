@@ -31,22 +31,22 @@
     }
   });
 
-  // tp fetch data when page is mounted
   async function fetchData() {
     try {
       const response = await apiFetch("/api/groups/summary");
-      showKeywordsResult = false;
-      keywords.set(null);
 
-      const response2 = await apiFetch(`/api/orders/user/${$userId}`);
-      if (!response2.ok) {
-        throw new Error(`Failed to fetch orders: ${response2.statusText}`);
+      if ($userId != null) {
+        const response2 = await apiFetch(`/api/orders/user/${$userId}`);
+        if (!response2.ok) {
+          throw new Error(`Failed to fetch orders: ${response2.statusText}`);
+        }
       }
       if (!response.ok) {
         throw new Error(`Failed to fetch groups: ${response.statusText}`);
       }
-
+      if ($userId != null) {
       ordersNames.set(await response2.json());
+      }
       groups_summary = await response.json();
       groups_summary.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
@@ -146,6 +146,7 @@
   // goto searches with the selected instrument found by keywords
   async function moveToSearchesBis(instrument, group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
+    
     // handle when the instrument has no category
     if (catId == null) {
       await modals.open(editInstrumentModal, { 
@@ -154,6 +155,7 @@
       });
     }
     else {
+      keywords.set(null);
       goto(
         `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup)}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
       );

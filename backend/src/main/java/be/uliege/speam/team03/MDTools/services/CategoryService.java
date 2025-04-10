@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,12 +12,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import be.uliege.speam.team03.MDTools.DTOs.*;
-import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
+import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
-import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.repositories.*;
+import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
+import be.uliege.speam.team03.MDTools.models.Group;
+import be.uliege.speam.team03.MDTools.models.Picture;
+import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.models.SubGroup;
+import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
+import be.uliege.speam.team03.MDTools.repositories.CategoryCharacteristicRepository;
+import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
+import be.uliege.speam.team03.MDTools.repositories.CharacteristicRepository;
+import be.uliege.speam.team03.MDTools.repositories.GroupRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 
 @Service
 public class CategoryService {
