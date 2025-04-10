@@ -7,7 +7,6 @@ import be.uliege.speam.team03.MDTools.DTOs.SubGroupCharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
-import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
 import lombok.NonNull;
 
 public class SubGroupMapper {
@@ -63,7 +62,7 @@ public class SubGroupMapper {
       List<Category> categories = dto.getCategoriesId().stream()
             .map(categoryId -> {
                Category category = new Category();
-               category.setId(Long.valueOf(categoryId).intValue());
+               category.setId(categoryId);
                return category;
             }).toList();
       entity.setCategories(categories);

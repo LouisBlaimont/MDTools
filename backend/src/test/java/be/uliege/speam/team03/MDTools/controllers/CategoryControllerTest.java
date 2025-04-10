@@ -1,11 +1,5 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,12 +9,25 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
@@ -32,7 +39,6 @@ import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.GroupService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.SubGroupService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryControllerTest {
@@ -64,8 +70,8 @@ public class CategoryControllerTest {
     public void testFindAllCategories() throws Exception {
         // Arrange
         List<CategoryDTO> categories = Arrays.asList(
-                createCategoryDTO(1, "Category1", "SubGroup1", "Group1"),
-                createCategoryDTO(2, "Category2", "SubGroup2", "Group2"));
+                createCategoryDTO((long) 1, "Category1", "SubGroup1", "Group1"),
+                createCategoryDTO((long) 2, "Category2", "SubGroup2", "Group2"));
         
         when(categoryService.findAll()).thenReturn(categories);
 
@@ -178,11 +184,11 @@ public class CategoryControllerTest {
         subGroupDTO.setId(2L);
         subGroupDTO.setName("SubGroup1");
 
-        CategoryDTO newCategory = createCategoryDTO(3, "NewCategory", "SubGroup1", "Group1");
+        CategoryDTO newCategory = createCategoryDTO((long) 3, "NewCategory", "SubGroup1", "Group1");
 
-        when(groupService.findGroupById(1)).thenReturn(groupDTO);
-        when(subGroupService.findSubGroupById(2)).thenReturn(subGroupDTO);
-        when(categoryService.addCategoryToSubGroup(requestBody, 2)).thenReturn(newCategory);
+        when(groupService.findGroupById((long) 1)).thenReturn(groupDTO);
+        when(subGroupService.findSubGroupById((long) 2)).thenReturn(subGroupDTO);
+        when(categoryService.addCategoryToSubGroup(requestBody, (long) 2)).thenReturn(newCategory);
         when(categoryService.save(any(CategoryDTO.class))).thenReturn(newCategory);
 
         // Act & Assert
@@ -195,9 +201,9 @@ public class CategoryControllerTest {
                 .andExpect(jsonPath("$.groupName").value("Group1"))
                 .andExpect(jsonPath("$.subGroupName").value("SubGroup1"));
 
-        verify(groupService, times(1)).findGroupById(1);
-        verify(subGroupService, times(1)).findSubGroupById(2);
-        verify(categoryService, times(1)).addCategoryToSubGroup(requestBody, 2);
+        verify(groupService, times(1)).findGroupById((long) 1);
+        verify(subGroupService, times(1)).findSubGroupById((long) 2);
+        verify(categoryService, times(1)).addCategoryToSubGroup(requestBody, (long) 2);
         verify(categoryService, times(1)).save(any(CategoryDTO.class));
     }
 
@@ -207,7 +213,7 @@ public class CategoryControllerTest {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", "NewCategory");
 
-        when(groupService.findGroupById(999)).thenReturn(null);
+        when(groupService.findGroupById((long) 999)).thenReturn(null);
 
         // Act & Assert
         mockMvc.perform(post("/api/category/group/999/subgroup/2")
@@ -215,9 +221,9 @@ public class CategoryControllerTest {
                 .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isNotFound());
 
-        verify(groupService, times(1)).findGroupById(999);
-        verify(subGroupService, never()).findSubGroupById(anyInt());
-        verify(categoryService, never()).addCategoryToSubGroup(any(), anyInt());
+        verify(groupService, times(1)).findGroupById((long) 999);
+        verify(subGroupService, never()).findSubGroupById((long) anyInt());
+        verify(categoryService, never()).addCategoryToSubGroup(any(), (long) anyInt());
     }
 
     @Test
@@ -230,8 +236,8 @@ public class CategoryControllerTest {
         groupDTO.setId(1L);
         groupDTO.setName("Group1");
 
-        when(groupService.findGroupById(1)).thenReturn(groupDTO);
-        when(subGroupService.findSubGroupById(999)).thenReturn(null);
+        when(groupService.findGroupById((long) 1)).thenReturn(groupDTO);
+        when(subGroupService.findSubGroupById((long) 999)).thenReturn(null);
 
         // Act & Assert
         mockMvc.perform(post("/api/category/group/1/subgroup/999")
@@ -239,9 +245,9 @@ public class CategoryControllerTest {
                 .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isNotFound());
 
-        verify(groupService, times(1)).findGroupById(1);
-        verify(subGroupService, times(1)).findSubGroupById(999);
-        verify(categoryService, never()).addCategoryToSubGroup(any(), anyInt());
+        verify(groupService, times(1)).findGroupById((long) 1);
+        verify(subGroupService, times(1)).findSubGroupById((long) 999);
+        verify(categoryService, never()).addCategoryToSubGroup(any(), (long) anyInt());
     }
 
 //     @Test
@@ -274,8 +280,8 @@ public class CategoryControllerTest {
         requestBody.put("size", "Large");
 
         List<CategoryDTO> matchingCategories = Arrays.asList(
-                createCategoryDTO(1, "Category1", "SubGroup1", "Group1"),
-                createCategoryDTO(2, "Category2", "SubGroup1", "Group1"));
+                createCategoryDTO((long) 1, "Category1", "SubGroup1", "Group1"),
+                createCategoryDTO((long) 2, "Category2", "SubGroup1", "Group1"));
 
         when(categoryService.findCategoriesByCharacteristics(requestBody)).thenReturn(matchingCategories);
 
@@ -313,7 +319,7 @@ public class CategoryControllerTest {
       // @Test
       // void getCategoryFromId_ShouldReturnCharacteristics_WhenCategoryExists() throws Exception {
       //       // Arrange
-      //       Integer categoryId = 1;
+      //       Long categoryId = 1;
       //       List<CharacteristicDTO> characteristics = Arrays.asList(
       //             new CharacteristicDTO("Material", "Steel", "ST"),
       //             new CharacteristicDTO("Color", "Silver", "SL"));
@@ -336,7 +342,7 @@ public class CategoryControllerTest {
       // @Test
       // void getCategoryFromId_ShouldReturnNotFound_WhenCategoryDoesNotExist() throws Exception {
       //       // Arrange
-      //       Integer nonExistentCategoryId = 999;
+      //       Long nonExistentCategoryId = 999;
 
       //       when(categoryService.findCategoryById(nonExistentCategoryId)).thenReturn(null);
 
@@ -351,13 +357,13 @@ public class CategoryControllerTest {
     @Test
     public void testGetCategoryFromIdNotFound() throws Exception {
         // Arrange
-        when(categoryService.findCategoryById(999)).thenReturn(null);
+        when(categoryService.findCategoryById((long) 999)).thenReturn(null);
 
         // Act & Assert
         mockMvc.perform(get("/api/category/999"))
                 .andExpect(status().isNotFound());
 
-        verify(categoryService, times(1)).findCategoryById(999);
+        verify(categoryService, times(1)).findCategoryById((long) 999);
     }
 
 //     @Test
@@ -383,13 +389,13 @@ public class CategoryControllerTest {
     @Test
     public void testGetInstrumentsFromCategoryNotFound() throws Exception {
         // Arrange
-        when(instrumentService.findInstrumentsOfCatergory(999)).thenReturn(null);
+        when(instrumentService.findInstrumentsOfCatergory((long) 999)).thenReturn(null);
 
         // Act & Assert
         mockMvc.perform(get("/api/category/instruments/999"))
                 .andExpect(status().isNotFound());
 
-        verify(instrumentService, times(1)).findInstrumentsOfCatergory(999);
+        verify(instrumentService, times(1)).findInstrumentsOfCatergory((long) 999);
     }
 
 //     @Test
@@ -424,7 +430,7 @@ public class CategoryControllerTest {
         characteristicValues.put("Size", "Large");
         characteristicValues.put("Weight", "Heavy");
 
-        when(categoryService.getCharacteristicValuesByCategoryId(1)).thenReturn(characteristicValues);
+        when(categoryService.getCharacteristicValuesByCategoryId((long) 1)).thenReturn(characteristicValues);
 
         // Act & Assert
         mockMvc.perform(get("/api/category/1/characteristics"))
@@ -433,23 +439,23 @@ public class CategoryControllerTest {
                 .andExpect(jsonPath("$.Size").value("Large"))
                 .andExpect(jsonPath("$.Weight").value("Heavy"));
 
-        verify(categoryService, times(1)).getCharacteristicValuesByCategoryId(1);
+        verify(categoryService, times(1)).getCharacteristicValuesByCategoryId((long) 1);
     }
 
     @Test
     public void testGetCharacteristicValuesFromCategoryNotFound() throws Exception {
         // Arrange
-        when(categoryService.getCharacteristicValuesByCategoryId(999)).thenReturn(new HashMap<>());
+        when(categoryService.getCharacteristicValuesByCategoryId((long) 999)).thenReturn(new HashMap<>());
 
         // Act & Assert
         mockMvc.perform(get("/api/category/999/characteristics"))
                 .andExpect(status().isNotFound());
 
-        verify(categoryService, times(1)).getCharacteristicValuesByCategoryId(999);
+        verify(categoryService, times(1)).getCharacteristicValuesByCategoryId((long) 999);
     }
 
     // Helper methods to create test objects
-    private CategoryDTO createCategoryDTO(Integer id, String name, String subGroupName, String groupName) {
+    private CategoryDTO createCategoryDTO(Long id, String name, String subGroupName, String groupName) {
         CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setId(id);
         categoryDTO.setName(name);
@@ -466,7 +472,7 @@ public class CategoryControllerTest {
         return characteristicDTO;
     }
 
-    private InstrumentDTO createInstrumentDTO(Integer id, String ref) {
+    private InstrumentDTO createInstrumentDTO(Long id, String ref) {
         InstrumentDTO instrumentDTO = new InstrumentDTO();
         instrumentDTO.setId(id);
         instrumentDTO.setReference(ref);

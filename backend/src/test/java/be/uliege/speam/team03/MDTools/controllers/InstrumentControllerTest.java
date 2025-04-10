@@ -1,20 +1,20 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
@@ -39,17 +39,17 @@ public class InstrumentControllerTest {
     @Test
     public void testFindInstrumentById() throws Exception {
         InstrumentDTO instrument = new InstrumentDTO();
-        instrument.setId(1);
+        instrument.setId((long) 1);
         instrument.setReference("REF001");
 
-        when(instrumentService.findById(1)).thenReturn(instrument);
+        when(instrumentService.findById((long) 1)).thenReturn(instrument);
 
         mockMvc.perform(get("/api/instrument/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.reference").value("REF001"));
 
-        verify(instrumentService, times(1)).findById(1);
+        verify(instrumentService, times(1)).findById((long) 1);
     }
 
     // @Test
@@ -102,11 +102,11 @@ public class InstrumentControllerTest {
 
     @Test
     public void testDeleteInstrument() throws Exception {
-        doNothing().when(instrumentService).delete(1);
+        doNothing().when(instrumentService).delete((long) 1);
 
         mockMvc.perform(delete("/api/instrument/1"))
                 .andExpect(status().isNoContent());
 
-        verify(instrumentService, times(1)).delete(1);
+        verify(instrumentService, times(1)).delete((long) 1);
     }
 }

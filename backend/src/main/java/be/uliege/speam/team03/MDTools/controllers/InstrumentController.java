@@ -59,7 +59,7 @@ public class InstrumentController {
      * @return the instrument with the specified ID, or a 404 status if no instrument is found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> findInstrumentById(@PathVariable Integer id){
+    public ResponseEntity<?> findInstrumentById(@PathVariable Long id){
         InstrumentDTO instrument = instrumentService.findById(id);
         // Check if the instrument exists
         if (instrument == null){
@@ -121,7 +121,7 @@ public class InstrumentController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> updateInstrument(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> updateInstrument(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         InstrumentDTO updatedInstrument = instrumentService.updateInstrument(body, id);
         // Check if the instrument exists
         if (updatedInstrument == null) {
@@ -137,7 +137,7 @@ public class InstrumentController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteInstrument(@PathVariable Integer id) {
+    public void deleteInstrument(@PathVariable Long id) {
         instrumentService.delete(id);
     }
 
@@ -215,7 +215,7 @@ public class InstrumentController {
 
     // getting the category from an instrument
     @GetMapping("/getCategory/{categoryId}")
-    public ResponseEntity<CategoryDTO> searchCategory(@PathVariable Integer categoryId) {
+    public ResponseEntity<CategoryDTO> searchCategory(@PathVariable Long categoryId) {
         CategoryDTO category = categoryService.searchCategory(categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(category);
     }

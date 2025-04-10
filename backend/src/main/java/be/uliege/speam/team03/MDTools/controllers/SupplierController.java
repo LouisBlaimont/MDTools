@@ -2,11 +2,20 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
@@ -39,7 +48,7 @@ public class SupplierController {
      *         no instruments are found
      */
     @GetMapping("/{supplierId}/instruments")
-    public ResponseEntity<?> getInstrumentsOfSupplier(@PathVariable Integer supplierId) {
+    public ResponseEntity<?> getInstrumentsOfSupplier(@PathVariable Long supplierId) {
         List<InstrumentDTO> products = instrumentService.findInstrumentsBySupplierId(supplierId);
         if (products == null || products.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No products found for the supplier " + supplierId);
@@ -55,7 +64,7 @@ public class SupplierController {
      *         found
      */
     @GetMapping("/{supplierId}")
-    public ResponseEntity<?> getSupplierById(@PathVariable Integer supplierId) {
+    public ResponseEntity<?> getSupplierById(@PathVariable Long supplierId) {
         SupplierDTO supplier = supplierService.findSupplierById(supplierId);
         if (supplier == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No supplier found with id: " + supplierId);
@@ -118,7 +127,7 @@ public class SupplierController {
             }
         } else {
             // Assign a new ID to the supplier (the id of the last supplier + 1)
-            Integer maxSupplierId = supplierService.findMaxSupplierId();
+            Long maxSupplierId = supplierService.findMaxSupplierId();
             newSupplier.setId(maxSupplierId + 1);
         }
         SupplierDTO savedSupplier = supplierService.saveSupplier(newSupplier);
@@ -135,7 +144,7 @@ public class SupplierController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<SupplierDTO> updateSupplier(@PathVariable Integer id, @RequestBody SupplierDTO updatedSupplier) {
+    public ResponseEntity<SupplierDTO> updateSupplier(@PathVariable Long id, @RequestBody SupplierDTO updatedSupplier) {
         SupplierDTO existingSupplier = supplierService.findSupplierById(id);
         if (existingSupplier == null) {
             throw new ResourceNotFoundException("Supplier not found with id: " + id);
@@ -161,7 +170,7 @@ public class SupplierController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteSupplier(@PathVariable Integer id) {
+    public void deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplierById(id);
         ResponseEntity.status(HttpStatus.NO_CONTENT).body("Supplier deleted successfully");
     }

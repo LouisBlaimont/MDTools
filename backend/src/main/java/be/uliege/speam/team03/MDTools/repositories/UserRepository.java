@@ -19,7 +19,7 @@ import be.uliege.speam.team03.MDTools.models.User;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
-   public Optional<User> findByUserId(Integer id);
+   public Optional<User> findByUserId(Long id);
 
    /**
     * Retrieves an Optional containing a User entity that matches the given email.

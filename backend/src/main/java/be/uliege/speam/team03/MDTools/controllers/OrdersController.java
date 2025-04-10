@@ -34,7 +34,7 @@ public class OrdersController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getOrdersIdOfUser(@PathVariable Integer userId) {
+    public ResponseEntity<?> getOrdersIdOfUser(@PathVariable Long userId) {
         List<OrdersDTO> ordersNames = ordersService.findOrdersOfUser(userId);
         if (ordersNames == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user id");
@@ -43,7 +43,7 @@ public class OrdersController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getInstrumentsOfOrder(@PathVariable Integer orderId) {
+    public ResponseEntity<?> getInstrumentsOfOrder(@PathVariable Long orderId) {
         List<OrderItemDTO> instruments = ordersService.findInstrumentsOfOrder(orderId);
         if(instruments == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find order id");
@@ -63,7 +63,7 @@ public class OrdersController {
     }
 
     @DeleteMapping("/{orderId}/user/{userId}/remove-instrument/{instrumentId}")
-    public ResponseEntity<?> removeInstrFromOrder(@PathVariable Integer orderId, @PathVariable Integer userId, @PathVariable Integer instrumentId) {
+    public ResponseEntity<?> removeInstrFromOrder(@PathVariable Long orderId, @PathVariable Long userId, @PathVariable Long instrumentId) {
         List<OrderItemDTO> order = ordersService.removeInstrumentFromOrder(orderId, userId, instrumentId);
         if (order == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -83,7 +83,7 @@ public class OrdersController {
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<?> deleteOrder(@PathVariable Integer orderId) {
+    public ResponseEntity<?> deleteOrder(@PathVariable Long orderId) {
         Boolean deleted = ordersService.removeOrder(orderId);
         if (deleted != true) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -94,7 +94,7 @@ public class OrdersController {
 
     /* To test after adding a column orderName in db */
     @PatchMapping("/{orderId}")
-    public ResponseEntity<?> updateOrder(@PathVariable Integer orderId, @RequestBody Map<String, Object> body){
+    public ResponseEntity<?> updateOrder(@PathVariable Long orderId, @RequestBody Map<String, Object> body){
         List<OrderItemDTO> order = ordersService.editOrder(orderId, body);
         return ResponseEntity.status(HttpStatus.OK).body(order);
 

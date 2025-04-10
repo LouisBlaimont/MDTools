@@ -115,8 +115,8 @@ public class CategoryController {
      */
     @PostMapping("/group/{groupId}/subgroup/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<CategoryDTO> addCategory(@RequestBody Map<String, Object> body, @PathVariable Integer id,
-            @PathVariable Integer groupId) {
+    public ResponseEntity<CategoryDTO> addCategory(@RequestBody Map<String, Object> body, @PathVariable Long id,
+            @PathVariable Long groupId) {
 
         // Validate group and subgroup existence first
         GroupDTO group = groupService.findGroupById(groupId);
@@ -193,7 +193,7 @@ public class CategoryController {
      * @throws ResourceNotFoundException if no category is found for the given ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<List<CharacteristicDTO>> getCategoryFromId(@PathVariable Integer id) {
+    public ResponseEntity<List<CharacteristicDTO>> getCategoryFromId(@PathVariable Long id) {
         List<CharacteristicDTO> charList = categoryService.findCategoryById(id);
         if (charList == null) {
             throw new ResourceNotFoundException("No category found for the id :" + id);
@@ -212,7 +212,7 @@ public class CategoryController {
      *         ID (HTTP 404 Not Found)
      */
     @GetMapping("/instruments/{id}")
-    public ResponseEntity<List<InstrumentDTO>> getInstrumentsFromCategory(@PathVariable Integer id) {
+    public ResponseEntity<List<InstrumentDTO>> getInstrumentsFromCategory(@PathVariable Long id) {
         List<InstrumentDTO> instrList = instrumentService.findInstrumentsOfCatergory(id);
         if (instrList == null) {
             throw new ResourceNotFoundException("No instruments found for the category id :" + id);
@@ -230,7 +230,7 @@ public class CategoryController {
      *         {@link CharacteristicDTO} objects and an HTTP status of OK
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<List<CharacteristicDTO>> updateCategory(@PathVariable Integer id,
+    public ResponseEntity<List<CharacteristicDTO>> updateCategory(@PathVariable Long id,
             @RequestBody List<CharacteristicDTO> body) {
         List<CharacteristicDTO> chars = categoryService.updateCategoryCharacteristics(id, body);
         return ResponseEntity.status(HttpStatus.OK).body(chars);
@@ -246,7 +246,7 @@ public class CategoryController {
      *         corresponding values (or empty strings).
      */
     @GetMapping("/{id}/characteristics")
-    public ResponseEntity<Map<String, String>> getCharacteristicValuesFromCategory(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, String>> getCharacteristicValuesFromCategory(@PathVariable Long id) {
         Map<String, String> characteristicValues = categoryService.getCharacteristicValuesByCategoryId(id);
 
         if (characteristicValues == null || characteristicValues.isEmpty()) {
