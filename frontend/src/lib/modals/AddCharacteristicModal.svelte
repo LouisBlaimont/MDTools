@@ -115,6 +115,7 @@
 
     try {
       await updateCharacteristicOrder(selectedSubGroup, payload);
+      dispatch('added');
     } catch (err) {
       console.error("Failed to update characteristic order:", err);
     }
@@ -156,6 +157,7 @@
       on:consider={({ detail }) => characteristicsInShape = detail.items}
       on:finalize={async ({ detail }) => {
         characteristicsInShape = detail.items;
+        dispatch('orderUpdated', characteristicsInShape);
         await updateCharacteristicOrder(
           selectedSubGroup,
           characteristicsInShape.map((item, idx) => ({
@@ -163,6 +165,7 @@
             order_position: idx + 1
           }))
         );
+        dispatch('added');
       }}
       class="border rounded p-2 bg-gray-50"
     >
@@ -208,6 +211,7 @@
                     order_position: idx + 1
                   }))
                 );
+                dispatch('added');
               }}
             >
               Ajouter à la forme

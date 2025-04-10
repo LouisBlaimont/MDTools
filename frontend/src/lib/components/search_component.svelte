@@ -631,8 +631,9 @@
   isOpen={showAddCharacteristicModal}
   onClose={() => showAddCharacteristicModal = false}
   selectedSubGroup={$selectedSubGroup}
-  on:added={async () => {
-    await findCharacteristics($selectedSubGroup); 
+  on:added={async (e) => {
+    const sub = $selectedSubGroup;
+    await findCharacteristics(sub);
   }}
 />
 
