@@ -1,7 +1,6 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.uliege.speam.team03.MDTools.services.UserService;
 import lombok.AllArgsConstructor;
 
 /**
@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 public class AuthenticationController {
+    private final UserService userService;
 
     /**
      * Handles the "/me" endpoint to retrieve information about the currently authenticated user.
@@ -41,6 +42,7 @@ public class AuthenticationController {
             throws BadRequestException {
         if (authentication instanceof OidcUser oidcUser) {
             return ResponseEntity.ok(Map.of(
+                    "id", userService.getUserIdByEmail(oidcUser.getEmail()),
                     "email", oidcUser.getEmail(),
                     "name", oidcUser.getFullName(),
                     "roles", oidcUser.getAuthorities().stream()

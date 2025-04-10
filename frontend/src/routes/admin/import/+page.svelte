@@ -6,6 +6,8 @@
   import { goto } from "$app/navigation";
   import { dndzone } from "svelte-dnd-action";
   import ZipImport from "./zipImport.svelte";
+  import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";
+  import Icon from '@iconify/svelte';
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -41,51 +43,6 @@
   let isSupplierModalOpen = false;
   let isImporting = false;
   let showAddCharacteristicModal = false;
-  let newCharacteristicName = "";
-  let allCharacteristics = [];
-  let filteredSuggestions = [];
-  let characteristicsInShape = [];
-  let characteristicsOutOfShape = [];
-
-
-
-  /**
-   * Updates the filteredSuggestions list based on user input and
-   * excludes characteristics already present in the subgroup.
-   */
-  $: if (newCharacteristicName.trim() !== "") {
-    const input = newCharacteristicName.trim().toLowerCase();
-    filteredSuggestions = allCharacteristics
-      .filter(c => c.toLowerCase().includes(input))
-      .filter(c => !requiredColumns.includes(c));
-  }
-
-
-  /**
-   * Adds a new characteristic to the current subgroup.
-   */
-   async function createNewCharacteristic() {
-    const trimmedName = newCharacteristicName.trim();
-    if (!trimmedName) return;
-
-    try {
-      await addCharacteristicToSubGroup(selectedSubGroup, trimmedName);
-
-      // Re-fetch characteristics to update list
-      await loadCharacteristics(selectedSubGroup);
-
-      showAddCharacteristicModal = false;
-      newCharacteristicName = "";
-    } catch (error) {
-      console.error("Error adding new characteristic:", error);
-    }
-  }
-  function handleCharacteristicChange(value) {
-    if (value === "__add_new__") {
-      showAddCharacteristicModal = true;
-    }
-  }
-
 
 
   /**
@@ -188,7 +145,6 @@
   async function loadCharacteristics(selectedSubGroup) {
     try {
       const characteristics = await fetchCharacteristics(selectedSubGroup);
-      allCharacteristics = await fetchAllCharacteristics();
 
       if (!Array.isArray(characteristics)) {
         console.error("Unexpected format: expected an array but got", typeof characteristics);
@@ -228,15 +184,10 @@
         orderPosition: null
       }));
 
-
-      characteristicsInShape = shape;
-      characteristicsOutOfShape = notInShape;
-
       return requiredColumns;
     } catch (error) {
       console.error("Error while retrieving characteristics:", error);
       requiredColumns = [];
-      allCharacteristics = [];
       return [];
     }
   }
@@ -650,7 +601,7 @@
     {#if file}
       <div class="w-full flex items-center justify-between p-4 bg-white border rounded-md">
         <div class="flex items-center">
-          <img src="https://example.com/excel-icon.png" alt="Excel Icon" role="presentation" class="w-6 h-6 mr-2" />
+          <img src="https://cdn-icons-png.flaticon.com/512/732/732220.png" alt="Excel Icon" class="w-6 h-6 mr-2" />
           <p class="text-gray-700">{file.name}</p>
         </div>
         <button class="bg-red-600 text-white rounded-full p-1 ml-4 flex items-center justify-center w-6 h-6" type="button" on:click={removeFile}>
@@ -865,99 +816,28 @@
       </div>
     </div>
   {/if}
-  {#if showAddCharacteristicModal}
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div
-        class="bg-white p-6 rounded-lg shadow-xl resize overflow-auto"
-        style="min-width: 300px; max-width: 500px; position: absolute; top: {modalPositions.addCharacteristicModal.y}px; left: {modalPositions.addCharacteristicModal.x}px;"
-        on:mousedown={(e) => handleModalMouseDown(e, "addCharacteristicModal")}
-      >
-        <button class="absolute top-2 right-2 text-gray-600" on:click={() => showAddCharacteristicModal = false}>✖</button>
-        <h2 class="text-xl font-semibold mb-4">Ajouter une nouvelle caractéristique</h2>
-
-        <input
-          type="text"
-          placeholder="Nom de la caractéristique"
-          class="w-full p-2 border rounded mb-4"
-          bind:value={newCharacteristicName}
-        />
-
-        {#if filteredSuggestions.length > 0}
-          <ul class="mt-2 border rounded bg-white max-h-40 overflow-auto text-sm z-50">
-            {#each filteredSuggestions as suggestion}
-              <!-- svelte-ignore a11y_click_events_have_key_events -->
-              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-              <li
-                class="p-2 hover:bg-gray-200 cursor-pointer"
-                on:click={() => newCharacteristicName = suggestion}
-              >
-                {suggestion}
-              </li>
-            {/each}
-          </ul>
-        {:else if newCharacteristicName.trim() !== ""}
-          <p class="text-xs text-gray-400 mt-2 italic">No matching characteristic found.</p>
-        {/if}
-
-        <button on:click={createNewCharacteristic} class="bg-blue-600 text-white px-4 py-2 rounded mt-4">Ajouter</button>
-
-        <hr class="my-4" />
-
-        <h3 class="text-lg font-semibold mb-2">Forme :</h3>
-        <div
-          use:dndzone={{
-            items: characteristicsInShape,
-            flipDurationMs: 300,
-            dropTargetStyle: { class: 'dnd-shadow' }
-          }}
-          on:mousedown={(e) => e.stopPropagation()} 
-          on:consider={({ detail }) => characteristicsInShape = detail.items}
-          on:finalize={async ({ detail }) => {
-            characteristicsInShape = detail.items;
-            try {
-              await updateCharacteristicOrder(
-                selectedSubGroup,
-                characteristicsInShape.map((item, idx) => ({
-                  name: item.name,
-                  order_position: idx + 1
-                }))
-              );
-            } catch (e) {
-              console.error("Erreur mise à jour ordre :", e);
-            }
-          }}
-          class="border rounded p-2 bg-gray-50"
-        >
-          {#each characteristicsInShape as char, index (char.id)}
-            <div class="p-2 bg-white border mb-1 rounded cursor-move flex items-center gap-2">
-              <span class="text-gray-500 w-6 text-right">{index + 1}.</span>
-              <span>{char.name}</span>
-            </div>
-          {/each}
-        </div>
-
-
-        <h4 class="mt-4 font-medium">Non incluses dans la forme :</h4>
-        <ul class="mt-2">
-          {#each characteristicsOutOfShape as char (char.name)}
-            <li class="flex justify-between items-center bg-gray-100 p-2 rounded mb-1">
-              <span>{char.name}</span>
-              <button
-                class="text-sm bg-blue-500 text-white px-2 py-1 rounded"
-                on:click={() => {
-                  characteristicsInShape = [...characteristicsInShape, { name: char.name }];
-                  characteristicsOutOfShape = characteristicsOutOfShape.filter(c => c.name !== char.name);
-                }}
-              >Ajouter à la forme</button>
-            </li>
-          {/each}
-        </ul>
-      </div>
-    </div>
-  {/if}
 
   <ZipImport />
+  <AddCharacteristicModal
+    isOpen={showAddCharacteristicModal}
+    onClose={() => showAddCharacteristicModal = false}
+    selectedSubGroup={selectedSubGroup}
+    on:added={async (e) => {
+      await loadCharacteristics(selectedSubGroup);
+    }}
+    on:deleted={(e) => {
+      const deletedName = e.detail.name;
+      requiredColumns = requiredColumns.filter(col => col !== deletedName && col !== `abbreviation_${deletedName}`);
+
+      // remove deletedName from columnMapping
+      for (const [index, name] of Object.entries(columnMapping)) {
+        if (name === deletedName || name === `abbreviation_${deletedName}`) {
+          delete columnMapping[index];
+        }
+      }
+    }}
+  />
+
 
 </main>
   

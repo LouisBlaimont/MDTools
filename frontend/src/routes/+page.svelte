@@ -2,12 +2,14 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
+  import { modals } from "svelte-modals";
+  import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
+  import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
   import editGroupModal from "$lib/modals/editGroupModal.svelte";
   import editSubgroupModal from "$lib/modals/editSubgroupModal.svelte";
-  import { modals } from "svelte-modals";
   import { ROLES } from "../constants";
-  import { ordersNames, userId, selectedOrderId } from "$lib/stores/searches";
-  import { user, isAdmin, isWebmaster, isLoggedIn } from "$lib/stores/user_stores";
+  import { ordersNames, selectedOrderId } from "$lib/stores/searches";
+  import { user, isAdmin, isWebmaster, isLoggedIn, userId } from "$lib/stores/user_stores";
   import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers, reload} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
@@ -80,12 +82,12 @@
     if (isEditing) {
       isEditing = false;
       toast.push("Fin de l'édition des groupes.");
-      document.getElementById("editGroupsButton").classList.remove("bg-orange-600");
+      document.getElementById("editGroupsButton").classList.remove("bg-yellow-500");
       return;
     } else {
       isEditing = true;
       toast.push("Choisissez un groupe pour le modifier.");
-      document.getElementById("editGroupsButton").classList.add("bg-orange-600");
+      document.getElementById("editGroupsButton").classList.add("bg-yellow-500");
     }
   }
 
@@ -334,37 +336,37 @@
         </button>
       {/if}
 
-      {#if $isAdmin}
-        <button
-          class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
-          aria-label="edit groups"
-          id="editGroupsButton"
-          onclick={() => startEditing()}
-        >
-          <Icon icon="material-symbols:edit" width="24" height="24" />
-        </button>
-      {/if}
-            
-
-      {#if $isAdmin}
-        {#if selected}
-          <div class="flex flex-col">
-            <a href="/admin/add_group"><button
+        {#if $isAdmin}
+          <button
+            class="px-4 py-2 bg-gray-100 hover:bg-yellow-500 rounded-lg mb-2"
+            aria-label="edit groups"
+            id="editGroupsButton"
+            onclick={() => startEditing()}
+          >
+            <Icon icon="material-symbols:edit" width="24" height="24" />
+          </button>
+        {/if}
+        {#if $isAdmin}
+          {#if selected}
+            <div class="flex flex-col">
+              <button
               class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              onclick={()=> modals.open(AddGroupModal)}
               >Ajouter un groupe</button
-            ></a>
-          </div>
-        {/if}
-        {#if selectedGroup}
+            >
+            </div>
+          {/if}
+          {#if selectedGroup}
           <div class="flex flex-col">
-            <a href="/admin/add_subgroup"><button
+            <button
               class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              onclick={()=> modals.open(AddSubGroupModal)}
               >Ajouter un sous-groupe</button
-            ></a>
+            >
           </div>
+          {/if}
         {/if}
-      {/if}
-    </div>
+      </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
       {#if !selectedGroup}

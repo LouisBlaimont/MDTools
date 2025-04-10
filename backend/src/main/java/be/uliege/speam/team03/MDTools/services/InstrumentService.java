@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.sound.midi.Instrument;
-
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
-import be.uliege.speam.team03.MDTools.models.Alternatives;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
@@ -301,12 +299,8 @@ public class InstrumentService {
         SubGroup subGroup = subGroupMaybe.get();
 
         // Fetch all categories within this subgroup
-        Optional<List<Category>> categoriesMaybe = categoryRepository.findBySubGroup(subGroup);
-        if (!categoriesMaybe.isPresent() || categoriesMaybe.get().isEmpty()) {
-            return null; // No categories found
-        }
+        List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
-        List<Category> categories = categoriesMaybe.get();
         List<InstrumentDTO> instrumentsDTO = new ArrayList<>();
 
         // Fetch instruments for each category

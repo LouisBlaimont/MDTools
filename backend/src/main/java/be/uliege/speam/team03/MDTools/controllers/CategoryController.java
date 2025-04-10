@@ -3,10 +3,6 @@ package be.uliege.speam.team03.MDTools.controllers;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,11 +69,10 @@ public class CategoryController {
      *                                   specified group name
      */
     @GetMapping("/group/{groupName}")
-    public ResponseEntity<Page<CategoryDTO>> getCategoryFromGroup(
-            @PathVariable String groupName,
-            @PageableDefault(size = 20, sort = {"subGroupName", "id"}, direction = Direction.ASC) Pageable pageable)
+    public ResponseEntity<List<CategoryDTO>> getCategoryFromGroup(
+            @PathVariable String groupName)
             throws ResourceNotFoundException {
-        Page<CategoryDTO> categories = categoryService.findCategoriesOfGroup(groupName, pageable);
+        List<CategoryDTO> categories = categoryService.findCategoriesOfGroup(groupName);
         if (categories == null || categories.isEmpty()) {
             throw new ResourceNotFoundException("No categories found for the group name: " + groupName);
         }
@@ -97,11 +92,10 @@ public class CategoryController {
      *                                   subgroup name
      */
     @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<Page<CategoryDTO>> getCategoriesFromSubGroup(
-            @PathVariable String subGroupName,
-            @PageableDefault(size = 20, sort = {"subGroupName", "id"}, direction = Direction.ASC) Pageable pageable)
+    public ResponseEntity<List<CategoryDTO>> getCategoriesFromSubGroup(
+            @PathVariable String subGroupName)
             throws ResourceNotFoundException {
-        Page<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName, pageable);
+        List<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName);
         if (categories == null || categories.isEmpty()) {
             throw new ResourceNotFoundException("No categories found for the subgroup name:" + subGroupName);
         }
