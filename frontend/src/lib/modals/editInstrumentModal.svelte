@@ -11,6 +11,7 @@
     isOpen, // Indicates if the modal is open
     close,  // Function to close the modal
     instrument, // The instrument data passed as a prop
+    message,
   } = $props();
 
   let hoveredAlternativeIndex = $state(null);
@@ -407,6 +408,7 @@
 
     showAutocompleteDropdown = true;
   }
+  
   //change with addAlternative(row) after adding search by keyword
   function addAlternative(){
     const errorSameSupp = document.getElementById("error-same-supplier");
@@ -467,7 +469,7 @@
         on:mouseup={stopDrag}
     >
         <div 
-            class="bg-white rounded-lg shadow-lg w-1/2 absolute"
+            class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
             style="transform: translate({posX}px, {posY}px);"
         >
             <div 
@@ -496,7 +498,9 @@
                 </g>
               </svg>
             </div>
-            
+            {#if message}
+              <p class="text-red-400 text-lg mt-4 ml-3">{message}</p>
+            {/if}
             {#await promise}
                 <div role="status" class="my-6 flex items-center justify-center p-4">
                     <svg
@@ -521,7 +525,7 @@
                 <form on:submit|preventDefault={handleSubmit} class="p-4">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
-                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt'} 
+                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
                                 <div>
                                     <label class="block mb-2">
                                         {#if characteristic.name === 'supplier'}

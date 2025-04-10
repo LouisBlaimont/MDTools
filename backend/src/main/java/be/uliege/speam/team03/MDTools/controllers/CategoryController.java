@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -16,17 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
-import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.GroupService;
-import be.uliege.speam.team03.MDTools.services.SubGroupService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
+import be.uliege.speam.team03.MDTools.services.SubGroupService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * This controller implements the API endpoints relative to the categories of

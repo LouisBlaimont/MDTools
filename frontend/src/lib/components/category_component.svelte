@@ -84,7 +84,6 @@
         currentSuppliers.set([]);
         alternatives.set([]);
         selectedCategoryIndex.set(index);
-        console.log(imageRefs);
         // Scroll the corresponding image into view
         if (imageRefs[index] instanceof HTMLElement) {
             imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -92,9 +91,9 @@
             console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
         }
 
-    // selecting the categoryId
-    const cat = $categories[$selectedCategoryIndex];
-    const categoryId = $categories[$selectedCategoryIndex].id;
+      // selecting the categoryId
+      const cat = $categories[$selectedCategoryIndex];
+      const categoryId = $categories[$selectedCategoryIndex].id;
 
         try{
             const response = await apiFetch(`/api/category/instruments/${categoryId}`);
@@ -270,12 +269,7 @@
             {/if}
         </table>
         
-
-
     <!-- PASS IN ADMIN MODE -->
-    {#if $isAdmin}
-        <EditButton />
-    {/if}
     {#if $isEditing}
     {#if $isAdmin}
             <div class="flex justify-center">

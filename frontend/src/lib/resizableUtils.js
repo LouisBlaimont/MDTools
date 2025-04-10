@@ -100,7 +100,6 @@ function stopResizeVertical() {
     function onMouseMove(event) {
       const newWidth = Math.max(minWidth, startWidth - (event.clientX - startX));
       div.style.width = `${newWidth}px`;
-      console.log(newWidth); 
     }
   
     function onMouseUp() {

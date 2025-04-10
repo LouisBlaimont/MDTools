@@ -3,15 +3,19 @@ package be.uliege.speam.team03.MDTools.controllers;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.models.Picture;
+import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
-import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
-import be.uliege.speam.team03.MDTools.services.PictureStorageService;
+import be.uliege.speam.team03.MDTools.repositories.*;
 import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
-import be.uliege.speam.team03.MDTools.services.InstrumentService;
-import be.uliege.speam.team03.MDTools.services.SupplierService;
+import be.uliege.speam.team03.MDTools.services.*;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,8 @@ public class InstrumentController {
     private final SupplierService supplierService;
     private final PictureRepository pictureRepository;
     private final PictureStorageService pictureStorageService;
+    private final CategoryService categoryService;
+
 
     /**
      * Get all instruments.
@@ -193,4 +199,25 @@ public class InstrumentController {
 
         return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<InstrumentDTO>> searchInstrument(
+            @RequestParam(required = false) List<String> keywords) {
+        
+        if (keywords == null || keywords.stream().allMatch(k -> k == null || k.trim().isEmpty())) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<InstrumentDTO> instruments = instrumentService.searchInstrument(keywords);
+        return ResponseEntity.ok(instruments);
+    }
+
+
+    // getting the category from an instrument
+    @GetMapping("/getCategory/{categoryId}")
+    public ResponseEntity<CategoryDTO> searchCategory(@PathVariable Integer categoryId) {
+        CategoryDTO category = categoryService.searchCategory(categoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(category);
+    }
 }
+

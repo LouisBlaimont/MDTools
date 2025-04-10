@@ -23,8 +23,8 @@ import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import lombok.AllArgsConstructor;
 
-@Service
 @AllArgsConstructor
+@Service
 public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final SupplierRepository supplierRepository;
@@ -241,14 +241,14 @@ public class InstrumentService {
         return instrumentsDTO;
     }
 
-    /**
-     * Find the maximum instrument ID.
-     * 
-     * @return the maximum instrument ID
-     */
-    public Integer findMaxInstrumentId() {
-        return instrumentRepository.findMaxInstrumentId();
-    }
+    // /**
+    //  * Find the maximum instrument ID.
+    //  * 
+    //  * @return the maximum instrument ID
+    //  */
+    // public Integer findMaxInstrumentId() {
+    //     return instrumentRepository.findMaxInstrumentId();
+    // }
 
     /**
      * Save an instrument.
@@ -314,4 +314,13 @@ public class InstrumentService {
 
         return instrumentsDTO;
     }
+
+    public List<InstrumentDTO> searchInstrument(List<String> keywords) {
+        if (keywords.isEmpty()) {
+            return null;
+        }
+        List<Instruments> instruments = instrumentRepository.searchByKeywords(keywords);
+        return instrumentMapper.convertToDTO(instruments);
+    }
 }
+
