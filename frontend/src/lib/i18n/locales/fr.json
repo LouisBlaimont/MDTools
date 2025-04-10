@@ -1,0 +1,127 @@
+{
+  "header": {
+    "home": "Accueil",
+    "search": "Recherche",
+    "data": "Données",
+    "more": {
+      "title": "Plus",
+      "suppliers": "Fournisseurs",
+      "abbreviations": "Abréviations",
+      "webmaster": "Webmestre",
+      "add": "Ajouter",
+      "add_instrument": "Ajouter un instrument",
+      "add_supplier": "Ajouter un fournisseur",
+      "add_category": "Ajouter une catégorie",
+      "add_group": "Ajouter un groupe",
+      "add_subgroup": "Ajouter un sous-groupe"
+    }
+  },
+  
+  "homepage": {
+    "button": {
+      "search": "Rechercher"
+    },
+    "keyword_search": {
+      "label": "Recherche par mot(s)-clé(s)",
+      "placeholder": "Entrez un mot-clé"
+    },
+    "group_search": {
+      "label": "Recherche par groupe ou sous-groupe",
+      "placeholder": "Entrez un groupe ou un sous-groupe"
+    },
+    "search_by_reference": {
+      "label": "Recherche par référence",
+      "placeholder": "Entrez une référence"
+    },
+    "search_order": {
+      "label": "Rechercher une commande"
+    },
+    "previous_orders": {
+      "label": "Voir toutes les commandes précédentes",
+      "button": "Voir"
+    },
+    "admin": {
+      "button": {
+        "add_group": "Ajouter un groupe",
+        "add_subgroup": "Ajouter un sous-groupe"
+      }
+    }
+  },
+
+  "profile": "Profil",
+  "sign_in": "Se connecter",
+  "log_out": "Se déconnecter",
+
+  "search_page": {
+    "label": {
+      "keyword": "Recherche par mot(s)-clé(s)",
+      "characteristics": "Recherche par caractéristiques :",
+      "group": "Groupe",
+      "subgroup": "Sous-groupe"
+    },
+    "placeholder": {
+      "keyword": "Entrez un mot-clé",
+      "min": "min",
+      "max": "max"
+    },
+    "button": {
+      "search": "Rechercher",
+      "clear": "Tout effacer",
+      "add": "Ajouter"
+    }
+  },
+  "category_component": {
+    "title": {
+      "instruments_types": "Types d'instruments",
+      "table": {
+        "subgroup": "SOUS-GROUPE",
+        "function": "FONCTION",
+        "name": "NOM",
+        "shape": "FORME",
+        "dimension": "DIM"
+      }
+    },
+    "admin": {
+      "button": {
+        "add_category": "Ajouter une catégorie"
+      }
+    },
+    "pictures": {
+      "title": "Images"
+    }
+  },
+  "instruments_component": {
+    "title": {
+      "instruments": "Instruments",
+      "suppliers": "Fournisseurs",
+      "alternatives": "Alternatives"
+    },
+    "table": {
+      "reference": "RÉF",
+      "brand": "MARQUE",
+      "description": "DESCRIPTION",
+      "price": "PRIX"
+    },
+    "button": {
+      "see_more": "Voir plus"
+    }
+  },
+  "orders_component": {
+    "show_orders": "Afficher les commandes",
+    "create_order": "Créer une commande",
+    "see_previous_orders": "Voir les commandes précédentes",
+    "export": "Exporter",
+    "table": {
+      "reference": "RÉF",
+      "brand": "MARQUE",
+      "group": "GROUPE",
+      "function": "FONCTION",
+      "name": "NOM",
+      "shape": "FORME",
+      "dimension": "DIM",
+      "quantity": "QTE",
+      "unite_price_excl_vat": "PU HTVA",
+      "total_price_excl_vat": "PT HTVA"
+    }
+  }
+}

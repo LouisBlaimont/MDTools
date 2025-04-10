@@ -21,6 +21,7 @@
   import { modals } from "svelte-modals";
   import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
   import { apiFetch } from "$lib/utils/fetch.js";
+  import { _ } from "svelte-i18n";
 
 
   /**
@@ -178,7 +179,7 @@
 </script>
 
 <svelte:head>
-  <title>Recherches</title>
+  <title>{$_('search')}</title>
 </svelte:head>
 
 <div id="container" class="text-[14px]">
