@@ -17,32 +17,6 @@
 
   let page_size = 2;
 
-  // // Update URL with search params when stores change
-  // function updateURLParams() {
-  //   if (!browser) return; // Only run in browser environment
-
-  //   // Get current URL from the page store
-  //   const currentUrl = new URL($page.url);
-
-  //   if ($selectedGroup) {
-  //     currentUrl.searchParams.set("group", $selectedGroup);
-  //   } else {
-  //     currentUrl.searchParams.delete("group");
-  //   }
-
-  //   if ($selectedSubGroup) {
-  //     currentUrl.searchParams.set("subgroup", $selectedSubGroup);
-  //   } else {
-  //     currentUrl.searchParams.delete("subgroup");
-  //   }
-
-  //   // Use Svelte's goto function with replaceState option
-  //   goto(currentUrl.toString(), { replaceState: true, noScroll: true });
-  // }
-
-  // // Subscribe to changes in the selectedGroup and selectedSubGroup stores
-  // $: if ($selectedGroup !== undefined) updateURLParams();
-  // $: if ($selectedSubGroup !== undefined) updateURLParams();
   export const updateURLParams = derived(
     [selectedGroup, selectedSubGroup],  // Dependencies
     ([$selectedGroup, $selectedSubGroup]) => {
@@ -307,23 +281,24 @@
 
 
   /* Dealing with the search by keywords */
-  
   let showKeywordsResult = $state(false);
   let clickTimeout = 500;
 
   // goto searches with the selected instrument found by keywords
   async function moveToSearchesBis(group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
+    // handle when the instrument has no category
     if (catId == null) {
       await modals.open(editInstrumentModal, { 
         instrument,
         message: "You need to assign a category to this instrument!" 
       });
     }
-    // goto(
-    //   `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
-    // );
-    window.location.href = `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`;
+    keywords2.set(null);
+    goto(
+      `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup)}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
+    );
+    reload.set(true);
   }
 
   // function to handle the keyword inputs and calling endpoint

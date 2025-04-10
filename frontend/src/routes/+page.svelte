@@ -8,7 +8,7 @@
   import { ROLES } from "../constants";
   import { ordersNames, userId, selectedOrderId } from "$lib/stores/searches";
   import { user, isAdmin, isWebmaster, isLoggedIn } from "$lib/stores/user_stores";
-  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers} from "$lib/stores/searches";
+  import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers, reload} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
   import { findOrderItems } from "$lib/components/order_component.js";
   import Loading from "$lib/Loading.svelte";
@@ -75,7 +75,7 @@
   let showModal = $state(false);
   let showKeywordsResult = $state(false);
 
-  // deal with the editing of the groups and the subgroups
+  // Deal with the editing of the groups and the subgroups
   function startEditing() {
     if (isEditing) {
       isEditing = false;
@@ -144,16 +144,18 @@
   // goto searches with the selected instrument found by keywords
   async function moveToSearchesBis(instrument, group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
+    // handle when the instrument has no category
     if (catId == null) {
       await modals.open(editInstrumentModal, { 
         instrument,
-        message: "You need to assign a category to this instrument!" // Add the message here
+        message: "You need to assign a category to this instrument!" 
       });
     }
     else {
       goto(
-        `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup ? subgroup : "")}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
+        `/searches?group=${encodeURIComponent(group)}&subgroup=${encodeURIComponent(subgroup)}&category=${encodeURIComponent(catId)}&instrument=${encodeURIComponent(instrumentId)}`
       );
+      reload.set(true);
     }
   }
 
@@ -227,23 +229,22 @@
     findOrderItems($selectedOrderId);
     goto(`/single_order_view?name=${name}`);
   }
-</script>
+  </script>
 
-<svelte:head>
+  <svelte:head>
   <title>Accueil</title>
-</svelte:head>
+  </svelte:head>
 
-<div
+  <div
   class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen-xl mx-auto text-[14px]"
->
+  >
   <div class="flex flex-col space-y-6 w-1/2 lg:min-w-[90px] xl:min-w-[250px]">
     <div class="w-full bg-gray-100 rounded-lg p-8 shadow-md">
       <form class="space-y-5">
         <div class="relative w-full">
           <label for="id_search_keyword" class="font-semibold text-lg block mb-2">
             Recherche par mot(s) clé(s):
-          </label>
-          
+          </label>          
           <input
             type="text"
             name="search_keyword"
@@ -321,98 +322,98 @@
   <div class="bg-white md:w-2/4 lg:min-w-[800px] xl:min-w-[1100px] gap-6 p-4 border border-gray-300 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
   >
   {#if $isLoggedIn}  
-      <div class="flex gap-2">
-        <!-- Buttons div -->
+    <div class="flex gap-2">
+      <!-- Buttons div -->
+      {#if selectedGroup}
+        <button
+          class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 "
+          aria-label="back to groups"
+          onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
+        >
+          <Icon icon="material-symbols:arrow-back-ios-new-rounded" width="24" height="24" />
+        </button>
+      {/if}
+
+      {#if $isAdmin}
+        <button
+          class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
+          aria-label="edit groups"
+          id="editGroupsButton"
+          onclick={() => startEditing()}
+        >
+          <Icon icon="material-symbols:edit" width="24" height="24" />
+        </button>
+      {/if}
+            
+
+      {#if $isAdmin}
+        {#if selected}
+          <div class="flex flex-col">
+            <a href="/admin/add_group"><button
+              class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              >Ajouter un groupe</button
+            ></a>
+          </div>
+        {/if}
         {#if selectedGroup}
-          <button
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 "
-            aria-label="back to groups"
-            onclick={() => ((selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null)}
-          >
-            <Icon icon="material-symbols:arrow-back-ios-new-rounded" width="24" height="24" />
-          </button>
+          <div class="flex flex-col">
+            <a href="/admin/add_subgroup"><button
+              class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
+              >Ajouter un sous-groupe</button
+            ></a>
+          </div>
         {/if}
+      {/if}
+    </div>
 
-        {#if $isAdmin}
-          <button
-            class="px-4 py-2 bg-gray-100 hover:bg-orange-300 rounded-lg mb-2"
-            aria-label="edit groups"
-            id="editGroupsButton"
-            onclick={() => startEditing()}
-          >
-            <Icon icon="material-symbols:edit" width="24" height="24" />
-          </button>
-        {/if}
-             
-
-        {#if $isAdmin}
-          {#if selected}
-            <div class="flex flex-col">
-              <a href="/admin/add_group"><button
-                class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
-                >Ajouter un groupe</button
-              ></a>
+    <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
+      {#if !selectedGroup}
+        {#each groups_summary as group}
+          <div class="relative group w-64 h-40">
+            <button
+              class="cursor-pointer w-full h-full object-cover rounded-lg"
+              style="background-image: url({group.pictureId
+                ? PUBLIC_API_URL + `/api/pictures/${group.pictureId}`
+                : '/default/group_picture_default.png'}); background-size: cover;"
+              aria-label="group image"
+              onclick={() => handleGroupClick(group)}
+              ondblclick={() => moveToSearches(group.name)}
+              onkeydown={(e) => {
+                if (e.key === "Enter") handleGroupClick(group);
+              }}
+            ></button>
+            <div
+              class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+            >
+              {group.name} ({group.instrCount})
             </div>
-          {/if}
-          {#if selectedGroup}
-            <div class="flex flex-col">
-              <a href="/admin/add_subgroup"><button
-                class="w-full bg-yellow-300 py-1 px-1 rounded-lg hover:bg-yellow-500 text-lg"
-                >Ajouter un sous-groupe</button
-              ></a>
-            </div>
-          {/if}
-        {/if}
-      </div>
+          </div>
+        {/each}
+      {/if}
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 sm:min-w-[600px] lg:grid-cols-4">
-        {#if !selectedGroup}
-          {#each groups_summary as group}
-            <div class="relative group w-64 h-40">
-              <button
-                class="cursor-pointer w-full h-full object-cover rounded-lg"
-                style="background-image: url({group.pictureId
-                  ? PUBLIC_API_URL + `/api/pictures/${group.pictureId}`
-                  : '/default/group_picture_default.png'}); background-size: cover;"
-                aria-label="group image"
-                onclick={() => handleGroupClick(group)}
-                ondblclick={() => moveToSearches(group.name)}
-                onkeydown={(e) => {
-                  if (e.key === "Enter") handleGroupClick(group);
-                }}
-              ></button>
-              <div
-                class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-              >
-                {group.name} ({group.instrCount})
-              </div>
+      {#if selectedGroup}
+        {#each selectedSubgroups as subgroup}
+          <div class="relative group w-64 h-40">
+            <button
+              class="cursor-pointer w-full h-full object-cover rounded-lg"
+              style="background-image: url({subgroup.pictureId
+                ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
+                : '/default/group_picture_default.png'}); background-size: cover;"
+              aria-label="subgroup image"
+              onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
+              onkeydown={(e) => {
+                if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
+              }}
+            ></button>
+            <div
+              class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
+            >
+              {subgroup.name} ({subgroup.instrCount})
             </div>
-          {/each}
-        {/if}
-
-          {#if selectedGroup}
-            {#each selectedSubgroups as subgroup}
-              <div class="relative group w-64 h-40">
-                <button
-                  class="cursor-pointer w-full h-full object-cover rounded-lg"
-                  style="background-image: url({subgroup.pictureId
-                    ? PUBLIC_API_URL + `/api/pictures/${subgroup.pictureId}`
-                    : '/default/group_picture_default.png'}); background-size: cover;"
-                  aria-label="subgroup image"
-                  onclick={() => handleSubGroupClick(selectedGroup, subgroup)}
-                  onkeydown={(e) => {
-                    if (e.key === "Enter") handleSubGroupClick(selectedGroup, subgroup);
-                  }}
-                ></button>
-                <div
-                  class="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 p-2 text-white text-lg rounded-b-lg"
-                >
-                  {subgroup.name} ({subgroup.instrCount})
-                </div>
-              </div>
-            {/each}
-          {/if}
-        </div>    
+          </div>
+        {/each}
+      {/if}
+    </div>    
   {/if}
   {#if !$isLoggedIn}
     <div class="flex flex-col items-center justify-center h-full max-height-[200px]">

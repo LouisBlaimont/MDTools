@@ -6,7 +6,6 @@
     import { apiFetch } from "$lib/utils/fetch";
     
     let groupName = $selectedGroup;
-    console.log("Group : " + groupName);
     let name = "";
     let picture = "";
     let characteristics = [""];

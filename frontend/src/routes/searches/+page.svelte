@@ -50,14 +50,12 @@
   async function findInstrumentsOfCategory(categoryId) {
     const index = $categories.findIndex(category => category.id === Number(categoryId));
     selectedCategoryIndex.set(index);
-    console.log("hreeeeee");
     currentSuppliers.set([]);
     alternatives.set([]);  
     try {
       const response = await apiFetch(`/api/category/instruments/${categoryId}`);
       let response2;
       if($isAdmin){
-          console.log("Calling:", `/api/alternatives/admin/category/${categoryId}`);
           response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
       }
       else{
