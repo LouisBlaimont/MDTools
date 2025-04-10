@@ -39,7 +39,7 @@ public class AlternativeService {
         this.pictureStorageService = pictureStorageService;
     }
 
-    public List<Instruments> findAlternatives(Integer instrId){
+    public List<Instruments> findAlternatives(Long instrId){
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(instrId);
 
         if(instrumentMaybe.isEmpty()){
@@ -70,7 +70,7 @@ public class AlternativeService {
         return alternatives;
     }
 
-    public List<InstrumentDTO> findAlternativesUser(Integer instrId){
+    public List<InstrumentDTO> findAlternativesUser(Long instrId){
         List<Instruments> alternatives = findAlternatives(instrId);
         alternatives.removeIf(instr -> !instr.getSupplier().getSoldByMd());
         InstrumentMapper mapper = new InstrumentMapper(supplierRepository, categoryRepository, pictureStorageService);
@@ -78,14 +78,14 @@ public class AlternativeService {
         return alternativesDTO;
     }
 
-    public List<InstrumentDTO> findAlternativesAdmin(Integer instrId){
+    public List<InstrumentDTO> findAlternativesAdmin(Long instrId){
         List<Instruments> alternatives = findAlternatives(instrId);
         InstrumentMapper mapper = new InstrumentMapper(supplierRepository, categoryRepository, pictureStorageService);
         List<InstrumentDTO> alternativesDTO = mapper.convertToDTO(alternatives);
         return alternativesDTO;
     }
 
-    public List<Instruments> findAlternativesOfCategory(Integer categoryId){
+    public List<Instruments> findAlternativesOfCategory(Long categoryId){
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
         if (categoryMaybe.isPresent() == false) {
             return null;
@@ -98,7 +98,7 @@ public class AlternativeService {
         List<Instruments> instruments = instrumentsMaybe.get();
 
         List<Instruments> alternativesOfCategory = new ArrayList<>();
-        Set<Integer> seenInstrumentIds = new HashSet<>();
+        Set<Long> seenInstrumentIds = new HashSet<>();
         
         for (Instruments instrument : instruments){
             List<Alternatives> alternatives1 = alternativesRepository.findById_InstrId1(instrument.getId());
@@ -130,7 +130,7 @@ public class AlternativeService {
         return alternativesOfCategory;
     }
 
-    public List<InstrumentDTO> findAlternativesOfCategoryUser(Integer categoryId){
+    public List<InstrumentDTO> findAlternativesOfCategoryUser(Long categoryId){
         List<Instruments> alternatives = findAlternativesOfCategory(categoryId);
         alternatives.removeIf(instr -> !instr.getSupplier().getSoldByMd());
         InstrumentMapper mapper = new InstrumentMapper(supplierRepository, categoryRepository, pictureStorageService);
@@ -138,7 +138,7 @@ public class AlternativeService {
         return alternativesDTO;    
     }
 
-    public List<InstrumentDTO> findAlternativesOfCategoryAdmin(Integer categoryId){
+    public List<InstrumentDTO> findAlternativesOfCategoryAdmin(Long categoryId){
         List<Instruments> alternatives = findAlternativesOfCategory(categoryId);
         InstrumentMapper mapper = new InstrumentMapper(supplierRepository, categoryRepository, pictureStorageService);
         List<InstrumentDTO> alternativesDTO = mapper.convertToDTO(alternatives);
@@ -149,7 +149,7 @@ public class AlternativeService {
         return alternativesRepository.findAllAlternativesReferences();
     } 
 
-    public Boolean removeAlternativeFromCategory(Integer categoryId, Integer instrId){
+    public Boolean removeAlternativeFromCategory(Long categoryId, Long instrId){
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
         if (categoryMaybe.isPresent() == false) {
             return null;
@@ -184,7 +184,7 @@ public class AlternativeService {
         return isRemoved;
     }
 
-    public List<InstrumentDTO> addAlternative(Integer instrId1, Integer instrId2){
+    public List<InstrumentDTO> addAlternative(Long instrId1, Long instrId2){
         Optional<Instruments> instr1Maybe = instrumentRepository.findById(instrId1);
         Optional<Instruments> instr2Maybe = instrumentRepository.findById(instrId2);
 
@@ -194,8 +194,8 @@ public class AlternativeService {
 
         Instruments instr1 = instr1Maybe.get();
         Instruments instr2 = instr2Maybe.get();
-        Integer supplierId1 = instr1.getSupplier().getId();
-        Integer supplierId2 = instr2.getSupplier().getId();
+        Long supplierId1 = instr1.getSupplier().getId();
+        Long supplierId2 = instr2.getSupplier().getId();
         if (supplierId1 == supplierId2){
             throw new BadRequestException("Alternatives can't have the same supplier");
         }
@@ -212,7 +212,7 @@ public class AlternativeService {
         return instrumentsOfCatInstr1;
     }
 
-    public List<InstrumentDTO> removeAlternative(Integer instrId1, Integer instrId2){
+    public List<InstrumentDTO> removeAlternative(Long instrId1, Long instrId2){
         Optional<Instruments> instr1Maybe = instrumentRepository.findById(instrId1);
         Optional<Instruments> instr2Maybe = instrumentRepository.findById(instrId2);
 

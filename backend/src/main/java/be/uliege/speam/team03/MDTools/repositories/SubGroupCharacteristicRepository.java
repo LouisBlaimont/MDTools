@@ -14,7 +14,7 @@ public interface SubGroupCharacteristicRepository extends CrudRepository<SubGrou
     long countByCharacteristic(Characteristic characteristic);
 
     @Query("SELECT COUNT(gc) FROM SubGroupCharacteristic gc WHERE gc.subGroup.id = :subgroupId")
-    int countBySubGroupId(Integer subgroupId);
+    int countBySubGroupId(Long subgroupId);
 
     List<SubGroupCharacteristic> findBySubGroup(SubGroup subGroup); // 👈 ajoute cette ligne
 }

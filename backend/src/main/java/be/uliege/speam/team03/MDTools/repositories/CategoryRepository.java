@@ -56,6 +56,6 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
      * @return an Optional containing the Category if found, or an empty Optional if
      *         not found.
      */
-    Optional<Category> findById(Integer category_id);
+    Optional<Category> findById(Long category_id);
 
 }

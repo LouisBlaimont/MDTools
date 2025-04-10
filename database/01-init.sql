@@ -1,32 +1,32 @@
 -- Table pictures
 CREATE TABLE pictures (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     file_name VARCHAR(255) NOT NULL,
     reference_type VARCHAR(255) NOT NULL,
-    reference_id INTEGER NOT NULL,
+    reference_id BIGINT NOT NULL,
     upload_date TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP
 );
 COMMENT ON TABLE pictures IS 'Stores image files with polymorphic associations to other entities';
 
 -- Table groups
 CREATE TABLE groups (
-    group_id SERIAL PRIMARY KEY,
+    group_id BIGSERIAL PRIMARY KEY,
     group_name VARCHAR(100) UNIQUE NOT NULL,
-    picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
+    picture_id BIGINT REFERENCES pictures(id) ON DELETE SET NULL
 );
 
 --Table sub_groups
 CREATE TABLE sub_groups (
-    sub_group_id SERIAL PRIMARY KEY,
+    sub_group_id BIGSERIAL PRIMARY KEY,
     sub_group_name VARCHAR(100) NOT NULL,
-    group_id INTEGER REFERENCES groups(group_id) ON DELETE SET NULL,
-    picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
+    group_id BIGINT REFERENCES groups(group_id) ON DELETE SET NULL,
+    picture_id BIGINT REFERENCES pictures(id) ON DELETE SET NULL
 );
 CREATE INDEX idx_sub_groups_group_id ON sub_groups(group_id);
 
 -- Table users
 CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
+    user_id BIGSERIAL PRIMARY KEY,
     username TEXT UNIQUE,
     email TEXT UNIQUE,
     enabled BOOLEAN DEFAULT TRUE,
@@ -66,8 +66,8 @@ CREATE TABLE user_authorities (
 
 -- Table logs
 CREATE TABLE logs (
-    log_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+    log_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
     action TEXT NOT NULL,
     timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -76,7 +76,7 @@ CREATE INDEX idx_logs_timestamp ON logs(timestamp); -- For time-based queries
 
 -- Table supplier
 CREATE TABLE supplier (
-    supplier_id SERIAL PRIMARY KEY,
+    supplier_id BIGSERIAL PRIMARY KEY,
     supplier_name VARCHAR(255) NOT NULL,
     sold_by_md BOOLEAN NOT NULL,
     closed BOOLEAN DEFAULT FALSE,
@@ -85,39 +85,39 @@ CREATE TABLE supplier (
 
 -- Table category
 CREATE TABLE category (
-    category_id SERIAL PRIMARY KEY,
-    sub_group_id INTEGER NOT NULL REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
+    category_id BIGSERIAL PRIMARY KEY,
+    sub_group_id BIGINT NOT NULL REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
     shape VARCHAR(255),
-    picture_id INTEGER REFERENCES pictures(id) ON DELETE SET NULL
+    picture_id BIGINT REFERENCES pictures(id) ON DELETE SET NULL
 );
 CREATE INDEX idx_categories_sub_group_id ON category(sub_group_id);
 
 -- Table characteristic
 CREATE TABLE characteristic (
-    characteristic_id SERIAL PRIMARY KEY,
+    characteristic_id BIGSERIAL PRIMARY KEY,
     characteristic_name TEXT NOT NULL
 );
 
 -- Table category_characteristic
 CREATE TABLE category_characteristic (
-    category_id INTEGER REFERENCES category(category_id) ON DELETE CASCADE,
-    characteristic_id INTEGER REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
+    category_id BIGINT REFERENCES category(category_id) ON DELETE CASCADE,
+    characteristic_id BIGINT REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
     characteristic_value TEXT,
     PRIMARY KEY (category_id, characteristic_id)
 );
 
 -- Table for characteristic values abbreviations
 CREATE TABLE category_characteristic_abbreviations (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     characteristic_value TEXT UNIQUE NOT NULL,
     value_abreviation TEXT NOT NULL
 );
 
 -- Table instruments
 CREATE TABLE instruments (
-    instrument_id SERIAL PRIMARY KEY,
-    supplier_id INTEGER REFERENCES supplier(supplier_id) ON DELETE CASCADE,
-    category_id INTEGER REFERENCES category(category_id) ON DELETE CASCADE,
+    instrument_id BIGSERIAL PRIMARY KEY,
+    supplier_id BIGINT REFERENCES supplier(supplier_id) ON DELETE CASCADE,
+    category_id BIGINT REFERENCES category(category_id) ON DELETE CASCADE,
     reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
@@ -130,31 +130,31 @@ CREATE INDEX idx_instruments_reference ON instruments(reference);
 
 -- Table group_characteristic
 CREATE TABLE sub_group_characteristic (
-    sub_group_id INTEGER REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
-    characteristic_id INTEGER REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
+    sub_group_id BIGINT REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
+    characteristic_id BIGINT REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
     order_position INTEGER,
     PRIMARY KEY (sub_group_id, characteristic_id)
 );
 
 -- Table alternatives
 CREATE TABLE alternatives (
-    instruments_id_1 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
-    instruments_id_2 INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+    instruments_id_1 BIGINT NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+    instruments_id_2 BIGINT NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     PRIMARY KEY (instruments_id_1, instruments_id_2)
 );
 
 -- Table orders
 CREATE TABLE orders (
-    order_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+    order_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_name TEXT
 );
 
 -- Table order_items
 CREATE TABLE order_items (
-    order_id INTEGER NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
-    instrument_id INTEGER NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
+    order_id BIGINT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    instrument_id BIGINT NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_id, instrument_id)
 );
@@ -250,7 +250,7 @@ EXECUTE FUNCTION update_shape();
 CREATE OR REPLACE FUNCTION refresh_shapes_for_subgroup()
 RETURNS TRIGGER AS $$
 DECLARE
-    cat_id INTEGER;
+    cat_id BIGINT;
 BEGIN
     -- For each category in the affected subgroup
     FOR cat_id IN

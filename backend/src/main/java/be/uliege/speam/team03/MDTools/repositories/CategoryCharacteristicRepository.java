@@ -8,18 +8,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
+import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
 import be.uliege.speam.team03.MDTools.models.Characteristic;
-import be.uliege.speam.team03.MDTools.models.Category;
 
 public interface CategoryCharacteristicRepository
       extends JpaRepository<CategoryCharacteristic, CategoryCharacteristicKey> {
    @Query("SELECT cc FROM CategoryCharacteristic cc JOIN FETCH cc.category JOIN FETCH cc.characteristic WHERE cc.category.id IN :categoryIds ORDER BY cc.category.subGroup.name ASC, cc.category.id ASC")
-   List<CategoryCharacteristic> findByCategoryIds(@Param("categoryIds") List<Integer> categoryIds);
+   List<CategoryCharacteristic> findByCategoryIds(@Param("categoryIds") List<Long> categoryIds);
 
-   List<CategoryCharacteristic> findByCategoryId(Integer categoryId);
+   List<CategoryCharacteristic> findByCategoryId(Long categoryId);
 
-   List<CategoryCharacteristic> findByCharacteristicId(Integer characteristicId);
+   List<CategoryCharacteristic> findByCharacteristicId(Long characteristicId);
 
    List<CategoryCharacteristic> findByCharacteristicAndCategoryIn(Characteristic characteristic, List<Category> categories);
 

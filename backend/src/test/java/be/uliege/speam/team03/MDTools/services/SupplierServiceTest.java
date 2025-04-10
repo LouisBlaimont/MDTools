@@ -1,15 +1,22 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
@@ -35,34 +42,34 @@ public class SupplierServiceTest {
     @BeforeEach
     void setUp() {
         supplier = new Supplier();
-        supplier.setId(1);
+        supplier.setId((long) 1);
         supplier.setSupplierName("Supplier A");
         supplier.setSoldByMd(true);
         supplier.setClosed(false);
 
-        supplierDTO = new SupplierDTO("Supplier A", 1, true, false);
+        supplierDTO = new SupplierDTO("Supplier A", (long) 1, true, false);
     }
 
     @Test
     void findSupplierById_ShouldReturnSupplierDTO_WhenSupplierExists() {
-        when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
+        when(supplierRepository.findById((long) 1)).thenReturn(Optional.of(supplier));
         when(supplierMapper.convertToDTO(supplier)).thenReturn(supplierDTO);
 
-        SupplierDTO result = supplierService.findSupplierById(1);
+        SupplierDTO result = supplierService.findSupplierById((long) 1);
 
         assertNotNull(result);
         assertEquals(supplierDTO.getName(), result.getName());
-        verify(supplierRepository, times(1)).findById(1);
+        verify(supplierRepository, times(1)).findById((long) 1);
     }
 
     @Test
     void findSupplierById_ShouldReturnNull_WhenSupplierDoesNotExist() {
-        when(supplierRepository.findById(1)).thenReturn(Optional.empty());
+        when(supplierRepository.findById((long) 1)).thenReturn(Optional.empty());
 
-        SupplierDTO result = supplierService.findSupplierById(1);
+        SupplierDTO result = supplierService.findSupplierById((long) 1);
 
         assertNull(result);
-        verify(supplierRepository, times(1)).findById(1);
+        verify(supplierRepository, times(1)).findById((long) 1);
     }
 
     @Test
@@ -112,18 +119,18 @@ public class SupplierServiceTest {
 
     @Test
     void deleteSupplierById_ShouldDeleteSupplier_WhenSupplierExists() {
-        when(supplierRepository.findById(1)).thenReturn(Optional.of(supplier));
+        when(supplierRepository.findById((long) 1)).thenReturn(Optional.of(supplier));
 
-        supplierService.deleteSupplierById(1);
+        supplierService.deleteSupplierById((long) 1);
 
         verify(supplierRepository, times(1)).delete(supplier);
     }
 
     @Test
     void deleteSupplierById_ShouldThrowException_WhenSupplierDoesNotExist() {
-        when(supplierRepository.findById(1)).thenReturn(Optional.empty());
+        when(supplierRepository.findById((long) 1)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> supplierService.deleteSupplierById(1));
-        verify(supplierRepository, times(1)).findById(1);
+        assertThrows(IllegalArgumentException.class, () -> supplierService.deleteSupplierById((long) 1));
+        verify(supplierRepository, times(1)).findById((long) 1);
     }
 }

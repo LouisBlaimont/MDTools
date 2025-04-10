@@ -98,7 +98,7 @@ public class CategoryService {
      * @param id the id of the category
      * @return the category
      */
-    public CategoryDTO findById(Integer id) {
+    public CategoryDTO findById(Long id) {
         Optional<Category> categoryMaybe = categoryRepository.findById((long) id);
         if (categoryMaybe.isEmpty()) {
             return null;
@@ -114,7 +114,7 @@ public class CategoryService {
      * @return the new category
      */
     @SuppressWarnings("unchecked")
-    public CategoryDTO addCategoryToSubGroup(Map<String, Object> body, Integer subGroupId) {
+    public CategoryDTO addCategoryToSubGroup(Map<String, Object> body, Long subGroupId) {
         String subGroupName = (String) body.get("subGroupName");
         String function = (String) body.get("function");
         String shape = (String) body.get("shape");
@@ -122,7 +122,7 @@ public class CategoryService {
         // String pictureId = (String) body.get("pictureId");
 
         Category category = new Category();
-        Integer newCategoryId = category.getId();
+        Long newCategoryId = category.getId();
 
         SubGroup subGroup;
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
@@ -177,7 +177,7 @@ public class CategoryService {
             // return null;
             // }
             // Characteristic newChar = charMaybe.get();
-            // Integer charId = newChar.getId();
+            // Long charId = newChar.getId();
             // String newCharVal = dictVal.get(charSubGroup);
             // String newCharAbrev = dictValAbrev.get(charSubGroup);
 
@@ -323,7 +323,7 @@ public class CategoryService {
             return categoriesDTO;
         }
 
-        List<Integer> categoryIds = categories.stream().map(Category::getId).toList();
+        List<Long> categoryIds = categories.stream().map(Category::getId).toList();
 
         List<CategoryCharacteristic> categoryChars = categoryCharRepository.findByCategoryIds(categoryIds);
 
@@ -368,7 +368,7 @@ public class CategoryService {
      * @param catId the id of the category
      * @return List of CharacteristicDTO
      */
-    public List<CharacteristicDTO> findCategoryById(Integer catId) {
+    public List<CharacteristicDTO> findCategoryById(Long catId) {
         Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
         if (categoryMaybe.isEmpty()) {
             return null;
@@ -395,7 +395,7 @@ public class CategoryService {
      * @return List of CharacteristicDTO
      * @throws ResourceNotFoundException
      */
-    public List<CharacteristicDTO> updateCategoryCharacteristics(Integer catId,
+    public List<CharacteristicDTO> updateCategoryCharacteristics(Long catId,
             List<CharacteristicDTO> updatedCharacteristics) {
         // Find the category
         Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
@@ -458,7 +458,7 @@ public class CategoryService {
     }
     
 
-    public CategoryDTO searchCategory(Integer categoryId) {
+    public CategoryDTO searchCategory(Long categoryId) {
         Optional<Category> cat = categoryRepository.findById((long) categoryId);
         return catMapper.mapToCategoryDto(cat.get());
     }
@@ -474,7 +474,7 @@ public class CategoryService {
 // SubGroup subGroup = subGroupMaybe.get();
 
 // Category newCat = new Category(subGroup);
-// Integer newCatId = newCat.getId();
+// Long newCatId = newCat.getId();
 
 // String gName = subGroup.getGroup().getName();
 // String subgName = subGroup.getName();
@@ -523,7 +523,7 @@ public class CategoryService {
 // return null;
 // }
 // Characteristic newChar = charMaybe.get();
-// Integer charId = newChar.getId();
+// Long charId = newChar.getId();
 // String newCharVal = dictVal.get(charSubGroup);
 // String newCharAbrev = dictValAbrev.get(charSubGroup);
 

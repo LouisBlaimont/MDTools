@@ -1,12 +1,10 @@
 package be.uliege.speam.team03.MDTools.mapper;
 
-import be.uliege.speam.team03.MDTools.models.Category;
-import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
-import be.uliege.speam.team03.MDTools.services.CharacteristicAbbreviationService;
-
 import java.util.Optional;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
+import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 
 public class CategoryMapper {
 
@@ -23,12 +21,12 @@ public class CategoryMapper {
      * @return
      */
     public CategoryDTO mapToCategoryDto(Category category){
-        Integer id = category.getId();
+        Long id = category.getId();
         String gName = category.getSubGroup().getGroup().getName();
         String subgName = category.getSubGroup().getName();
         
         String name;
-        Optional<String> nameMaybe = categoryRepository.findCharacteristicVal((long) id, "Name");
+        Optional<String> nameMaybe = categoryRepository.findCharacteristicVal(id, "Name");
         if (nameMaybe.isPresent()){ 
             name = nameMaybe.get();
         } else {
@@ -37,7 +35,7 @@ public class CategoryMapper {
         }
 
         String function;
-        Optional<String> functionMaybe = categoryRepository.findCharacteristicVal((long) id, "Function");
+        Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
         if (functionMaybe.isPresent()){
             function = functionMaybe.get();
         } else if (category.getFunction() != null){
@@ -50,7 +48,7 @@ public class CategoryMapper {
         String shape = category.getShape();
 
         String lenAbrv;
-        Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicVal((long) id, "Length");
+        Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicVal(id, "Length");
         if (lenAbrvMaybe.isPresent()){
             lenAbrv = lenAbrvMaybe.get();
         } else if (category.getLenAbrv() != null){

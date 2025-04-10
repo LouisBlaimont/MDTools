@@ -20,7 +20,7 @@ public class SubGroupCharacteristicKey implements Serializable{
     private Long subGroupId;
 
     @Column(name="characteristic_id")
-    private Integer charId;
+    private Long charId;
 
     @Override
     public boolean equals(Object o){

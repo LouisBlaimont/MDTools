@@ -10,9 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemDTO {
-    private Integer orderId;
-    private Integer userId;
-    private Integer instrumentId;
+    private Long orderId;
+    private Long userId;
+    private Long instrumentId;
     private String orderName;
     private String reference;
     private String supplier;
@@ -21,7 +21,7 @@ public class OrderItemDTO {
     private Float price;
     private Float totalPrice;
 
-    public OrderItemDTO(Integer orderId, Integer userId, Integer instrumentId, String orderName, String reference, String supplier, CategoryDTO category, Integer quantity, Float price){
+    public OrderItemDTO(Long orderId, Long userId, Long instrumentId, String orderName, String reference, String supplier, CategoryDTO category, Integer quantity, Float price){
         this.orderId = orderId;
         this.userId = userId;
         this.orderName = orderName;

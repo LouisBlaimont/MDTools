@@ -15,12 +15,12 @@ import be.uliege.speam.team03.MDTools.models.Supplier;
 public interface InstrumentRepository extends CrudRepository<Instruments, Integer>, InstrumentRepositoryCustom {
     
     Optional<Instruments> findByReference(String reference);
-    Optional<Instruments> findByCategoryId(Integer id);
+    Optional<Instruments> findByCategoryId(Long id);
     Optional<List<Instruments>> findByCategory(Category category); 
-    Optional<List<Instruments>> findBySupplierId(Integer id); 
+    Optional<List<Instruments>> findBySupplierId(Long id); 
     List<Instruments> findAllBySupplier(Supplier supplier);
     @NonNull
-    Optional<Instruments> findById(@NonNull Integer id);
+    Optional<Instruments> findById(@NonNull Long id);
 
     // /**
     //  * Find the maximum supplier ID, which is the one of the last element (supplier) in th database.

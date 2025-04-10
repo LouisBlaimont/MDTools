@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
@@ -18,9 +19,8 @@ import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
-import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
 import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
-import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
+import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -96,7 +96,7 @@ public class InstrumentService {
      * @param id the ID of the instrument
      * @return the instrument with the specified ID, or null if no instrument is found
      */
-    public InstrumentDTO findById(Integer id) {
+    public InstrumentDTO findById(Long id) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
         if (!instrumentMaybe.isPresent()) {
             throw new ResourceNotFoundException("Instrument not found with ID: " + id);
@@ -150,7 +150,7 @@ public class InstrumentService {
      * @return a list of instruments for the specified supplier, or null if no instruments are found
      * @throws IllegalArgumentException if the supplier ID is null
      */
-    public List<InstrumentDTO> findInstrumentsBySupplierId(Integer supplierId) {
+    public List<InstrumentDTO> findInstrumentsBySupplierId(Long supplierId) {
         Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
         if (!supplierMaybe.isPresent()) {
             return null;
@@ -160,7 +160,7 @@ public class InstrumentService {
         return instrumentMapper.convertToDTO(instruments);
     }
 
-    public InstrumentDTO updateInstrument(Map<String, Object> body, Integer id) {
+    public InstrumentDTO updateInstrument(Map<String, Object> body, Long id) {
         if (body == null || body.isEmpty()) {
             return null;
         }
@@ -171,7 +171,7 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         String reference = (String) body.get("reference");
         String supplier = (String) body.get("supplier");
-        Integer categoryId = (Integer) body.get("categoryId");
+        Long categoryId = (Long) body.get("categoryId");
         String supplierDescription = (String) body.get("supplierDescription");
         Number priceValue = (Number) body.get("price");
         Float price = priceValue != null ? priceValue.floatValue() : null;
@@ -201,7 +201,7 @@ public class InstrumentService {
      * @return a list of instruments for the specified category, or null if no instruments are found
      * @throws IllegalArgumentException if the category ID is null
      */
-    public List<InstrumentDTO> findInstrumentsOfCatergory(Integer categoryId) {
+    public List<InstrumentDTO> findInstrumentsOfCatergory(Long categoryId) {
 
         // retrieve category based on categoryId
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
@@ -229,7 +229,7 @@ public class InstrumentService {
             boolean obsolete = instrument.getObsolete();
 
             // retrieve alternatives? 
-            Integer instrumentId = instrument.getId();
+            Long instrumentId = instrument.getId();
             
             // get pictures of the instrument
             List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
@@ -246,7 +246,7 @@ public class InstrumentService {
     //  * 
     //  * @return the maximum instrument ID
     //  */
-    // public Integer findMaxInstrumentId() {
+    // public Long findMaxInstrumentId() {
     //     return instrumentRepository.findMaxInstrumentId();
     // }
 
@@ -276,7 +276,7 @@ public class InstrumentService {
      * 
      * @param id the ID of the instrument to delete
      */
-    public void delete(Integer id) {
+    public void delete(Long id) {
         Instruments instrument = instrumentRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Instrument not found with id: " + id));
         instrumentRepository.delete(instrument);

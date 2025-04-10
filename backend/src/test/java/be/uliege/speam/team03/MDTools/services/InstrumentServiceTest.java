@@ -1,34 +1,40 @@
 package be.uliege.speam.team03.MDTools.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
+import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.Group;
 import be.uliege.speam.team03.MDTools.models.Instruments;
+import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.Supplier;
+import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
-import be.uliege.speam.team03.MDTools.models.PictureType;
-import be.uliege.speam.team03.MDTools.models.Category;
-import be.uliege.speam.team03.MDTools.models.SubGroup;
-import be.uliege.speam.team03.MDTools.models.Group;
-import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class InstrumentServiceTest {
@@ -60,15 +66,15 @@ public class InstrumentServiceTest {
     void setUp() {
         // Initialize test data
         instrument = new Instruments();
-        instrument.setId(1);
+        instrument.setId((long) 1);
         instrument.setReference("Test Reference");
         instrument.setPrice(100.0f);
         instrument.setObsolete(false);
 
         instrumentDTO = new InstrumentDTO();
-        instrumentDTO.setId(1);
+        instrumentDTO.setId((long) 1);
         instrumentDTO.setSupplier("Test Supplier");
-        instrumentDTO.setCategoryId(1);
+        instrumentDTO.setCategoryId((long) 1);
         instrumentDTO.setReference("Test Reference");
         instrumentDTO.setSupplierDescription("Test Description");
         instrumentDTO.setPrice(100.0f);
@@ -83,8 +89,8 @@ public class InstrumentServiceTest {
 
         // Mock dependencies
         when(pictureStorageService.getPicturesIdByReferenceIdAndPictureType(anyLong(), any(PictureType.class))).thenReturn(new ArrayList<>());
-        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(new Category()));
-        when(supplierRepository.findById(anyInt())).thenReturn(Optional.of(new Supplier()));
+        when(categoryRepository.findById((long) anyInt())).thenReturn(Optional.of(new Category()));
+        when(supplierRepository.findById((long) anyInt())).thenReturn(Optional.of(new Supplier()));
         when(instrumentMapper.convertToDTO(any(Instruments.class))).thenReturn(instrumentDTO);
         when(instrumentMapper.convertToEntity(any(InstrumentDTO.class))).thenReturn(instrument);
         when(instrumentRepository.save(any(Instruments.class))).thenReturn(instrument);
@@ -121,29 +127,29 @@ public class InstrumentServiceTest {
     @Test
     void findById_WhenInstrumentExists_ReturnsInstrumentDTO() {
         // Arrange
-        when(instrumentRepository.findById(1)).thenReturn(Optional.of(instrument));
+        when(instrumentRepository.findById(1L)).thenReturn(Optional.of(instrument));
         when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
 
         // Act
-        InstrumentDTO result = instrumentService.findById(1);
+        InstrumentDTO result = instrumentService.findById( 1L);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.getId());
     }
 
-    // @Test
-    // void findById_WhenInstrumentDoesNotExist_ThrowsResourceNotFoundException() {
-    //     // Arrange
-    //     when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
+    @Test
+    void findById_WhenInstrumentDoesNotExist_ThrowsResourceNotFoundException() {
+        // Arrange
+        when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
 
-    //     // Act & Assert
-    //     Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
-    //         instrumentService.findById(999);
-    //     });
+        // Act & Assert
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.findById(999L);
+        });
 
-    //     assertEquals("Instrument not found with ID: 999", exception.getMessage());
-    // }
+        assertTrue(exception.getMessage().contains("Instrument not found with ID: 999"));
+    }
 
     @Test
     void findAll_WhenInstrumentsExist_ReturnsListOfInstrumentDTOs() {
@@ -206,11 +212,11 @@ public class InstrumentServiceTest {
     @Test
     void deleteInstrument_CallsRepositoryDeleteById() {
         // Arrange
-        when(instrumentRepository.findById(1)).thenReturn(Optional.of(instrument));
+        when(instrumentRepository.findById(1L)).thenReturn(Optional.of(instrument));
         doNothing().when(instrumentRepository).delete(instrument);
 
         // Act
-        instrumentService.delete(1);
+        instrumentService.delete( 1L);
 
         // Assert
         verify(instrumentRepository).delete(instrument);
@@ -223,7 +229,7 @@ public class InstrumentServiceTest {
 
         // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            instrumentService.delete(999);
+            instrumentService.delete((long) 999);
         });
 
         assertTrue(exception.getMessage().contains("Instrument not found with id: 999"));
@@ -232,7 +238,7 @@ public class InstrumentServiceTest {
     @Test
     void findInstrumentsByReference_WhenInstrumentExists_ReturnsListOfInstrumentDTO() {
         Category category = new Category();
-        category.setId(1);
+        category.setId((long) 1);
         category.setSubGroup(new SubGroup());
         category.getSubGroup().setGroup(new Group());
         category.getSubGroup().getGroup().setId(1L);
@@ -267,7 +273,7 @@ public class InstrumentServiceTest {
     @Test
     void updateInstrument_WithValidData_ReturnsUpdatedInstrumentDTO() {
         // Arrange
-        when(instrumentRepository.findById(1)).thenReturn(Optional.of(instrument));
+        when(instrumentRepository.findById(1L)).thenReturn(Optional.of(instrument));
         when(instrumentRepository.save(any(Instruments.class))).thenAnswer(invocation -> {
             Instruments updatedInstrument = invocation.getArgument(0);
             updatedInstrument.setReference("Updated Reference");
@@ -291,7 +297,7 @@ public class InstrumentServiceTest {
         );
 
         // Act
-        InstrumentDTO result = instrumentService.updateInstrument(updateData, 1);
+        InstrumentDTO result = instrumentService.updateInstrument(updateData, (long) 1);
 
         // Assert
         assertNotNull(result);
@@ -303,12 +309,12 @@ public class InstrumentServiceTest {
     @Test
     void updateInstrument_WithNonexistentId_ReturnsNull() {
         // Arrange
-        when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
+        when(instrumentRepository.findById(999L)).thenReturn(Optional.empty());
 
         Map<String, Object> updateData = Map.of("reference", "Nonexistent Reference");
 
         // Act
-        InstrumentDTO result = instrumentService.updateInstrument(updateData, 999);
+        InstrumentDTO result = instrumentService.updateInstrument(updateData, (long) 999);
 
         // Assert
         assertNull(result);
