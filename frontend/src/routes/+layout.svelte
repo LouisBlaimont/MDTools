@@ -18,6 +18,8 @@
   import { modals } from "svelte-modals";
   import addSupplierModal from "$lib/modals/addSupplierModal.svelte";
   import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
+  import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
+  import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
   import { stopImmediatePropagation } from "svelte/legacy";
   import "$lib/i18n"; // Import to initialize. Important :)
   import { isLoading, locale, waitLocale, _ } from "svelte-i18n";
@@ -239,6 +241,17 @@
                         }}
                       >
                         {$_('header.more.add_category')}
+                      </button>
+                      <!-- Add Group Button -->
+                      <button
+                        class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
+                        onclick={() => {
+                          closeManageMenu();
+                          closeMoreMenu();
+                          modals.open(AddGroupModal);
+                        }}
+                        >
+                        {$_('header.more.add_group')}
                       </button>
                     </div>
                   {/if}

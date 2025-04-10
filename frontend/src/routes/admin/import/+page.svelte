@@ -8,6 +8,10 @@
   import ZipImport from "./zipImport.svelte";
   import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";
   import Icon from '@iconify/svelte';
+  import { modals } from "svelte-modals";
+  import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
+  import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
+
 
   // Variable declarations
   // Declaring various variables used for drag & drop, file selection, modal handling, and state tracking.
@@ -714,6 +718,23 @@
                   <option value={subGroup}>{subGroup}</option>
                 {/each}
               </datalist>
+              <div class="flex justify-start gap-3 mt-2">
+                <button
+                  class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
+                  on:click={() => modals.open(AddGroupModal)}
+                >
+                  Ajouter un groupe
+                </button>
+            
+                {#if selectedGroup !== ""}
+                  <button
+                    class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
+                    on:click={() => modals.open(AddSubGroupModal)}
+                  >
+                    Ajouter un sous-groupe
+                  </button>
+                {/if}
+              </div>            
             </div>
             {:else if currentView === "Supplier"}
             <!-- Sub-group Selection View -->

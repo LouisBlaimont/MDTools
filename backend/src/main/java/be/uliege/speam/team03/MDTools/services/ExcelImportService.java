@@ -59,6 +59,28 @@ public class ExcelImportService {
     }
 
     /**
+     * Cleans and normalizes a string input by:
+     * - Removing surrounding double quotes if present,
+     * - Trimming whitespace,
+     * - Converting to lowercase,
+     * - Removing accents.
+     *
+     * @param rawValue The original input object (usually a string from the Excel file).
+     * @return A cleaned and normalized string, or null if the input is null.
+     */
+    private String cleanString(Object rawValue) {
+        if (rawValue == null) return null;
+
+        String value = rawValue.toString().trim();
+
+        if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 1) {
+            value = value.substring(1, value.length() - 1);
+        }
+
+        return normalizeString(value); // Lowercase + accents removed
+    }
+
+    /**
      * Processes uncategorized instruments and updates or inserts them into the database.
      * @param data The list of instrument data.
      */
@@ -68,7 +90,7 @@ public class ExcelImportService {
                 .collect(Collectors.toSet());
     
         for (Map<String, Object> row : data) {
-            String reference = (String) row.get("reference");
+            String reference = cleanString(row.get("reference"));
             if (reference == null || reference.trim().isEmpty()) {
                 logger.warn("Skipping entry due to missing reference.");
                 continue;
@@ -94,7 +116,7 @@ public class ExcelImportService {
      */
     void processCatalogImport(String supplierName, List<Map<String, Object>> data) {
         Set<String> importedReferences = data.stream()
-                .map(row -> (String) row.get("reference"))
+                .map(row -> cleanString(row.get("reference")))
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .collect(Collectors.toSet());
@@ -125,7 +147,7 @@ public class ExcelImportService {
             processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false, supplierName);
     
             // Check if it exists and obsolete = true → make obsolete = false
-            String reference = (String) row.get("reference");
+            String reference = cleanString(row.get("reference"));
             if (reference != null) {
                 Optional<Instruments> existing = instrumentRepository.findByReference(reference.trim());
                 existing.ifPresent(instrument -> {
@@ -177,7 +199,7 @@ public class ExcelImportService {
      * @param supplier The supplier of the instrument.
      */
     void processInstrumentRow(Map<String, Object> row, SubGroup subGroup, Set<String> availableColumns, List<String> subGroupCharacteristics, boolean manageCategories, String supplier) {
-        String reference = (String) row.get("reference");
+        String reference = cleanString(row.get("reference"));
         if (reference == null || reference.trim().isEmpty()) {
             logger.warn("Skipping entry due to missing reference.");
             return;
@@ -196,7 +218,7 @@ public class ExcelImportService {
         Instruments newInstrument = new Instruments();
         newInstrument.setReference(reference);
         newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns, supplier));
-        newInstrument.setSupplierDescription((String) row.getOrDefault("supplier_description", ""));
+        newInstrument.setSupplierDescription(cleanString(row.getOrDefault("supplier_description", "")));
         newInstrument.setPrice(getPrice(row, availableColumns));
         newInstrument.setObsolete(getObsoleteValue(row, availableColumns));
     
@@ -217,7 +239,7 @@ public class ExcelImportService {
     Supplier getOrCreateSupplier(Map<String, Object> row, Set<String> availableColumns, String supplierName) {
         // Use the provided supplier name if not null, otherwise extract from available columns
         if (supplierName == null || supplierName.trim().isEmpty()) {
-            supplierName = availableColumns.contains("supplier") ? (String) row.get("supplier") : null;
+            supplierName = availableColumns.contains("supplier") ? cleanString(row.get("supplier")) : null;
         }
 
         // If still null or empty after extraction, return null (do not create an "Unknown Supplier")
@@ -351,7 +373,7 @@ public class ExcelImportService {
     Map<String, String> extractCharacteristics(Map<String, Object> row, List<String> subGroupCharacteristics) {
         Map<String, String> characteristics = new HashMap<>();
         for (String characteristic : subGroupCharacteristics) {
-            Object characteristicValue = row.get(characteristic);
+            Object characteristicValue = cleanString(row.get(characteristic));
             characteristics.put(characteristic, (characteristicValue != null) ? characteristicValue.toString() : "");
         }
         return characteristics;
@@ -460,7 +482,7 @@ public class ExcelImportService {
         }
     
         // Check Supplier Description
-        String newDescription = (String) row.get("supplier_description");
+        String newDescription = cleanString(row.get("supplier_description"));
         if (newDescription != null && !Objects.equals(instrument.getSupplierDescription(), newDescription)) {
             instrument.setSupplierDescription(newDescription);
             isUpdated = true;
@@ -591,8 +613,8 @@ public class ExcelImportService {
      */
     void processAlternativesImport(List<Map<String, Object>> data) {
         for (Map<String, Object> row : data) {
-            String rawRef1 = (String) row.get("ref_1");
-            String rawRef2 = (String) row.get("ref_2");
+            String rawRef1 = cleanString(row.get("ref_1"));
+            String rawRef2 = cleanString(row.get("ref_2"));
 
             if (rawRef1 == null || rawRef2 == null || rawRef1.equals(rawRef2)) {
                 continue;

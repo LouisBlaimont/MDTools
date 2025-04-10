@@ -242,7 +242,7 @@
                                 class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
                                 title="{row.subGroupName}"
                             >
-                                {row.function}
+                                {row.subGroupName}
                             </td>
                             {/if}
                             <td 
