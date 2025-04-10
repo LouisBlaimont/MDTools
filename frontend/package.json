@@ -44,6 +44,7 @@
 		"mdtools-frontend": "file:",
 		"svelte-dnd-action": "^0.9.60",
 		"svelte-headlessui": "^0.0.46",
+		"svelte-i18n": "^4.0.1",
 		"svelte-modals": "^2.0.0",
 		"svelte-transition": "^0.0.17",
 		"xlsx": "^0.18.5"

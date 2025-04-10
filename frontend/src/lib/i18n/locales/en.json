@@ -1,0 +1,119 @@
+{
+  "header": {
+    "home": "Home",
+    "search": "Search",
+    "data": "Data",
+    "more": {
+      "title": "More",
+      "suppliers": "Suppliers",
+      "abbreviations": "Abbreviations",
+      "webmaster": "Webmaster",
+      "add": "Add",
+      "add_instrument": "Add instrument",
+      "add_supplier": "Add supplier",
+      "add_category": "Add category",
+      "add_group": "Add group",
+      "add_subgroup": "Add subgroup"
+    }
+  },
+  
+  "homepage": {
+    "button": {
+      "search": "Search"
+    },
+    "keyword_search": {
+      "label": "Search by keyword(s)",
+      "placeholder": "Enter a keyword"
+    },
+    "search_order": {
+      "label": "Search an order"
+    },
+    "previous_orders": {
+      "label": "View all previous orders",
+      "button": "View"
+    },
+    "admin": {
+      "button": {
+        "add_group": "Add group",
+        "add_subgroup": "Add subgroup"
+      }
+    }
+  },
+
+  "profile": "Profile",
+  "sign_in": "Sign in",
+  "log_out": "Log out",
+
+  "search_page": {
+    "label": {
+      "keyword": "Search by keyword(s)",
+      "characteristics": "Search by characteristics:",
+      "group": "Group",
+      "subgroup": "Subgroup"
+    },
+    "placeholder": {
+      "keyword": "Enter a keyword",
+      "min": "min",
+      "max": "max"
+    },
+    "button": {
+      "search": "Search",
+      "clear": "Clear all",
+      "add": "Add"
+    }
+  },
+  "category_component": {
+    "title": {
+      "instruments_types": "Instruments types",
+      "table" : {
+        "subgroup": "SUBGROUP",
+        "function": "FUNCTION",
+        "name": "NAME",
+        "shape": "SHAPE",
+        "dimension": "DIM"
+      }
+    },
+    "admin": {
+      "button": {
+        "add_category":"Add category"
+      }
+    },
+    "pictures": {
+      "title": "Pictures"
+    }
+  },
+  "instruments_component": {
+    "title" : {
+      "instruments": "Instruments",
+      "suppliers": "Suppliers",
+      "alternatives": "Alternatives"
+    },
+    "table" : {
+      "reference": "REF",
+      "brand": "BRAND",
+      "description": "DESCRIPTION",
+      "price": "PRICE"
+    },
+    "button": {
+      "see_more": "See more"
+    }
+  },
+  "orders_component": {
+    "show_orders": "Show orders",
+    "create_order": "Create order",
+    "see_previous_orders": "See previous orders",
+    "export": "Export",
+    "table": {
+      "reference": "REF",
+      "brand": "BRAND",
+      "group": "GROUP",
+      "function": "FUNCTION",
+      "name": "NAME",
+      "shape": "SHAPE",
+      "dimension": "DIM",
+      "quantity": "QTY",
+      "unite_price_excl_vat": "UP excl. VAT",
+      "total_price_excl_vat": "TP excl. VAT"
+    }
+  }
+}

@@ -5,6 +5,7 @@
   import { user, isLoggedIn } from "$lib/stores/user_stores";
   import { handleLogout } from "../../auth";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   let isOpen = false; // Track dropdown state
 
@@ -54,11 +55,11 @@
     >
       <div class="py-1" role="none">
         <a
-          href="#"
+          href="/users"
           class="block px-4 py-2 text-sm text-gray-700"
           role="menuitem"
           tabindex="-1"
-          id="menu-item-0">Profil</a
+          id="menu-item-0">{$_('profile')}</a
         >
       </div>
       <div class="" role="none">
@@ -70,7 +71,7 @@
           class="block mx-4 my-2 text-sm text-gray-700 w-full h-full text-left"
           role="menuitem"
           tabindex="-1"
-          id="menu-item-1">Se déconnecter</button
+          id="menu-item-1">{$_('log_out')}</button
         >
       </div>
     </div>

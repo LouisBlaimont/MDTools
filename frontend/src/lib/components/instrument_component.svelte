@@ -13,6 +13,7 @@
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
     import addCategoryModalFromInstrument from "$lib/modals/addCategoryModalFromInstrument.svelte";
+    import { _ } from "svelte-i18n";
     import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";    
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
     import { toast } from "@zerodevx/svelte-toast";
@@ -44,7 +45,7 @@
 <div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
     <!-- PICTURES OF THE INSTRUMENTS -->
     <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
-        <span class="">Fournisseurs</span>
+        <span class="">{$_('instruments_component.title.suppliers')}</span>
     </div>
     <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
         {#each $currentSuppliers as row, index}
@@ -91,7 +92,7 @@
                 {:else}
                 <th colspan="2"></th>
                 {/if}
-                <th colspan="3" class="text-center py-2">Instruments</th>
+                <th colspan="3" class="text-center py-2">{$_('instruments_component.title.instruments')}</th>
             </tr>
             <tr class="bg-teal-400">
                 {#if $isEditing}
@@ -112,12 +113,10 @@
                     </div>
                     </th>
                 {/if}
-                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">REF</th>
-                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">MARQUE</th>
-                <th class="text-center border border-solid border-[black] w-16 overflow-hidden">DESCRIPTION</th> 
-                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">PRIX</th>
-                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">ALT</th>
-                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">OBS</th>
+                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.reference')}</th>
+                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.brand')}</th>
+                <th class="text-center border border-solid border-[black] w-16 overflow-hidden">{$_('instruments_component.table.description')}</th> 
+                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">{$_('instruments_component.table.price')}</th>
             </tr>
               
         </thead>
@@ -129,6 +128,8 @@
                     class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
                     class:bg-[lightgray]={$hoveredSupplierIndex === index &&
                     $selectedSupplierIndex !== index}
+                    class:bg-[lightred]={row.obsolte}
+                    class:bg-[lightgreen]={row.alternative}
                     onclick={() => selectedSupplierIndex.set(index)}
                     onmouseover={() => (hoveredSupplierIndex.set(index))}
                     onmouseout={() => (hoveredSupplierIndex.set(null))}
@@ -164,8 +165,6 @@
                 >
                     {row.price}
                 </td>   
-                <td class="text-center border border-solid border-[black] overflow-hidden">{row.alt ? 'Yes' : 'No'}</td>
-                <td class="text-center border border-solid border-[black] overflow-hidden">{row.obsolete ? 'Yes' : 'No'}</td>
                 </tr>
             {/each}
         </tbody>
@@ -178,10 +177,10 @@
                 <th colspan="2" class="text-center py-2">
                     <button class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700 focus:outline-none"
                     onclick={()=>seeAllAlternatives()}>
-                        Voir plus
+                    {$_('instruments_component.button.see_more')}
                     </button>
                 </th>
-                <th colspan="3" class="text-center py-2">Alternatives</th>
+                <th colspan="3" class="text-center py-2">{$_('instruments_component.title.alternatives')}</th>
             </tr>
             <tr class="bg-teal-400">
                 {#if $isEditing}
@@ -202,10 +201,10 @@
                     </div>
                 </th>            
                 {/if}
-                <th class="text-center border border-solid border-[black] overflow-hidden w-8">REF</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-8">MARQUE</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">DESCRIPTION</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-8">PRIX</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.reference')}</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.brand')}</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.brand')}</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.price')}</th>
             </tr>
         </thead>
         <tbody>
@@ -284,4 +283,3 @@
   >
   <img class="h-[300px]" id="big-category" alt="big category" />
 </div>
-

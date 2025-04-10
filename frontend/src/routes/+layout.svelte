@@ -10,7 +10,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
-  import { page } from '$app/stores';
+  import { page } from "$app/stores";
   import UserDropdown from "$lib/components/userDropdown.svelte";
   import { replaceState, afterNavigate } from "$app/navigation";
   import EditButton from "./searches/EditButton.svelte";
@@ -19,9 +19,19 @@
   import addSupplierModal from "$lib/modals/addSupplierModal.svelte";
   import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
   import { stopImmediatePropagation } from "svelte/legacy";
+  import "$lib/i18n"; // Import to initialize. Important :)
+  import { isLoading, locale, waitLocale, _ } from "svelte-i18n";
+  import I18nSelector from "$lib/components/i18n_selector.svelte";
+
+  import { t } from "svelte-i18n";
+  import Loading from "$lib/Loading.svelte";
+
+  async function i18nInit() {
+    await waitLocale();
+    console.log("I18n initialized with locale:", $locale);
+  }
 
   let showDataMenu = false;
-  
 
   function toggleDataMenu() {
     showDataMenu = !showDataMenu;
@@ -59,7 +69,7 @@
     const { exclude = [] } = options;
 
     const handleClick = (event) => {
-      if (!node.contains(event.target) && !exclude.some(el => el.contains(event.target))) {
+      if (!node.contains(event.target) && !exclude.some((el) => el.contains(event.target))) {
         node.dispatchEvent(new CustomEvent("click_outside"));
       }
     };
@@ -74,21 +84,28 @@
   }
 
   // Handle redirect to login page if not logged in
-  $: if(browser) {
-    if (!$isLoggedIn && !($page.url.searchParams.get("login") === "success") && window && window.location.pathname !== "/login") {
-        goto("/login");
+  $: if (browser) {
+    if (
+      !$isLoggedIn &&
+      !($page.url.searchParams.get("login") === "success") &&
+      window &&
+      window.location.pathname !== "/login"
+    ) {
+      goto("/login");
     }
   }
 
   // Determine if we should check the user
   $: shouldCheckUser = !$user || ($user?.expiresAt ?? 0) < Date.now();
 
-  onMount(() => {
-    if(shouldCheckUser) {
+  onMount(async () => {
+    i18nInit();
+
+    if (shouldCheckUser) {
       checkUser();
     }
 
-    if(browser && $page.url.searchParams.get("login") === "success") {
+    if (browser && $page.url.searchParams.get("login") === "success") {
       toast.push("You have successfully log in !");
     }
   }
@@ -99,144 +116,173 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<header class="bg-teal-500 h-16 flex items-center justify-between px-6">
-  <!-- Logo -->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <img alt="Logo MD" src="/logo-blanc.png" class="h-10" onclick={redirectToHome} />
+{#if !$isLoading}
+  <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
+    <!-- Logo -->
+    <div class="flex items-center space-x-4">
+      <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
+      <I18nSelector />
+    </div>
 
-  <!-- Navigation Bar -->
-  {#if $page.url.pathname !== '/login'}
-    <nav class="hidden md:flex space-x-6">
-      {#if $isLoggedIn}
-        <a href="/" class="text-white hover:text-teal-300 transition">Acceuil</a>
-        <a href="/searches" class="text-white hover:text-teal-300 transition">Recherche</a>
-      {/if}
+    <!-- Navigation Bar -->
+    {#if $page.url.pathname !== "/login"}
+      <nav class="hidden md:flex space-x-6">
+        {#if $isLoggedIn}
+          <a href="/" class="text-white hover:text-teal-300 transition">{$_('header.home')}</a>
+          <a href="/searches" class="text-white hover:text-teal-300 transition">{$_('header.search')}</a>
+        {/if}
 
-      {#if $isAdmin || $isWebmaster}
+        {#if $isAdmin || $isWebmaster}
+          <div class="relative">
+            <button
+              onclick={toggleDataMenu}
+              class="text-white hover:text-teal-300 transition flex items-center gap-1"
+            >
+              {$_('header.data')}
+              <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+            </button>
+
+            {#if showDataMenu}
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
+              <div
+                class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
+                use:clickOutside
+                onclick_outside={closeMenu}
+              >
+                <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition"
+                  >Import</a
+                >
+                <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition"
+                  >Export</a
+                >
+              </div>
+            {/if}
+          </div>
+        {/if}
+
+        <!-- More Menu -->
         <div class="relative">
-          <button 
-            onclick={toggleDataMenu}
+          <button
+            bind:this={moreButton}
+            onclick={toggleMoreMenu}
             class="text-white hover:text-teal-300 transition flex items-center gap-1"
           >
-            Data
-            <span class="text-xs">{showDataMenu ? "▲" : "▼"}</span>
+            {$_('header.more.title')}
+            <span class="text-xs">{showMoreMenu ? "▲" : "▼"}</span>
           </button>
 
-          {#if showDataMenu}
+          {#if showMoreMenu}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div 
-              class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
-              use:clickOutside
-              onclick_outside={closeMenu}
+            <div
+              class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
+              use:clickOutside={{ exclude: [moreButton] }}
+              onclick_outside={closeMoreMenu}
             >
-              <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition">Import</a>
-              <a href="/admin/export" class="block px-4 py-2 hover:bg-teal-400 transition">Export</a>
-            </div>
-          {/if}
-        </div>
-      {/if}
-
-      <!-- More Menu -->
-      <div class="relative">
-        <button 
-          bind:this={moreButton}
-          onclick={toggleMoreMenu}
-          class="text-white hover:text-teal-300 transition flex items-center gap-1"
-        >
-          More
-          <span class="text-xs">{showMoreMenu ? "▲" : "▼"}</span>
-        </button>
-
-        {#if showMoreMenu}
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div 
-            class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
-            use:clickOutside={{ exclude: [moreButton] }}
-            onclick_outside={closeMoreMenu}
-          >
-          {#if $isLoggedIn}
-            <a href="/users" class="block px-4 py-2 hover:bg-teal-400 transition">Profil</a>
-          {/if}
-          {#if $isAdmin || $isWebmaster}
-            <a href="/admin/users" class="block px-4 py-2 hover:bg-teal-400 transition">Utilisateurs</a>
-            <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition">Fournisseurs</a>
-            <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition">Abbreviations</a>
-            
-            {#if $isWebmaster}
-              <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition">Webmaster</a>
-            {/if}
-
-            <!-- Manage Submenu -->
-            <div class="relative">
-              <button 
-                onclick={toggleManageMenu}
-                class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full flex items-center gap-1"
-              >
-                Ajouter
-                <span class="text-xs">{showManageMenu ? "▲" : "▼"}</span>
-              </button>
-
-              {#if showManageMenu}
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div 
-                  class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
+              {#if $isAdmin || $isWebmaster}
+                <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition"
+                  >{$_('header.more.suppliers')}</a
                 >
-                  <button 
-                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
-                    onclick={() => { closeManageMenu(); closeMoreMenu(); modals.open(addInstrumentModal, { initInstrument: null, initCategory: null });}}
+                <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition"
+                  >{$_('header.more.abbreviations')}</a
+                >
+
+                {#if $isWebmaster}
+                  <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition"
+                    >{$_('header.more.webmaster')}</a
                   >
-                    Ajouter un instrument
-                  </button>
-                  <button 
-                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
-                    onclick={() =>{ closeManageMenu(); closeMoreMenu(); modals.open(addSupplierModal);}}
+                {/if}
+
+                <!-- Manage Submenu -->
+                <div class="relative">
+                  <button
+                    onclick={toggleManageMenu}
+                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full flex items-center gap-1"
                   >
-                    Ajouter un fournisseur
+                    {$_('header.more.add')}
+                    <span class="text-xs">{showManageMenu ? "▲" : "▼"}</span>
                   </button>
-                  <button 
-                    class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
-                    onclick={() => {closeManageMenu(); closeMoreMenu(); modals.open(addCategoryModal);}}
-                  >
-                    Ajouter une catégorie
-                  </button>
+
+                  {#if showManageMenu}
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                      class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
+                    >
+                      <button
+                        class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
+                        onclick={() => {
+                          closeManageMenu();
+                          closeMoreMenu();
+                          modals.open(addInstrumentModal, {
+                            initInstrument: null,
+                            initCategory: null,
+                          });
+                        }}
+                      >
+                        {$_('header.more.add_instrument')}
+                      </button>
+                      <button
+                        class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
+                        onclick={() => {
+                          closeManageMenu();
+                          closeMoreMenu();
+                          modals.open(addSupplierModal);
+                        }}
+                      >
+                        {$_('header.more.add_supplier')}
+                      </button>
+                      <button
+                        class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
+                        onclick={() => {
+                          closeManageMenu();
+                          closeMoreMenu();
+                          modals.open(addCategoryModal);
+                        }}
+                      >
+                        {$_('header.more.add_category')}
+                      </button>
+                    </div>
+                  {/if}
                 </div>
               {/if}
             </div>
           {/if}
-          </div>
-        {/if}
-      </div>
-    </nav>
-  {/if}
-
-  <div class="flex items-center space-x-4">
-    <!-- PASS IN ADMIN MODE in searches-->
-    {#if $isAdmin && $page.url.pathname === '/searches'}
-      <EditButton />
+        </div>
+      </nav>
     {/if}
-    <!-- Login / Logout Button -->
-    <UserDropdown />
+
+    <div class="flex items-center space-x-4">
+      <!-- PASS IN ADMIN MODE in searches-->
+      {#if $isAdmin && $page.url.pathname === "/searches"}
+        <EditButton />
+      {/if}
+      <!-- Login / Logout Button -->
+      <UserDropdown />
+    </div>
+  </header>
+
+  <main
+    class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]"
+  >
+    <slot />
+  </main>
+
+  <SvelteToast />
+
+  <Modals>
+    {#snippet backdrop({ close })}
+      <button
+        class="backdrop"
+        onclick={() => close()}
+        onkeydown={(event) => event.key === "Escape" && close()}
+        aria-label="Close modal"
+      ></button>
+    {/snippet}
+  </Modals>
+{:else}
+  <div class="flex items-center justify-center h-screen">
+    <Loading />
   </div>
- 
-</header>
-
-<main class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-  <slot />
-</main>
-
-<SvelteToast />
-
-<Modals>
-  {#snippet backdrop({ close })}
-    <button
-      class="backdrop"
-      onclick={() => close()}
-      onkeydown={(event) => event.key === 'Escape' && close()}
-      aria-label="Close modal"
-    ></button>
-  {/snippet}
-</Modals>
+{/if}
 
 <style>
   .backdrop {

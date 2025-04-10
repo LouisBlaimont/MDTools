@@ -10,6 +10,7 @@
     import createOrderModal from "$lib/modals/createOrderModal.svelte";
     import { modals } from "svelte-modals";
     import { apiFetch } from "$lib/utils/fetch.js";
+    import { _ } from "svelte-i18n";
 
     let showOrders = true;
 
@@ -194,7 +195,7 @@
         <div class="flex flex-row justify-between">
             <div class="w-1/2 mr-0">
                 <label for="order-search" id="order-search-label" class="w-2/5"
-                    >Afficher une commande :
+                    >{$_('orders_component.show_orders')}
                 </label>
                 <select id="commandes"
                 class="w-1/3 border border-gray-400 rounded p-0.5 border-solid border-[black]"
@@ -213,8 +214,8 @@
                     }
                 }}
                 >
-                        <option value="create"  class="bg-orange-200 text-black hover:bg-orange-300">Créer une commande</option>
-                        <option value="previous_orders"  class="bg-green-200 text-black hover:bg-green-300">Voir commandes précédentes</option>
+                        <option value="create"  class="bg-orange-200 text-black hover:bg-orange-300">{$_('orders_component.create_order')}</option>
+                        <option value="previous_orders"  class="bg-green-200 text-black hover:bg-green-300">{$_('orders_component.see_previous_orders')}</option>
                     {#each $ordersNames as order}
                         <option value={order.id}>{order.name} </option>
                     {/each}
@@ -224,7 +225,7 @@
             <div class="mr-4">
                 <button
                 class="border bg-green-600 mt-[10px] p-2.5 rounded-[10px] border-solid border-[none] cursor-pointer"
-                on:click={() => exportOrderToExcel()}>Exporter</button
+                on:click={() => exportOrderToExcel()}>{$_('orders_component.export')}</button
                 >
             </div>
             <div>
@@ -239,16 +240,16 @@
             <table class="w-full border-collapse">
                 <thead class="bg-teal-400">
                 <tr>
-                    <th class="text-center border border-solid border-[black]">REF</th>
-                    <th class="text-center border border-solid border-[black]">MARQUE</th>
-                    <th class="text-center border border-solid border-[black]">GROUPE</th>
-                    <th class="text-center border border-solid border-[black]">FONCTION</th>
-                    <th class="text-center border border-solid border-[black]">NOM</th>
-                    <th class="text-center border border-solid border-[black]">FORME</th>
-                    <th class="text-center border border-solid border-[black]">DIMENSION</th>
-                    <th class="text-center border border-solid border-[black]">QTE</th>
-                    <th class="text-center border border-solid border-[black]">PU HTVA</th>
-                    <th class="text-center border border-solid border-[black]">TOTAL HTVA</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.reference')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.brand')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.group')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.function')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.name')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.shape')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.dimension')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.quantity')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.unite_price_excl_vat')}</th>
+                    <th class="text-center border border-solid border-[black]">{$_('orders_component.table.total_price_excl_vat')}</th>
                 </tr>
                 </thead>
                 <tbody>
