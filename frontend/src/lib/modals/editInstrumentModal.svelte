@@ -445,9 +445,13 @@
   }
 
   async function removeAlt(instrId){
-    removingAlt.set(true);
-    altToRemove.update(alt => [...alt, instrId]);
-    alternativesOfInstr = alternativesOfInstr.filter(instr => instr.id !== instrId);
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette alternative ?")){
+      removingAlt.set(true);
+      altToRemove.update(alt => [...alt, instrId]);
+      alternativesOfInstr = alternativesOfInstr.filter(instr => instr.id !== instrId);
+      const updatedAltToAdd = $altToAdd.filter(instr => instr.id !== instrId);
+      altToAdd.set(updatedAltToAdd);
+    }
   }
 
   function canceling(){
@@ -639,7 +643,7 @@
                     <label class="block mb-2 flex items-center">
                       Alternatives:
                       <input type="text" class="ml-2 p-1 border rounded" />
-                      <button class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" on:click={() => addAlternative()}>
+                      <button type="button" class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" on:click={() => addAlternative()}>
                         Ajouter
                       </button>
                     </label>
@@ -662,7 +666,6 @@
                           <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                           <tr class="border-t cursor-pointer {row.obsolete ? 'bg-red-500' : ''}"
                           class:bg-[lightgray]={hoveredAlternativeIndex === index}
-                          on:dblclick={() => selectAlternative(row, index)}
                           on:mouseover={() => (hoveredAlternativeIndex = index)}
                           on:mouseout={() => (hoveredAlternativeIndex = null)}
                           >
@@ -700,7 +703,7 @@
                     
                     <div class="flex justify-end gap-4 mt-4">
                         <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
+                        <button type="button" on:click={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
                         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
                     </div>
                 </form>

@@ -85,6 +85,8 @@
         currentSuppliers.set([]);
         alternatives.set([]);
         selectedCategoryIndex.set(index);
+        selectedSupplierIndex.set("");
+
         // Scroll the corresponding image into view
         if (imageRefs[index] instanceof HTMLElement) {
             imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -138,20 +140,6 @@
         overlay.style.display = "none";
     }
     
-    function openAddCategoryPage() {
-        if($selectedGroup == null){
-            console.log("Groups are not defined");
-            return;
-        } 
-        else if($selectedSubGroup == null){
-            console.log("SubGroups are not defined");
-            return;
-        }
-        else {
-            console.log("Groups and subgroups are defined");
-            goto("../../admin/add_category");
-        }
-    }
     let imageContainerRef;
     let imageRefs = [];
     let findSubGroups = $findSubGroupsStore;
@@ -164,166 +152,124 @@
     }
 
 </script>
-<div class="flex">
-    <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
-        <!-- TABLE OF CATEGORIES CORRESPONDING TO SEARCH  -->
-        <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
-            <span class="">{$_('category_component.title.instruments_types')}</span>
-        </div>
-        <table id="tools-table" data-testid="categories-table" class="w-full border-collapse table-fixed">
-            <thead class="bg-teal-400">
-                {#if $showCategories}
-                    {#if $selectedSubGroup}
-                        <tr class="bg-white text-teal-400">
-                            {#if $isEditing}
-                            <th colspan="2" class="text-center py-2">
-                                <button
-                                class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                                on:click={() => openAddCategoryPage()}
-                                >
-                                Ajouter
-                                </button>
-                            </th>
-                            <th colspan="1" class="text-center pb-1">{$selectedGroup}</th>
-                            <th colspan="1" class="text-center pb-1">{$selectedSubGroup}</th>
-                        {:else}
-                        <th colspan="2" class="text-center pb-1">{$selectedGroup}</th>
-                        <th colspan="2" class="text-center pb-1">{$selectedSubGroup}</th>
-                        {/if}
-                    </tr>
-                    {:else}
-                <tr class="bg-white text-teal-400">
-                {#if $isEditing}
-                    <th colspan="2" class="text-center pb-1">
-                    <button
-                        class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                        on:click={() => openAddCategoryPage()}
-                    >
-                        Ajouter
-                    </button>
-                    </th>
-                    <th colspan="3" class="text-center pb-1">{$selectedGroup}</th>
-                {:else}
-                    <th colspan="5" class="text-center pb-1">{$selectedGroup}</th>
-                {/if}
-                </tr>
-                {/if}
-            {/if}
-                <tr>
-                    {#if $isEditing}
-                        <th class="text-center border border-solid border-[black] w-8 overflow-hidden"></th>
-                    {/if}
-                    {#if !$selectedSubGroup}
-                        <th class="text-center border border-solid border-[black] overflow-hidden">{$_('category_component.title.table.subgroup')}</th>
-                    {/if}
-                    <th class="text-center border border-solid border-[black] w-14 overflow-hidden">{$_('category_component.title.table.function')}</th>
-                    <th class="text-center border border-solid border-[black] w-12 overflow-hidden">{$_('category_component.title.table.name')}</th>
-                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('category_component.title.table.shape')}</th>
-                    <th class="text-center border border-solid border-[black] w-6 overflow-hidden">{$_('category_component.title.table.dimension')}</th>
-                </tr>
-            </thead>
-            {#if $showCategories}
-                <tbody>
-                    {#each $categories as row, index}
-                        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                        <tr
-                            class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
-                            class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
-                            on:click={() => selectCategory(index)}
-                            on:dblclick={() => selectCategoryWithChar(index)}
-                            on:mouseover={() => (hoveredCategoryIndex.set(index))}
-                            on:mouseout={() => (hoveredCategoryIndex.set(null))}
-                        >
-                            {#if $isEditing}
-                                <EditCategoryButton category={row}/>
-                            {/if}
-                            {#if !$selectedSubGroup}
-                                <td 
-                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title="{row.subGroupName}"
-                            >
-                                {row.subGroupName}
-                            </td>
-                            {/if}
-                            <td 
-                                class="text-center border border-solid border-[black] truncate max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title="{row.function}"
-                            >
-                                {row.function}
-                            </td>
-                            <td 
-                                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title="{row.name}"
-                            >
-                                {row.name}
-                            </td>
-                            <td 
-                                class="text-center border border-solid border-[black] truncate max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title="{row.shape}"
-                            >
-                                {row.shape}
-                            </td>
-                            <td class="text-center border border-solid border-[black] overflow-hidden">{row.lenAbrv}</td>
-                        </tr>
-                    {/each}
-                </tbody>
-            {/if}
-        </table>
-        
-    <!-- PASS IN ADMIN MODE -->
-    {#if $isEditing}
-    {#if $isAdmin}
-            <div class="flex justify-center">
-                <button 
-                    class="mt-4 px-4 py-2 rounded bg-yellow-100 text-black hover:bg-gray-500 transition" 
-                    on:click={()=>modals.open(addCategoryModal)}
-                >
-                {$_('category_component.admin.button.add_category')}
-                </button>
-            </div>
-        {/if}
-    {/if}
-    </div>
 
-    <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
-    <div class="flex-[1] max-h-[150vh] overflow-y-auto ml-3 max-w-[150px]" bind:this={imageContainerRef}>
-        <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
-            <span class="p-1">{$_('category_component.pictures.title')}</span>
-        </div>
-        {#each $categories as row, index}
-            <!-- svelte-ignore a11yå_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <img
-                alt="tool{row.id}"
-                src={row.pictureId ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png"}
-                bind:this={imageRefs[index]}
-                ref={el => registerImageRef(el, index)}
-                on:click={() =>
-                showBigPicture(
-                    row.pictureId
-                    ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                    : "/default/no_picture.png"
-                )}
-                on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
-                on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
-                class="mb-[3px] {$selectedCategoryIndex === index
-                ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
-                : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
-                ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
-                : ''}"
-            />
-            {#if $isEditing}
-                {#if $isAdmin}
-                <button class="absolute bottom-2 right-6 w-5 h-5 bg-yellow-400 text-black text-lg rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-black hover:text-yellow-500 cursor-pointer">
-                    +
-                </button> 
-                {/if}
+<div class="flex">
+  <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
+    <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
+    <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
+      <thead class="bg-teal-400">
+        {#if $showCategories}
+          {#if $selectedSubGroup}
+            <tr class="bg-white text-teal-400">
+              {#if $isEditing}
+                <th colspan="2" class="text-center py-2">
+                  <button
+                    class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                    on:click={()=>modals.open(addCategoryModal)}
+                  >
+                    Ajouter
+                  </button>
+                </th>
+                <th colspan="1" class="text-center pb-1">{$selectedGroup}</th>
+                <th colspan="1" class="text-center pb-1">{$selectedSubGroup}</th>
+              {:else}
+                <th colspan="2" class="text-center pb-1">{$selectedGroup}</th>
+                <th colspan="2" class="text-center pb-1">{$selectedSubGroup}</th>
+              {/if}
+            </tr>
+          {:else}
+          <tr class="bg-white text-teal-400">
+            {#if $isEditing && $selectedSubGroup}
+              <th colspan="2" class="text-center pb-1">
+                <button
+                  class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                  on:click={()=>modals.open(addCategoryModal)}
+                >
+                  Ajouter
+                </button>
+              </th>
+              <th colspan="3" class="text-center pb-1">{$selectedGroup}</th>
+            {:else}
+              <th colspan="5" class="text-center pb-1">{$selectedGroup}</th>
             {/if}
-        {/each}
-    </div>    
-</div>    
+          </tr>
+          {/if}
+        {/if}
+        <tr>
+          {#if $isEditing && $selectedSubGroup}
+            <th class="text-center border border-solid border-[black]"></th>
+          {/if}
+          {#if !$selectedSubGroup}
+          <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
+          {/if}
+          <th class="text-center border border-solid border-[black]">FCT</th>
+          <th class="text-center border border-solid border-[black]">NOM</th>
+          <th class="text-center border border-solid border-[black]">FORME</th>
+          <th class="text-center border border-solid border-[black]">DIM</th>
+        </tr>
+      </thead>
+      {#if $showCategories}
+        <tbody>
+          {#each $categories as row, index}
+            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+            <tr
+              class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
+              class:bg-[lightgray]={$hoveredCategoryIndex === index &&
+                $selectedCategoryIndex !== index}
+              on:click={() => selectCategory(index)}
+              on:dblclick={() => selectCategoryWithChar(index)}
+              on:mouseover={() => hoveredCategoryIndex.set(index)}
+              on:mouseout={() => hoveredCategoryIndex.set(null)}
+            >
+              {#if $isEditing && $selectedSubGroup}
+                <EditCategoryButton category={row} />
+              {/if}
+              {#if !$selectedSubGroup}
+              <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+              {/if}
+              <td class="text-center border border-solid border-[black]">{row.function}</td>
+              <td class="text-center border border-solid border-[black]">{row.name}</td>
+              <td class="text-center border border-solid border-[black]">{row.shape}</td>
+              <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+            </tr>
+          {/each}
+        </tbody>
+      {/if}
+    </table>
+  </div>
+
+  <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
+  <div class="flex-[1] max-h-[150vh] overflow-y-auto ml-3 max-w-[150px]" bind:this={imageContainerRef}>
+      <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
+          <span class="p-1">{$_('category_component.pictures.title')}</span>
+      </div>
+      {#each $categories as row, index}
+          <!-- svelte-ignore a11yå_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+          <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <img
+              alt="tool{row.id}"
+              src={row.pictureId ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png"}
+              bind:this={imageRefs[index]}
+              ref={el => registerImageRef(el, index)}
+              on:click={() =>
+              showBigPicture(
+                  row.pictureId
+                  ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
+                  : "/default/no_picture.png"
+              )}
+              on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
+              on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
+              class="mb-[3px] {$selectedCategoryIndex === index
+              ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
+              : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
+              ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
+              : ''}"
+          />
+      {/each}
+  </div>
+</div>      
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 

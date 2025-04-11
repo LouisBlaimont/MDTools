@@ -8,13 +8,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
+import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
@@ -23,6 +27,8 @@ import be.uliege.speam.team03.MDTools.models.Picture;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
+import be.uliege.speam.team03.MDTools.models.CharacteristicValueAbbreviation;
+import be.uliege.speam.team03.MDTools.models.Characteristic;
 import be.uliege.speam.team03.MDTools.repositories.CategoryCharacteristicRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.CharacteristicRepository;
@@ -35,14 +41,15 @@ public class CategoryService {
     private SubGroupRepository subGroupRepository;
     private CategoryRepository categoryRepository;
     private CategoryCharacteristicRepository categoryCharRepository;
-    private CharacteristicRepository characteristicRepository;
     private CategoryMapper catMapper;
     private PictureStorageService pictureStorageService;
     private CharacteristicAbbreviationService charValAbbrevService;
+    private InstrumentService instrumentService;
 
     public CategoryService(GroupRepository groupRepo, SubGroupRepository subGroupRepo, CategoryRepository categoryRepo,
             CharacteristicRepository charRepo, CategoryCharacteristicRepository catCharRepo,
-            PictureStorageService pictureStorageService, CharacteristicAbbreviationService charValAbbrevService) {
+            PictureStorageService pictureStorageService, CharacteristicAbbreviationService charValAbbrevService,
+            InstrumentService instrumentService) {
         this.groupRepository = groupRepo;
         this.subGroupRepository = subGroupRepo;
         this.categoryRepository = categoryRepo;
@@ -50,6 +57,7 @@ public class CategoryService {
         this.charValAbbrevService = charValAbbrevService;
         this.catMapper = new CategoryMapper(categoryRepo);
         this.pictureStorageService = pictureStorageService;
+        this.instrumentService = instrumentService;
     }
 
     /**
@@ -75,8 +83,8 @@ public class CategoryService {
      */
     public List<CategoryDTO> findCategoriesOfGroup(String groupName) {
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
-        if (groupMaybe.isPresent() == false) {
-            return null;
+        if (groupMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("No group found with the name " + groupName);
         }
         Group group = groupMaybe.get();
 
@@ -91,151 +99,6 @@ public class CategoryService {
         return categoriesDTO;
     }
 
-
-    /**
-     * Gets the category given by id
-     *
-     * @param id the id of the category
-     * @return the category
-     */
-    public CategoryDTO findById(Long id) {
-        Optional<Category> categoryMaybe = categoryRepository.findById((long) id);
-        if (categoryMaybe.isEmpty()) {
-            return null;
-        }
-        Category category = categoryMaybe.get();
-        return catMapper.mapToCategoryDto(category);
-    }
-
-    /**
-     * Adds a new category
-     *
-     * @param body a map containing the characteristics of the category
-     * @return the new category
-     */
-    @SuppressWarnings("unchecked")
-    public CategoryDTO addCategoryToSubGroup(Map<String, Object> body, Long subGroupId) {
-        String subGroupName = (String) body.get("subGroupName");
-        String function = (String) body.get("function");
-        String shape = (String) body.get("shape");
-        String lenAbrv = (String) body.get("lenAbrv");
-        // String pictureId = (String) body.get("pictureId");
-
-        Category category = new Category();
-        Long newCategoryId = category.getId();
-
-        SubGroup subGroup;
-        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (subGroupMaybe.isPresent()) {
-            subGroup = subGroupMaybe.get();
-            category.setSubGroup(subGroup);
-            if ((long) subGroupId != subGroup.getId()) {
-                throw new IllegalArgumentException("Subgroup name and id do not match.");
-            }
-        } else {
-            subGroup = subGroupRepository.findById(subGroupId).get();
-            category.setSubGroup(subGroup);
-        }
-
-        List<SubGroupCharacteristic> subGroupCharacteristics = subGroup.getSubGroupCharacteristics();
-        List<String> characteristics = new ArrayList<>();
-        for (SubGroupCharacteristic subGroupCharacteristic : subGroupCharacteristics) {
-            String characteristic = subGroupCharacteristic.getCharacteristic().getName();
-            characteristics.add(characteristic);
-        }
-
-        List<Map<String, Object>> EntryChars;
-        Object bodyChars = body.get("chars");
-        if (bodyChars == null) {
-            EntryChars = null;
-        } else if (bodyChars instanceof List<?>) {
-            EntryChars = (List<Map<String, Object>>) bodyChars;
-        } else {
-            throw new IllegalArgumentException("Expected a List<Map<String, Object>> for 'subGroupList'");
-        }
-
-        if (EntryChars != null) {
-            Map<String, String> dictVal = new HashMap<>();
-            Map<String, String> dictValAbrev = new HashMap<>();
-            for (Map<String, Object> EntryChar : EntryChars) {
-                String EntryCharName = (String) EntryChar.get("name");
-                String EntryCharVal = (String) EntryChar.get("value");
-                String EntryCharValAbrev = (String) EntryChar.get("abrev");
-                dictVal.put(EntryCharName, EntryCharVal);
-                dictValAbrev.put(EntryCharName, EntryCharValAbrev);
-            }
-
-            StringBuilder shapeBuilder = new StringBuilder();
-
-            // List<CategoryCharacteristic> newCatChars = new ArrayList<>();
-            // for (String charSubGroup : characteristics){
-            // if (dictVal.containsKey(charSubGroup) &&
-            // dictValAbrev.containsKey(charSubGroup)){
-            // Optional<Characteristic> charMaybe =
-            // characteristicRepository.findByName(charSubGroup);
-            // if (charMaybe.isPresent() == false){
-            // return null;
-            // }
-            // Characteristic newChar = charMaybe.get();
-            // Long charId = newChar.getId();
-            // String newCharVal = dictVal.get(charSubGroup);
-            // String newCharAbrev = dictValAbrev.get(charSubGroup);
-
-            // if (newCharVal==null){
-            // continue;
-            // }
-
-            // CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCategoryId,
-            // charId);
-            // CategoryCharacteristic catChar = new CategoryCharacteristic(category,
-            // newChar, newCharVal, newCharAbrev);
-            // catChar.setId(key);
-            // categoryCharRepository.save(catChar);
-            // newCatChars.add(catChar);
-
-            // if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
-            // continue;
-            // }
-            // if(charSubGroup.equals("Length")){
-            // lenAbrv = newCharAbrev;
-            // }
-            // shapeBuilder.append(newCharAbrev).append("/");
-            // }
-            // }
-
-            // if (shapeBuilder.length()> 0){
-            // shapeBuilder.setLength(shapeBuilder.length()-1);
-            // }
-
-            shape = shapeBuilder.toString();
-            category.setShape(shape);
-
-            // category.setCategoryCharacteristic(newCatChars);
-        }
-
-        category.setFunction(function);
-        category.setShape(shape);
-        category.setLenAbrv(lenAbrv);
-        Category savedCategory = categoryRepository.save(category);
-        return catMapper.mapToCategoryDto(savedCategory);
-    }
-
-    /**
-     * Saves a new category
-     *
-     * @param newCategory
-     * @return
-     */
-    public CategoryDTO save(CategoryDTO newCategory) {
-        if (newCategory.getGroupName() == null || newCategory.getSubGroupName() == null) {
-            throw new IllegalArgumentException("Group or Subgroup not found. Not adding category.");
-        }
-        Category category = catMapper.mapToCategory(newCategory);
-        category.setSubGroup(subGroupRepository.findByName(newCategory.getSubGroupName()).get());
-        Category savedCategory = categoryRepository.save(category);
-        return catMapper.mapToCategoryDto(savedCategory);
-    }
-
     /**
      * Gets the sorted list of categories of the subgroup given by
      * subGroupName
@@ -245,19 +108,118 @@ public class CategoryService {
      */
     public List<CategoryDTO> findCategoriesOfSubGroup(String subGroupName) {
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (subGroupMaybe.isPresent() == false) {
-            throw new ResourceNotFoundException("Subgroup not found.");
+        if (subGroupMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("No subgroup found with the name " +  subGroupName);
         }
 
         SubGroup subGroup = subGroupMaybe.get();
         List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
-        if (categories.isEmpty()) {
-            return List.of();
-        }
-
         return categories.stream().map(category -> catMapper.mapToCategoryDto(category)).toList();
     }
+
+
+    /**
+     * Adds a new category
+     *
+     * @param body A map containing the characteristics of the category
+     * @param subGroupName The name of the subgroup in which the category must be created
+     * @return The new category
+     */
+    public CategoryDTO addCategoryToSubGroup(Map<String, Object> body, String subGroupName) {
+        // Get subgroup
+        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
+        if(subGroupMaybe.isEmpty()){
+            throw new ResourceNotFoundException("The subgroup with name " + subGroupName + " was not found");
+        }
+        SubGroup subGroup = subGroupMaybe.get();
+        Category category = new Category(subGroup);
+        Category newCategory = categoryRepository.save(category);
+
+        List<SubGroupCharacteristic> subGroupChar = subGroup.getSubGroupCharacteristics();
+        List<CategoryCharacteristic> newCategoryCharacteristics = new ArrayList<>();
+        List<CharacteristicValueAbbreviation> newAbreviations = new ArrayList<>();
+        List<CharacteristicValueAbbreviation> updateAbreviations = new ArrayList<>();
+
+        // Get characteristic values
+        for (SubGroupCharacteristic sbg : subGroupChar){
+            Characteristic characteristic = sbg.getCharacteristic();
+            String charName = characteristic.getName();
+            Object value = body.get(charName);
+
+            // Missing value (not empty, just null) of a characteristic
+            if(value == null || !(value instanceof String)){
+                categoryRepository.delete(newCategory);
+                throw new BadRequestException("Missing value key for characteristic " + charName);
+            }
+            String stringVal = (String) value;
+            CategoryCharacteristic catChar = new CategoryCharacteristic(newCategory, characteristic, stringVal);
+            catChar.setId(new CategoryCharacteristicKey(newCategory.getId(), characteristic.getId()));
+            newCategoryCharacteristics.add(catChar);
+
+            // Abbreviations management 
+            if(!charName.equals("Length") && !charName.equals("Name") && !charName.equals("Function") && !stringVal.equals("")){
+                Optional<String> existingAbrev = charValAbbrevService.getAbbreviation(stringVal);
+                String abrev = (String) body.get(charName + "abrev");
+                if (abrev == null){
+                    categoryRepository.delete(newCategory);
+                    throw new BadRequestException("Missing value key for the abreviation of " + charName);
+                }
+
+                if(existingAbrev.isEmpty()){
+                    if (abrev.equals("")){
+                        continue;
+                    }
+                    newAbreviations.add(new CharacteristicValueAbbreviation(stringVal, abrev));
+                }
+                else{
+                    if (abrev.equals("")){
+                        continue;
+                    }
+                    updateAbreviations.add(new CharacteristicValueAbbreviation(stringVal, abrev)); 
+                }
+            }
+        }
+
+        // Verify that same category is not existing
+        List<Category> existingCats = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
+        for(Category existingCat : existingCats){
+            List<CategoryCharacteristic> existingChars = existingCat.getCategoryCharacteristic();
+            if (existingChars == null){
+                continue;
+            }
+
+            Boolean same = true;
+            for(CategoryCharacteristic newCatChar : newCategoryCharacteristics){
+                Boolean match = existingChars.stream().anyMatch(ec -> ec.getCharacteristic().getId().equals(newCatChar.getCharacteristic().getId()) 
+                && ec.getVal().equalsIgnoreCase(newCatChar.getVal()));
+                if(!match){
+                    same = false;
+                    break;
+                }
+            }
+            if(same && existingChars.size() == newCategoryCharacteristics.size()){
+                categoryRepository.delete(newCategory);
+                throw new BadRequestException("Category with same characteristics already exists");
+            }
+        }
+
+        // No same category, save the characteristics values and the abreviations
+        categoryCharRepository.saveAll(newCategoryCharacteristics);
+        
+        for(CharacteristicValueAbbreviation abrev : newAbreviations){
+            charValAbbrevService.addAbbreviation(abrev.getValue(), abrev.getAbbreviation());
+        }
+        
+        for(CharacteristicValueAbbreviation abrev : updateAbreviations){
+            charValAbbrevService.updateAbbreviation(abrev.getValue(), abrev.getAbbreviation());
+        }
+
+        newCategory.setCategoryCharacteristic(newCategoryCharacteristics);
+        newCategory.setPictureId(null);
+        return catMapper.mapToCategoryDto(newCategory);
+    }
+
 
     /**
      * Gets the categories given a set of characteristics given in the body.
@@ -274,10 +236,14 @@ public class CategoryService {
         String groupName = (String) body.get("groupName");
         String subGroupName = (String) body.get("subGroupName");
 
+        if (groupName == null || subGroupName == null){
+            throw new BadRequestException("Missing field for the group and subgroup");    
+        }
+
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
         if (groupMaybe.isEmpty() || subGroupMaybe.isEmpty()) {
-            return null;
+            throw new ResourceNotFoundException("No subgroup named " + subGroupName + "or no group named " + groupName + " found");
         }
 
         SubGroup subGroup = subGroupMaybe.get();
@@ -371,7 +337,7 @@ public class CategoryService {
     public List<CharacteristicDTO> findCategoryById(Long catId) {
         Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
         if (categoryMaybe.isEmpty()) {
-            return null;
+            throw new ResourceNotFoundException("Not category with the ID" + catId + " found");
         }
 
         List<CharacteristicDTO> characteristics = categoryCharRepository.findByCategoryId(catId)
@@ -393,42 +359,110 @@ public class CategoryService {
      * @param catId                  the id of the category
      * @param updatedCharacteristics the list of characteristics to update
      * @return List of CharacteristicDTO
-     * @throws ResourceNotFoundException
      */
-    public List<CharacteristicDTO> updateCategoryCharacteristics(Long catId,
-            List<CharacteristicDTO> updatedCharacteristics) {
-        // Find the category
-        Optional<Category> categoryMaybe = categoryRepository.findById((long) catId);
+    public CategoryDTO updateCategory(Long catId, String subGroupName,
+            Map<String, Object> body) {
+
+        // Get subgroup
+        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
+        if(subGroupMaybe.isEmpty()){
+            throw new ResourceNotFoundException("The subgroup with name " + subGroupName + " was not found");
+        }
+        SubGroup subgroup = subGroupMaybe.get();
+        // Get category
+        Optional<Category> categoryMaybe = categoryRepository.findById(catId);
         if (categoryMaybe.isEmpty()) {
-            throw new ResourceNotFoundException("Category not found. Not updating characteristics.");
+            throw new ResourceNotFoundException("Category not found.");
+        }
+        Category category = categoryMaybe.get();
+
+        if(subgroup.getId() != category.getSubGroup().getId()){
+            throw new BadRequestException("Mismatch between category and subgroup");
         }
 
-        // Get existing characteristics related to the category
         List<CategoryCharacteristic> existingCharacteristics = categoryCharRepository.findByCategoryId(catId);
 
-        // Update the existing characteristics with the new values
-        for (CharacteristicDTO updatedCharacteristic : updatedCharacteristics) {
-            for (CategoryCharacteristic existingCharacteristic : existingCharacteristics) {
-                if (existingCharacteristic.getCharacteristic().getName().equals(updatedCharacteristic.getName())) {
-                    existingCharacteristic.setVal(updatedCharacteristic.getValue());
-                    categoryCharRepository.save(existingCharacteristic); // Save the updated characteristic
-                    break;
-                }
+        List<CategoryCharacteristic> updatedCharacteristics = new ArrayList<>();
+        List<CharacteristicValueAbbreviation> newAbbreviations = new ArrayList<>();
+        List<CharacteristicValueAbbreviation> updatedAbbreviations = new ArrayList<>();
+        
+        List<CategoryCharacteristic> allCharacteristics = new ArrayList<>();
+
+        for (CategoryCharacteristic cc : existingCharacteristics){
+            String charName = cc.getCharacteristic().getName();
+
+            // Update value
+            Object value = body.get(charName);
+            if(value == null){
+                allCharacteristics.add(cc);
+                continue;
+            }
+            if (!(value instanceof String)){
+                throw new BadRequestException("Invalid value type for characteristic "+ charName);
+            }
+            String stringVal = (String) value;
+            cc.setVal(stringVal);
+            updatedCharacteristics.add(cc);
+            allCharacteristics.add(cc);
+
+            // Update abbrev, if abbrev didn't exist before create a new one
+            Object abbrev = body.get(charName+"abrev");
+            if(abbrev==null){
+                continue;
+            }
+            if (!(abbrev instanceof String)){
+                throw new BadRequestException("Invalid abbrev type for characteristic "+ charName);
+            }
+            String stringAbbrev = (String) abbrev;
+            Optional<String> charAbrevMaybe = charValAbbrevService.getAbbreviation(stringVal);
+            
+            if (charAbrevMaybe.isPresent()){
+                updatedAbbreviations.add(new CharacteristicValueAbbreviation(stringVal, stringAbbrev));
+            }
+            else{
+                newAbbreviations.add(new CharacteristicValueAbbreviation(stringVal, stringAbbrev));
             }
         }
 
-        // Convert the updated characteristics back to DTOs and return
-        List<CharacteristicDTO> updatedCharacteristicDTOs = existingCharacteristics
-                .stream()
-                .map(cc -> {
-                    String name = cc.getCharacteristic().getName();
-                    String val = cc.getVal();
-                    String abbreviation = charValAbbrevService.getAbbreviation(val).orElse(val);
-                    return new CharacteristicDTO(name, val, abbreviation);
-                })
-                .toList();
+        // Verify that same category is not existing
+        List<Category> existingCats = categoryRepository.findBySubGroup(subgroup, Sort.by("subGroupName", "id"));
+        for(Category existingCat : existingCats){
+            if(existingCat.getId() == category.getId()){
+                continue;
+            }
+            List<CategoryCharacteristic> existingChars = existingCat.getCategoryCharacteristic();
+            if (existingChars == null){
+                continue;
+            }
 
-        return updatedCharacteristicDTOs;
+            Boolean same = true;
+            for(CategoryCharacteristic allCatChar : allCharacteristics){
+                Boolean match = existingChars.stream().anyMatch(ec -> ec.getCharacteristic().getId().equals(allCatChar.getCharacteristic().getId()) 
+                && ec.getVal().equalsIgnoreCase(allCatChar.getVal()));
+                if(!match){
+                    same = false;
+                    break;
+                }
+            }
+            if(same && existingChars.size() == allCharacteristics.size()){
+                throw new BadRequestException("Category with same characteristics already exists");
+            }
+        }
+
+        categoryCharRepository.saveAll(updatedCharacteristics);
+
+        for(CharacteristicValueAbbreviation abrev : newAbbreviations){
+            charValAbbrevService.addAbbreviation(abrev.getValue(), abrev.getAbbreviation());
+        }
+        for(CharacteristicValueAbbreviation abrev : updatedAbbreviations){
+            charValAbbrevService.updateAbbreviation(abrev.getValue(), abrev.getAbbreviation());
+        }
+
+        category.setCategoryCharacteristic(allCharacteristics);
+        categoryRepository.save(category);
+
+    
+        return catMapper.mapToCategoryDto(category) ;
     }
 
     /**
@@ -437,7 +471,6 @@ public class CategoryService {
      * @param categoryId the id of the category
      * @param picture    the picture to set
      * @return the categoryDTO
-     * @throws ResourceNotFoundException
      */
     public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
@@ -462,103 +495,23 @@ public class CategoryService {
         Optional<Category> cat = categoryRepository.findById((long) categoryId);
         return catMapper.mapToCategoryDto(cat.get());
     }
+
+    /**
+     * Deletes a category identified by its ID
+     * @param categoryId
+     * @return A boolean set to true when the category is deleted.
+     */
+    public Boolean deleteCategory(Long categoryId){
+        Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
+        if (categoryMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+        }
+        List<InstrumentDTO> instrumentsInCategory = instrumentService.findInstrumentsOfCatergory(categoryId);
+
+        if(instrumentsInCategory.size() > 0){
+            throw new BadRequestException("Instruments exist in the category, cannot delete it.");
+        }
+        categoryRepository.deleteById(categoryId);
+        return true;
+    }
 }
-
-// public CategoryDTO addCategoryToSubGroup(String subGroupName, Map<String,
-// Object> body){
-// Optional<SubGroup> subGroupMaybe =
-// subGroupRepository.findByName(subGroupName);
-// if (subGroupMaybe.isPresent() == false){
-// return null;
-// }
-// SubGroup subGroup = subGroupMaybe.get();
-
-// Category newCat = new Category(subGroup);
-// Long newCatId = newCat.getId();
-
-// String gName = subGroup.getGroup().getName();
-// String subgName = subGroup.getName();
-
-// List<SubGroupCharacteristic> subGroupCharacteristics =
-// subGroup.getSubGroupCharacteristics();
-// List<String> characteristics = new ArrayList<>();
-// for (SubGroupCharacteristic subGroupCharacteristic :
-// subGroupCharacteristics){
-// String characteristic = subGroupCharacteristic.getCharacteristic().getName();
-// characteristics.add(characteristic);
-// }
-
-// String function = (String) body.get("function");
-// if (function == null ){
-// return null;
-// }
-// String name = (String) body.get("name");
-// if (name == null){
-// return null;
-// }
-
-// String lenAbrv = new String();
-// lenAbrv = null;
-
-// List<Map<String, Object>> EntryChars = (List<Map<String, Object>>)
-// body.get("chars");
-// Map<String, String> dictVal = new HashMap<>();
-// Map<String, String> dictValAbrev = new HashMap<>();
-// for (Map<String, Object> EntryChar : EntryChars) {
-// String EntryCharName = (String) EntryChar.get("name");
-// String EntryCharVal = (String) EntryChar.get("value");
-// String EntryCharValAbrev = (String) EntryChar.get("abrev");
-// dictVal.put(EntryCharName, EntryCharVal);
-// dictValAbrev.put(EntryCharName, EntryCharValAbrev);
-// }
-
-// StringBuilder shapeBuilder = new StringBuilder();
-// List<CategoryCharacteristic> newCatChars = new ArrayList<>();
-// for (String charSubGroup : characteristics){
-// if (dictVal.containsKey(charSubGroup) &&
-// dictValAbrev.containsKey(charSubGroup)){
-// Optional<Characteristic> charMaybe =
-// characteristicRepository.findByName(charSubGroup);
-// if (charMaybe.isPresent() == false){
-// return null;
-// }
-// Characteristic newChar = charMaybe.get();
-// Long charId = newChar.getId();
-// String newCharVal = dictVal.get(charSubGroup);
-// String newCharAbrev = dictValAbrev.get(charSubGroup);
-
-// if (newCharVal==null){
-// continue;
-// }
-
-// CategoryCharacteristicKey key = new CategoryCharacteristicKey(newCatId,
-// charId);
-// CategoryCharacteristic catChar = new CategoryCharacteristic(newCat, newChar,
-// newCharVal, newCharAbrev);
-// catChar.setId(key);
-// categoryCharRepository.save(catChar);
-// newCatChars.add(catChar);
-
-// if (charSubGroup.equals("Function") || charSubGroup.equals("Name")){
-// continue;
-// }
-// if(charSubGroup.equals("Length")){
-// lenAbrv = newCharAbrev;
-// }
-// shapeBuilder.append(newCharAbrev).append("/");
-// }
-// }
-// if (shapeBuilder.length()> 0){
-// shapeBuilder.setLength(shapeBuilder.length()-1);
-// }
-// String shape = shapeBuilder.toString();
-// newCat.setShape(shape);
-// newCat.setCategoryCharacteristic(newCatChars);
-// categoryRepository.save(newCat);
-
-// CategoryDTO newCatDTO = new CategoryDTO(gName, subgName, name, function,
-// shape, lenAbrv);
-// return newCatDTO;
-// }
-
-// }

@@ -77,9 +77,9 @@ public class OrdersService {
      * @return List of OrderItemDTO
      */
     public List<OrderItemDTO> addInstrumentToOrder(Map<String, Object> body){
-        Long orderId = (Long) body.get("orderId");
-        Long userId = (Long) body.get("userId");
-        Long instrumentId = (Long) body.get("instrId");
+        Long orderId = ((Number) body.get("orderId")).longValue();
+        Long userId = ((Number) body.get("userId")).longValue();
+        Long instrumentId = ((Number) body.get("instrId")).longValue();
 
         Optional<User> userMaybe = userRepository.findByUserId(userId);
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
@@ -174,7 +174,7 @@ public class OrdersService {
      * @return True if successfully created
      */
     public List<OrdersDTO> createNewOrder(Map<String, Object> body){
-        Long userId = (Long) body.get("userId");
+        Long userId = ((Number) body.get("userId")).longValue();
         String orderName = (String) body.get("orderName");
 
         Optional<User> userMaybe = userRepository.findByUserId(userId);

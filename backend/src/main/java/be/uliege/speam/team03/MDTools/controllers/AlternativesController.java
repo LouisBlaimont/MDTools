@@ -27,79 +27,108 @@ import lombok.AllArgsConstructor;
 public class AlternativesController {
     private final AlternativeService alternativeService;
 
+    /**
+     * Returns the alternatives of an instrument available for users.
+     * @param instrId The id of the instrument.
+     * @return A ResponseEntity (OK) with the alternatives as InstrumentDTO
+     * @throws ResourceNotFoundException If the provided instrument doesn't exist.
+     */
     @GetMapping("/user/instrument/{instrId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrUser(@PathVariable Long instrId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrUser(@PathVariable Long instrId) throws ResourceNotFoundException{
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesUser(instrId);
-        if (alternatives == null || alternatives.isEmpty()){
-            throw new ResourceNotFoundException("No alternatives found for the instrument :" + instrId);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
 
+    /**
+     * Returns the alternatives of an instrument available for admins.
+     * @param instrId The id of the instrument.
+     * @return A ResponseEntity (OK) with the alternatives as InstrumentDTO
+     * @throws ResourceNotFoundException If the provided instrument doesn't exist.
+     */
     @GetMapping("/admin/instrument/{instrId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrAdmin(@PathVariable Long instrId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfInstrAdmin(@PathVariable Long instrId) throws ResourceNotFoundException {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesAdmin(instrId);
-        if (alternatives == null || alternatives.isEmpty()){
-            throw new ResourceNotFoundException("No alternatives found for the instrument :" + instrId);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
 
+
+    /**
+     * Returns the alternatives of every instrument in a category available for users.
+     * @param categoryId The id of the category.
+     * @return A ResponseEntity (OK) with the alternatives as InstrumentDTO
+     * @throws ResourceNotFoundException If the provided category doesn't exist.
+     */
     @GetMapping("/user/category/{categoryId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryUser(@PathVariable Long categoryId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryUser(@PathVariable Long categoryId) throws ResourceNotFoundException{
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesOfCategoryUser(categoryId);
-        if (alternatives == null || alternatives.isEmpty()){
-            throw new ResourceNotFoundException("No alternatives found for the category :" + categoryId);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
 
+
+        /**
+     * Returns the alternatives of every instrument in a category available for admins
+     * @param categoryId The id of the category.
+     * @return A ResponseEntity (OK) with the alternatives as InstrumentDTO
+     * @throws ResourceNotFoundException If the provided category doesn't exist.
+     */
     @GetMapping("/admin/category/{categoryId}")
-    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryAdmin(@PathVariable Long categoryId) {
+    public ResponseEntity<List<InstrumentDTO>> getAlternativesOfCategoryAdmin(@PathVariable Long categoryId) throws ResourceNotFoundException {
         List<InstrumentDTO> alternatives = alternativeService.findAlternativesOfCategoryAdmin(categoryId);
-        if (alternatives == null || alternatives.isEmpty()){
-            throw new ResourceNotFoundException("No alternatives found for the category :" + categoryId);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
 
+    /**
+     * Retrieves all available alternative.
+     * @return A ResponseEntity (OK) list of object containing the references of the instruments of the alternative.
+     */
     @GetMapping("/all")
     public ResponseEntity<List<AlternativeReferenceDTO>> getAllAlternatives() {
         List<AlternativeReferenceDTO> alternatives = alternativeService.findAllAlternativesReferences();
-        if (alternatives == null || alternatives.isEmpty()) {
-            throw new ResourceNotFoundException("No alternatives found.");
-        }
         return ResponseEntity.status(HttpStatus.OK).body(alternatives);
     }
 
 
+    /**
+     * Removes an instrument as alternative from every instrument in a category.
+     * Every alternatives concerning this instrument and an instrument of the category is deleted.
+     * @param altId The instrument to be removed from the alternatives.
+     * @param categoryId The id of the cateogry in which to look for alternative included the instrument identified by altId.
+     * @return A boolean set to true if the alternatives were removed.
+     * @throws ResourceNotFoundException If the category or the instrument provided don't exist.
+     */
     @DeleteMapping("{altId}/category/{categoryId}")
-    public ResponseEntity<?> deleteAlternativeFromcategory(@PathVariable Long altId, @PathVariable Long categoryId){
+    public ResponseEntity<Boolean> deleteAlternativeFromcategory(@PathVariable Long altId, @PathVariable Long categoryId) throws ResourceNotFoundException{
         Boolean deleted = alternativeService.removeAlternativeFromCategory(categoryId, altId);
-        if (deleted != true){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete alternative");
-        }
         return ResponseEntity.status(HttpStatus.OK).body(deleted);
     }
 
+    /**
+     * Creates a new alternative between two instruments.
+     * @param instr1 The id of the first instrument.
+     * @param instr2 The id of the second instrument.
+     * @return A ResponseEntity (OK) with a list of the updated alternatives available in the category of the first instrument. 
+     * @throws ResourceNotFoundException If the provided instruments don't exist
+     * @throws BadRequestException If the instruments have the same supplier, 
+     *                              or if the instruments belong to different groups, 
+     *                              or if the alternative already exists.
+     */
     @PostMapping
-    public ResponseEntity<?> addAlternative(@RequestParam Long instr1, @RequestParam Long instr2) {
-        try {
-            List<InstrumentDTO> newAlternative = alternativeService.addAlternative(instr1, instr2);
-            return ResponseEntity.status(HttpStatus.OK).body(newAlternative);
-        } catch(BadRequestException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ResourceNotFoundException e){
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    public ResponseEntity<List<InstrumentDTO>> addAlternative(@RequestParam Long instr1, @RequestParam Long instr2) throws ResourceNotFoundException, BadRequestException {
+        List<InstrumentDTO> newAlternative = alternativeService.addAlternative(instr1, instr2);
+        return ResponseEntity.status(HttpStatus.OK).body(newAlternative);
     }
 
+    /**
+     * Deletes an alternative between two instruments.
+     * @param instrId The id of the instrument that is currently modified.
+     * @param altId The id of the instrument that must be removed from the alternatives for the other instrument.
+     * @return A ResponseEntity (OK) with a list of the updated alternatives available in the category of the instrument that is currently modified.
+     * @throws ResourceNotFoundException If the instruments don't exist.
+     * @throws BadRequestException If the alternative doesn't exist.
+     */
     @DeleteMapping("{altId}/instrument/{instrId}")
-    public ResponseEntity<?> deleteAlternative(@PathVariable Long instrId, @PathVariable Long altId){
+    public ResponseEntity<List<InstrumentDTO>> deleteAlternative(@PathVariable Long instrId, @PathVariable Long altId) throws BadRequestException, ResourceNotFoundException{
         List<InstrumentDTO> newAltOfCat = alternativeService.removeAlternative(instrId, altId);
-        if (newAltOfCat == null || newAltOfCat.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete alternative");
-        }
         return ResponseEntity.status(HttpStatus.OK).body(newAltOfCat);
     }
 }

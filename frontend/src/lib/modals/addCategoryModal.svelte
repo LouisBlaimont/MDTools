@@ -1,339 +1,156 @@
 <script>
-    import { createEventDispatcher } from "svelte";
     import { goto } from "$app/navigation";
     import { apiFetch } from "$lib/utils/fetch";
-    import { groups, subGroups, selectedGroup, selectedSubGroup, selectedGroupIndex, selectedSubGroupIndex, reload } from "$lib/stores/searches";
+    import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
 
-    export let isOpen = false;
-    export let close;
-    export let initCategory = null;
+    const {
+        isOpen,
+        close,
+    } = $props();
 
-    let id = "";
-    let groupName = $selectedGroup ? $selectedGroup : "";
-    let subGroupName = selectedSubGroup ? $selectedSubGroup : "";
-    let name = "";
-    let fct = "";
-    let shape = "";
-    let lenAbrv = "";
-    let pictureId = initCategory ? initCategory.pictureId : "";
-    $selectedGroupIndex = $groups.indexOf($selectedGroup);
-    $selectedSubGroupIndex = $subGroups.indexOf($selectedSubGroup);
-
-    // For existing category, use stored indexes
-    let groupId = $selectedGroupIndex + 1;
-    let subGroupId = $selectedSubGroupIndex + 1;
-
-    const dispatch = createEventDispatcher();
 
     // Draggable modal functionality
-    let posX = 0, posY = 0, offsetX = 0, offsetY = 0, isDragging = false;
-
+    let posX = $state(0), posY = $state(0), offsetX = 0, offsetY = 0, isDragging = false;
     function startDrag(event) {
         isDragging = true;
         offsetX = event.clientX - posX;
         offsetY = event.clientY - posY;
     }
-
     function drag(event) {
         if (isDragging) {
             posX = event.clientX - offsetX;
             posY = event.clientY - offsetY;
         }
     }
-
     function stopDrag() {
         isDragging = false;
     }
 
-    async function submitForm() {
-        if(groupId == 0 || subGroupId == 0) {
-            dispatch("error", { message: "Veuillez sélectionner un groupe et un sous-groupe." });
-            return;
+    // New values
+    let newCharValues = $state({});
+    let newCharAbbrev = $state({});
+
+
+    // Displaying possible values for the fields
+    let autocompleteInput = '';
+    let showAutocompleteDropDown = $state(false);
+    let filteredAutocompleteOptions = $state([]);
+    let currentAutocompleteField = $state(null);
+
+    // Display values when clicking on fields
+    async function triggerAutocomplete(charName){
+        currentAutocompleteField = charName;
+        if(!autocompleteOptions[currentAutocompleteField]){
+            await fetchCharacteristicOptions(charName);
         }
-        
-        const response = await apiFetch('/api/category/group/' + groupId + '/subgroup/' + subGroupId, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                id,
-                groupName,
-                subGroupName,
-                name,
-                function: fct,
-                shape,
-                lenAbrv,
-                pictureId
-            })
-        });
-        
-        if (response.ok) {
-            dispatch("success", { message: "Catégorie ajoutée!" });
-            reload.set(true);
-            close();
-        } else {
-            dispatch("error", { message: "Impossible d'ajouter une catégorie." });
+        autocompleteInput = "";
+        filteredAutocompleteOptions = $autocompleteOptions[charName] || [];
+        showAutocompleteDropDown = true;
+    }
+    async function fetchCharacteristicOptions(charName){
+        try{
+        const response = await apiFetch(`/api/characteristics/${charName}/values-in/${$selectedSubGroup}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch options for ${charName}`);
         }
-    }
-
-    function erase() {
-        name = "";
-        fct = "";
-        shape = "";
-        lenAbrv = "";
-        pictureId = "";
-        id = "";
-    }
-
-    // Autocomplete functionality
-    let autocompleteOptions = {};
-    let groupToSubgroups = {}; // Mapping of groups to their subgroups
-    let currentAutocompleteField = null;
-    let currentGroup = null; // Track selected group for subgroup filtering
-    let autocompleteInput = "";
-    let filteredAutocompleteOptions = [];
-    let showAutocompleteDropdown = false;
-
-    async function fetchCharacteristicOptions(characteristicName) {
-        try {
-            // Map of characteristics to their respective API endpoints
-            const characteristicEndpoints = {
-                'groupName': {
-                    endpoint: 'groups',
-                    extractValue: (item) => item.name,
-                },
-                'subGroupName': {
-                    endpoint: 'subgroups',
-                    extractValue: (item) => item,
-                },
-                'shape': {
-                    endpoint: 'category',
-                    extractValue: (item) => item.shape,
-                },
-                'lenAbrv': {
-                    endpoint: 'category',
-                    extractValue: (item) => item.lenAbrv,
-                },
-                'name': {
-                    endpoint: 'category',
-                    extractValue: (item) => item.name,
-                },
-                'fct': {
-                    endpoint: 'category',
-                    extractValue: (item) => item.function,
-                },
-            };
-
-            const config = characteristicEndpoints[characteristicName];
-            
-            if (!config) {
-                console.warn(`No options endpoint found for ${characteristicName}`);
-                return [];
-            }
-
-            const response = await apiFetch(`/api/${config.endpoint}/all`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch options for ${characteristicName}`);
-            }
-
-            const options = await response.json();
-
-            // Extract values using the provided function
-            if (characteristicName === 'subGroupName') {
-                // For subgroups, organize them by their parent groups
-                groupToSubgroups = {}; // Reset the mapping
-                
-                options.forEach(item => {
-                    if (!groupToSubgroups[item.groupName]) {
-                        groupToSubgroups[item.groupName] = [];
-                    }
-                    groupToSubgroups[item.groupName].push(item.name);
-                });
-                
-                // Store all subgroups for when no group is selected
-                autocompleteOptions[characteristicName] = options.map(config.extractValue).map(item => item.name);
-                return autocompleteOptions[characteristicName];
-            } else {
-                // For other fields, just store the options directly
-                const extractedOptions = options.map(config.extractValue);
-                autocompleteOptions[characteristicName] = extractedOptions;
-                return extractedOptions;
-            }
-        } catch (error) {
-            console.error(`Error fetching options for ${characteristicName}:`, error);
-            return [];
+        let values = await response.json() ;
+        values = values.filter(value => value !== "");
+        autocompleteOptions.update(current => ({
+            ...current,
+            [charName]: values
+        }));
+        } catch(error){
+        console.error('Failed to fetch options', error);
         }
     }
 
-    // Handle input for autocomplete
-    function handleAutocompleteInput(event) {
+    // Filter values when writing inside field
+    function handleAutocompleteInput(event){
         const inputValue = event.target.value;
-        
-        // Update the corresponding variable
-        switch (currentAutocompleteField) {
-            case 'groupName':
-                groupName = inputValue;
-                break;
-            case 'subGroupName':
-                subGroupName = inputValue;
-                break;
-            case 'name':
-                name = inputValue;
-                break;
-            case 'fct':
-                fct = inputValue;
-                break;
-            case 'shape':
-                shape = inputValue;
-                break;
-            case 'lenAbrv':
-                lenAbrv = inputValue;
-                break;
-        }
-        
-        autocompleteInput = inputValue;
-        showAutocompleteDropdown = true;
-
-        // Handle specific filtering for subgroups based on selected group
-        if (currentAutocompleteField === 'subGroupName' && currentGroup) {
-            // Filter subgroups that belong to the selected group
-            const subgroupsForGroup = groupToSubgroups[currentGroup] || [];
-            filteredAutocompleteOptions = subgroupsForGroup.filter(option =>
-                option.toLowerCase().includes(inputValue.toLowerCase())
-            );
-        } else {
-            // Standard filtering for other fields
-            const rawOptions = autocompleteOptions[currentAutocompleteField] || [];
-            filteredAutocompleteOptions = rawOptions.filter(option =>
-                String(option).toLowerCase().includes(inputValue.toLowerCase())
-            );
-        }
+        autocompleteInput  = inputValue;
+        showAutocompleteDropDown = true;
+        filteredAutocompleteOptions = $autocompleteOptions[currentAutocompleteField].filter(option => option.toLowerCase().includes(inputValue.toLowerCase()));
     }
 
-    // Select an option from autocomplete
-    function selectAutocompleteOption(option) {
-        // Handle group selection specifically
-        if (currentAutocompleteField === 'groupName') {
-            groupName = option;
-            // When a group is selected, save it for filtering subgroups
-            currentGroup = option;
-            
-            // Find the group ID based on the selected group name
-            const groupIndex = $groups.indexOf(option);
-            if (groupIndex !== -1) {
-                groupId = groupIndex + 1;
-            }
-            
-            // Clear subgroup when group changes
-            subGroupName = "";
-            subGroupId = 0;
-        } 
-        // Handle subgroup selection
-        else if (currentAutocompleteField === 'subGroupName') {
-            subGroupName = option;
-            
-            // Find the subgroup ID based on the selected subgroup name
-            if (currentGroup) {
-                // Get all subgroups for the current group
-                const availableSubgroups = groupToSubgroups[currentGroup] || [];
-                const subgroupIndex = availableSubgroups.indexOf(option);
-                
-                // We need to map this to the global subgroup ID
-                // This assumes subgroups are 1-indexed in the API
-                if (subgroupIndex !== -1) {
-                    // Find the global index in the $subGroups store
-                    const globalSubgroupIndex = $subGroups.indexOf(option);
-                    if (globalSubgroupIndex !== -1) {
-                        subGroupId = globalSubgroupIndex + 1;
-                    }
-                }
-            }
-        }
-        // Standard selection for other fields
-        else {
-            switch(currentAutocompleteField) {
-                case 'name':
-                    name = option;
-                    break;
-                case 'fct':
-                    fct = option;
-                    break;
-                case 'shape':
-                    shape = option;
-                    break;
-                case 'lenAbrv':
-                    lenAbrv = option;
-                    break;
-            }
-        }
-
-        // Reset autocomplete states
+    // Select value when clicking on an option, adding this value to the new fields
+    function selectAutocompleteOption(option){
+        newCharValues[currentAutocompleteField] = option;
+        newCharValues = {...newCharValues};
         autocompleteInput = '';
-        showAutocompleteDropdown = false;
+        showAutocompleteDropDown = false;
         currentAutocompleteField = null;
     }
 
-    function closeAutocomplete() {
-        showAutocompleteDropdown = false;
-        currentAutocompleteField = null;
+    // For fields with abreviations, when an exisiting option is clicked on, the corresponding alternative is displayed
+    async function selectAutocompleteOptionWithAbrev(option){
+        newCharValues[currentAutocompleteField] = option;
+        newCharValues = {...newCharValues};
+        try{
+            const response = await apiFetch(`/api/category/abbreviation/of/${currentAutocompleteField}/${option}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch abbreviation for ${option}`);
+            }
+            const characteristic = await response.json() ;
+            const abbrev = characteristic.abrev;
+            newCharAbbrev[currentAutocompleteField] = abbrev;
+            newCharAbbrev = {...newCharAbbrev};
+        } catch(error){
+            console.error('Failed to fetch options', error);
+        }
+        autocompleteInput = '';
+        showAutocompleteDropDown = false;
+        currentAutocompleteField = null;    
     }
 
-    // Trigger autocomplete for a specific field
-    async function triggerAutocomplete(characteristicName) {
-        if (currentAutocompleteField === characteristicName && showAutocompleteDropdown) {
-            // If the same field is clicked again while dropdown is open, close it
-            showAutocompleteDropdown = false;
-            currentAutocompleteField = null;
-            return;
-        }
-        
-        // If a different field is clicked, fetch options for the new field
-        currentAutocompleteField = characteristicName;
-        
-        // Fetch options if not already loaded
-        if (!autocompleteOptions[characteristicName]) {
-            await fetchCharacteristicOptions(characteristicName);
-        }
+    // Adding the category using the new input fields
+    async function addCategory() {
+        let data = {};
 
-        // Get current value from the field
-        switch(characteristicName) {
-            case 'groupName':
-                autocompleteInput = groupName;
-                break;
-            case 'subGroupName':
-                autocompleteInput = subGroupName;
-                break;
-            case 'name':
-                autocompleteInput = name;
-                break;
-            case 'fct':
-                autocompleteInput = fct;
-                break;
-            case 'shape':
-                autocompleteInput = shape;
-                break;
-            case 'lenAbrv':
-                autocompleteInput = lenAbrv;
-                break;
-            default:
-                autocompleteInput = "";
-        }
+        $characteristics.forEach(char => {
+            if(char === "Length"){
+                data[char] = String(newCharValues[char]||"");
+            }
+            else if (char === "Function" || char === "Name"){
+                data[char] = newCharValues[char] ||"";
+            }
+            else{
+                data[char] = newCharValues[char] || "";
+                const abrevIndex = `${char}abrev`;
+                data[abrevIndex] = newCharAbbrev[char] || "";
+            }
 
-        // Special handling for subgroups
-        if (characteristicName === 'subGroupName' && currentGroup) {
-            // If a group is selected, only show subgroups for that group
-            filteredAutocompleteOptions = groupToSubgroups[currentGroup] || [];
-        } else {
-            // Show all options for other fields
-            filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
+        })
+        try {
+            const response = await apiFetch(`/api/category/subgroup/${$selectedSubGroup}`, {
+            method: "POST", 
+            headers : { "Content-type" : "application/json"},
+            body : JSON.stringify(data),
+        });
+        if(!response.ok){
+            if(response.status === 400){
+                const errorSameCat = document.getElementById("error-same-category");
+                errorSameCat.classList.remove("hidden");
+            }
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.error || "failed to create new cat");
         }
-        
-        showAutocompleteDropdown = true;
+        const result = await response.json();
+        categories.update(currentCat => {
+            return [...currentCat, result];
+        });
+        close();
+        goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(result.id)}&instrument=`);
+        reload.set(true);
+
+        }catch(error){
+            console.log("Error:", error);
+        }
+    }
+
+    //Erasing the inputs
+    function eraseInputs(){
+        newCharValues = {};
+        newCharAbbrev = {};
     }
 </script>
 
@@ -343,232 +160,119 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div 
             class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
-            on:mousemove={drag}
-            on:mouseup={stopDrag}
+            onmousemove={drag}
+            onmouseup={stopDrag}
         >
             <div 
-                class="bg-white rounded-lg shadow-lg w-1/2 absolute"
+                class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
                 style="transform: translate({posX}px, {posY}px);"
             >
                 <div 
                     class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-                    on:mousedown={startDrag}
+                    onmousedown={startDrag}
                 >
-                    <h2 class="text-xl font-bold">Ajouter une catégorie</h2>
+                    <h2 class="text-xl font-bold">Ajouter une catégorie au sous groupe {$selectedSubGroup}</h2>
                 </div>
-                <form on:submit|preventDefault={submitForm} class="p-4">
-                    <label class="block mb-2">Groupe:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            bind:value={groupName} 
-                            data-field="groupName"
-                            on:focus={() => triggerAutocomplete("groupName")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
+
+                <div class="p-4">
+                {#if $showChars}
+                {#each $characteristics as char}
+                    {#if char==="Length"}
+                        <label class="block mb-2" for="input-{char}">{char}:</label>
+                        <div class="relative mb-4">
+                            <input 
+                            type="number" 
+                            min="0"
+                            step="0.01"
+                            id="input-{char}"
+                            bind:value={newCharValues[char]}
                             class="w-full p-2 border rounded" 
-                            placeholder="Entrez un groupe"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "groupName"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
                             >
+                        </div>
+                    {:else if char === "Function" || char === "Name"}
+                        <label class="block mb-2" for="input-{char}">{char}:</label>
+                        <div class="relative mb-4">
+                            <input 
+                            type="text" 
+                            id="input-{char}"
+                            bind:value={newCharValues[char]}
+                            onfocus={()=> triggerAutocomplete(char)}
+                            oninput={handleAutocompleteInput}
+                            class="w-full p-2 border rounded" 
+                            >
+                            {#if showAutocompleteDropDown && currentAutocompleteField === char}
+                                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                                <ul 
+                                class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
+                                onmousedown={event => event.preventDefault()}
+                                >
                                 {#each filteredAutocompleteOptions as option}
+                                <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                                <button
+                                    type="button"
+                                    class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                    role="option"
+                                    onclick={() => selectAutocompleteOption(option)}
+                                >
+                                    {option}
+                                </button>
+                                {/each}
+                                </ul>
+                            {/if}
+                        </div>
+                    {:else}
+                        <div class="grid grid-cols-2 gap-4 items-center mb-4 ">
+                            <div class="relative">
+                                <label class="block mb-2" for="input-{char}">{char}:</label>
+                                <input
+                                    type = "text"
+                                    id="input-{char}"
+                                    bind:value={newCharValues[char]}
+                                    onfocus={()=> triggerAutocomplete(char)}
+                                    oninput={handleAutocompleteInput}
+                                    class="w-full p-2 border rounded"
+                                >
+                                {#if showAutocompleteDropDown && currentAutocompleteField === char}
+                                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                                    <ul 
+                                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
+                                    onmousedown={event => event.preventDefault()}
+                                    >
+                                    {#each filteredAutocompleteOptions as option}
                                     <!-- svelte-ignore a11y_role_has_required_aria_props -->
                                     <button
                                         type="button"
                                         class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
                                         role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
+                                        onclick={() => selectAutocompleteOptionWithAbrev(option)}
                                     >
                                         {option}
                                     </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
+                                    {/each}
+                                    </ul>
+                                {/if}
+                            </div>
+                            <div>
+                                <label class="block mb-2" for="input-{char}-abbrev">Abbréviation:</label>
+                                <input
+                                    type = "text"
+                                    id="input-{char}-abbrev"
+                                    bind:value={newCharAbbrev[char]}
+                                    class="w-full p-2 border rounded"
+                                >
+                            </div>
+                        </div>
+                    {/if}
+                {/each}
+                {/if}
+                </div>
+                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">Cette catégorie existe déjà.</span>
 
-                    <label class="block mb-2">Nom du sous-groupe:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            bind:value={subGroupName} 
-                            data-field="subGroupName"
-                            on:focus={() => triggerAutocomplete("subGroupName")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Entrez un sous-groupe"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "subGroupName"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-
-                    <label class="block mb-2">Fonction:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            bind:value={fct} 
-                            data-field="fct"
-                            on:focus={() => triggerAutocomplete("fct")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Entrez une fonction"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "fct"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-
-                    <label class="block mb-2">Nom de la catégorie:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            bind:value={name} 
-                            data-field="name"
-                            on:focus={() => triggerAutocomplete("name")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Entrez un nom de catégorie"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "name"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-
-                    <label class="block mb-2">Forme:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            bind:value={shape} 
-                            data-field="shape"
-                            on:focus={() => triggerAutocomplete("shape")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Entrez une forme"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "shape"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-
-                    <label class="block mb-2">Abréviation:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            bind:value={lenAbrv} 
-                            data-field="lenAbrv"
-                            on:focus={() => triggerAutocomplete("lenAbrv")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Entrez une abréviation"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "lenAbrv"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-
-                    <label class="block mb-2">Source de l'image:</label>
-                    <input 
-                        type="text" 
-                        bind:value={pictureId} 
-                        class="w-full p-2 border rounded mb-4" 
-                        placeholder="Entrez l'ID de l'image"
-                    />
-
-                    <div class="flex justify-end gap-4">
-                        <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
-                        <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter</button>
-                    </div>
-                </form>
+                <div class="flex justify-end gap-4 mb-4">
+                    <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
+                    <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
+                    <button type="button" onclick={()=>addCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter</button>
+                </div>
             </div>
         </div>
     </div>
