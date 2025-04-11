@@ -12,7 +12,6 @@
             hoveredAlternativeIndex, showCategories} from "$lib/stores/searches";   
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
-    import addCategoryModalFromInstrument from "$lib/modals/addCategoryModalFromInstrument.svelte";
     import { _ } from "svelte-i18n";
     import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";    
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
@@ -38,6 +37,18 @@
             toast.push("Veuillez sélectionner une catégorie pour en voir les alternatives.");
             return;
         }
+    }
+
+    let timeout;
+    const clickDelay = 200;
+    function clickOnAlt(row, index){
+        timeout = setTimeout(() => {
+            modals.open(BigPicturesModal, {instrument:row, index:index});
+        }, clickDelay);
+    }
+    function doubleClickOnAlt(row, index){
+        clearTimeout(timeout);
+        selectAlternative(row, index);
     }
 
 </script>
@@ -128,8 +139,6 @@
                     class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
                     class:bg-[lightgray]={$hoveredSupplierIndex === index &&
                     $selectedSupplierIndex !== index}
-                    class:bg-[lightred]={row.obsolte}
-                    class:bg-[lightgreen]={row.alternative}
                     onclick={() => selectedSupplierIndex.set(index)}
                     onmouseover={() => (hoveredSupplierIndex.set(index))}
                     onmouseout={() => (hoveredSupplierIndex.set(null))}
@@ -213,7 +222,7 @@
                 <tr
                     class="cursor-pointer {index === 1 ? 'opacity-50' : ''} {row.obsolete ? 'bg-red-500' : ''}"
                     class:bg-[lightgray]={$hoveredAlternativeIndex === index}
-                    ondblclick={() => selectAlternative(row, index)}
+                    ondblclick={() => doubleClickOnAlt(row, index)}
                     onmouseover={() => (hoveredAlternativeIndex.set(index))}
                     onmouseout={() => (hoveredAlternativeIndex.set(null))}
                 >
@@ -231,34 +240,10 @@
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                     >
                 {/if}
-                <td 
-                    class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
-                    title="{row.reference}"
-                    onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
-                >
-                    {row.reference}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.supplier}"
-                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
-                >
-                    {row.supplier}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.supplierDescription}"
-                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
-                >
-                    {row.supplierDescription}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.price}"
-                onclick= {() => modals.open(BigPicturesModal, { initInstrument: row})} 
-                >
-                    {row.price}
-                </td> 
+                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)} >{row.reference}</td>
+                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.supplier}</td>
+                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.supplierDescription}</td>
+                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.price}</td>
                 </tr>
             {/each}
         </tbody>

@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -14,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicAbbreviationDTO;
+import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.services.CharacteristicAbbreviationService;
 import lombok.AllArgsConstructor;
 
@@ -24,6 +28,17 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CharacteristicAbbreviationController {
    private final CharacteristicAbbreviationService service;
+
+   @GetMapping("/of/{charName}/{charValue}")
+   public ResponseEntity<CharacteristicDTO> getAbbreviations(@PathVariable String charValue, @PathVariable String charName){
+      Optional<String> abbrevMaybe =  service.getAbbreviation(charValue);
+      if(abbrevMaybe.isPresent()){
+         return ResponseEntity.status(HttpStatus.OK).body(new CharacteristicDTO(charName, charValue, abbrevMaybe.get()));
+      }
+      else {
+         return ResponseEntity.status(HttpStatus.OK).body(new CharacteristicDTO(charName, charValue, ""));
+      }
+   }
 
    @GetMapping("/all")
    public Page<CharacteristicAbbreviationDTO> getAllAbbreviations(@RequestParam(defaultValue = "1") int page,

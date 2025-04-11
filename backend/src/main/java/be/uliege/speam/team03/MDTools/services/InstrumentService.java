@@ -199,14 +199,14 @@ public class InstrumentService {
      * 
      * @param categoryId the ID of the category
      * @return a list of instruments for the specified category, or null if no instruments are found
-     * @throws IllegalArgumentException if the category ID is null
+     * @throws IllegalArgumentException If the category ID is null
      */
     public List<InstrumentDTO> findInstrumentsOfCatergory(Long categoryId) {
 
         // retrieve category based on categoryId
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
-        if (categoryMaybe.isPresent() == false) {
-            return null;
+        if (categoryMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("Category with the id " + categoryId + " doesn't exist");
         }
         Category category = categoryMaybe.get();
 

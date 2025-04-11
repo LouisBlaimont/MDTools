@@ -256,10 +256,8 @@
       selectedCategoryIndex.set("");
       alternatives.set([]);
 
-      // Only reset subgroup if the group has changed
-      if (previousGroup !== group) {
       selectedSubGroup.set("");
-      }
+
       showChars.set(false);
       characteristics.set([]);
       charValues.set([]);
@@ -270,9 +268,12 @@
       const response_2 = await apiFetch(`/api/category/group/${group}`);
 
       if (!response.ok) {
+          subGroups.set([]);
           throw new Error(`Failed to fetch subgroups: ${response.statusText}`);
       }
       if (!response_2.ok) {
+          subGroups.set([]);
+          categories.set([]);
           throw new Error(`Failed to fetch categories: ${response_2.statusText}`);
       }
 

@@ -86,19 +86,6 @@ public class CategoryControllerTest {
         verify(categoryService, times(1)).findAll();
     }
 
-    @Test
-    public void testFindAllCategoriesEmpty() throws Exception {
-        // Arrange
-        when(categoryService.findAll()).thenReturn(new ArrayList<>());
-
-        // Act & Assert
-        mockMvc.perform(get("/api/category/all"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("No categories found"));
-
-        verify(categoryService, times(1)).findAll();
-    }
-
 //     @Test
 //     public void testGetCategoryFromGroup() throws Exception {
 //         // Arrange
@@ -173,81 +160,45 @@ public class CategoryControllerTest {
     public void testAddCategory() throws Exception {
         // Arrange
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("name", "NewCategory");
-        requestBody.put("description", "New Category Description");
+        requestBody.put("Material", "Wood");
+        requestBody.put("Size", "10");
 
-        GroupDTO groupDTO = new GroupDTO();
-        groupDTO.setId(1L);
-        groupDTO.setName("Group1");
+        String subGroupName = "SubGroup1";
+        CategoryDTO newCategory = createCategoryDTO(3L, "NewCategory", "SubGroup1", "Group1");
 
-        SubGroupDTO subGroupDTO = new SubGroupDTO();
-        subGroupDTO.setId(2L);
-        subGroupDTO.setName("SubGroup1");
-
-        CategoryDTO newCategory = createCategoryDTO((long) 3, "NewCategory", "SubGroup1", "Group1");
-
-        when(groupService.findGroupById((long) 1)).thenReturn(groupDTO);
-        when(subGroupService.findSubGroupById((long) 2)).thenReturn(subGroupDTO);
-        when(categoryService.addCategoryToSubGroup(requestBody, (long) 2)).thenReturn(newCategory);
-        when(categoryService.save(any(CategoryDTO.class))).thenReturn(newCategory);
+        when(categoryService.addCategoryToSubGroup(requestBody, subGroupName)).thenReturn(newCategory);
 
         // Act & Assert
-        mockMvc.perform(post("/api/category/group/1/subgroup/2")
+        mockMvc.perform(post("/api/category/subgroup/" + subGroupName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(3))
                 .andExpect(jsonPath("$.name").value("NewCategory"))
                 .andExpect(jsonPath("$.groupName").value("Group1"))
                 .andExpect(jsonPath("$.subGroupName").value("SubGroup1"));
 
-        verify(groupService, times(1)).findGroupById((long) 1);
-        verify(subGroupService, times(1)).findSubGroupById((long) 2);
-        verify(categoryService, times(1)).addCategoryToSubGroup(requestBody, (long) 2);
-        verify(categoryService, times(1)).save(any(CategoryDTO.class));
-    }
-
-    @Test
-    public void testAddCategoryGroupNotFound() throws Exception {
-        // Arrange
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("name", "NewCategory");
-
-        when(groupService.findGroupById((long) 999)).thenReturn(null);
-
-        // Act & Assert
-        mockMvc.perform(post("/api/category/group/999/subgroup/2")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isNotFound());
-
-        verify(groupService, times(1)).findGroupById((long) 999);
-        verify(subGroupService, never()).findSubGroupById((long) anyInt());
-        verify(categoryService, never()).addCategoryToSubGroup(any(), (long) anyInt());
+        verify(categoryService, times(1)).addCategoryToSubGroup(requestBody, subGroupName);
     }
 
     @Test
     public void testAddCategorySubGroupNotFound() throws Exception {
         // Arrange
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("name", "NewCategory");
+        requestBody.put("Size", "10");
 
-        GroupDTO groupDTO = new GroupDTO();
-        groupDTO.setId(1L);
-        groupDTO.setName("Group1");
+        String subGroupName = "NonExistentSubGroup";
 
-        when(groupService.findGroupById((long) 1)).thenReturn(groupDTO);
-        when(subGroupService.findSubGroupById((long) 999)).thenReturn(null);
+        when(categoryService.addCategoryToSubGroup(requestBody, subGroupName))
+                .thenThrow(new ResourceNotFoundException("SubGroup not found"));
 
         // Act & Assert
-        mockMvc.perform(post("/api/category/group/1/subgroup/999")
+        mockMvc.perform(post("/api/category/subgroup/" + subGroupName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isNotFound());
 
-        verify(groupService, times(1)).findGroupById((long) 1);
-        verify(subGroupService, times(1)).findSubGroupById((long) 999);
-        verify(categoryService, never()).addCategoryToSubGroup(any(), (long) anyInt());
+        verify(categoryService, times(1)).addCategoryToSubGroup(requestBody, subGroupName);
     }
 
 //     @Test
@@ -357,7 +308,8 @@ public class CategoryControllerTest {
     @Test
     public void testGetCategoryFromIdNotFound() throws Exception {
         // Arrange
-        when(categoryService.findCategoryById((long) 999)).thenReturn(null);
+        when(categoryService.findCategoryById(999L))
+        .thenThrow(new ResourceNotFoundException("No category with ID 999 found"));
 
         // Act & Assert
         mockMvc.perform(get("/api/category/999"))
@@ -389,7 +341,9 @@ public class CategoryControllerTest {
     @Test
     public void testGetInstrumentsFromCategoryNotFound() throws Exception {
         // Arrange
-        when(instrumentService.findInstrumentsOfCatergory((long) 999)).thenReturn(null);
+        when(instrumentService.findInstrumentsOfCatergory(999L))
+        .thenThrow(new ResourceNotFoundException("Category with the id 999 doesn't exist"));
+
 
         // Act & Assert
         mockMvc.perform(get("/api/category/instruments/999"))

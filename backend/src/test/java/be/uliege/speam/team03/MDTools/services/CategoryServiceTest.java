@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,11 +93,12 @@ class CategoryServiceTest {
             String groupName = "NonExistentGroup";
             when(groupRepository.findByName(groupName)).thenReturn(Optional.empty());
 
-            // When
-            List<CategoryDTO> result = categoryService.findCategoriesOfGroup(groupName);
+            // When & Then
+            ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () -> {
+                  categoryService.findCategoriesOfGroup(groupName);
+            });
 
-            // Then
-            assertNull(result);
+            assertTrue(thrown.getMessage().contains("No group found with the name NonExistentGroup"));
       }
 
       @Test

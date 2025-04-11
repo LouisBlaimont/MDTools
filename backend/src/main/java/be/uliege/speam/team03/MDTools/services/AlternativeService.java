@@ -39,6 +39,12 @@ public class AlternativeService {
         this.pictureStorageService = pictureStorageService;
     }
 
+    /**
+     * Retrieves the alternatives of an instrument identified by its ID. 
+     * The alternatives are sorted such that the one sold my Medicon or Maganovum are displayed first.
+     * @param instrId The id of the instrument for which the alternatives have to be retrieved
+     * @return A list of the alternatives in the form of Instruments.
+     */
     public List<Instruments> findAlternatives(Long instrId){
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(instrId);
 
@@ -70,6 +76,12 @@ public class AlternativeService {
         return alternatives;
     }
 
+    /**
+     * Retrieves the alternatives of an instrument. 
+     * The alternatives available on display for users are the one from suppliers sold by MD Medical.
+     * @param instrId The id of the instrument.
+     * @return A list of alternatives in the form of InstrumentDTO
+     */
     public List<InstrumentDTO> findAlternativesUser(Long instrId){
         List<Instruments> alternatives = findAlternatives(instrId);
         alternatives.removeIf(instr -> !instr.getSupplier().getSoldByMd());
@@ -78,6 +90,12 @@ public class AlternativeService {
         return alternativesDTO;
     }
 
+    /**
+     * Retrieves the alternatives of an instrument. 
+     * All alternatives are available on display for admins.
+     * @param instrId The id of the instrument.
+     * @return A list of alternatives in the form of InstrumentDTO
+     */
     public List<InstrumentDTO> findAlternativesAdmin(Long instrId){
         List<Instruments> alternatives = findAlternatives(instrId);
         InstrumentMapper mapper = new InstrumentMapper(supplierRepository, categoryRepository, pictureStorageService);
@@ -85,15 +103,22 @@ public class AlternativeService {
         return alternativesDTO;
     }
 
+
+    /**
+     * Retrieves the alternatives of every instrument belonging to a certain group. 
+     * The alternatives are sorted such that the one sold my Medicon or Maganovum are displayed first.
+     * @param categoryId The id of the category for which the alternatives have to be retrieved
+     * @return A list of the alternatives in the form of Instruments.
+     */
     public List<Instruments> findAlternativesOfCategory(Long categoryId){
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
-        if (categoryMaybe.isPresent() == false) {
-            return null;
+        if (categoryMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("No category found for the provided id : " + categoryId);
         }
         Category category = categoryMaybe.get();
         Optional<List<Instruments>> instrumentsMaybe = instrumentRepository.findByCategory(category);
-        if (instrumentsMaybe.isPresent() == false) {
-            return null;
+        if (instrumentsMaybe.isEmpty()) {
+            return new ArrayList<>();
         }
         List<Instruments> instruments = instrumentsMaybe.get();
 
@@ -130,6 +155,12 @@ public class AlternativeService {
         return alternativesOfCategory;
     }
 
+    /**
+     * Retrieves the alternatives of every instrument belonging to a category. 
+     * The alternatives available on display for users are the one from suppliers sold by MD Medical.
+     * @param categoryId The id of the category.
+     * @return A list of alternatives in the form of InstrumentDTO.
+     */
     public List<InstrumentDTO> findAlternativesOfCategoryUser(Long categoryId){
         List<Instruments> alternatives = findAlternativesOfCategory(categoryId);
         alternatives.removeIf(instr -> !instr.getSupplier().getSoldByMd());
@@ -138,6 +169,12 @@ public class AlternativeService {
         return alternativesDTO;    
     }
 
+    /**
+     * Retrieves the alternatives of every instrument belonging to a category. 
+     * All alternatives are available on display for admins.
+     * @param categoryId The id of the category.
+     * @return A list of alternatives in the form of InstrumentDTO.
+     */
     public List<InstrumentDTO> findAlternativesOfCategoryAdmin(Long categoryId){
         List<Instruments> alternatives = findAlternativesOfCategory(categoryId);
         InstrumentMapper mapper = new InstrumentMapper(supplierRepository, categoryRepository, pictureStorageService);
@@ -145,19 +182,32 @@ public class AlternativeService {
         return alternativesDTO;    
     }  
 
+    /**
+     * Retrieves all alternatives.
+     * @return A list of objects that contain the references form both instruments of the corresponding alternative.
+     */
     public List<AlternativeReferenceDTO> findAllAlternativesReferences() {
         return alternativesRepository.findAllAlternativesReferences();
     } 
 
+    /**
+     * Removes an instrument identified by its ID as alternative for all instruments in a specific category. 
+     * Every alternatives concerning this instrument and an instrument of the category is deleted.
+     * @param categoryId The id of the category in which the instrument must be removed from the alternatives.
+     * @param instrId The id of the instrument to remove as alternative.
+     * @return A boolean set to true if the deletion worked
+     */
     public Boolean removeAlternativeFromCategory(Long categoryId, Long instrId){
         Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
-        if (categoryMaybe.isPresent() == false) {
-            return null;
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findById(instrId);
+        if (categoryMaybe.isEmpty() || instrumentMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("No category found for the provided id : "+ categoryId +" or no instrument found for the provided id : " + instrId);
         }
+
         Category category = categoryMaybe.get();
         Optional<List<Instruments>> instrumentsMaybe = instrumentRepository.findByCategory(category);
-        if (instrumentsMaybe.isPresent() == false) {
-            return null;
+        if (instrumentsMaybe.isEmpty()) {
+            return false;
         }
         List<Instruments> instrumentsOfCat = instrumentsMaybe.get();
 
@@ -184,6 +234,12 @@ public class AlternativeService {
         return isRemoved;
     }
 
+    /**
+     * Creates a new alternative between two instruments. 
+     * @param instrId1 The id of the first instrument.
+     * @param instrId2 The id of the second instrument.
+     * @return A list of the updated alternatives available in the category of the first instrument. 
+     */    
     public List<InstrumentDTO> addAlternative(Long instrId1, Long instrId2){
         Optional<Instruments> instr1Maybe = instrumentRepository.findById(instrId1);
         Optional<Instruments> instr2Maybe = instrumentRepository.findById(instrId2);
@@ -199,6 +255,9 @@ public class AlternativeService {
         if (supplierId1 == supplierId2){
             throw new BadRequestException("Alternatives can't have the same supplier");
         }
+        if (instr1.getCategory().getSubGroup().getGroup().getId() != instr2.getCategory().getSubGroup().getGroup().getId()){
+            throw new BadRequestException("Alternatives must be in the same group");    
+        }
 
         Optional<Alternatives> existingAlternative = alternativesRepository.findByInstr1AndInstr2(instr1, instr2);
         if (existingAlternative.isPresent()){
@@ -212,6 +271,12 @@ public class AlternativeService {
         return instrumentsOfCatInstr1;
     }
 
+    /**
+     * Deletes an alternative between two instruments.
+     * @param instrId1 The id of the first instrument.
+     * @param instrId2 The id of the second instrument.
+     * @return A list of the updated alternatives available in the category of the first instrument. 
+     */
     public List<InstrumentDTO> removeAlternative(Long instrId1, Long instrId2){
         Optional<Instruments> instr1Maybe = instrumentRepository.findById(instrId1);
         Optional<Instruments> instr2Maybe = instrumentRepository.findById(instrId2);

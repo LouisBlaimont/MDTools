@@ -38,8 +38,6 @@ public class CategoryMapper {
         Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
         if (functionMaybe.isPresent()){
             function = functionMaybe.get();
-        } else if (category.getFunction() != null){
-            function = category.getFunction();
         }
         else{
             function = null;
@@ -51,8 +49,6 @@ public class CategoryMapper {
         Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicVal(id, "Length");
         if (lenAbrvMaybe.isPresent()){
             lenAbrv = lenAbrvMaybe.get();
-        } else if (category.getLenAbrv() != null){
-            lenAbrv = category.getLenAbrv();
         }
         else{
             lenAbrv = null;

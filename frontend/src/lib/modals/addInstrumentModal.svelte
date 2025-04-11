@@ -3,7 +3,6 @@
     import { apiFetch } from "$lib/utils/fetch";
     import { instrumentCharacteristics, reload } from "$lib/stores/searches";
     import { modals } from "svelte-modals";
-    import AddCategoryModalFromInstrument from "./addCategoryModalFromInstrument.svelte";
 
     export let isOpen = false;
     export let close;
@@ -42,13 +41,6 @@
     }
 
     async function submitForm() {
-        if (categoryId === "") {
-            modals.open(AddCategoryModalFromInstrument, {
-                title: "Aucune catégorie sélectionnée",
-                message: "Veuillez sélectionner une catégorie avant d'ajouter un instrument.",
-            });
-           return;
-        }
         if (file)
         {
             try {
