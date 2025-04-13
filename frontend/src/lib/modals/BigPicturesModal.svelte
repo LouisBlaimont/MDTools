@@ -8,6 +8,7 @@
   import { currentSuppliers } from "$lib/stores/searches";
   import Icon from "@iconify/svelte";
   import { isAdmin } from "$lib/stores/user_stores";
+  import { _ } from "svelte-i18n";
 
   const {
     // provided by <Modals />
@@ -27,7 +28,7 @@
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Échec de la suppression de l'image. Erreur : " + response.statusText);
+        throw new Error($_('modals.big_picture.deletion_error') + response.statusText);
       }
       // remove from array
       instrument_reactive.picturesId.splice(index, 1);
@@ -54,7 +55,7 @@
       delete deleteTimeouts[id];
       deltePicture(id, index);
       toast.pop(0); // Remove the confirmation toast
-      toast.push("Image supprimée avec succès.", {
+      toast.push($_('modals.big_picture.deletion_success'), {
         theme: {
           "--toastColor": "white",
           "--toastBackground": "#28a745",
@@ -64,7 +65,7 @@
     } else {
       // First click: Ask for confirmation
       toast.push(
-        "<strong>Êtes-vous sûr de vouloir supprimer cette image ?</strong><br>Cliquez à nouveau pour confirmer.",
+        $_('modals.big_picture.deletion_confirmation'),
         {
           theme: {
             "--toastColor": "black",
@@ -101,13 +102,13 @@
               </div>
               <div class="text-center sm:mt-0 sm:ml-4 sm:text-left place-self-center">
                 <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                  Photos de l'instrument {instrument.reference}
+                  {$_('modals.big_picture.title')} {instrument.reference}
                 </h3>
               </div>
             </div>
             {#if instrument_reactive.picturesId.length == 0}
               <div class="text-center w-full m-5 my-12">
-                <p>Pas de photos pour cet instrument</p>
+                <p>{$_('modals.big_picture.no_pictures')}</p>
               </div>
             {/if}
             <div class="mx-10 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -133,12 +134,13 @@
             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                onclick={() => close()}>Fermer</button
+                onclick={() => close()}>{$_('modals.big_picture.close')}</button
               >
               <button
                 class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
                 onclick={() => modals.open(AddPictureModal, { instrument, index })}
-                >Ajouter une image
+                >
+                {$_('modals.big_picture.add_picture')}
               </button>
             </div>
           </div>

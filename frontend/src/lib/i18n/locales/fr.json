@@ -16,7 +16,7 @@
       "add_subgroup": "Ajouter un sous-groupe"
     }
   },
-  
+
   "homepage": {
     "button": {
       "search": "Rechercher"
@@ -122,6 +122,68 @@
       "quantity": "QTE",
       "unite_price_excl_vat": "PU HTVA",
       "total_price_excl_vat": "PT HTVA"
+    }
+  },
+  "admin": {
+    "supplier_page": {
+      "title": "Gestion des fournisseurs",
+      "button": {
+        "add_supplier": "Ajouter un fournisseur",
+        "edit_supplier": "Modifier le fournisseur",
+        "delete_supplier": "Supprimer le fournisseur"
+      },
+      "placeholder": {
+        "search": "Rechercher un fournisseur"
+      },
+      "table": {
+        "title": "Liste des fournisseurs",
+        "name": "Nom",
+        "sold": "Vendu",
+        "status": "Statut",
+        "actions": "Actions",
+        "yes": "Oui",
+        "no": "Non",
+        "closed": "Fermé",
+        "open": "Ouvert",
+        "edit": "Modifier"
+      }
+    }
+  },
+  "pagination": {
+    "on": "sur",
+    "page": "Page"
+  },
+  "modals": {
+    "big_picture": {
+      "title": "Photos de l'instrument",
+      "no_pictures": "Aucune photo disponible pour cet instrument",
+      "close": "Fermer",
+      "add_picture": "Ajouter une photo",
+      "deletion_error": "Erreur lors de la suppression de la photo. Erreur : ",
+      "deletion_success": "Photo supprimée avec succès",
+      "deletion_confirmation": "<strong>Voulez-vous vraiment supprimer cette photo ?</strong><br>Appuyez à nouveau pour confirmer"
+    },
+    "edit_user": {
+      "title": "Modifier votre profil",
+      "name": "Nom",
+      "email": "Email",
+      "active": "Actif",
+      "yes": "Oui",
+      "no": "Non",
+      "button": {
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      }
+    }
+  },
+  "profile_page": {
+    "title": "Profil utilisateur",
+    "name": "Nom",
+    "email": "Email",
+    "button": {
+      "edit_profile": "Modifier le profil",
+      "back": "Retour"
     }
   }
 }

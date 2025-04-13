@@ -6,11 +6,12 @@
   import EditSupplierButton from "./EditSupplierButton.svelte";
   import AddSupplierModal from "$lib/modals/addSupplierModal.svelte";
   import { modals } from "svelte-modals";
+  import { _ } from "svelte-i18n";
 
   let suppliers = $state();
-  let searchQuery = "";
-  let currentPage = 1;
-  let totalPages = 0;
+  let searchQuery = $state("");
+  let currentPage = $state(1);
+  let totalPages = $state(0);
   const itemsPerPage = 10;
 
   let isEditModalOpen = false;
@@ -73,36 +74,36 @@
 </script>
 
 <svelte:head>
-  <title>Gestion des fournisseurs</title>
+  <title>{$_('admin.supplier_page.title')}</title>
 </svelte:head>
 
 <div class="p-8 space-y-10">
   <section class="bg-white shadow-lg rounded-xl p-6">
-    <h2 class="text-2xl font-semibold mb-8">Gestion des fournisseurs</h2>
+    <h2 class="text-2xl font-semibold mb-8">{$_('admin.supplier_page.title')}</h2>
 
     <div class="flex flex-col lg:flex-row items-start lg:space-x-6 space-y-6 lg:space-y-0 mb-8">
       <!-- Add Supplier Section -->
       <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
-        <h3 class="text-lg font-medium mb-4">Ajouter un fournisseur</h3>
+        <h3 class="text-lg font-medium mb-4">{$_('admin.supplier_page.button.add_supplier')}</h3>
         <button
           class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition"µ
           onclick={() => modals.open(AddSupplierModal)}
         >
-          Ajouter un fournisseur
+          {$_('admin.supplier_page.button.add_supplier')}
         </button>
       </div>
     </div>
 
     <!-- Suppliers List Section -->
     <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
-      <h3 class="text-lg font-medium mb-6">Liste des fournisseurs</h3>
+      <h3 class="text-lg font-medium mb-6">{$_('admin.supplier_page.table.title')}</h3>
 
       <!-- Search Bar -->
       <div class="mb-6 max-w-xs">
         <input
           type="text"
           bind:value={searchQuery}
-          placeholder="Rechercher un fournisseur"
+          placeholder={$_('admin.supplier_page.placeholder.search')}
           class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
@@ -112,10 +113,10 @@
         <table class="min-w-full table-auto border-collapse">
           <thead>
             <tr class="bg-gray-100 text-left text-sm font-semibold">
-              <th class="px-6 py-4 w-96">Nom du fournisseur</th>
-              <th class="px-6 py-4 w-96">Vendu</th>
-              <th class="px-6 py-4 w-96">Statut</th>
-              <th class="px-6 py-4 w-36">Actions</th>
+              <th class="px-6 py-4 w-96">{$_('admin.supplier_page.table.name')}</th>
+              <th class="px-6 py-4 w-96">{$_('admin.supplier_page.table.sold')}</th>
+              <th class="px-6 py-4 w-96">{$_('admin.supplier_page.table.status')}</th>
+              <th class="px-6 py-4 w-36">{$_('admin.supplier_page.table.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -124,16 +125,16 @@
                 <td class="px-6 py-4">{supplier.name}</td>
                 <td class="px-6 py-4">
                   {#if supplier.soldByMd}
-                    <span class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">Oui</span>
+                    <span class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">{$_('admin.supplier_page.table.yes')}</span>
                   {:else}
-                    <span class="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">Non</span>
+                    <span class="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">{$_('admin.supplier_page.table.no')}</span>
                   {/if}
                 </td>
                 <td class="px-6 py-4">
                   {#if supplier.closed}
-                    <span class="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">Fermé</span>
+                    <span class="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">{$_('admin.supplier_page.table.closed')}</span>
                   {:else}
-                    <span class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">Ouvert</span>
+                    <span class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">{$_('admin.supplier_page.table.open')}</span>
                   {/if}
                 </td>
                 <td class="px-6 py-4 inline-flex rounded-md shadow-sm">
@@ -167,7 +168,7 @@
             />
           </svg>
         </button>
-        <span>Page {currentPage} sur {totalPages}</span>
+        <span>{$_('pagination.page')} {currentPage} {$_('pagination.on')} {totalPages}</span>
         <button
           onclick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}

@@ -16,7 +16,7 @@
       "add_subgroup": "Add subgroup"
     }
   },
-  
+
   "homepage": {
     "button": {
       "search": "Search"
@@ -65,7 +65,7 @@
   "category_component": {
     "title": {
       "instruments_types": "Instruments types",
-      "table" : {
+      "table": {
         "subgroup": "SUBGROUP",
         "function": "FUNCTION",
         "name": "NAME",
@@ -75,7 +75,7 @@
     },
     "admin": {
       "button": {
-        "add_category":"Add category"
+        "add_category": "Add category"
       }
     },
     "pictures": {
@@ -83,12 +83,12 @@
     }
   },
   "instruments_component": {
-    "title" : {
+    "title": {
       "instruments": "Instruments",
       "suppliers": "Suppliers",
       "alternatives": "Alternatives"
     },
-    "table" : {
+    "table": {
       "reference": "REF",
       "brand": "BRAND",
       "description": "DESCRIPTION",
@@ -114,6 +114,68 @@
       "quantity": "QTY",
       "unite_price_excl_vat": "UP excl. VAT",
       "total_price_excl_vat": "TP excl. VAT"
+    }
+  },
+  "admin": {
+    "supplier_page": {
+      "title": "Suppliers management",
+      "button": {
+        "add_supplier": "Add supplier",
+        "edit_supplier": "Edit supplier",
+        "delete_supplier": "Delete supplier"
+      },
+      "placeholder": {
+        "search": "Search a supplier"
+      },
+      "table": {
+        "title": "Suppliers list",
+        "name": "Name",
+        "sold": "Sold",
+        "status": "Status",
+        "actions": "Actions",
+        "yes": "Yes",
+        "no": "No",
+        "closed": "Closed",
+        "open": "Open",
+        "edit": "Edit"
+      }
+    }
+  },
+  "pagination": {
+    "on": "on",
+    "page": "Page"
+  },
+  "modals": {
+    "big_picture": {
+      "title": "Pictures of the instrument",
+      "no_pictures": "No pictures available for this instrument",
+      "close": "Close",
+      "add_picture": "Add a picture",
+      "deletion_error": "Error while deleting the picture. Error : ",
+      "deletion_success": "Picture deleted successfully",
+      "deletion_confirmation": "<strong>Do you really want to delete this picture ?</strong><br>Press again to confirm"
+    },
+    "edit_user": {
+      "title": "Edit your profile",
+      "name": "Name",
+      "email": "Email",
+      "active": "Active",
+      "yes": "Yes",
+      "no": "No",
+      "button": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      }
+    }
+  },
+  "profile_page": {
+    "title": "User Profile",
+    "name": "Name",
+    "email": "Email",
+    "button": {
+      "edit_profile": "Edit profile",
+      "back": "Back"
     }
   }
 }

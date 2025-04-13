@@ -1,6 +1,7 @@
 <script>
     import { modals } from "svelte-modals";
     import EditSupplierModal from "$lib/modals/editSupplierModal.svelte";
+    import { _ } from "svelte-i18n";
 
     export let supplier;
 
@@ -31,6 +32,6 @@
           />
         </svg>
       </span>
-      <span class="pl-2">Modifier</span>
+      <span class="pl-2">{$_('admin.supplier_page.table.edit')}</span>
     </button>
 </div>
