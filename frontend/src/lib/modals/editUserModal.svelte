@@ -1,18 +1,27 @@
 <script>
-  import { createListbox } from "svelte-headlessui";
-  import Transition from "svelte-transition";
-  import Icon from "@iconify/svelte";
+  import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
-
-  const { isOpen, close, user, roles } = $props();
+  import Icon from "@iconify/svelte";
+  import Loading from "$lib/Loading.svelte";
+  import { createListbox } from "svelte-headlessui";
+  import { Transition } from "svelte-transition";
+  // Destructure the props provided by <Modals />
+  const {
+    isOpen, // Indicates if the modal is open
+    close,  // Function to close the modal
+    user,
+    roles,
+    message,
+  } = $props();
 
   const rolesUpper = roles.map((role) => role.toUpperCase());
-  console.log("roles", rolesUpper);
-
   const listbox = createListbox({ label: "Roles", selected: user.roles });
 
-  let updatedUser = { ...user };
+  let characteristics = $state([]);
+  let users = $state([]);
 
+  
+  // Function to handle form submission
   async function handleSubmit(event) {
     event.preventDefault();
     try {
@@ -20,12 +29,14 @@
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: updatedUser.username,
-          email: updatedUser.email,
+          username: characteristics[0].value,
+          email: characteristics[1].value,
           roles: $listbox.selected,
         }),
       });
       close();
+      goto("/webmaster");
+      reload.set(true);
     } catch (error) {
       console.error("Failed to update user:", error);
     }
@@ -34,136 +45,422 @@
   function onChange(e) {
     console.log("select", e.detail.selected);
   }
+
+  function canceling(){
+    close();
+  }
+
+  // Function to fetch the user data
+  async function fetchUser() {
+    try {
+      const response = await apiFetch("/api/user?user_id=" + encodeURIComponent(user.id), {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Convert object to an array of { name, value }
+      characteristics = Object.entries(data).map(([key, value]) => ({
+        name: key,
+        value: value
+      }));
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  let userEdited = false;
+
+  // Computed property for binding
+  let userBoundValue = $state(null);
+  let promise = fetchUser();
+
+  // Function to handle instrument deletion
+  async function handleDelete() {
+      if (confirm("Êtes-vous sûr de vouloir supprimer ce compte ?")) {
+          try {
+              const response = await apiFetch("/api/user/" + encodeURIComponent(user.username), {
+                  method: "DELETE",
+              });
+              if (!response.ok) {
+                  throw new Error("Failed to delete the user");
+              }
+              close(); // Close the modal
+              goto("/webmaster"); // Redirect to the main page
+              reload.set(true); // Trigger a reload
+          } catch (error) {
+              console.error("Error:", error);
+          }
+      }
+  }
+
+  // Dragging functionality to match addModal
+  let posX = $state(0);
+  let posY = $state(0); 
+  let offsetX = 0;
+  let offsetY = 0;
+  let isDragging = false;
+
+  function startDrag(event) {
+      isDragging = true;
+      offsetX = event.clientX - posX;
+      offsetY = event.clientY - posY;
+  }
+
+  function drag(event) {
+      if (isDragging) {
+          posX = event.clientX - offsetX;
+          posY = event.clientY - offsetY;
+      }
+  }
+
+  function stopDrag() {
+      isDragging = false;
+  }
+
+  // Autocomplete functionality
+  let autocompleteOptions = $state({});
+  let currentAutocompleteField = $state(null);
+  let autocompleteInput = $state("");
+  let filteredAutocompleteOptions = $state([]);
+  let showAutocompleteDropdown = $state(false);
+
+  async function fetchUserOptions(characteristicName) {
+    try {
+      // Map of characteristics to their respective API endpoints
+      const userEndpoints = {
+        'username': {
+          endpoint: 'user',
+          extractValue: (item) => item.username,
+        },
+        'email': {
+          endpoint: 'user',
+          extractValue: (item) => item.email,
+        },
+      };
+
+      const config = userEndpoints[characteristicName];
+      
+      if (!config) {
+        console.warn(`No options endpoint found for ${characteristicName}`);
+        return [];
+      }
+
+      const response = await apiFetch(`/api/${config.endpoint}/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch options for ${characteristicName}`);
+      }
+
+      const options = await response.json();
+
+      // Extract values using the provided function
+      const extractedOptions = options.map(config.extractValue);
+      
+      // For other fields, just store the options directly
+      autocompleteOptions[characteristicName] = extractedOptions;
+      console.log("Fetched options for " + characteristicName, extractedOptions);
+      return extractedOptions;
+    } catch (error) {
+      console.error(`Error fetching options for ${characteristicName}:`, error);
+      return [];
+    }
+  }
+
+  // Handle input for autocomplete
+  function handleAutocompleteInput(event) {
+    const inputValue = event.target.value;
+    autocompleteInput = inputValue;
+    showAutocompleteDropdown = true;
+
+    
+    // Standard filtering for other fields
+    const rawOptions = JSON.parse(JSON.stringify(
+        autocompleteOptions[currentAutocompleteField] || []
+    ));
+    filteredAutocompleteOptions = rawOptions.filter(option =>
+        String(option).toLowerCase().includes(inputValue.toLowerCase())
+    );
+
+    console.log("Filtered options:", filteredAutocompleteOptions);
+  }
+
+  // Select an option from autocomplete
+  function selectAutocompleteOption(option) {
+    console.log("Selected option:", option);
+  
+    const characteristicIndex = characteristics.findIndex(
+      c => c.name === currentAutocompleteField
+    );
+    if (characteristicIndex !== -1) {
+      characteristics[characteristicIndex].value = option;
+      userEdited = true;
+    }
+
+    // Reset autocomplete states
+    autocompleteInput = '';
+    showAutocompleteDropdown = false;
+    currentAutocompleteField = null;
+  }
+
+  function closeAutocomplete() {
+    showAutocompleteDropdown = false;
+    currentAutocompleteField = null;
+  }
+
+  // Trigger autocomplete for a specific field
+  async function triggerAutocomplete(characteristicName) {
+    if (currentAutocompleteField === characteristicName && showAutocompleteDropdown) {
+      // If the same field is clicked again while dropdown is open, close it
+      showAutocompleteDropdown = false;
+      currentAutocompleteField = null;
+      return;
+    }
+    
+    // If a different field is clicked, fetch options for the new field
+    currentAutocompleteField = characteristicName;
+    
+    // Fetch options if not already loaded
+    if (!autocompleteOptions[characteristicName]) {
+      await fetchUserOptions(characteristicName);
+    }
+
+    // Reset and show dropdown
+    autocompleteInput = "";
+    filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
+    console.log("filtered auto complete options", filteredAutocompleteOptions);
+    showAutocompleteDropdown = true;
+  }
+  
 </script>
 
 {#if isOpen}
-  <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
-
-    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-        <div
-          class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
-          style:height={$listbox.expanded ? "auto" : "initial"}
+<div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div 
+        class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
+        on:mousemove={drag}
+        on:mouseup={stopDrag}
+    >
+        <div 
+            class="bg-white rounded-lg shadow-lg max-h-[80vh] overflow-y-auto absolute"
+            style="transform: translate({posX}px, {posY}px);"
         >
-          <form onsubmit={handleSubmit} class="max-w-md mx-auto bg-white p-6 rounded-2xl space-y-4">
-            <h2 class="text-xl font-semibold text-gray-700">
-              Modifier l'utilisateur {user.username}
-            </h2>
-
-            <!-- Division for Username -->
-            <div class="space-y-2">
-                <label for="username" class="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
-                <input
-                id="username"
-                type="text"
-                bind:value={updatedUser.username}
-                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                placeholder="Nom d'utilisateur"
-                />
-            </div>
-
-            <!-- Division for Email -->
-            <div class="space-y-2">
-                <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
-                <input
-                id="email"
-                type="email"
-                bind:value={updatedUser.email}
-                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                placeholder="Adresse email"
-                />
-            </div>
-
-            <!-- Division for Roles -->
-            <div class="space-y-2">
-                <label for="roles" class="block text-sm font-medium text-gray-700">Rôles</label>
-                <div class="relative">
-                <span class="inline-block w-full">
-                    <button
-                    use:listbox.button
-                    onchange={onChange}
-                    class="focus:shadow-outline-blue relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pr-10 pl-2 text-left text-sm transition duration-150 ease-in-out focus:border-blue-300 focus:outline-hidden sm:leading-5"
-                    >
-                    <div class="flex flex-wrap gap-2">
-                        {#each $listbox.selected as selected}
-                        <span class="flex items-center gap-1 rounded-sm bg-blue-50 px-2 py-0.5">
-                            <span>{selected}</span>
-                            {#if selected !== "ROLE_USER"}
-                            <div use:listbox.deselect={selected}>
-                                <Icon icon="material-symbols:close-rounded" width="24" height="24" />
-                            </div>
-                            {/if}
-                        </span>
-                        {:else}
-                        <span class="flex items-center gap-1 rounded-sm px-2 py-0.5">Empty</span>
-                        {/each}
-                    </div>
-                    <span
-                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                    >
-                        <Icon icon="material-symbols:expand-all-rounded" width="24" height="24" />
-                    </span>
-                    </button>
-                </span>
-
-                <Transition
-                    show={$listbox.expanded}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
+            <div 
+                class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
+                on:mousedown={startDrag}
+            >
+                <h2 class="text-xl font-bold">Modifier l'utilisateur {user.username}</h2>
+                <!-- Edit Icon -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="white"
+                  version="1.1"
+                  id="Capa_1"
+                  viewBox="0 0 494.936 494.936"
+                  class="w-6 h-6"
                 >
-                    <ul
-                    use:listbox.items
-                    class="absolute mt-1 w-full overflow-auto rounded-md bg-white py-1 text-sm ring-1 shadow-lg ring-black/5 focus:outline-hidden"
+                <g>
+                  <g>
+                    <path
+                      d="M389.844,182.85c-6.743,0-12.21,5.467-12.21,12.21v222.968c0,23.562-19.174,42.735-42.736,42.735H67.157 c-23.562,0-42.736-19.174-42.736-42.735V150.285c0-23.562,19.174-42.735,42.736-42.735h267.741c6.743,0,12.21-5.467,12.21-12.21 s-5.467-12.21-12.21-12.21H67.157C30.126,83.13,0,113.255,0,150.285v267.743c0,37.029,30.126,67.155,67.157,67.155h267.741 c37.03,0,67.156-30.126,67.156-67.155V195.061C402.054,188.318,396.587,182.85,389.844,182.85z"
+                    />
+                    <path
+                      d="M483.876,20.791c-14.72-14.72-38.669-14.714-53.377,0L221.352,229.944c-0.28,0.28-3.434,3.559-4.251,5.396l-28.963,65.069 c-2.057,4.619-1.056,10.027,2.521,13.6c2.337,2.336,5.461,3.576,8.639,3.576c1.675,0,3.362-0.346,4.96-1.057l65.07-28.963 c1.83-0.815,5.114-3.97,5.396-4.25L483.876,74.169c7.131-7.131,11.06-16.61,11.06-26.692 C494.936,37.396,491.007,27.915,483.876,20.791z M466.61,56.897L257.457,266.05c-0.035,0.036-0.055,0.078-0.089,0.107 l-33.989,15.131L238.51,247.3c0.03-0.036,0.071-0.055,0.107-0.09L447.765,38.058c5.038-5.039,13.819-5.033,18.846,0.005 c2.518,2.51,3.905,5.855,3.905,9.414C470.516,51.036,469.127,54.38,466.61,56.897z"
+                    />
+                  </g>
+                </g>
+              </svg>
+            </div>
+            {#if message}
+              <p class="text-red-400 text-lg mt-4 ml-3">{message}</p>
+            {/if}
+            {#await promise}
+                <div role="status" class="my-6 flex items-center justify-center p-4">
+                    <svg
+                        aria-hidden="true"
+                        class="w-16 h-16 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                        viewBox="0 0 100 101"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                     >
-                    {#each roles as value}
-                        {@const active = $listbox.active === value}
-                        {@const selected = $listbox.selected.includes(value)}
-                        {#if value != "ROLE_USER"}
-                        <li
-                            class="relative cursor-default py-2 pr-9 pl-4 select-none focus:outline-hidden {active
-                            ? 'bg-blue-100 text-blue-900'
-                            : 'text-gray-900'}"
-                            use:listbox.item={{ value }}
-                        >
-                            <span class="block truncate {selected ? 'font-semibold' : 'font-normal'}">
-                            {value}
-                            </span>
-                            {#if selected}
-                            <span
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-600"
-                            >
-                                <Icon icon="material-symbols:check-rounded" width="24" height="24" />
-                            </span>
-                            {/if}
-                        </li>
-                        {/if}
-                    {/each}
-                    </ul>
-                </Transition>
+                        <path
+                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                            fill="currentFill"
+                        />
+                    </svg>
+                    <span class="sr-only">Chargement...</span>
                 </div>
-            </div>
+            {:then}
+                <form on:submit|preventDefault={handleSubmit} class="p-4">
+                    <div class="grid grid-cols-1">
+                      {#each characteristics as characteristic}
+                        <div>
+                          {#if characteristic.name === "username"}
+                            <!-- Division for Username -->
+                            <div class="space-y-2">
+                              <label for="username" class="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
+                              <input
+                                type="text"
+                                id="username"
+                                bind:value={characteristic.value}
+                                on:change={() => (userEdited = true)}
+                                on:focus={() => triggerAutocomplete("username")}
+                                on:input={handleAutocompleteInput}
+                                on:blur={() => closeAutocomplete()}
+                                class="w-full p-2 border rounded mb-4 rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                placeholder="Nom d'utilisateur"
+                              />
+                              {#if showAutocompleteDropdown && currentAutocompleteField === "username"}
+                                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                                <ul 
+                                  class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                  on:mousedown={event => event.preventDefault()}
+                                >
+                                  {#each filteredAutocompleteOptions as option}
+                                      <li
+                                          class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                                          on:click={() => selectAutocompleteOption(option)}
+                                      >
+                                          {option}
+                                      </li>
+                                  {/each}
+                              </ul>
+                            {/if}
+                          </div>
+                          {:else if characteristic.name === "email"}
 
-            <!-- Submit and Cancel Buttons -->
-            <div class="flex gap-4">
-                <button
-                type="submit"
-                class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
-                >
-                Sauvegarder
-                </button>
-                <button
-                type="button"
-                onclick={() => close()}
-                class="w-full bg-gray-300 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-400 transition"
-                >
-                Annuler
-                </button>
-            </div>
-          </form>
+                          <!-- Division for Email -->
+                          <div class="space-y-2">
+                            <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
+                            <!-- svelte-ignore event_directive_deprecated -->
+                            <input
+                              type="email"
+                              id="email"
+                              bind:value={characteristic.value}
+                              on:change={() => (userEdited = true)}
+                              on:focus={() => triggerAutocomplete("email")}
+                              on:input={handleAutocompleteInput}
+                              on:blur={() => closeAutocomplete()}
+                              class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                              placeholder="Adresse email"
+                            />
+                            {#if showAutocompleteDropdown && currentAutocompleteField === "email"}
+                              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                              <ul class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                on:mousedown={event => event.preventDefault()}>
+                                {#each filteredAutocompleteOptions as option}
+                                    <li
+                                        class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                                        on:click={() => selectAutocompleteOption(option)}
+                                    >
+                                        {option}
+                                    </li>
+                                {/each}
+                              </ul>
+                            {/if}
+                        </div>
+                      {:else if characteristic.name === "roles"}
+                          <!-- Division for Roles -->
+                            <div class="space-y-2">
+                              <label for="roles" class="block text-sm font-medium text-gray-700">Rôles</label>
+                              <div class="relative">
+                              <span class="inline-block w-full">
+                                  <button
+                                  use:listbox.button
+                                  on:change={onChange}
+                                  class="focus:shadow-outline-blue relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pr-10 pl-2 text-left text-sm transition duration-150 ease-in-out focus:border-blue-300 focus:outline-hidden sm:leading-5"
+                                  >
+                                  <div class="flex flex-wrap gap-2">
+                                      {#each $listbox.selected as selected}
+                                      <span class="flex items-center gap-1 rounded-sm bg-blue-50 px-2 py-0.5">
+                                          <span>{selected}</span>
+                                          {#if selected !== "ROLE_USER"}
+                                          <div use:listbox.deselect={selected}>
+                                              <Icon icon="material-symbols:close-rounded" width="24" height="24" />
+                                          </div>
+                                          {/if}
+                                      </span>
+                                      {:else}
+                                      <span class="flex items-center gap-1 rounded-sm px-2 py-0.5">Empty</span>
+                                      {/each}
+                                  </div>
+                                  <span
+                                      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                                  >
+                                      <Icon icon="material-symbols:expand-all-rounded" width="24" height="24" />
+                                  </span>
+                                  </button>
+                              </span>
+
+                              <Transition
+                                  show={$listbox.expanded}
+                                  leave="transition ease-in duration-100"
+                                  leaveFrom="opacity-100"
+                                  leaveTo="opacity-0"
+                              >
+                                  <ul
+                                  use:listbox.items
+                                  class="absolute mt-1 w-full max-h-60 overflow-y-auto rounded-md bg-white py-1 text-sm ring-1 shadow-lg ring-black/5 focus:outline-hidden"
+                                  >
+                                  {#each roles as value}
+                                      {@const active = $listbox.active === value}
+                                      {@const selected = $listbox.selected.includes(value)}
+                                      {#if value != "ROLE_USER"}
+                                      <li
+                                          class="relative cursor-default py-2 pr-9 pl-4 select-none focus:outline-hidden {active
+                                          ? 'bg-blue-100 text-blue-900'
+                                          : 'text-gray-900'}"
+                                          use:listbox.item={{ value }}
+                                      >
+                                          <span class="block truncate {selected ? 'font-semibold' : 'font-normal'}">
+                                            {value}
+                                          </span>
+                                          {#if selected}
+                                          <span
+                                              class="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-600"
+                                          >
+                                              <Icon icon="material-symbols:check-rounded" width="24" height="24" />
+                                          </span>
+                                          {/if}
+                                      </li>
+                                      {/if}
+                                  {/each}
+                                  </ul>
+                              </Transition>
+                              </div>
+                          </div>
+                        {/if}
+                        </div>
+                      {/each}
+                      <div>
+                    
+                    <div class="mt-4 space-x-4 flex justify-end">
+                        <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
+                        <button type="button" on:click={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                    </div>
+                </form>
+            {/await}
         </div>
-      </div>
     </div>
-  </div>
+</div>
 {/if}

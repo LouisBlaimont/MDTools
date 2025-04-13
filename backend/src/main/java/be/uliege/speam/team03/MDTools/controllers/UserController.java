@@ -141,6 +141,9 @@ public class UserController {
    @GetMapping("/list")
    public ResponseEntity<List<UserDto>> getAllUser() {
       List<UserDto> users = userService.getAllUsers();
+      if (users.isEmpty()) {
+         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(users);
+      }
       return new ResponseEntity<>(users, HttpStatus.OK);
    }
 }

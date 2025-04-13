@@ -155,7 +155,6 @@
   let characteristicsEdited = false;
 
   // Computed property for binding
-  let characteristicBoundValue = $state(null);
   let promise = fetchCharacteristics();
 
   // Function to handle instrument deletion
