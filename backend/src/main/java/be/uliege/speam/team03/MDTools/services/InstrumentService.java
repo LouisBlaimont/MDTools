@@ -171,7 +171,7 @@ public class InstrumentService {
         Instruments instrument = instrumentMaybe.get();
         String reference = (String) body.get("reference");
         String supplier = (String) body.get("supplier");
-        Long categoryId = (Long) body.get("categoryId");
+        Long categoryId = ((Number) body.get("categoryId")).longValue();
         String supplierDescription = (String) body.get("supplierDescription");
         Number priceValue = (Number) body.get("price");
         Float price = priceValue != null ? priceValue.floatValue() : null;

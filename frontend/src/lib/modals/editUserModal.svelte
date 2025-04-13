@@ -5,12 +5,13 @@
   import Loading from "$lib/Loading.svelte";
   import { createListbox } from "svelte-headlessui";
   import { Transition } from "svelte-transition";
+  import { reload } from "$lib/stores/searches";
   // Destructure the props provided by <Modals />
   const {
     isOpen, // Indicates if the modal is open
     close,  // Function to close the modal
-    user,
     roles,
+    user,  // The user object to be edited
     message,
   } = $props();
 
@@ -25,18 +26,24 @@
   async function handleSubmit(event) {
     event.preventDefault();
     try {
+      const characteristicsObject = Object.fromEntries(
+        characteristics.map(c => [c.name, c.value])
+      );
+
+      const requestBody = {
+        ...characteristicsObject, // Spread the characteristics (e.g., username, email)
+        roles: $listbox.selected, // Add the selected roles
+      };
+
       await apiFetch(`/api/user/${encodeURIComponent(user.id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: characteristics[0].value,
-          email: characteristics[1].value,
-          roles: $listbox.selected,
-        }),
+        body: JSON.stringify(requestBody),
       });
+
       close();
-      goto("/webmaster");
-      reload.set(true);
+      goto("/webmaster"); // Redirect to the users page
+      reload.update(value => !value); // Toggle the reload store to trigger reactivity
     } catch (error) {
       console.error("Failed to update user:", error);
     }
@@ -94,8 +101,7 @@
                   throw new Error("Failed to delete the user");
               }
               close(); // Close the modal
-              goto("/webmaster"); // Redirect to the main page
-              reload.set(true); // Trigger a reload
+              reload.update(value => !value); // Toggle the reload store to trigger reactivity
           } catch (error) {
               console.error("Error:", error);
           }
@@ -258,7 +264,7 @@
     >
         <div 
             class="bg-white rounded-lg shadow-lg max-h-[80vh] overflow-y-auto absolute"
-            style="transform: translate({posX}px, {posY}px);"
+            style="transform: translate({posX}px, {posY}px); max-width: 40vw;"
         >
             <div 
                 class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
