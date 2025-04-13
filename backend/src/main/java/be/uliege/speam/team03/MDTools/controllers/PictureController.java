@@ -201,6 +201,7 @@ public class PictureController {
 
                // Process the file
                String filename = zipEntry.getName();
+               
                processExtractedFile(zipInputStream, filename, tempDir, results);
 
             } finally {
