@@ -44,7 +44,10 @@ public class AuthenticationController {
         if (authentication instanceof OidcUser oidcUser) {
             UserDto user = userService.getUserByEmail(oidcUser.getEmail());
 
-            return ResponseEntity.ok(Map.of(
+            if (user == null) {
+                throw new BadRequestException("User not found in the database.");
+            } else {
+                return ResponseEntity.ok(Map.of(
                     "id", user.getId(),
                     "username", user.getUsername(),
                     "email", user.getEmail(),
@@ -54,6 +57,7 @@ public class AuthenticationController {
                     "roles", oidcUser.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority).toList(),
                     "expiresAt", oidcUser.getExpiresAt().toString()));
+            }
         } else {
             throw new BadRequestException();
         }

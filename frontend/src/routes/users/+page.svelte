@@ -5,7 +5,7 @@
     import { apiFetch } from "$lib/utils/fetch";
 
     let isEditing = false;
-    let updatedName = $user.username;
+    let updatedName = $user.name;
     let updatedEmail = $user.email;
     let updatedJobPosition = $user.jobPosition;
     let updatedWorkplace = $user.workplace;
@@ -18,7 +18,7 @@
     async function saveChanges() {
         try {
             const updateDate = new Date().toISOString(); // Add updateDate
-            const response = await apiFetch(`/api/user/username/${$user.username}`, {
+            const response = await apiFetch(`/api/user/username/${$user.name}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -32,7 +32,7 @@
             });
             if (!response.ok) throw new Error("Failed to update user");
             else {
-                $user.username = updatedName;
+                $user.name = updatedName;
                 $user.email = updatedEmail;
                 $user.jobPosition = updatedJobPosition;
                 $user.workplace = updatedWorkplace;
@@ -46,7 +46,7 @@
     }
 
     function cancelEdit() {
-        updatedName = $user.username;
+        updatedName = $user.name;
         updatedEmail = $user.email;
         updatedJobPosition = $user.jobPosition;
         updatedWorkplace = $user.workplace;
@@ -96,7 +96,7 @@
         {:else}
             <div class="grid grid-cols-2 gap-4 text-left">
                 <p class="text-lg font-medium">{$_('profile_page.name')}</p>
-                <p class="text-lg">{$user.username}</p>
+                <p class="text-lg">{$user.name}</p>
                 <p class="text-lg font-medium">{$_('profile_page.email')}</p>
                 <p class="text-lg">{$user.email}</p>
                 <p class="text-lg font-medium">{$_('profile_page.job_position')}</p>
