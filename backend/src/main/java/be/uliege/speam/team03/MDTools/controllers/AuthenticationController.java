@@ -50,6 +50,7 @@ public class AuthenticationController {
                 return ResponseEntity.ok(Map.of(
                     "id", user.getId(),
                     "username", user.getUsername(),
+                    "name", oidcUser.getFullName(),
                     "email", user.getEmail(),
                     "jobPosition", user.getJobPosition(),
                     "workplace", user.getWorkplace(),

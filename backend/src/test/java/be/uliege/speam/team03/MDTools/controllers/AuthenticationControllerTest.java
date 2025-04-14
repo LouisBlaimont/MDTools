@@ -55,6 +55,7 @@ public class AuthenticationControllerTest {
         Map<String, Object> claims = Map.of(
             "sub", "12345",
             "email", "test@example.com", 
+            "username", "Test User",
             "name", "Test User",
             "jobPosition", "Developer",
             "workplace", "Company XYZ",
