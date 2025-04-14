@@ -20,6 +20,25 @@
     let characteristics = $state([""]);
     const dispatch = createEventDispatcher();
 
+    let posX = 0, posY = 0, offsetX = 0, offsetY = 0, isDragging = false;
+
+    function startDrag(event) {
+        isDragging = true;
+        offsetX = event.clientX - posX;
+        offsetY = event.clientY - posY;
+    }
+
+    function drag(event) {
+        if (isDragging) {
+            posX = event.clientX - offsetX;
+            posY = event.clientY - offsetY;
+        }
+    }
+
+    function stopDrag() {
+        isDragging = false;
+    }
+
     function addCharacteristic() {
         characteristics = [...characteristics, ""];
     }
