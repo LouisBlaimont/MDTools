@@ -1,5 +1,5 @@
 <script>
-  import { alternatives, reload, selectedGroup, selectedSubGroup} from "$lib/stores/searches";
+  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3} from "$lib/stores/searches";
   import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
   import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
@@ -409,21 +409,11 @@
     showAutocompleteDropdown = true;
   }
   
-  //change with addAlternative(row) after adding search by keyword
-  function addAlternative(){
+  function addAlternative(instrument){
     const errorSameSupp = document.getElementById("error-same-supplier");
     const errorAlreadyAlt = document.getElementById("error-already-alt");
     const errorDifferentGroup = document.getElementById("error-different-group");
-    const instrumenttoAdd = {supplier: "Maganovum",
-    groupId : 1,
-    subGroupId : 1,
-    categoryId: 3,
-    reference: "PLS-3003",
-    supplierDescription: "Plastic Scalpel Type G",
-    price: 10.5,
-    obsolete: false,
-    picturesId: null,
-    id: 7};
+    const instrumenttoAdd = instrument;
     if(instrument.supplier === instrumenttoAdd.supplier){
       errorSameSupp.classList.remove('hidden');
       return;
@@ -461,6 +451,58 @@
     altToRemove.set([]);
     close();
   }
+
+  
+  /* Dealing with the search by keywords */
+  let showKeywordsResult = $state(false);
+  let instrumentToAdd = $state(null);
+
+  // function to handle the keyword inputs and calling endpoint
+  let searchByKeywords = throttle(async () => {
+    try {
+      showKeywordsResult = false;
+      let data = null;
+      let params = new URLSearchParams();
+      $keywords3.split(",").forEach((element) => {
+        const keyword = element.trim();
+        if (keyword.length > 0) {
+          params.append("keywords", keyword);
+        }
+      });
+      if ($keywords3 == null) {
+        data = null;
+      }
+      else {
+        let response = await apiFetch(`/api/instrument/search?${params}`);
+        data = await response.json();
+        keywordsResult3.set(Array.isArray(data) ? data.slice(0, 5) : []);
+        if (Object.keys(data).length > 0) {
+          showKeywordsResult = true;
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      errorMessage.set(error.message);
+    }
+  }, 300);
+
+  // handles the delay between to search by keywords
+  function throttle(fn, delay) {
+    let lastCall = 0;
+    return (...args) => {
+      const now = Date.now();
+      if (now - lastCall >= delay) {
+        lastCall = now;
+        fn(...args);
+      }
+    };
+  }
+
+  function selectAlternativeToAdd(row) {
+    instrumentToAdd = row;
+  }
+
+
 </script>
 
 {#if isOpen}
@@ -469,8 +511,8 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
         class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
-        on:mousemove={drag}
-        on:mouseup={stopDrag}
+        onmousemove={drag}
+        onmouseup={stopDrag}
     >
         <div 
             class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
@@ -478,7 +520,7 @@
         >
             <div 
                 class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-                on:mousedown={startDrag}
+                onmousedown={startDrag}
             >
                 <h2 class="text-xl font-bold">Modifier l'instrument {reference}</h2>
                 <!-- Edit Icon -->
@@ -526,7 +568,7 @@
                     <span class="sr-only">Chargement...</span>
                 </div>
             {:then}
-                <form on:submit|preventDefault={handleSubmit} class="p-4">
+                <form onsubmit={handleSubmit} preventDefault class="p-4">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
                             {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
@@ -557,7 +599,7 @@
                                                 type="radio" 
                                                 bind:group={characteristic.value} 
                                                 value={true} 
-                                                on:change={() => (characteristicsEdited = true)}
+                                                onchange={() => (characteristicsEdited = true)}
                                               /> Oui
                                             </label>
                                             <label>
@@ -565,7 +607,7 @@
                                                 type="radio" 
                                                 bind:group={characteristic.value} 
                                                 value={false} 
-                                                on:change={() => (characteristicsEdited = true)}
+                                                onchange={() => (characteristicsEdited = true)}
                                               /> Non
                                             </label>
                                         </div>
@@ -575,13 +617,13 @@
                                             bind:value={characteristic.value}
                                             min="0"
                                             step="0.01"
-                                            on:change={() => {
+                                            onchange={() => {
                                                 characteristicsEdited = true;
                                                 if(characteristic.value < 0) {
                                                     characteristic.value = 0;
                                                 }
                                             }}
-                                            on:input={() => {
+                                            oninput={() => {
                                                 characteristicsEdited = true;
                                                 if(characteristic.value < 0) {
                                                     characteristic.value = 0;
@@ -593,17 +635,17 @@
                                         <input
                                             type="text"
                                             bind:value={characteristic.value}
-                                            on:change={() => (characteristicsEdited = true)}
-                                            on:focus={() => triggerAutocomplete(characteristic.name)}
-                                            on:input={handleAutocompleteInput}
-                                            on:blur={() => closeAutocomplete()}
+                                            onchange={() => (characteristicsEdited = true)}
+                                            onfocus={() => triggerAutocomplete(characteristic.name)}
+                                            oninput={handleAutocompleteInput}
+                                            onblur={() => closeAutocomplete()}
                                             class="w-full p-2 border rounded mb-4"
                                         />
                                         {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                             <ul 
                                                 class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                                on:mousedown={event => event.preventDefault()}
+                                                onmousedown={event => event.preventDefault()}
                                             >
                                                 {#each filteredAutocompleteOptions as option}
                                                 <!-- svelte-ignore a11y_role_has_required_aria_props -->
@@ -611,7 +653,7 @@
                                                     type="button"
                                                     class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
                                                     role="option"
-                                                    on:click={() => selectAutocompleteOption(option)}
+                                                    onclick={() => selectAutocompleteOption(option)}
                                                 >
                                                     {option}
                                                     {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
@@ -631,22 +673,57 @@
                     
                     <label class="block mb-2">Image:</label>
                     <input
-                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
+                        class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
-                        on:change={(e) => (file = e.target.files[0])}
+                        onchange={(e) => (file = e.target.files[0])}
                     />
                     {#if instrument.pictureId}
                         <div class="mt-1 text-sm text-red-500 mb-4">
                             Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.
                         </div>
                     {/if}
-                    <label class="block mb-2 flex items-center">
+                    <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives">
                       Alternatives:
-                      <input type="text" class="ml-2 p-1 border rounded" />
-                      <button type="button" class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" on:click={() => addAlternative()}>
+                      <input type="text" name="id_add_alternatives" class="block w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mb-4" autocomplete="off" bind:value={$keywords3}
+                      oninput={searchByKeywords}/>
+                      <button type="button" class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" onclick={() => addAlternative(instrumentToAdd)}>Ajouter</button>
+                    </label> -->
+                    <span>Alternatives:</span>
+                    <label class="block mb-2 flex items-center" for="id_add_alternatives">
+                      <input type="text" class="block w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
+                      oninput={searchByKeywords}/>
+                      <!-- <button type="button" class="mb-4 h-11 ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded-lg" onclick={() => addAlternative(instrumentToAdd)}>
                         Ajouter
-                      </button>
+                      </button> -->
                     </label>
+                    <!-- Search results dropdown -->
+                    {#if showKeywordsResult}
+                      {#if $keywords3}
+                        <ul
+                          class="absolute left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto text-gray-800 ml-4"
+                          style="width: calc(100% + 80px);"
+                        >
+                          {#each $keywordsResult3 as row, index}
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                            <li
+                              class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-2 text-sm border-b last:border-none"
+                              onclick={() => addAlternative(row)}
+                            >
+                              <span class="text-black">{row.reference}</span>
+                              <span class="text-black">{row.supplier}</span>
+                              <span
+                              class="text-black line-clamp-2 w-full tooltip-container"
+                              data-tooltip={row.supplierDescription}
+                              title={row.supplierDescription} 
+                              >
+                                {row.supplierDescription}
+                              </span>                
+                            </li>
+                          {/each}
+                        </ul>
+                      {/if}
+                    {/if}
                     <span id="error-same-supplier" class="mb-5 text-red-600 text-sm hidden">Les alternatives doivent avoir des fournisseurs differents.</span>
                     <span id="error-different-group" class="mb-5 text-red-600 text-sm hidden">Les alternatives doivent faire partie du même groupe.</span>
                     <span id="error-already-alt" class="mb-5 text-red-600 text-sm hidden">Cette alternative existe déjà.</span>
@@ -666,8 +743,8 @@
                           <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                           <tr class="border-t cursor-pointer {row.obsolete ? 'bg-red-500' : ''}"
                           class:bg-[lightgray]={hoveredAlternativeIndex === index}
-                          on:mouseover={() => (hoveredAlternativeIndex = index)}
-                          on:mouseout={() => (hoveredAlternativeIndex = null)}
+                          onmouseover={() => (hoveredAlternativeIndex = index)}
+                          onmouseout={() => (hoveredAlternativeIndex = null)}
                           >
                             <td class="text-center p-2">{row.reference}</td>
                             <td class="text-center p-2">{row.supplier}</td>
@@ -675,7 +752,7 @@
                             <td class="text-center p-2">{row.price}</td>
                             <td 
                               class="text-center"
-                              on:click={() => removeAlt(row.id)}
+                              onclick={() => removeAlt(row.id)}
                             >
                               <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
                             </td>
@@ -691,7 +768,7 @@
                                 <td class="text-center p-2">{row.price}</td>
                                 <td 
                                   class="text-center"
-                                  on:click={() => removeAlt(row.id)}
+                                  onclick={() => removeAlt(row.id)}
                                 >
                                   <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
                                 </td>
@@ -702,8 +779,8 @@
                     </table>
                     
                     <div class="flex justify-end gap-4 mt-4">
-                        <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" on:click={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
                         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
                     </div>
                 </form>
