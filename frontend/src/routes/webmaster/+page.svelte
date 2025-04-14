@@ -7,6 +7,14 @@
   import UserButton from "./UserButton.svelte";
 
   import Icon from "@iconify/svelte";
+  import { reload } from "$lib/stores/searches";
+
+  onMount(() => {
+    if (!$isWebmaster || !$isAdmin) {
+      goto("/unauthorized");
+    }
+    reload.set(true);
+  });
 
   let users = $state();
   let searchQuery = "";

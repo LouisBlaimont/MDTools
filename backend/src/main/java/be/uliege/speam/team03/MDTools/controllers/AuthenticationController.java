@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.services.UserService;
 import lombok.AllArgsConstructor;
 
@@ -41,13 +42,23 @@ public class AuthenticationController {
     public ResponseEntity<Map<String, Object>> getAuthenticatedUser(@AuthenticationPrincipal Object authentication)
             throws BadRequestException {
         if (authentication instanceof OidcUser oidcUser) {
-            return ResponseEntity.ok(Map.of(
-                    "id", userService.getUserIdByEmail(oidcUser.getEmail()),
-                    "email", oidcUser.getEmail(),
+            UserDto user = userService.getUserByEmail(oidcUser.getEmail());
+
+            if (user == null) {
+                throw new BadRequestException("User not found in the database.");
+            } else {
+                return ResponseEntity.ok(Map.of(
+                    "id", user.getId(),
+                    "username", user.getUsername(),
                     "name", oidcUser.getFullName(),
+                    "email", user.getEmail(),
+                    "jobPosition", user.getJobPosition(),
+                    "workplace", user.getWorkplace(),
+                    "roleName", user.getRoleName(),
                     "roles", oidcUser.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority).toList(),
                     "expiresAt", oidcUser.getExpiresAt().toString()));
+            }
         } else {
             throw new BadRequestException();
         }
