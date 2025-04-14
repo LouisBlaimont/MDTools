@@ -6,9 +6,15 @@
 
     let email = $user?.email;
     let name = $user?.name;
+    let roleName = $user?.roleName;
+    let jobPosition = $user?.jobPosition;
+    let workplace = $user?.workplace;
     let isEditing = false;
     let updatedName = name;
     let updatedEmail = email;
+    let updatedJobPosition = jobPosition;
+    let updatedWorkplace = workplace;
+    let updatedRoleName = roleName;
 
     function goBack() {
         goto("../");
@@ -16,14 +22,25 @@
 
     async function saveChanges() {
         try {
-            const response = await apiFetch(`/api/user/${$user.userId}`, {
+            const updateDate = new Date().toISOString(); // Add updateDate
+            const response = await apiFetch(`/api/user/username/${name}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: updatedName, email: updatedEmail }),
+                body: JSON.stringify({ 
+                    name: updatedName, 
+                    email: updatedEmail, 
+                    jobPosition: updatedJobPosition, 
+                    workplace: updatedWorkplace, 
+                    roleName: updatedRoleName, 
+                    updateDate 
+                }),
             });
             if (!response.ok) throw new Error("Failed to update user");
             name = updatedName;
             email = updatedEmail;
+            jobPosition = updatedJobPosition;
+            workplace = updatedWorkplace;
+            roleName = updatedRoleName;
             isEditing = false;
         } catch (error) {
             console.error("Error:", error);
@@ -33,6 +50,9 @@
     function cancelEdit() {
         updatedName = name;
         updatedEmail = email;
+        updatedJobPosition = jobPosition;
+        updatedWorkplace = workplace;
+        updatedRoleName = roleName;
         isEditing = false;
     }
 </script>
@@ -50,13 +70,25 @@
 
         {#if isEditing}
             <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">{$_('profile_page.name')}</label>
+                <div class="grid grid-cols-2 gap-4 text-left items-center">
+                    <label class="text-lg font-medium">{$_('profile_page.name')}</label>
                     <input type="text" bind:value={updatedName} class="w-full p-2 border rounded" />
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">{$_('profile_page.email')}</label>
+                <div class="grid grid-cols-2 gap-4 text-left items-center">
+                    <label class="text-lg font-medium">{$_('profile_page.email')}</label>
                     <input type="email" bind:value={updatedEmail} class="w-full p-2 border rounded" />
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-left items-center">
+                    <label class="text-lg font-medium">{$_('profile_page.job_position')}</label>
+                    <input type="text" bind:value={updatedJobPosition} class="w-full p-2 border rounded" />
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-left items-center">
+                    <label class="text-lg font-medium">{$_('profile_page.workplace')}</label>
+                    <input type="text" bind:value={updatedWorkplace} class="w-full p-2 border rounded" />
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-left items-center">
+                    <label class="text-lg font-medium">{$_('profile_page.role')}</label>
+                    <input type="text" bind:value={updatedRoleName} class="w-full p-2 border rounded" />
                 </div>
                 <div class="flex gap-4 justify-center mt-4">
                     <button class="bg-blue-500 text-white p-2 rounded hover:bg-blue-700" on:click={saveChanges}>{$_('profile_page.button.save')}</button>
@@ -64,8 +96,18 @@
                 </div>
             </div>
         {:else}
-            <p class="text-lg"><strong>{$_('profile_page.name')}:</strong> {name}</p>
-            <p class="text-lg"><strong>{$_('profile_page.email')}:</strong> {email}</p>
+            <div class="grid grid-cols-2 gap-4 text-left">
+                <p class="text-lg font-medium">{$_('profile_page.name')}</p>
+                <p class="text-lg">{name}</p>
+                <p class="text-lg font-medium">{$_('profile_page.email')}</p>
+                <p class="text-lg">{email}</p>
+                <p class="text-lg font-medium">{$_('profile_page.job_position')}</p>
+                <p class="text-lg">{jobPosition}</p>
+                <p class="text-lg font-medium">{$_('profile_page.workplace')}</p>
+                <p class="text-lg">{workplace}</p>
+                <p class="text-lg font-medium">{$_('profile_page.role')}</p>
+                <p class="text-lg">{roleName}</p>
+            </div>
             <div class="flex gap-4 mt-6 justify-center">
                 <button class="bg-blue-500 text-white p-2 rounded hover:bg-blue-700" on:click={goBack}>{$_('profile_page.button.back')}</button>
                 <button class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-700" on:click={() => (isEditing = true)}>{$_('profile_page.button.edit_profile')}</button>

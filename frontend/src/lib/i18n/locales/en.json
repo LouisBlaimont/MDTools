@@ -173,6 +173,10 @@
     "title": "User Profile",
     "name": "Name",
     "email": "Email",
+    "role": "Role",
+    "job_position": "Job position",
+    "workplace": "Workplace",
+    "creation_date": "Creation date",
     "button": {
       "edit_profile": "Edit profile",
       "back": "Back",
