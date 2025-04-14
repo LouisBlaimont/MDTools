@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.services.UserService;
 import lombok.AllArgsConstructor;
 
@@ -41,10 +42,15 @@ public class AuthenticationController {
     public ResponseEntity<Map<String, Object>> getAuthenticatedUser(@AuthenticationPrincipal Object authentication)
             throws BadRequestException {
         if (authentication instanceof OidcUser oidcUser) {
+            UserDto user = userService.getUserByEmail(oidcUser.getEmail());
+
             return ResponseEntity.ok(Map.of(
-                    "id", userService.getUserIdByEmail(oidcUser.getEmail()),
-                    "email", oidcUser.getEmail(),
-                    "name", oidcUser.getFullName(),
+                    "id", user.getId(),
+                    "username", user.getUsername(),
+                    "email", user.getEmail(),
+                    "jobPosition", user.getJobPosition(),
+                    "workplace", user.getWorkplace(),
+                    "roleName", user.getRoleName(),
                     "roles", oidcUser.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority).toList(),
                     "expiresAt", oidcUser.getExpiresAt().toString()));

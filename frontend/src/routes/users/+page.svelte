@@ -4,17 +4,12 @@
     import { _ } from "svelte-i18n";
     import { apiFetch } from "$lib/utils/fetch";
 
-    let email = $user?.email;
-    let name = $user?.name;
-    let roleName = $user?.roleName;
-    let jobPosition = $user?.jobPosition;
-    let workplace = $user?.workplace;
     let isEditing = false;
-    let updatedName = name;
-    let updatedEmail = email;
-    let updatedJobPosition = jobPosition;
-    let updatedWorkplace = workplace;
-    let updatedRoleName = roleName;
+    let updatedName = $user.username;
+    let updatedEmail = $user.email;
+    let updatedJobPosition = $user.jobPosition;
+    let updatedWorkplace = $user.workplace;
+    let updatedRoleName = $user.roleName;
 
     function goBack() {
         goto("../");
@@ -23,7 +18,7 @@
     async function saveChanges() {
         try {
             const updateDate = new Date().toISOString(); // Add updateDate
-            const response = await apiFetch(`/api/user/username/${name}`, {
+            const response = await apiFetch(`/api/user/username/${$user.username}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -36,11 +31,14 @@
                 }),
             });
             if (!response.ok) throw new Error("Failed to update user");
-            name = updatedName;
-            email = updatedEmail;
-            jobPosition = updatedJobPosition;
-            workplace = updatedWorkplace;
-            roleName = updatedRoleName;
+            else {
+                $user.username = updatedName;
+                $user.email = updatedEmail;
+                $user.jobPosition = updatedJobPosition;
+                $user.workplace = updatedWorkplace;
+                $user.roleName = updatedRoleName;
+                $user.updateDate = updateDate; 
+            }
             isEditing = false;
         } catch (error) {
             console.error("Error:", error);
@@ -48,11 +46,11 @@
     }
 
     function cancelEdit() {
-        updatedName = name;
-        updatedEmail = email;
-        updatedJobPosition = jobPosition;
-        updatedWorkplace = workplace;
-        updatedRoleName = roleName;
+        updatedName = $user.username;
+        updatedEmail = $user.email;
+        updatedJobPosition = $user.jobPosition;
+        updatedWorkplace = $user.workplace;
+        updatedRoleName = $user.roleName;
         isEditing = false;
     }
 </script>
@@ -98,15 +96,15 @@
         {:else}
             <div class="grid grid-cols-2 gap-4 text-left">
                 <p class="text-lg font-medium">{$_('profile_page.name')}</p>
-                <p class="text-lg">{name}</p>
+                <p class="text-lg">{$user.username}</p>
                 <p class="text-lg font-medium">{$_('profile_page.email')}</p>
-                <p class="text-lg">{email}</p>
+                <p class="text-lg">{$user.email}</p>
                 <p class="text-lg font-medium">{$_('profile_page.job_position')}</p>
-                <p class="text-lg">{jobPosition}</p>
+                <p class="text-lg">{$user.jobPosition}</p>
                 <p class="text-lg font-medium">{$_('profile_page.workplace')}</p>
-                <p class="text-lg">{workplace}</p>
+                <p class="text-lg">{$user.workplace}</p>
                 <p class="text-lg font-medium">{$_('profile_page.role')}</p>
-                <p class="text-lg">{roleName}</p>
+                <p class="text-lg">{$user.roleName}</p>
             </div>
             <div class="flex gap-4 mt-6 justify-center">
                 <button class="bg-blue-500 text-white p-2 rounded hover:bg-blue-700" on:click={goBack}>{$_('profile_page.button.back')}</button>

@@ -65,7 +65,7 @@ public class UserController {
     */
    @PostMapping
    @ResponseStatus(HttpStatus.CREATED)
-   public ResponseEntity<?> registerUser(UserDto dto) {
+   public ResponseEntity<?> registerUser(@RequestBody UserDto dto) {
       UserDto newUser = userService.registerUser(dto);
       if (newUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
@@ -82,7 +82,7 @@ public class UserController {
     */
    @PatchMapping("username/{username}")
    @ResponseStatus(HttpStatus.OK)
-   public ResponseEntity<?> updateUser(@PathVariable String username, UserDto userDto) {
+   public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody UserDto userDto) {
       UserDto updatedUser = userService.updateUser(username, userDto);
       if (updatedUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
@@ -99,7 +99,7 @@ public class UserController {
     */
    @PatchMapping("{id}")
    @ResponseStatus(HttpStatus.OK)
-   public ResponseEntity<?> updateUser(@PathVariable Long id, UserDto userDto) {
+   public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
       UserDto updatedUser = userService.updateUser(id, userDto);
       if (updatedUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");

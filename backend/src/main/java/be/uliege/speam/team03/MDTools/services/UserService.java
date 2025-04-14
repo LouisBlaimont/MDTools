@@ -114,7 +114,7 @@ public class UserService {
      } else {
          throw new BadRequestException("Invalid identifier type. Must be a Long (ID) or String (username).");
      }
-      String email = (String) userDto.getEmail();
+      String email = userDto.getEmail();
       if (email != null) {
          if (!isValidEmail(email)) {
             throw new BadRequestException("Invalid email address.");
@@ -125,12 +125,12 @@ public class UserService {
          }
          userToUpdate.setEmail(email);
       }
-      String newUsername = (String) userDto.getUsername();
+      String newUsername = userDto.getUsername();
       if (newUsername != null) {
          if (newUsername.length() < 1 || newUsername.length() > 30) {
             throw new BadRequestException("Username must be between 1 and 30 characters.");
          }
-         if (!newUsername.matches("^[a-zA-Z0-9._-]+$")) {
+         if (!newUsername.matches("^[\\p{L}0-9._-]+$")) {
             throw new BadRequestException("Username can only contain letters, numbers, dots, underscores, and hyphens.");
          }
          Optional<User> user = userRepository.findByUsername(newUsername);
@@ -141,25 +141,27 @@ public class UserService {
          newUsername = userToUpdate.getUsername();
       }
 
-      String jobPosition = (String) userDto.getJobPosition();
+      String jobPosition = userDto.getJobPosition();
       if (jobPosition != null) {
          userToUpdate.setJobPosition(jobPosition);
       }
-      String workplace = (String) userDto.getWorkplace();
+      String workplace = userDto.getWorkplace();
       if (workplace != null) {
          userToUpdate.setWorkplace(workplace);
       }
-      String roleName = (String) userDto.getRoleName();
+      String roleName = userDto.getRoleName();
       if (roleName != null) {
          if (roleName.length() < 1 || roleName.length() > 30) {
             throw new BadRequestException("Role name must be between 1 and 30 characters.");
          }
-         if (!roleName.matches("^[a-zA-Z0-9._-]+$")) {
+         if (!roleName.matches("^[\\p{L}0-9._-]+$")) {
             throw new BadRequestException("Role name can only contain letters, numbers, dots, underscores, and hyphens.");
          }
       } else {
          roleName = userToUpdate.getRoleName();
       }
+      userToUpdate.setRoleName(roleName);
+
       Boolean enabled = (Boolean) userDto.isEnabled();
       if (enabled && userToUpdate.getAuthorities().isEmpty()) {
          throw new BadRequestException("User must have at least one role to be enabled.");
@@ -171,7 +173,6 @@ public class UserService {
       }
 
       userToUpdate.setUpdatedAt(Timestamp.from(Instant.now()));
-
       userRepository.save(userToUpdate);
       return UserMapper.toDto(userToUpdate);
    }
