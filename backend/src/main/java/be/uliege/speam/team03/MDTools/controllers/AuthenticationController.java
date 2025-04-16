@@ -48,13 +48,13 @@ public class AuthenticationController {
                 throw new BadRequestException("User not found in the database.");
             } else {
                 return ResponseEntity.ok(Map.of(
-                    "id", user.getId(),
-                    "username", user.getUsername(),
+                    "id", user.getId() != null ? user.getId() : "",
+                    "username", user.getUsername() != null ? user.getUsername() : "",
                     "name", oidcUser.getFullName(),
-                    "email", user.getEmail(),
-                    "jobPosition", user.getJobPosition(),
-                    "workplace", user.getWorkplace(),
-                    "roleName", user.getRoleName(),
+                    "email", oidcUser.getEmail(),
+                    "jobPosition", user.getJobPosition() != null ? user.getJobPosition() : "",
+                    "workplace", user.getWorkplace() != null ? user.getWorkplace() : "",
+                    "roleName", user.getRoleName() != null ? user.getRoleName() : "",
                     "roles", oidcUser.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority).toList(),
                     "expiresAt", oidcUser.getExpiresAt().toString()));
