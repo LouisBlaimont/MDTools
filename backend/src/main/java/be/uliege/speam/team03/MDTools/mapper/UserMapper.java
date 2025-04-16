@@ -23,6 +23,9 @@ public class UserMapper {
       userDto.setUsername(user.getUsername());
       userDto.setEmail(user.getEmail());
       userDto.setRoles(user.getRoles());
+      userDto.setJobPosition(user.getJobPosition());
+      userDto.setWorkplace(user.getWorkplace());
+      userDto.setRoleName(user.getRoleName());
       userDto.setEnabled(user.isEnabled());
       userDto.setCreatedAt(user.getCreatedAt());
       userDto.setUpdatedAt(user.getUpdatedAt());
@@ -39,6 +42,9 @@ public class UserMapper {
       user.setUserId(userDto.getId());
       user.setUsername(userDto.getUsername());
       user.setEmail(userDto.getEmail());
+      user.setJobPosition(userDto.getJobPosition());
+      user.setWorkplace(userDto.getWorkplace());
+      user.setRoleName(userDto.getRoleName());
       user.setAuthorities(toAuthorities(userDto.getRoles()));
       user.setEnabled(userDto.isEnabled());
       user.setCreatedAt(userDto.getCreatedAt());

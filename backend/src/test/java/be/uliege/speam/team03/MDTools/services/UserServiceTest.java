@@ -172,17 +172,18 @@ public class UserServiceTest {
     @Test
     void registerUser_ShouldCreateNewUser_WhenValidDataProvided() {
         // Given
-        Map<String, Object> userData = Map.of(
-            "email", "newuser@example.com",
-            "username", "newuser"
-        );
+        UserDto userDto = new UserDto();
+        userDto.setEmail("newuser@example.com");
+        userDto.setUsername("newuser");
+        userDto.setRoles(List.of("ROLE_USER"));
+        userDto.setEnabled(true);
 
         when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
         when(userRepository.findByUsername("newuser")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        UserDto result = userService.registerUser(userData);
+        UserDto result = userService.registerUser(userDto);
 
         // Then
         assertNotNull(result);
@@ -194,20 +195,20 @@ public class UserServiceTest {
     @Test
     void registerUser_ShouldThrowBadRequestException_WhenEmailIsInvalid() {
         // Given
-        Map<String, Object> userData = Map.of(
-            "email", "invalid-email",
-            "username", "newuser"
-        );
+        UserDto userDto = new UserDto();
+        userDto.setEmail("invalid-email");
+        userDto.setUsername("newuser");
 
         // When & Then
-        assertThrows(BadRequestException.class, () -> userService.registerUser(userData));
+        assertThrows(BadRequestException.class, () -> userService.registerUser(userDto));
         verifyNoInteractions(userRepository);
     }
 
     @Test
     void updateUser_ShouldThrowBadRequestException_WhenEmailAlreadyExists() {
         // Given
-        Map<String, Object> updateData = Map.of("email", "existing@example.com");
+        UserDto updateData = new UserDto();
+        updateData.setEmail("existing@example.com");
         User existingUser = new User();
         existingUser.setUserId(2L);
         existingUser.setEmail("existing@example.com");
