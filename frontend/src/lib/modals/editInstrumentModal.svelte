@@ -176,7 +176,7 @@
       }
   }
 
-  // Dragging functionality to match addModal
+  // Dragging functionality
   let posX = $state(0);
   let posY = $state(0); 
   let offsetX = 0;

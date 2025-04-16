@@ -1,8 +1,4 @@
 <script>
-  export let isOpen = false;
-  export let onClose = () => {};
-  export let selectedSubGroup;
-
   import { onMount } from "svelte";
   import { addCharacteristicToSubGroup, fetchCharacteristics, fetchAllCharacteristics, updateCharacteristicOrder , removeCharacteristicFromSubGroup} from "../../api.js";
   import { dndzone } from "svelte-dnd-action";
@@ -10,20 +6,48 @@
   import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
 
-  let newCharacteristicName = "";
+  const { isOpen, selectedSubGroup, onClose } = $props();
+
+  // Dragging functionality
+  let posX = $state(0);
+  let posY = $state(0); 
+  let offsetX = 0;
+  let offsetY = 0;
+  let isDragging = false;
+
+  function startDrag(event) {
+      isDragging = true;
+      offsetX = event.clientX - posX;
+      offsetY = event.clientY - posY;
+  }
+
+  function drag(event) {
+      if (isDragging) {
+          posX = event.clientX - offsetX;
+          posY = event.clientY - offsetY;
+      }
+  }
+
+  function stopDrag() {
+      isDragging = false;
+  }
+
+  let newCharacteristicName = $state("");
   let allCharacteristics = [];
   let requiredColumns = [];
-  let filteredSuggestions = [];
+  let filteredSuggestions = $state([]);
 
-  let characteristicsInShape = [];
-  let characteristicsOutOfShape = [];
+  let characteristicsInShape = $state([]);
+  let characteristicsOutOfShape = $state([]);
 
-  $: if (newCharacteristicName.trim() !== "") {
-    const input = newCharacteristicName.trim().toLowerCase();
-    filteredSuggestions = allCharacteristics
-      .filter(c => c.toLowerCase().includes(input))
-      .filter(c => !requiredColumns.includes(c));
-  }
+  $effect(() => {
+    if (newCharacteristicName.trim() !== "") {
+      const input = newCharacteristicName.trim().toLowerCase();
+      filteredSuggestions = allCharacteristics
+        .filter(c => c.toLowerCase().includes(input))
+        .filter(c => !requiredColumns.includes(c));
+    }
+  });
 
   /**
    * Create and add a new characteristic to the selected subgroup.
@@ -69,9 +93,11 @@
       .map((c, i) => ({ id: `${c.name}-out-${i}`, name: c.name, orderPosition: null }));
   }
 
-  $: if (isOpen && selectedSubGroup) {
-    loadCharacteristics(selectedSubGroup).catch(console.error);
-  }
+  $effect(() => {
+    if (isOpen && selectedSubGroup) {
+      loadCharacteristics(selectedSubGroup).catch(console.error);
+    }
+  });
 
   /**
    * Deletes a characteristic from the selected subgroup, regardless of whether it's in the form.
