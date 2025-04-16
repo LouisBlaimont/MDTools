@@ -432,6 +432,8 @@
     errorDifferentGroup.classList.add('hidden');
     addingAlt.set(true);
     altToAdd.update(alt => [...alt, instrumenttoAdd]);
+    keywords3.set(null);
+    keywordsResult3.set(null);
   }
 
   async function removeAlt(instrId){
@@ -689,13 +691,19 @@
                       <button type="button" class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" onclick={() => addAlternative(instrumentToAdd)}>Ajouter</button>
                     </label> -->
                     <span>Alternatives:</span>
-                    <label class="block mb-2 flex items-center" for="id_add_alternatives">
-                      <input type="text" class="block w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
+                    <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives"> -->
+                    <div class="flex justify-content">
+                      <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
                       oninput={searchByKeywords}/>
                       <!-- <button type="button" class="mb-4 h-11 ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded-lg" onclick={() => addAlternative(instrumentToAdd)}>
                         Ajouter
-                      </button> -->
-                    </label>
+                        </button> -->
+                      <!-- </label> -->
+                      <span id="error-same-supplier" class="text-red-600 text-sm hidden">Les alternatives doivent avoir des fournisseurs differents.</span>
+                      <span id="error-different-group" class="text-red-600 text-sm hidden">Les alternatives doivent faire partie du même groupe.</span>
+                      <span id="error-already-alt" class="text-red-600 text-sm hidden">Cette alternative existe déjà.</span>
+                    </div>
+
                     <!-- Search results dropdown -->
                     {#if showKeywordsResult}
                       {#if $keywords3}
@@ -724,11 +732,7 @@
                         </ul>
                       {/if}
                     {/if}
-                    <span id="error-same-supplier" class="mb-5 text-red-600 text-sm hidden">Les alternatives doivent avoir des fournisseurs differents.</span>
-                    <span id="error-different-group" class="mb-5 text-red-600 text-sm hidden">Les alternatives doivent faire partie du même groupe.</span>
-                    <span id="error-already-alt" class="mb-5 text-red-600 text-sm hidden">Cette alternative existe déjà.</span>
-                    
-                    <table class="w-full border border-gray-200 text-sm">
+                    <table class="w-full border border-gray-200 text-sm mt-3">
                       <thead>
                         <tr class="bg-gray-200">
                           <th class="p-2 text-center">Référence</th>
