@@ -150,11 +150,28 @@
 </script>
   
 {#if isOpen}
-<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative">
-    <button class="absolute top-2 right-2 text-gray-600" on:click={onClose}>✖</button>
-    <h2 class="text-xl font-semibold mb-4">Ajouter une nouvelle caractéristique</h2>
-
+  <div
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+    >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+            class="fixed inset-0 z-10 flex items-center justify-center"
+            on:mousemove={drag}
+            on:mouseup={stopDrag}
+        >
+    
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg absolute max-h-[80vh] overflow-y-auto"
+       style="transform: translate({posX}px, {posY}px);"
+  >
+  <div class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg" 
+       on:mousedown={startDrag}
+  >
+    <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une nouvelle caractéristique</h2>
+  </div>
+  <div class="p-4">
     <input type="text" placeholder="Nom de la caractéristique" class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
 
     {#if filteredSuggestions.length > 0}
@@ -252,7 +269,18 @@
           </div>
         </li>
       {/each}
-    </ul>      
+    </ul>  
+
+    <div class="flex justify-end gap-4 mt-6">
+      <button 
+        class="bg-gray-500 text-white px-4 py-2 rounded"
+        on:click={onClose}
+      >
+        Annuler
+      </button>
+    </div>
   </div>
 </div>
+  </div>
+  </div>
 {/if}
