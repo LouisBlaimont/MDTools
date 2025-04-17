@@ -164,8 +164,12 @@
   </script>
   
   {#if isOpen}
-  <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
+    <div
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+    >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore event_directive_deprecated -->
     <div
@@ -178,14 +182,13 @@
         style="transform: translate({posX}px, {posY}px);"
       >
         <div
-          class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
+          class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
           on:mousedown={startDrag}
         >
-          <h2 class="text-xl font-bold">Ajouter un fournisseur</h2>        
+          <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter un fournisseur</h2>        
         </div> 
-        <form on:submit|preventDefault={handleSubmit} class="p-4">
-            <label class="block mb-2">Nom:</label>
-            <div class="relative mb-4">
+        <form on:submit|preventDefault={handleSubmit} class="bg-gray-100 p-6 rounded-b-lg">
+            <label for="name" class="font-semibold text-lg">Nom:</label>
               <input
                 type="text"
                 bind:value={name}
@@ -195,13 +198,13 @@
                 }}
                 on:input={handleAutocompleteInput}
                 on:blur={closeAutocomplete}
-                class="w-full p-2 border rounded mb-4"
+                class="w-full p-2 mt-1 border rounded mb-4"
                 placeholder="Entrer le nom du fournisseur"
               />
               {#if showAutocompleteDropdown && currentAutocompleteField === "name"}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
               <ul
-                  class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  class="absolute z-10 mt-1 max-w-[80vw] bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
                   on:mousedown={event => event.preventDefault()}
               >
                   {#each filteredAutocompleteOptions as option}
@@ -214,9 +217,8 @@
                   {/each}
               </ul>
               {/if}
-            </div>
 
-            <label class="block">En vente:</label>
+            <label for="soldByMd" class="font-semibold text-lg">En vente:</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
@@ -236,7 +238,7 @@
               </label>
             </div>
 
-            <label class="block mb-2">Statut:</label>
+            <label for="closed" class="font-semibold text-lg">Statut:</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
