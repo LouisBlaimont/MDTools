@@ -124,7 +124,7 @@
                 <input type="file" bind:value={picture} class="w-full p-2 mt-1 border rounded">
             </div>
 
-            <div class="flex justify-end gap-4">
+            <div class="flex justify-end gap-4 mt-4">
                 <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded">Enregistrer</button>
                 <button type="button" on:click={erase} class="px-4 py-2 bg-red-500 text-white rounded">Effacer</button>
                 <button type="button" on:click={cancel} class="px-4 py-2 bg-gray-500 text-white rounded">Annuler</button>
