@@ -334,11 +334,16 @@
 </script>
 
 {#if isOpen}
-    <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+    >
         <div class="fixed inset-0 bg-black bg-opacity-30 transition-opacity" aria-hidden="true"></div>
         <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div 
-            class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
+        <div
+            class="fixed inset-0 z-10 flex items-center justify-center"
             on:mousemove={drag}
             on:mouseup={stopDrag}
         >
@@ -346,188 +351,172 @@
                 class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
                 style="transform: translate({posX}px, {posY}px);"
             >
-                <div 
-                    class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-                    on:mousedown={startDrag}
-                >
-                    <h2 class="text-xl font-bold">Ajouter un instrument</h2>
-                </div>
-                <form on:submit|preventDefault={submitForm} class="p-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block mb-2">Référence:</label>
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    bind:value={reference} 
-                                    data-field="reference"
-                                    on:focus={() => triggerAutocomplete("reference")}
-                                    on:input={handleAutocompleteInput}
-                                    on:blur={closeAutocomplete}
-                                    class="w-full p-2 border rounded" 
-                                    placeholder="Entrer une référence"
-                                />
-                                {#if showAutocompleteDropdown && currentAutocompleteField === "reference"}
-                                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                                    <ul 
-                                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                        on:mousedown={event => event.preventDefault()}
-                                    >
-                                        {#each filteredAutocompleteOptions as option}
-                                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                            <button
-                                                type="button"
-                                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                                role="option"
-                                                on:click={() => selectAutocompleteOption(option)}
-                                            >
-                                                {option}
-                                            </button>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block mb-2">Fournisseur:</label>
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    bind:value={supplier} 
-                                    data-field="supplier"
-                                    on:focus={() => triggerAutocomplete("supplier")}
-                                    on:input={handleAutocompleteInput}
-                                    on:blur={closeAutocomplete}
-                                    class="w-full p-2 border rounded" 
-                                    placeholder="Entrer un fournisseur"
-                                />
-                                {#if showAutocompleteDropdown && currentAutocompleteField === "supplier"}
-                                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                                    <ul 
-                                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                        on:mousedown={event => event.preventDefault()}
-                                    >
-                                        {#each filteredAutocompleteOptions as option}
-                                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                            <button
-                                                type="button"
-                                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                                role="option"
-                                                on:click={() => selectAutocompleteOption(option)}
-                                            >
-                                                {option}
-                                            </button>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block mb-2">Description du fournisseur:</label>
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    bind:value={supplierDescription} 
-                                    data-field="supplierDescription"
-                                    on:focus={() => triggerAutocomplete("supplierDescription")}
-                                    on:input={handleAutocompleteInput}
-                                    on:blur={closeAutocomplete}
-                                    class="w-full p-2 border rounded"
-                                    placeholder="Entrer la description du fournisseur" 
-                                />
-                                {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
-                                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                                    <ul 
-                                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                        on:mousedown={event => event.preventDefault()}
-                                    >
-                                        {#each filteredAutocompleteOptions as option}
-                                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                            <button
-                                                type="button"
-                                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                                role="option"
-                                                on:click={() => selectAutocompleteOption(option)}
-                                            >
-                                                {option}
-                                            </button>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block mb-2">Prix:</label>
-                            <input 
-                                type="number" 
-                                bind:value={price} 
-                                min="0" 
-                                step="0.01" 
-                                class="w-full p-2 border rounded" 
-                                placeholder="Entrer le prix"
-                            />
-                        </div>
-                    </div>
-                    <label class="block mb-2 mt-4">Catégorie:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            data-field="categoryId"
-                            bind:value={categoryId}
-                            on:focus={() => triggerAutocomplete("categoryId")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Sélectionner une catégorie"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                        {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
-                                            <span class="text-xs text-gray-500 ml-2">
-                                                ({categorizedOptions[option].length} items)
-                                            </span>
-                                        {/if}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-
-                    <label class="block mb-2">Alternatives:</label>
-                    <input type="text" bind:value={alt} class="w-full p-2 border rounded mb-4" placeholder="Sélectionner des alternatives"/>
-
-                    <label class="block mb-2">Obsolescence:</label>
-                    <div class="flex gap-4 mb-4">
-                        <label><input type="radio" bind:group={obsolete} value={true} /> Oui</label>
-                        <label><input type="radio" bind:group={obsolete} value={false} /> Non</label>
-                    </div>
-
-                    <label class="block mb-2">Image:</label>
-                    <input
-                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
-                        type="file"
-                        on:change={(e) => (file = e.target.files[0])}
-                    />
-                    <div class="flex justify-end gap-4">
-                        <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
-                        <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter</button>
-                    </div>
-                </form>
+            <div
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+                on:mousedown={startDrag}
+            >
+                <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter un instrument</h2>
             </div>
+            <form on:submit|preventDefault={submitForm} class="bg-gray-100 p-6 rounded-b-lg">
+                <label for="reference" class="font-semibold text-lg">Référence:</label>
+                <input 
+                    type="text" 
+                    bind:value={reference} 
+                    data-field="reference"
+                    on:focus={() => triggerAutocomplete("reference")}
+                    on:input={handleAutocompleteInput}
+                    on:blur={closeAutocomplete}
+                    class="w-full p-2 mt-1 mb-3 border rounded" 
+                    placeholder="Entrer une référence"
+                />
+                {#if showAutocompleteDropdown && currentAutocompleteField === "reference"}
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                    <ul 
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        on:mousedown={event => event.preventDefault()}
+                    >
+                        {#each filteredAutocompleteOptions as option}
+                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                            <button
+                                type="button"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                role="option"
+                                on:click={() => selectAutocompleteOption(option)}
+                            >
+                                {option}
+                            </button>
+                        {/each}
+                    </ul>
+                {/if}
+
+                <label for="supplier" class="font-semibold text-lg">Fournisseur:</label>
+                <input 
+                    type="text" 
+                    bind:value={supplier} 
+                    data-field="supplier"
+                    on:focus={() => triggerAutocomplete("supplier")}
+                    on:input={handleAutocompleteInput}
+                    on:blur={closeAutocomplete}
+                    class="w-full p-2 mt-1 mb-3 border rounded" 
+                    placeholder="Entrer un fournisseur"
+                />
+                {#if showAutocompleteDropdown && currentAutocompleteField === "supplier"}
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                    <ul 
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        on:mousedown={event => event.preventDefault()}
+                    >
+                        {#each filteredAutocompleteOptions as option}
+                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                            <button
+                                type="button"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                role="option"
+                                on:click={() => selectAutocompleteOption(option)}
+                            >
+                                {option}
+                            </button>
+                        {/each}
+                    </ul>
+                {/if}
+
+                <label for="supplierDescription" class="font-semibold text-lg">Description du fournisseur:</label>
+                <input 
+                    type="text" 
+                    bind:value={supplierDescription} 
+                    data-field="supplierDescription"
+                    on:focus={() => triggerAutocomplete("supplierDescription")}
+                    on:input={handleAutocompleteInput}
+                    on:blur={closeAutocomplete}
+                    class="w-full p-2 mt-1 mb-3 border rounded"
+                    placeholder="Entrer la description du fournisseur" 
+                />
+                {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                    <ul 
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        on:mousedown={event => event.preventDefault()}
+                    >
+                        {#each filteredAutocompleteOptions as option}
+                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                            <button
+                                type="button"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                role="option"
+                                on:click={() => selectAutocompleteOption(option)}
+                            >
+                                {option}
+                            </button>
+                        {/each}
+                    </ul>
+                {/if}
+
+                <label for="price" class="font-semibold text-lg">Prix:</label>
+                <input 
+                    type="number" 
+                    bind:value={price} 
+                    min="0" 
+                    step="0.01" 
+                    class="w-full p-2 mt-1 mb-3 border rounded" 
+                    placeholder="Entrer le prix"
+                />
+
+                <label for="categoryId" class="font-semibold text-lg">Catégorie:</label>
+                <input 
+                    type="text" 
+                    data-field="categoryId"
+                    bind:value={categoryId}
+                    on:focus={() => triggerAutocomplete("categoryId")}
+                    on:input={handleAutocompleteInput}
+                    on:blur={closeAutocomplete}
+                    class="w-full p-2 mt-1 mb-3 border rounded" 
+                    placeholder="Sélectionner une catégorie"
+                />
+                {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                    <ul 
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        on:mousedown={event => event.preventDefault()}
+                    >
+                        {#each filteredAutocompleteOptions as option}
+                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                            <button
+                                type="button"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
+                                role="option"
+                                on:click={() => selectAutocompleteOption(option)}
+                            >
+                                {option}
+                                {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
+                                    <span class="text-xs text-gray-500 ml-2">
+                                        ({categorizedOptions[option].length} items)
+                                    </span>
+                                {/if}
+                            </button>
+                        {/each}
+                    </ul>
+                {/if}
+
+                <label for="obsolete" class="font-semibold text-lg">Obsolescence:</label>
+                <div class="flex gap-4 mt-1 mb-3">
+                    <label><input type="radio" bind:group={obsolete} value={true} /> Oui</label>
+                    <label><input type="radio" bind:group={obsolete} value={false} /> Non</label>
+                </div>
+
+                <label for="file" class="font-semibold text-lg">Image:</label>
+                <input
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mt-1 mb-3"
+                    type="file"
+                    on:change={(e) => (file = e.target.files[0])}
+                />
+
+                <div class="flex justify-end gap-4">
+                    <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
+                    <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
+                    <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded">Ajouter</button>
+                </div>
+            </form>
         </div>
+    </div>
     </div>
 {/if}
