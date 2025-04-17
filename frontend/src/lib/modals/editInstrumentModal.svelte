@@ -508,10 +508,9 @@
 
 {#if isOpen}
 <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
-        class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
+        class="fixed inset-0 z-10 flex items-center justify-center"
         onmousemove={drag}
         onmouseup={stopDrag}
     >
@@ -520,14 +519,14 @@
             style="transform: translate({posX}px, {posY}px);"
         >
             <div 
-                class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
                 onmousedown={startDrag}
             >
-                <h2 class="text-xl font-bold">Modifier l'instrument {reference}</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier l'instrument {reference}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  fill="white"
+                  fill="teal-500"
                   version="1.1"
                   id="Capa_1"
                   viewBox="0 0 494.936 494.936"
@@ -569,7 +568,7 @@
                     <span class="sr-only">Chargement...</span>
                 </div>
             {:then}
-                <form onsubmit={handleSubmit} preventDefault class="p-4">
+                <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
                             {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
@@ -645,7 +644,7 @@
                                         {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                             <ul 
-                                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                                class="absolute z-10 mt-1 w-1/2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
                                                 onmousedown={event => event.preventDefault()}
                                             >
                                                 {#each filteredAutocompleteOptions as option}

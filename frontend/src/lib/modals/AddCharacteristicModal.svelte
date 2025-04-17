@@ -156,6 +156,7 @@
         role="dialog"
         aria-modal="true"
     >
+    <div class="fixed inset-0 bg-black bg-opacity-30"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
             class="fixed inset-0 z-10 flex items-center justify-center"
