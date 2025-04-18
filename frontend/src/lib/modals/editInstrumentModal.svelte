@@ -408,11 +408,10 @@
     showAutocompleteDropdown = true;
   }
   
-  function addAlternative(instrument){
+  function addAlternative(instrumenttoAdd){
     const errorSameSupp = document.getElementById("error-same-supplier");
     const errorAlreadyAlt = document.getElementById("error-already-alt");
     const errorDifferentGroup = document.getElementById("error-different-group");
-    const instrumenttoAdd = instrument;
     if(instrument.supplier === instrumenttoAdd.supplier){
       errorSameSupp.classList.remove('hidden');
       return;
