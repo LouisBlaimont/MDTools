@@ -30,6 +30,7 @@
     import { modals } from "svelte-modals";
     import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
     import { _ } from "svelte-i18n";
+    import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
 
     /**
      * Display the characteristic values of the category at line index in the table.
@@ -150,7 +151,13 @@
             imageRefs[index] = el; // Store the element in the array
         }
     }
-
+    let timeout;
+    const clickDelay = 200;
+    function clickOnAlt(row, index){
+        timeout = setTimeout(() => {
+            modals.open(BigPicturesModal, {instrument:row, index:index});
+        }, clickDelay);
+    }
 </script>
 
 <div class="flex">
@@ -165,7 +172,7 @@
                 <th colspan="2" class="text-center py-2">
                   <button
                     class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                    on:click={()=>modals.open(addCategoryModal)}
+                    onclick={()=>modals.open(addCategoryModal)}
                   >
                     Ajouter
                   </button>
@@ -183,7 +190,7 @@
               <th colspan="2" class="text-center pb-1">
                 <button
                   class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                  on:click={()=>modals.open(addCategoryModal)}
+                  onclick={()=>modals.open(addCategoryModal)}
                 >
                   Ajouter
                 </button>
@@ -216,10 +223,10 @@
               class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
               class:bg-[lightgray]={$hoveredCategoryIndex === index &&
                 $selectedCategoryIndex !== index}
-              on:click={() => selectCategory(index)}
-              on:dblclick={() => selectCategoryWithChar(index)}
-              on:mouseover={() => hoveredCategoryIndex.set(index)}
-              on:mouseout={() => hoveredCategoryIndex.set(null)}
+              onclick={() => selectCategory(index)}
+              ondblclick={() => selectCategoryWithChar(index)}
+              onmouseover={() => hoveredCategoryIndex.set(index)}
+              onmouseout={() => hoveredCategoryIndex.set(null)}
             >
               {#if $isEditing && $selectedSubGroup}
                 <EditCategoryButton category={row} />
@@ -250,17 +257,11 @@
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <img
               alt="tool{row.id}"
-              src={row.pictureId ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png"}
-              bind:this={imageRefs[index]}
-              ref={el => registerImageRef(el, index)}
-              on:click={() =>
-              showBigPicture(
-                  row.pictureId
-                  ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                  : "/default/no_picture.png"
-              )}
-              on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
-              on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
+              src={row.pictureId && row.pictureId[0]
+                    ? PUBLIC_API_URL + `/api/pictures/${row.pictureId[0]}`: "/default/no_picture.png"}
+              onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: false })}
+              onmouseover={() => (hoveredCategoryImageIndex.set(index))}
+              onmouseout={() => (hoveredCategoryImageIndex.set(null))}
               class="mb-[3px] {$selectedCategoryIndex === index
               ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
               : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
@@ -281,7 +282,7 @@ id="big-category-pannel"
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <span
     class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
-    on:click={(event) => {
+    onclick={(event) => {
     event.stopPropagation();
     closeBigPicture();
     }}>&times;</span

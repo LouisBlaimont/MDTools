@@ -78,13 +78,16 @@ public class PictureController {
     * @param referenceId the reference ID associated with the picture
     * @return a ResponseEntity containing the metadata of the uploaded picture
     */
-   @PostMapping
+   @PostMapping("/single")
    public ResponseEntity<Picture> uploadPicture(
          @RequestParam("file") MultipartFile file,
          @RequestParam("type") String pictureType,
          @RequestParam("referenceId") Long referenceId) {
+      
+      MultipartFile fileToSend = file;
+      Picture metadataList = this.uploadSinglePicture(fileToSend, pictureType, referenceId);
 
-      return ResponseEntity.ok(this.uploadSinglePicture(file, pictureType, referenceId));
+      return ResponseEntity.ok(metadataList);
    }
 
    /**
@@ -93,7 +96,7 @@ public class PictureController {
     * @param files       the multipe picture files to be uploaded
     * @param pictureType the type of the picture (e.g., "JPEG", "PNG")
     * @param referenceId the reference ID associated with the picture
-    * @return a ResponseEntity containing the metadata of the uploaded picture
+    * @return a ResponseEntity containing the metadata of the uploaded pictures
     */
    @PostMapping("/multiple")
    public ResponseEntity<List<Picture>> uploadPictures(

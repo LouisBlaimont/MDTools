@@ -70,9 +70,8 @@
                 <img
                     alt="supplier{row.id}"
                     src={row.picturesId && row.picturesId[0]
-                    ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`
-                    : "/default/no_picture.png"}
-                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index })}
+                    ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`: "/default/no_picture.png"}
+                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isIntrument: true })}
                     onmouseover={() => (hoveredSupplierImageIndex.set(index))}
                     onmouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index

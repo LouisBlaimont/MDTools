@@ -155,8 +155,10 @@
   },
   "modals": {
     "big_picture": {
-      "title": "Photos de l'instrument",
-      "no_pictures": "Aucune photo disponible pour cet instrument",
+      "titleInstrument": "Photos de l'instrument",
+      "titleCategory": "Photos du type d'instruments",
+      "no_picturesInstrument": "Aucune photo disponible pour cet instrument",
+      "no_picturesCategory": "Aucune photo disponible pour ce type d'instruments",
       "close": "Fermer",
       "add_picture": "Ajouter une photo",
       "deletion_error": "Erreur lors de la suppression de la photo. Erreur : ",
