@@ -293,7 +293,8 @@ public class InstrumentServiceTest {
         Map<String, Object> updateData = Map.of(
             "reference", "Updated Reference",
             "price", 200.0f,
-            "obsolete", true
+            "obsolete", true,
+            "categoryId", 1L
         );
 
         // Act

@@ -20,6 +20,9 @@ public class UserDto {
 
    private String username;
    private String email;
+   private String jobPosition;
+   private String workplace;
+   private String roleName;
 
    private List<String> roles;
    private boolean enabled;
