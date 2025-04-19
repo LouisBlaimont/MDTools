@@ -330,9 +330,9 @@
               <span id="error-no-modif" class="ml-5 mb-5 text-red-600 hidden">Aucune modification n'a été faite.</span>
               <span id="error-category-not-empty" class="ml-5 mb-5 text-red-600 hidden">La catégorie contient encore des instruments, elle ne peut pas être supprimée.</span>
               <div class="flex justify-end gap-4 mb-4">
-                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
+                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
                 <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                <button type="button" onclick={()=>editCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Modifier</button>
+                <button type="button" onclick={()=>editCategory()} class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-blue-700">Modifier</button>
               </div>
           </div>
       </div>

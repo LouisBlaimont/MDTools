@@ -510,9 +510,9 @@
                 />
 
                 <div class="flex justify-end gap-4">
-                    <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
-                    <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                    <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded">Ajouter</button>
+                    <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
+                    <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
+                    <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Ajouter</button>
                 </div>
             </form>
         </div>

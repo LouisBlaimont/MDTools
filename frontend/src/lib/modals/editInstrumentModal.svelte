@@ -781,9 +781,9 @@
                     </table>
                     
                     <div class="flex justify-end gap-4 mt-4">
-                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
+                        <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
                     </div>
                 </form>
             {/await}

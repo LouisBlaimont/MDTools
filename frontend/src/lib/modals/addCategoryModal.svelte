@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { apiFetch } from "$lib/utils/fetch";
     import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
+    import { preventDefault } from "svelte/legacy";
 
     const {
         isOpen,
@@ -152,14 +153,37 @@
         newCharValues = {};
         newCharAbbrev = {};
     }
+
+    // Close dropdown when clicking outside
+    function handleClickOutside(event) {
+        const dropdown = document.querySelector('.autocomplete-dropdown');
+        const input = document.querySelector(`#input-${currentAutocompleteField}`);
+        if (dropdown && !dropdown.contains(event.target) && input && !input.contains(event.target)) {
+            showAutocompleteDropDown = false;
+            currentAutocompleteField = null;
+        }
+    }
+
+    // Add and remove event listeners for outside clicks
+    $effect(() => {
+        if (showAutocompleteDropDown) {
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    });
 </script>
 
 {#if isOpen}
     <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
+        <div
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+    >
         <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div 
-            class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
+        <div
+            class="fixed inset-0 z-10 flex items-center justify-center"
             onmousemove={drag}
             onmouseup={stopDrag}
         >
@@ -167,12 +191,12 @@
                 class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
                 style="transform: translate({posX}px, {posY}px);"
             >
-                <div 
-                    class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-                    onmousedown={startDrag}
-                >
-                    <h2 class="text-xl font-bold">Ajouter une catégorie au sous groupe {$selectedSubGroup}</h2>
-                </div>
+            <div
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+                onmousedown={startDrag}
+            >
+                <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une catégorie au sous-groupe {$selectedSubGroup}</h2>
+            </div>
 
                 <div class="p-4">
                 {#if $showChars}
@@ -199,11 +223,11 @@
                             onfocus={()=> triggerAutocomplete(char)}
                             oninput={handleAutocompleteInput}
                             class="w-full p-2 border rounded" 
-                            >
+                        >
                             {#if showAutocompleteDropDown && currentAutocompleteField === char}
                                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                 <ul 
-                                class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
+                                class="autocomplete-dropdown absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
                                 onmousedown={event => event.preventDefault()}
                                 >
                                 {#each filteredAutocompleteOptions as option}
@@ -235,7 +259,7 @@
                                 {#if showAutocompleteDropDown && currentAutocompleteField === char}
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                     <ul 
-                                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
+                                    class="autocomplete-dropdown absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-0"
                                     onmousedown={event => event.preventDefault()}
                                     >
                                     {#each filteredAutocompleteOptions as option}
@@ -271,9 +295,10 @@
                 <div class="flex justify-end gap-4 mb-4">
                     <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
                     <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                    <button type="button" onclick={()=>addCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter</button>
+                    <button type="button" onclick={()=>addCategory()} class="bg-teal-500 text-white px-4 py-2 mr-4 rounded hover:bg-teal-700">Ajouter</button>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 {/if}
