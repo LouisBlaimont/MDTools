@@ -20,6 +20,8 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.SupplierMapper;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
@@ -66,9 +68,7 @@ public class SupplierServiceTest {
     void findSupplierById_ShouldReturnNull_WhenSupplierDoesNotExist() {
         when(supplierRepository.findById((long) 1)).thenReturn(Optional.empty());
 
-        SupplierDTO result = supplierService.findSupplierById((long) 1);
-
-        assertNull(result);
+        assertThrows(ResourceNotFoundException.class, () -> supplierService.findSupplierById((long) 1));
         verify(supplierRepository, times(1)).findById((long) 1);
     }
 
@@ -89,7 +89,7 @@ public class SupplierServiceTest {
     void saveSupplier_ShouldThrowException_WhenSupplierNameIsNull() {
         supplierDTO.setName(null);
 
-        assertThrows(IllegalArgumentException.class, () -> supplierService.saveSupplier(supplierDTO));
+        assertThrows(BadRequestException.class, () -> supplierService.saveSupplier(supplierDTO));
         verifyNoInteractions(supplierRepository);
     }
 

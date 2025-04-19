@@ -166,10 +166,9 @@ class GroupServiceTest {
       when(groupRepository.findByName("Group1")).thenReturn(Optional.of(group));
 
       // Act
-      String result = groupService.deleteGroup("Group1");
+      groupService.deleteGroup("Group1");
 
       // Assert
-      assertEquals("Successfully deleted group.", result);
       verify(groupRepository, times(1)).delete(group);
    }
 
@@ -179,10 +178,10 @@ class GroupServiceTest {
       when(groupRepository.findByName("NonExistentGroup")).thenReturn(Optional.empty());
 
       // Act
-      String result = groupService.deleteGroup("NonExistentGroup");
+      assertThrows(ResourceNotFoundException.class, () -> {
+          groupService.deleteGroup("NonExistentGroup");
+      });
 
-      // Assert
-      assertNull(result);
    }
 
    @Test

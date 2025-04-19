@@ -29,6 +29,14 @@ import lombok.AllArgsConstructor;
 public class CharacteristicAbbreviationController {
    private final CharacteristicAbbreviationService service;
 
+   /**
+    * Retrieves the abbreviation for a specified characteristic value.
+    * 
+    * @param charValue The value of the characteristic for which to find an abbreviation
+    * @param charName The name of the characteristic
+    * @return A ResponseEntity containing a CharacteristicDTO with the found abbreviation, 
+    *         or an empty string if no abbreviation is found. Returns with HTTP status 200 (OK)
+    */
    @GetMapping("/of/{charName}/{charValue}")
    public ResponseEntity<CharacteristicDTO> getAbbreviations(@PathVariable String charValue, @PathVariable String charName){
       Optional<String> abbrevMaybe =  service.getAbbreviation(charValue);
@@ -40,6 +48,13 @@ public class CharacteristicAbbreviationController {
       }
    }
 
+   /**
+    * Retrieves a paginated list of all characteristic abbreviations.
+    * 
+    * @param page The page number to retrieve (1-based indexing, defaulted to 1)
+    * @param size The number of items per page (defaulted to 10)
+    * @return A Page object containing characteristic abbreviation DTOs sorted in ascending order by value
+    */
    @GetMapping("/all")
    public Page<CharacteristicAbbreviationDTO> getAllAbbreviations(@RequestParam(defaultValue = "1") int page,
          @RequestParam(defaultValue = "10") int size) {
@@ -47,21 +62,43 @@ public class CharacteristicAbbreviationController {
       return service.getAllAbbreviations(pageable);
    }
 
+   /**
+    * Updates an existing characteristic abbreviation or creates a new one if it doesn't exist.
+    * 
+    * @param dto The CharacteristicAbbreviationDTO containing the abbreviation data to update
+    * @return The updated CharacteristicAbbreviationDTO
+    */
    @PostMapping()
    public CharacteristicAbbreviationDTO updateAbbreviation(@RequestBody CharacteristicAbbreviationDTO dto) {
       return service.updateAbbreviation(dto);
    }
 
+   /**
+    * Deletes the abbreviation associated with the specified characteristic value.
+    *
+    * @param characteristicValue the characteristic value whose abbreviation should be deleted
+    */
    @DeleteMapping("/{characteristicValue}")
    public void deleteAbbreviation(@PathVariable String characteristicValue) {
       service.deleteAbbreviation(characteristicValue);
    }
 
+   /**
+    * Retrieves a list of abbreviations that do not have a corresponding characteristic in the system.
+    * 
+    * @return A List of Strings representing non-existing abbreviations
+    */
    @GetMapping("/non-existing")
    public List<String> getNonExistingAbbreviations() {
       return service.getNonExistingAbbreviations();
    }
 
+   /**
+    * Adds a new characteristic abbreviation to the system.
+    * 
+    * @param dto The CharacteristicAbbreviationDTO containing the abbreviation details to be added
+    * @see CharacteristicAbbreviationDTO
+    */
    @PostMapping("/add")
    public void addAbbreviation(@RequestBody CharacteristicAbbreviationDTO dto) {
       service.addAbbreviation(dto);
