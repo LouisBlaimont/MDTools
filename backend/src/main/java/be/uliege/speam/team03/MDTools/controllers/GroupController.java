@@ -32,15 +32,26 @@ import lombok.AllArgsConstructor;
 public class GroupController {
     private final GroupService groupService;
 
+    /**
+     * Retrieves all groups from the database.
+     * 
+     * @return A ResponseEntity containing:
+     *         - HTTP 200 OK with a list of GroupDTO objects if groups are found
+     *         - HTTP 404 NOT FOUND with an error message if no groups are found
+     */
     @GetMapping("/all")
-    public ResponseEntity<?> findallGroups() {
+    public ResponseEntity<List<GroupDTO>> findallGroups() {
             List<GroupDTO> groups = groupService.findAllGroups();
-            if (groups == null || groups.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No groups found");
-            }
             return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
+    /**
+     * Retrieves the details of a specific group by its name.
+     * 
+     * @param groupName The name of the group to retrieve
+     * @return ResponseEntity containing the GroupDTO with details of the requested group
+     * @throws ResourceNotFoundException If the group with the specified name doesn't exist
+     */
     @GetMapping("/{groupName}")
     public ResponseEntity<GroupDTO> getGroupDetailsByName(@PathVariable String groupName) throws ResourceNotFoundException {
         GroupDTO groupDetails = groupService.getGroupDetailsByName(groupName);
@@ -51,6 +62,13 @@ public class GroupController {
 
     }
 
+    /**
+     * Creates a new group or subgroup based on the provided data.
+     * 
+     * @param body A map containing the group data to be added
+     * @return ResponseEntity containing the created GroupDTO with HTTP status 201 (Created)
+     * @throws BadRequestException if the group or subgroup already exists
+     */
     @PostMapping
     public ResponseEntity<GroupDTO> addGroup(@RequestBody Map<String, Object> body) {
         GroupDTO newGroup = groupService.addGroup(body);
@@ -60,15 +78,28 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
     }
 
+    /**
+     * Deletes a group by its name.
+     * 
+     * @param groupName the name of the group to delete
+     * @return a ResponseEntity with the name of the deleted group in the body and HTTP status 200 (OK)
+     * @throws BadRequestException if the group cannot be found
+     */
     @DeleteMapping("/{groupName}")
-    public ResponseEntity<String> deleteGroup(@PathVariable String groupName) {
-        String groupDeleted = groupService.deleteGroup(groupName);
-        if (groupDeleted == null) {
-            throw new BadRequestException("Cannot find group.");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(groupDeleted);
+    public ResponseEntity<Void> deleteGroup(@PathVariable String groupName) throws ResourceNotFoundException {
+        groupService.deleteGroup(groupName);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * Updates a group based on the provided data.
+     * 
+     * @param groupName The name of the group to update
+     * @param body A map containing the fields to update and their new values
+     * @return ResponseEntity containing the updated GroupDTO with HTTP status 200 (OK)
+     * @throws ResourceNotFoundException if the group with the specified name is not found
+     * @throws BadRequestException if the request contains invalid data
+     */
     @PatchMapping("/{groupName}")
     public ResponseEntity<GroupDTO> updateGroup(@PathVariable String groupName, @RequestBody Map<String, Object> body) throws ResourceNotFoundException, BadRequestException{
         GroupDTO groupUpdated = groupService.updateGroup(body, groupName);
@@ -76,12 +107,25 @@ public class GroupController {
 
     }
 
+    /**
+     * Retrieves a summary of all groups.
+     * 
+     * @return ResponseEntity containing a list of GroupSummaryDTO objects representing summaries of all groups
+     */
     @GetMapping("/summary")
     public ResponseEntity<List<GroupSummaryDTO>> getSummaries() {
         List<GroupSummaryDTO> groups = groupService.getGroupsSummary();
         return ResponseEntity.ok(groups);
     }
 
+    /**
+     * Sets the profile picture for a specific group.
+     * 
+     * @param groupName the name of the group to update
+     * @param file the image file to set as the group's profile picture
+     * @return ResponseEntity containing the updated GroupDTO with HTTP status 200 (OK)
+     * @throws ResourceNotFoundException if the group with the given name is not found
+     */
     @PostMapping("/{groupName}/picture")
     public ResponseEntity<GroupDTO> setGroupPicture(@PathVariable String groupName, @RequestParam("file") MultipartFile file) throws ResourceNotFoundException {
         GroupDTO groupUpdated = groupService.setGroupPicture(groupName, file);

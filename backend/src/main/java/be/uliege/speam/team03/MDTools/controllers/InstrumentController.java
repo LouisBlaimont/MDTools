@@ -10,7 +10,10 @@ import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.*;
+import io.micrometer.common.lang.NonNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,13 +46,9 @@ public class InstrumentController {
      * @return a list of all instruments, or a 404 status if no instruments are found
      */
     @GetMapping("/all")
-    public ResponseEntity<?> findallInstruments(){
+    public ResponseEntity<List<InstrumentDTO>> findallInstruments(){
         List<InstrumentDTO> instruments = instrumentService.findAll();
-        // Check if the list of instruments is empty
-        if (instruments == null || instruments.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(instrumentService.findAll());
+        return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
 
     /**
@@ -59,12 +58,8 @@ public class InstrumentController {
      * @return the instrument with the specified ID, or a 404 status if no instrument is found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> findInstrumentById(@PathVariable Long id){
+    public ResponseEntity<InstrumentDTO> findInstrumentById(@PathVariable Long id) throws ResourceNotFoundException {
         InstrumentDTO instrument = instrumentService.findById(id);
-        // Check if the instrument exists
-        if (instrument == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instrument found with id: " + id);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(instrument);
     }
 
@@ -76,41 +71,9 @@ public class InstrumentController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> addInstrument(@RequestBody InstrumentDTO newInstrument) {
-        // Check if the instrument already exists
-        if (newInstrument.getId() != null) {
-            InstrumentDTO instrument = instrumentService.findById(newInstrument.getId());
-            if (instrument != null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ID already exists");
-            }
-        }
-        List<InstrumentDTO> existingInstruments = instrumentService.findAll();
-        for (InstrumentDTO instrument : existingInstruments) {
-            // Check if the reference already exists
-            if (instrument.getReference().equals(newInstrument.getReference())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Instrument with this reference already exists.\n");
-            }
-        }
-        // Check if the reference is not empty
-        if (newInstrument.getReference() == null || newInstrument.getReference().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Reference is required to identify an instrument");
-        }
-        if(newInstrument.getSupplier() == null || newInstrument.getSupplier().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Supplier is required to identify an instrument");
-        }
-        if(newInstrument.getCategoryId() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category is required to identify an instrument");
-        }
-        if(newInstrument.getPrice() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price is required to identify an instrument");
-        }
-        // Check if the supplier exists
-        SupplierDTO supplier = supplierService.findSupplierByName(newInstrument.getSupplier());
-        if (supplier == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier does not exist. Please add the supplier first.");
-        }
-        InstrumentDTO savedInstrument = instrumentService.save(newInstrument);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedInstrument);
+    public ResponseEntity<InstrumentDTO> addInstrument(@NonNull @RequestBody InstrumentDTO newInstrument) throws BadRequestException {
+        InstrumentDTO dto = instrumentService.addInstrument(newInstrument);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     /**
@@ -121,12 +84,8 @@ public class InstrumentController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> updateInstrument(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<InstrumentDTO> updateInstrument(@PathVariable Long id, @RequestBody Map<String, Object> body) throws BadRequestException, ResourceNotFoundException{
         InstrumentDTO updatedInstrument = instrumentService.updateInstrument(body, id);
-        // Check if the instrument exists
-        if (updatedInstrument == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Impossible to save the instrument");
-        } 
         return ResponseEntity.status(HttpStatus.OK).body(updatedInstrument);
     }
     
@@ -137,7 +96,7 @@ public class InstrumentController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteInstrument(@PathVariable Long id) {
+    public void deleteInstrument(@PathVariable Long id) throws ResourceNotFoundException{
         instrumentService.delete(id);
     }
 
@@ -172,14 +131,15 @@ public class InstrumentController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Retrieves all instruments belonging to a specific subgroup.
+     *
+     * @param subGroupName the name of the subgroup to find instruments for
+     * @return a ResponseEntity containing a list of InstrumentDTO objects and HTTP status 200 (OK)
+     */
     @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<?> findInstrumentsBySubGroup(@PathVariable String subGroupName) {
-        List<InstrumentDTO> instruments = instrumentService.findInstrumentsBySubGroup(subGroupName);
-        
-        if (instruments == null || instruments.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for subgroup: " + subGroupName);
-        }
-        
+    public ResponseEntity<List<InstrumentDTO>> findInstrumentsBySubGroup(@PathVariable String subGroupName) {
+        List<InstrumentDTO> instruments = instrumentService.findInstrumentsBySubGroup(subGroupName);        
         return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
 
@@ -190,16 +150,22 @@ public class InstrumentController {
      * @return a list of instruments associated with the specified supplier
      */
     @GetMapping("/supplier/{supplierName}")
-    public ResponseEntity<?> findInstrumentsBySupplierName(@PathVariable String supplierName) {
+    public ResponseEntity<List<InstrumentDTO>> findInstrumentsBySupplierName(@PathVariable String supplierName) {
         List<InstrumentDTO> instruments = instrumentService.findInstrumentsBySupplierName(supplierName);
-
-        if (instruments == null || instruments.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No instruments found for supplier: " + supplierName);
-        }
-
         return ResponseEntity.status(HttpStatus.OK).body(instruments);
     }
 
+    /**
+     * Searches for instruments based on provided keywords.
+     * 
+     * This endpoint allows searching for instruments that match the given keywords.
+     * The search is performed using the instrumentService.
+     *
+     * @param keywords a list of search terms to filter instruments
+     * @return a ResponseEntity containing a list of matching InstrumentDTO objects
+     *         - If keywords are null or empty, returns an empty list
+     *         - Otherwise, returns all instruments matching the search criteria
+     */
     @GetMapping("/search")
     public ResponseEntity<List<InstrumentDTO>> searchInstrument(
             @RequestParam(required = false) List<String> keywords) {
@@ -213,11 +179,16 @@ public class InstrumentController {
     }
 
 
-    // getting the category from an instrument
+    /**
+     * Retrieves a category based on its unique identifier.
+     *
+     * @param categoryId The unique identifier of the category to retrieve
+     * @return ResponseEntity containing the CategoryDTO with HTTP status 200 (OK) if found
+     * @throws ResourceNotFoundException If no category with the given ID exists
+     */
     @GetMapping("/getCategory/{categoryId}")
     public ResponseEntity<CategoryDTO> searchCategory(@PathVariable Long categoryId) {
         CategoryDTO category = categoryService.searchCategory(categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(category);
     }
 }
-

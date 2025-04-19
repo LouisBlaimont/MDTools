@@ -64,6 +64,13 @@ public class PictureController {
       return metadata;
    }
 
+   /**
+    * Uploads a single picture for an instrument.
+    * 
+    * @param file The input stream containing the picture file data
+    * @param referenceId The ID of the instrument that the picture belongs to
+    * @return The metadata of the stored picture
+    */
    private Picture uploadSingleInstrumentPicture(InputStream file, Long referenceId) {
       PictureType type = PictureType.INSTRUMENT;
       Picture metadata = storageService.storePicture(file, type, referenceId);
