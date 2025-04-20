@@ -3,7 +3,6 @@ package be.uliege.speam.team03.MDTools.controllers;
 import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.models.Picture;
-import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.repositories.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,6 @@ import io.micrometer.common.lang.NonNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import java.util.Map;
 

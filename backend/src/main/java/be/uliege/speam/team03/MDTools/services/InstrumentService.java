@@ -20,7 +20,6 @@ import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.Supplier;
-import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
@@ -33,7 +32,6 @@ public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
-    private final AlternativesRepository alternativesRepository;
     private final SubGroupRepository subGroupRepository;
     private final InstrumentMapper instrumentMapper;
     private final PictureStorageService pictureStorageService;

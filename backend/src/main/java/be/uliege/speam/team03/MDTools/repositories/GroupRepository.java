@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.lang.NonNull;
 
 import be.uliege.speam.team03.MDTools.models.Group;
 
@@ -29,7 +30,9 @@ public interface GroupRepository extends CrudRepository<Group, Long>{
      * @param id
      * @return
      */
-    Optional<Group> findById(Long id);
+    @NonNull
+    @Override
+    Optional<Group> findById(@NonNull Long id);
 
     /**
      * Retrieves the number of instruments in the group given by groupId.

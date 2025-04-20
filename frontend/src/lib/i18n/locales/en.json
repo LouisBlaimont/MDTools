@@ -26,7 +26,8 @@
       "placeholder": "Enter a keyword"
     },
     "search_order": {
-      "label": "Search an order"
+      "label": "Search an order",
+      "error": "Select an order"
     },
     "previous_orders": {
       "label": "View all previous orders",
@@ -167,6 +168,29 @@
         "cancel": "Cancel",
         "delete": "Delete"
       }
+    },
+    "delete_order" : {
+      "delete_title" : "Delete order",
+      "deletion_success" : "Order successfully deleted",
+      "irreversible_action" : "Please note that this action is irreversible.",
+      "cancel" : "Cancel",
+      "delete" : "Delete"
+    },
+    "create_order" : {
+      "create_title" : "Create a new empty order",
+      "name" : "Name of the new order",
+      "error_no_name" : "Please enter an order name",
+      "error_already_exists" : "This order name already exists",
+      "cancel" : "Cancel",
+      "create" : "Create"
+    },
+    "edit_order" : {
+      "edit_title" : "Edit name of order",
+      "name" : "New order name",
+      "error_no_name" : "Please enter an order name",
+      "error_already_exists" :"This order name already exists",
+      "cancel" : "Cancel",
+      "edit" : "Edit"
     }
   },
   "profile_page": {
@@ -182,6 +206,23 @@
       "back": "Back",
       "save": "Save",
       "cancel": "Cancel"
+    }
+  },
+  "order_pages" : {
+    "dates" : {
+      "creationDate" : "created on ",
+      "exportDate" : "exported on "
+    },
+    "single" : {
+      "export" :  "Export",
+      "edit" : "Edit name",
+      "complete" : "Complete",
+      "delete" : "Delete"
+    },
+    "all": {
+      "view_edit" : "View/edit order",
+      "complete" : "Complete order", 
+      "create" : "Create an order"
     }
   }
 }

@@ -4,12 +4,13 @@
     import { modals } from "svelte-modals";
     import { ordersNames, selectedOrderId, orderItems, orders } from "$lib/stores/searches";
     import { apiFetch } from "$lib/utils/fetch";
+    import { goto } from "$app/navigation";
+    import { _ } from "svelte-i18n";
 
     const {
         isOpen,
         close,
         orderName,
-        onDelete
     } = $props();
 
 
@@ -28,8 +29,9 @@
             orders.update(currentOrders => currentOrders.filter(order => order.orderName !== orderName));
             selectedOrderId.set(null);
             orderItems.set([]);
-            onDelete();
             close();
+            goto("/");
+            toast.push($_('modals.delete_order.deletion_success'));
         })
         .catch((error) => {
             console.log("Error :", error);
@@ -50,10 +52,10 @@
 
     <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-lg lg:max-w-4xl p-6">
 
-        <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">Supprimer la commande "{orderName}":</h2>
+        <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">{$_("modals.delete_order.delete_title")} "{orderName}":</h2>
 
         <p class="text-red-700 mt-2">
-            Attention, cette action est irréversible.
+            {$_('modals.delete_order.irreversible_action')}
         </p>
 
         <div class="text-right space-x-2">
@@ -62,7 +64,7 @@
                 class="inline-block w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
                 onclick={() => {close();}}
             >
-                Annuler
+            {$_('modals.delete_order.cancel')}
             </button>
 
             <button
@@ -70,7 +72,7 @@
                 class="inline-block w-auto justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500"
                 onclick={() => deleteOrder()}
             >
-                Supprimer
+            {$_('modals.delete_order.delete')}
             </button>
         </div>
     </div>

@@ -103,8 +103,8 @@
   /**
    * Filters the categories depending on the input of the user.
    */
-  let minLength = null;
-  let maxLength = null;
+  let minLength = $state(null);
+  let maxLength = $state(null);
   function searchByCharacteristics() {
     let char_vals = [];
     for (let i = 0; i < $characteristics.length; i++) {
@@ -366,10 +366,13 @@
     }
   }
 
+  /**
+   * Options for different fields
+   */
   let autocompleteInput = '';
-  let showAutocompleteDropDown = false;
-  let filteredAutocompleteOptions = [];
-  let currentAutocompleteField = null;
+  let showAutocompleteDropDown =$state(false);
+  let filteredAutocompleteOptions = $state([]);
+  let currentAutocompleteField = $state(null);
 
   async function triggerAutocomplete(charName){
     currentAutocompleteField = charName;
