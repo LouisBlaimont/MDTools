@@ -3,10 +3,10 @@
   import { getContext } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { apiFetch } from "$lib/utils/fetch";
-  import { currentSuppliers,categories } from "$lib/stores/searches";
+  import { currentSuppliers } from "$lib/stores/searches";
   import Icon from "@iconify/svelte";
 
-  const { isOpen, close, instrument, index , isInstrument} = $props();
+  const { isOpen, close, instrument, index } = $props();
 
   let files = [];
 
@@ -31,38 +31,21 @@
 
       if (response.ok) {
         toast.push("Images ajoutées avec succès !");
-        if (isInstrument) {
-          const responseData = await response.json();
-          responseData.forEach((picture) => {
-            currentSuppliers.update((suppliers) => {
-              suppliers.forEach((supplier) => {
-                if (supplier.id === instrument.id) {
-                  supplier.picturesId.push(picture.id);
-                }
-              });
-              return suppliers;
+      
+        const responseData = await response.json();
+        responseData.forEach((picture) => {
+          currentSuppliers.update((suppliers) => {
+            suppliers.forEach((supplier) => {
+              if (supplier.id === instrument.id) {
+                supplier.picturesId.push(picture.id);
+              }
             });
+            return suppliers;
           });
-        }
-        else {
-          const responseData = await response.json();
-          responseData.forEach((picture) => {
-            categories.update((cats) => {
-              cats.forEach((cat) => {
-                if (cat.id === instrument.id) {
-                  console.log("picture.id: ", cat.pictureId);
-                  console.log("picture.id: ", picture.id);
-                  // cat.pictureId.push(picture.id);
-                  cat.pictureId = [...cat.pictureId, picture.id];
-                  // cat.pictureId = picture.id;
-                }
-              });
-              return cats;
-            });
-          });
-        }
+        });
         close();
-      } 
+      }
+    
       else {
         toast.push("Échec de l'envoi des images. <br> Erreur : " + response.statusText);
       }
@@ -90,15 +73,9 @@
                 <Icon icon="material-symbols:photo-rounded" width="24" height="24" />
               </div>
               <div class="text-center sm:mt-0 sm:ml-4 sm:text-left place-self-center">
-                {#if isInstrument}
-                  <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                    Ajouter des images pour {instrument.reference}
-                  </h3>
-                {:else} 
-                  <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                    Ajouter des images pour un type d'instrument
-                  </h3>
-                {/if}
+                <h3 class="text-base font-semibold text-gray-900" id="modal-title">
+                  Ajouter des images pour {instrument.reference}
+                </h3>
               </div>
             </div>
 

@@ -4,11 +4,14 @@ import java.util.Optional;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
+import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 
 public class CategoryMapper {
 
     private CategoryRepository categoryRepository;
+    private final PictureStorageService pictureStorageService;
 
     public CategoryMapper(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -53,7 +56,7 @@ public class CategoryMapper {
         else{
             lenAbrv = null;
         }
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, category.getPictureId());
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
 
         return categoryDTO;
     }
@@ -68,7 +71,7 @@ public class CategoryMapper {
         Category category = new Category();
         category.setId(categoryDTO.getId());
         category.setShape(categoryDTO.getShape());
-        category.setPictureId(categoryDTO.getPictureId());
+        // category.setPictureId(categoryDTO.getPictureId());
         return category;
     }
 }

@@ -38,8 +38,8 @@ public class Category {
     @Column(name="shape")
     private String shape;
 
-    @Column(name="picture_id", nullable = true)
-    private Long pictureId;
+    // @Column(name="picture_id", nullable = true)
+    // private List<Long> picturesId;
 
     public Category(SubGroup subGroup){
         this.subGroup = subGroup;

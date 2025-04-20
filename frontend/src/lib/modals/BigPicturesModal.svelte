@@ -3,7 +3,7 @@
   import { onMount, getContext } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { modals } from "svelte-modals";
-  import AddPictureModal from "./AddPictureModal.svelte";
+  import AddInstruementPictureModal from "./AddInstrumentPictureModal.svelte";
   import AddCategoryPictureModal from "./AddCategoryPictureModal.svelte";
   import { apiFetch } from "$lib/utils/fetch";
   import { currentSuppliers, categories } from "$lib/stores/searches";
@@ -189,14 +189,14 @@
               {#if isIntrument}
                 <button
                   class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                  onclick={() => modals.open(AddPictureModal, { instrument, index , isIntrument})}
+                  onclick={() => modals.open(AddInstrumentPictureModal, { instrument, index })}
                   >
                   {$_('modals.big_picture.add_picture')}
                 </button>
               {:else}
                 <button
                   class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                  onclick={() => modals.open(AddCategoryPictureModal, { instrument, index , isIntrument})}
+                  onclick={() => modals.open(AddCategoryPictureModal, { instrument, index })}
                   >
                   {$_('modals.big_picture.add_picture')}
                 </button>
