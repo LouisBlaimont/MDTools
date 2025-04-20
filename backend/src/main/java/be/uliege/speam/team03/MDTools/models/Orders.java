@@ -28,9 +28,15 @@ public class Orders {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "order_date")
-    private Timestamp orderDate;
+    @Column(name = "creation_date")
+    private Timestamp creationDate;
 
     @Column(name = "order_name")
     private String orderName;
+
+    @Column(name = "exported")
+    private Boolean isExported;
+
+    @Column(name = "export_date")
+    private Timestamp exportDate;
 }

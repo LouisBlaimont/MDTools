@@ -73,7 +73,9 @@ public class OrdersServiceTest {
         testOrder.setId(1L);
         testOrder.setUserId(1L);
         testOrder.setOrderName("Test Order");
-        testOrder.setOrderDate(new Timestamp(System.currentTimeMillis()));
+        testOrder.setCreationDate(new Timestamp(System.currentTimeMillis()));
+        testOrder.setIsExported(false);
+        testOrder.setExportDate(null);
 
         testGroup = new Group();
         testGroup.setId(1L);
@@ -317,7 +319,7 @@ public class OrdersServiceTest {
         body.put("orderName", "New Order");
         
         when(userRepository.findByUserId(1L)).thenReturn(Optional.of(testUser));
-        when(ordersRepository.findByOrderName("New Order")).thenReturn(Collections.emptyList());
+        when(ordersRepository.findByOrderNameIgnoreCase("New Order")).thenReturn(Collections.emptyList());
         when(ordersRepository.findByUserId(1L)).thenReturn(Collections.singletonList(testOrder));
         
         List<OrdersDTO> result = ordersService.createNewOrder(body);
@@ -350,9 +352,10 @@ public class OrdersServiceTest {
         existingOrder.setId(2L);
         existingOrder.setUserId(1L);
         existingOrder.setOrderName("Existing Order");
+        existingOrder.setIsExported(false);
         
         when(userRepository.findByUserId(1L)).thenReturn(Optional.of(testUser));
-        when(ordersRepository.findByOrderName("Existing Order")).thenReturn(Collections.singletonList(existingOrder));
+        when(ordersRepository.findByOrderNameIgnoreCase("Existing Order")).thenReturn(Collections.singletonList(existingOrder));
         
         assertThrows(BadRequestException.class, () -> {
             ordersService.createNewOrder(body);
@@ -398,7 +401,7 @@ public class OrdersServiceTest {
         body.put("orderName", "Updated Order Name");
         
         when(ordersRepository.findById(1L)).thenReturn(Optional.of(testOrder));
-        when(ordersRepository.findByOrderName("Updated Order Name")).thenReturn(Collections.emptyList());
+        when(ordersRepository.findByOrderNameIgnoreCase("Updated Order Name")).thenReturn(Collections.emptyList());
         when(orderItemsRepository.findOrderItemsByOrderId(1L)).thenReturn(Collections.singletonList(testOrderItem));
         
         List<OrderItemDTO> result = ordersService.editOrder(1L, body);
@@ -442,9 +445,10 @@ public class OrdersServiceTest {
         existingOrder.setId(2L);
         existingOrder.setUserId(1L);
         existingOrder.setOrderName("Existing Order");
+        existingOrder.setIsExported(false);
         
         when(ordersRepository.findById(1L)).thenReturn(Optional.of(testOrder));
-        when(ordersRepository.findByOrderName("Existing Order")).thenReturn(Collections.singletonList(existingOrder));
+        when(ordersRepository.findByOrderNameIgnoreCase("Existing Order")).thenReturn(Collections.singletonList(existingOrder));
         
         assertThrows(BadRequestException.class, () -> {
             ordersService.editOrder(1L, body);

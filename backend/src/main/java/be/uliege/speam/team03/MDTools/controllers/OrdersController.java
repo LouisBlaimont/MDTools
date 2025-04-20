@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.OrderItemDTO;
 import be.uliege.speam.team03.MDTools.DTOs.OrdersDTO;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.OrdersService;
 import lombok.AllArgsConstructor;
 
@@ -114,7 +115,7 @@ public class OrdersController {
      * 
      * @param orderId The unique identifier of the order to update
      * @param body A map containing the fields to update and their new values
-     * @return ResponseEntity containing a list of OrderItemDTO representing the updated order
+     * @return ResponseEntity containing a list of OrderItemDTO representing the updated orders
      * @throws ResourceNotFoundException if the order with the specified ID is not found
      * @throws InvalidRequestException if the update operation fails due to invalid data
      */
@@ -124,4 +125,17 @@ public class OrdersController {
         return ResponseEntity.status(HttpStatus.OK).body(order);
 
     } 
+
+    /**
+     * Updates an existing order after it is exported (sets exported to true and sets export date)
+     * @param orderId The unique identifier of the order to update
+     * @return ResponseEntity containing a list of OrdersDTO representing the updated orders with HTTP status 200 (OK)
+     * @throws ResourceNotFoundException if the order doesn't exist.
+     */
+    @PatchMapping("/{orderId}/exported")
+    public ResponseEntity<List<OrdersDTO>> orderIsExported(@PathVariable Long orderId){
+        List<OrdersDTO> orders = ordersService.orderExported(orderId);
+        return ResponseEntity.status(HttpStatus.OK).body(orders);
+    }
+
 }

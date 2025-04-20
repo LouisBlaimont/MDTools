@@ -4,12 +4,13 @@
     import { modals } from "svelte-modals";
     import { ordersNames, selectedOrderId, orderItems, orders } from "$lib/stores/searches";
     import { apiFetch } from "$lib/utils/fetch";
+    import { goto } from "$app/navigation";
+    import { _ } from "svelte-i18n";
 
     const {
         isOpen,
         close,
-        orderName,
-        updateOrderName
+        orderName, 
     } = $props();
 
     function handleModifyOrder(){
@@ -25,7 +26,6 @@
     }
 
     async function modifyOrder(newOrderName){
-        console.log($selectedOrderId);
         const data = {
             orderName : newOrderName,
         };
@@ -59,7 +59,7 @@
                     order.orderName === orderName ? { ...order, orderName: newOrderName, orderItems: result } : order
                 );
             });
-            updateOrderName(newOrderName);
+            goto(`/single_order_view?id=${encodeURIComponent($selectedOrderId)}`);
             close();
         })
         .catch((error) => {
@@ -81,17 +81,17 @@
 
     <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-lg lg:max-w-4xl p-6">
 
-        <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">Modifier le nom de la commande "{orderName}":</h2>
+        <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">{$_("modals.edit_order.edit_title")} "{orderName}":</h2>
 
         <div class="mt-4">
-            <label for="new-order-name" class="block text-sm font-medium text-gray-700">Nouveau nom de la commande :</label>
+            <label for="new-order-name" class="block text-sm font-medium text-gray-700">{$_("modals.edit_order.name")} :</label>
             <input
                 type="text"
                 id="new-order-name"
                 class="mt-1 mb-2 block w-full border border-gray-300 rounded-md p-2 text-gray-900"
             />
-            <span id="error-no-name" class="mb-5 text-red-600 text-sm hidden">Entrez un nom de commande.</span>
-            <span id="error-no-order-for-user" class="mb-5 text-red-600 text-sm hidden">Ce nom de commande existe déjà.</span>
+            <span id="error-no-name" class="mb-5 text-red-600 text-sm hidden">{$_("modals.edit_order.error_no_name")} </span>
+            <span id="error-no-order-for-user" class="mb-5 text-red-600 text-sm hidden">{$_("modals.edit_order.error_already_exists")} </span>
         </div>
 
         <div class="text-right space-x-2">
@@ -100,7 +100,7 @@
                 class="inline-block w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
                 onclick={() => {close();}}
             >
-                Annuler
+            {$_("modals.edit_order.cancel")} 
             </button>
 
             <button
@@ -108,7 +108,7 @@
                 class="inline-block w-auto justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500"
                 onclick={() => handleModifyOrder()}
             >
-                Modifier
+            {$_("modals.edit_order.edit")} 
             </button>
         </div>
     </div>
