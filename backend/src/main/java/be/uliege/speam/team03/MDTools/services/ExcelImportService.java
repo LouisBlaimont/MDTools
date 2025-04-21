@@ -552,8 +552,8 @@ public class ExcelImportService {
     void processCrossrefRow(Map<String, Object> row, Set<String> availableColumns) {
         List<String> references = row.entrySet().stream()
                 .filter(entry -> entry.getValue() != null && !entry.getValue().toString().trim().isEmpty())
-                .map(Map.Entry::getValue)
-                .map(Object::toString)
+                .map(entry -> entry.getValue().toString().trim().toLowerCase())
+                .distinct()
                 .collect(Collectors.toList());
     
         if (references.isEmpty()) {
@@ -561,49 +561,55 @@ public class ExcelImportService {
             return;
         }
     
-        // Step 1: Find an existing instrument with a category
+        // 1. Find the shared category from the first instrument that has one
         Category sharedCategory = null;
-        for (String reference : references) {
-            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
-            if (existingInstrumentOpt.isPresent()) {
-                Instruments existingInstrument = existingInstrumentOpt.get();
-                if (existingInstrument.getCategory() != null) {
-                    sharedCategory = existingInstrument.getCategory();
-                    break; // Found an instrument with a category, use this for all
-                }
+        for (String ref : references) {
+            Optional<Instruments> opt = instrumentRepository.findByReference(ref);
+            if (opt.isPresent() && opt.get().getCategory() != null) {
+                sharedCategory = opt.get().getCategory();
+                break;
             }
         }
     
-        // Step 2: Process each reference
-        for (String reference : references) {
-            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
-            if (existingInstrumentOpt.isPresent()) {
-                Instruments existingInstrument = existingInstrumentOpt.get();
+        // 2. Try to get the supplier from the row
+        Supplier newSupplier = getOrCreateSupplier(row, availableColumns, null);
     
-                // Update category if null and a shared category exists
-                if (existingInstrument.getCategory() == null && sharedCategory != null) {
-                    existingInstrument.setCategory(sharedCategory);
-                    instrumentRepository.save(existingInstrument);
+        // 3. Loop through references and apply rules
+        for (String ref : references) {
+            Optional<Instruments> opt = instrumentRepository.findByReference(ref);
+    
+            if (opt.isPresent()) {
+                Instruments instrument = opt.get();
+                boolean updated = false;
+    
+                // Apply category if needed
+                if (instrument.getCategory() == null && sharedCategory != null) {
+                    instrument.setCategory(sharedCategory);
+                    updated = true;
                 }
     
-                // Update supplier if missing but do not change if different
-                Supplier newSupplier = getOrCreateSupplier(row, availableColumns, null);
-                if (existingInstrument.getSupplier() == null && newSupplier != null) {
-                    existingInstrument.setSupplier(newSupplier);
-                    instrumentRepository.save(existingInstrument);
+                // Apply supplier if needed
+                if (instrument.getSupplier() == null && newSupplier != null) {
+                    instrument.setSupplier(newSupplier);
+                    updated = true;
+                }
+    
+                if (updated) {
+                    instrumentRepository.save(instrument);
                 }
     
             } else {
-                // Create a new instrument with the shared category and supplier
-                Instruments newInstrument = new Instruments();
-                newInstrument.setReference(reference);
-                newInstrument.setSupplier(getOrCreateSupplier(row, availableColumns, null));
-                newInstrument.setCategory(sharedCategory);
-                newInstrument.setPrice (getPrice(row, availableColumns));
-                instrumentRepository.save(newInstrument);
+                // Create new instrument
+                Instruments newInstr = new Instruments();
+                newInstr.setReference(ref);
+                newInstr.setCategory(sharedCategory);
+                newInstr.setSupplier(newSupplier);
+                newInstr.setPrice(getPrice(row, availableColumns));
+                instrumentRepository.save(newInstr);
             }
         }
     }
+    
     /**
      * Imports alternative instrument pairs from Excel data.
      * If an instrument doesn't exist, it is created with reference and price = 0.
@@ -653,6 +659,4 @@ public class ExcelImportService {
             alternativesRepository.save(alt);
         }
     }
-
-
 }
