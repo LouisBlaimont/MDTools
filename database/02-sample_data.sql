@@ -294,7 +294,7 @@ INSERT INTO instruments (supplier_id, category_id, reference, supplier_descripti
 (1, 3, 'PLS-3001', 'Plastic Scalpel Type E', 9.99, FALSE),
 (2, 3, 'PLS-3002', 'Plastic Scalpel Type F', 10.49, FALSE),
 (3, 3, 'PLS-3003', 'Plastic Scalpel Type G', 10.5, FALSE),
-(4, 3, 'PLS-3003', 'Plastic Scalpel Type H', 10.2, TRUE);
+(4, 3, 'PLS-3004', 'Plastic Scalpel Type H', 10.2, TRUE);
 
 -- For Metal Scalpels (categories linked to sub_group_id = 2)
 INSERT INTO instruments (supplier_id, category_id, reference, supplier_description, price, obsolete) VALUES
