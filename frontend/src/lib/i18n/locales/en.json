@@ -66,6 +66,7 @@
     "title": {
       "instruments_types": "Instruments types",
       "table": {
+        "group": "GROUP",
         "subgroup": "SUBGROUP",
         "function": "FUNCTION",
         "name": "NAME",

@@ -74,6 +74,7 @@
     "title": {
       "instruments_types": "Types d'instruments",
       "table": {
+        "group": "GROUPE",
         "subgroup": "SOUS-GROUPE",
         "function": "FONCTION",
         "name": "NOM",
@@ -153,6 +154,7 @@
     "on": "sur",
     "page": "Page"
   },
+
   "modals": {
     "big_picture": {
       "titleInstrument": "Photos de l'instrument",

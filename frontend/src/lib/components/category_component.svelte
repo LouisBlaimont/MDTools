@@ -92,7 +92,7 @@
       if (imageRefs[index] instanceof HTMLElement) {
           imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
       } else {
-          console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
+        console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
       }
 
       // selecting the categoryId
@@ -192,7 +192,7 @@
         {/if}
         <tr>
           {#if $isEditing && $selectedSubGroup}
-            <th class="text-center border border-solid border-[black]"></th>
+            <th class="text-center border border-solid border-[black]">GROUPE</th>
           {/if}
           {#if !$selectedSubGroup}
           <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
