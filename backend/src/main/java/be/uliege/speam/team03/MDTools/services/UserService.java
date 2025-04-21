@@ -23,18 +23,34 @@ import lombok.AllArgsConstructor;
 public class UserService {
    private final UserRepository userRepository;
 
+   /**
+    * Retrieves a user based on its email
+    *
+    * @param email email of user
+    * @return useer dto
+    */
    public UserDto getUserByEmail(String email) {
       User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received email: " + email));
       return UserMapper.toDto(user);
    }
 
+   /**
+    * Retrieves user based on an id
+    * @param userId id of a user
+    * @return user dto
+    */
    public UserDto getUserById(Long userId) {
       User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + userId));
       return UserMapper.toDto(user);
    }
 
+   /**
+    * Retrieves directly id of user based on it email
+    * @param email email of the user
+    * @return id of the user
+    */
    public Long getUserIdByEmail(String email){
       User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received email: " + email));

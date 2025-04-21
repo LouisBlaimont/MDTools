@@ -297,6 +297,11 @@ public class InstrumentService {
         return instrumentsDTO;
     }
 
+    /**
+     * Retrieves a list of instruments that matches the given keywords
+     * @param keywords list of keywords
+     * @return list of instrument dto or null object
+     */
     public List<InstrumentDTO> searchInstrument(List<String> keywords) {
         if (keywords.isEmpty()) {
             return null;
@@ -305,6 +310,12 @@ public class InstrumentService {
         return instrumentMapper.convertToDTO(instruments);
     }
 
+    /**
+     * Add an instrument
+     * @param newInstrument the instrument to add
+     * @return  the saved instrument dto
+     * @throws BadRequestException
+     */
     public InstrumentDTO addInstrument(InstrumentDTO newInstrument) throws BadRequestException {
         if (newInstrument.getReference() == null || newInstrument.getReference().isEmpty()) {
             throw new BadRequestException("Reference is required to identify an instrument");
