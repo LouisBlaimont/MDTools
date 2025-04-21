@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,6 +47,7 @@ import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.services.OrdersService;
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 
 @WebMvcTest(OrdersController.class)
 @Import(TestSecurityConfig.class)
@@ -56,6 +58,9 @@ public class OrdersControllerTest {
 
    @MockBean
    private OrdersService ordersService;
+
+   @Mock 
+   private PictureStorageService pictureStorageService;
 
    @Autowired
    private ObjectMapper objectMapper;

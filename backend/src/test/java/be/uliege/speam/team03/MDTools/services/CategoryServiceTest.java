@@ -46,6 +46,9 @@ class CategoryServiceTest {
       @Mock
       private CategoryCharacteristicRepository categoryCharRepository;
 
+      @Mock
+      private PictureStorageService pictureStorageService;
+
       @InjectMocks
       private CategoryService categoryService;
 

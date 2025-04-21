@@ -38,6 +38,7 @@ import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.GroupService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 import be.uliege.speam.team03.MDTools.services.SubGroupService;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,9 @@ public class CategoryControllerTest {
 
     @Mock
     private InstrumentService instrumentService;
+
+    @Mock 
+    private PictureStorageService pictureStorageService;
 
     @Mock
     private GroupService groupService;
