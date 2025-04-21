@@ -10,6 +10,7 @@
     import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
     import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
     import { modals } from "svelte-modals";
+    import { toast } from "@zerodevx/svelte-toast";
   
     import {
       fetchGroups,
@@ -206,18 +207,33 @@
       });
     }
   
+
     async function handleImportFinal() {
-      try {
-        isLoading = true;
-        loadingMessage = "Importation en cours...";
-        const response = await sendExcelToBackend(jsonData, columnMapping, selectedOption, selectedGroup, selectedSubGroup, selectedSupplier);
-        isLoading = false;
-        dispatch("close");
-        alert(response.success ? "Import réussi !" : "Erreur : " + response.message);
-      } catch (err) {
-        isLoading = false;
-        alert("Erreur : " + err.message);
-      }
+        try {
+            isLoading = true;
+            loadingMessage = "Importation en cours...";
+
+            const response = await sendExcelToBackend(
+            jsonData,
+            columnMapping,
+            selectedOption,
+            selectedGroup,
+            selectedSubGroup,
+            selectedSupplier
+            );
+
+            isLoading = false;
+
+            if (response.success) {
+            toast.push("Importation réussie !");
+            dispatch("close");
+            } else {
+            toast.push(`Erreur d'import : ${response.message}`);
+            }
+        } catch (err) {
+            isLoading = false;
+            toast.push(`Erreur lors de l'envoi : ${err.message}`);
+        }
     }
   </script>
   
