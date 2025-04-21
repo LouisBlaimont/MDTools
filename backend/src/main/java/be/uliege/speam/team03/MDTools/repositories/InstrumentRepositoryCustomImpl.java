@@ -15,53 +15,6 @@ public class InstrumentRepositoryCustomImpl implements InstrumentRepositoryCusto
 
     @PersistenceContext
     private EntityManager entityManager;
-    // String createCustomQuery(List<String> names) {
-    //     StringBuilder query = new StringBuilder("SELECT d.id, d.reference, d.supplierDescription, d.supplier,");
-    
-    //     // Building the GREATEST similarity score calculation
-    //     query.append("GREATEST(");
-    //     for (int i = 0; i < names.size(); i++) {
-    //         if (i > 0) {
-    //             query.append(", ");
-    //         }
-    //         query.append("similarity(d.reference, '").append(names.get(i)).append("')");
-    //         query.append(", similarity(d.supplierDescription, '").append(names.get(i)).append("')");
-    //     }
-    //     query.append(") AS sim_score FROM instruments d WHERE ");
-    
-    //     // Building the WHERE condition
-    //     for (int i = 0; i < names.size(); i++) {
-    //         query.append("(");
-            
-    //         // ILIKE for case-insensitive matching
-    //         query.append("d.reference ILIKE '%").append(names.get(i)).append("%' OR ");
-    //         query.append("d.supplierDescription ILIKE '%").append(names.get(i)).append("%' OR ");
-    
-    //         // Trigram similarity matching (WITHOUT threshold)
-    //         query.append("d.reference % '").append(names.get(i)).append("' OR ");
-    //         query.append("d.supplierDescription % '").append(names.get(i)).append("'");
-    
-    //         query.append(")");
-    
-    //         // Append AND if it's not the last name
-    //         if (i != names.size() - 1) {
-    //             query.append(" AND ");
-    //         }
-    //     }
-    
-    //     // Order by the highest similarity score
-    //     query.append(" ORDER BY sim_score DESC;");
-    
-    //     return query.toString();
-    // }
-    
-    // @SuppressWarnings("unchecked")
-    // @Override
-    // public List<Instruments> searchByKeywords(List<String> keywords) {
-    //     String queryString = createCustomQuery(keywords);
-    //     System.out.println("queryy " + queryString);
-    //     return entityManager.createQuery(queryString).getResultList();        
-    // }  
     @SuppressWarnings("unchecked")
     @Override
     public List<Instruments> searchByKeywords(List<String> keywords) {

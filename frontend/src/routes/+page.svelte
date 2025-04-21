@@ -12,7 +12,7 @@
   import { user, isAdmin, isWebmaster, isLoggedIn, userId } from "$lib/stores/user_stores";
   import { errorMessage, keywords, keywordsResult, hoveredInstrumentIndex, selectedInstrumentIndex, selectedCategoryIndex, currentSuppliers, reload} from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
-  import { findOrderItems } from "$lib/components/order_component.js";
+  import { findOrderItems, findOrdersNames } from "$lib/components/order_component.js";
   import Loading from "$lib/Loading.svelte";
   import editInstrumentModal from "$lib/modals/editInstrumentModal.svelte";
   import { PUBLIC_API_URL } from "$env/static/public";
@@ -37,12 +37,7 @@
    */
   async function fetchData() {
       if ($userId != null) {
-        const response2 = await apiFetch(`/api/orders/user/${$userId}`);
-        if (!response2.ok) {
-          throw new Error(`Failed to fetch orders: ${response2.statusText}`);
-        } else {
-          ordersNames.set(await response2.json());
-        }
+        await findOrdersNames();
       }
 
       const response = await apiFetch("/api/groups/summary");
@@ -238,15 +233,14 @@
     goto("/previous_orders");
   }
 
-  function getSelectedOrderName(orderId) {
-    const selectedOrder = $ordersNames.find((order) => order.id === orderId);
-    return selectedOrder ? selectedOrder.name : null;
-  }
-
   async function singleOrderView() {
-    const name = getSelectedOrderName($selectedOrderId);
+    if(!$selectedOrderId){
+      const errorNoOrder = document.getElementById("error-no-order");
+      errorNoOrder.classList.remove('hidden');
+      return;
+    }
     findOrderItems($selectedOrderId);
-    goto(`/single_order_view?name=${name}`);
+    goto(`/single_order_view?id=${encodeURIComponent($selectedOrderId)}`);
   }
 
   </script>
@@ -285,10 +279,10 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
                 style="width: calc(100% + 80px);"
               >
                 {#each $keywordsResult as row, index}
-                  <!-- svelte-ignore a11y_click_events_have_key_events -->
-                  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                  <li
-                    class="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 text-sm border-b last:border-none"
+                  <li class="p-0 text-sm border-b last:border-none">
+                  <button
+                    type="button"
+                    class="w-full text-left p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-4"
                     onclick={() => selectedInstrumentHome(row)}
                   >
                     <span class="text-black">{row.reference}</span>
@@ -299,7 +293,8 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
                     title={row.supplierDescription} 
                     >
                       {row.supplierDescription}
-                    </span>                
+                    </span>  
+                  </button>              
                   </li>
                 {/each}
               </ul>
@@ -318,9 +313,12 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
           bind:value={$selectedOrderId}
         >
           {#each $ordersNames as order}
+            {#if !order.isExported}
             <option value={order.id}>{order.name} </option>
+            {/if}
           {/each}
         </select>
+        <span id="error-no-order" class="text-red-600 text-sm hidden"> {$_('homepage.search_order.error')}</span>
         <button
           class="w-full p-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
           onclick={() => singleOrderView()}>{$_('homepage.button.search')}</button

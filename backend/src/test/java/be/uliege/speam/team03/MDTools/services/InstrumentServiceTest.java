@@ -315,9 +315,11 @@ public class InstrumentServiceTest {
         Map<String, Object> updateData = Map.of("reference", "Nonexistent Reference");
 
         // Act
-        InstrumentDTO result = instrumentService.updateInstrument(updateData, (long) 999);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.updateInstrument(updateData, 999L);
+        });
+        
+        assertTrue(exception.getMessage().contains("Instrument not found with ID: 999"));
     }
 }

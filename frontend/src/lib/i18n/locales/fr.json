@@ -34,7 +34,8 @@
       "placeholder": "Entrez une référence"
     },
     "search_order": {
-      "label": "Rechercher une commande"
+      "label": "Rechercher une commande",
+      "error" : "Selectionnez une commande"
     },
     "previous_orders": {
       "label": "Voir toutes les commandes précédentes",
@@ -196,6 +197,29 @@
       "fail2": "Erreur lors de l'envoi des images.",
       "error": "Erreur",
       "file": "Sélectionner des fichiers"
+    },
+    "delete_order" : {
+      "delete_title" : "Supprimer la commande",
+      "deletion_success" : "Commande supprimée avec succès",
+      "irreversible_action" : "Attention, cette action est irréversible.",
+      "cancel" : "Annuler",
+      "delete" : "Supprimer"
+    },
+    "create_order" : {
+      "create_title" : "Créer une nouvelle commande",
+      "name" : "Nom de la nouvelle commande",
+      "error_no_name" : "Entrez un nom de commande",
+      "error_already_exists" : "Ce nom de commande existe déjà",
+      "cancel" : "Annuler",
+      "create" : "Créer"
+    },
+    "edit_order" : {
+      "edit_title" : "Modifier le nom de la commande",
+      "name" : "Nouveau nom de la commande",
+      "error_no_name" : "Entrez un nom de commande",
+      "error_already_exists" :"Ce nom de commande existe déjà",
+      "cancel" : "Annuler",
+      "edit" : "Modifier"
     }
   },
   "profile_page": {
@@ -205,6 +229,23 @@
     "button": {
       "edit_profile": "Modifier le profil",
       "back": "Retour"
+    }
+  },
+  "order_pages" : {
+    "dates" : {
+      "creationDate" : "créée le ",
+      "exportDate" : "exportée le"
+    },
+    "single" : {
+      "export" :  "Exporter",
+      "edit" : "Modifier nom",
+      "complete" : "Compléter",
+      "delete" : "Supprimer"
+    },
+    "all": {
+      "view_edit" : "Voir/modifier commande",
+      "complete" : "Compléter commande", 
+      "create" : "Créer une commande"
     }
   }
 }

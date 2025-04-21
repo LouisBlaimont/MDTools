@@ -49,15 +49,21 @@ public class CharacteristicService {
      */
     public List<String> getPossibleValuesOfChar(String charName, String subGroupName){
         Optional<Characteristic> charMaybe = charRepository.findByName(charName);
-        if(charMaybe.isEmpty()){
-            throw new ResourceNotFoundException("Characteristic with the name " + charName + " not found");
+        Characteristic characteristic = null;
+        try {
+            characteristic = charMaybe.get();
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Cannot find characteristic" + charName);
         }
-        Characteristic characteristic = charMaybe.get();
+
         Optional<SubGroup> subgroupMaybe = subGroupRepository.findByName(subGroupName);
-        if(subGroupName.isEmpty()){
+        SubGroup subGroup = null;
+        try {
+            subGroup = subgroupMaybe.get();
+        } catch (Exception e) {
             throw new ResourceNotFoundException("Cannot find subgroup" + subGroupName);
         }
-        SubGroup subGroup = subgroupMaybe.get();
+
         List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
         List<CategoryCharacteristic> categoryChars = categoryCharacteristicRepository.findByCharacteristicAndCategoryIn(characteristic, categories);

@@ -147,8 +147,10 @@ CREATE TABLE alternatives (
 CREATE TABLE orders (
     order_id BIGSERIAL PRIMARY KEY,
     user_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
-    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    order_name TEXT
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_name TEXT,
+    exported BOOLEAN DEFAULT FALSE,
+    export_date TIMESTAMP DEFAULT NULL
 );
 
 -- Table order_items

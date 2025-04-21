@@ -23,7 +23,6 @@ import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
-import be.uliege.speam.team03.MDTools.services.SubGroupService;
 import lombok.AllArgsConstructor;
 
 /**

@@ -112,7 +112,27 @@
             throw new Error("Failed to fetch instruments of category");
         }
         const answer = await response.json();
-        currentSuppliers.set(Array.isArray(answer) ? answer : [answer]);
+        let supplierArray = Array.isArray(answer) ? answer : [answer];
+
+        // filtering on the suppliers sold by md
+        if (!$isAdmin && !isWebmaster) {
+          for (let i = 0; i < supplierArray.length; i++) {
+            let supp = supplierArray[i].supplier;
+            // getting soldByMd field of the supplier
+            const getSupplier = await apiFetch(`/api/supplier/name/${supp}`);
+            const gotSupplier = await getSupplier.json();
+            if (gotSupplier.soldByMd != true) {
+              // removing that line
+              for(let j = i; j < supplierArray.length - 1; j++) {
+                supplierArray[j] = supplierArray[j+1];
+              }
+              i--; // checking that line again
+              // removing 1 of the actual array size
+              supplierArray.splice(supplierArray.length - 1, supplierArray.length);
+            }
+          }
+        }
+        currentSuppliers.set(supplierArray);
         if (!response2.ok){
             return;
         }

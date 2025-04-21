@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import be.uliege.speam.team03.MDTools.models.Category;
@@ -56,6 +57,8 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
      * @return an Optional containing the Category if found, or an empty Optional if
      *         not found.
      */
-    Optional<Category> findById(Long category_id);
+    @NonNull
+    @Override
+    Optional<Category> findById(@NonNull Long category_id);
 
 }

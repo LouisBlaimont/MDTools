@@ -1,7 +1,6 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
-import be.uliege.speam.team03.MDTools.models.User;
 import be.uliege.speam.team03.MDTools.services.UserService;
 import lombok.AllArgsConstructor;
 

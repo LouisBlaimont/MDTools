@@ -14,10 +14,18 @@ public class RoleService {
    
    private final AuthorityRepository authoritiesRepository;
 
+   /**
+    * getting all the Authorities
+    * @return  a list of authority object
+    */
    public List<Authority> getAllAuthorities() {
       return authoritiesRepository.findAll();
    }
 
+   /**
+    * getting all the names of the authorities
+    * @return a list of string (names)
+    */
    public List<String> getAllAuthoritiesNames() {
       return authoritiesRepository.findAll().stream().map(Authority::getAuthority).toList();
    }

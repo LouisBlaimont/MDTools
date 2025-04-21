@@ -104,12 +104,11 @@ public class GroupControllerTest {
 
     @Test
     void testDeleteGroup_Success() throws Exception {
-        when(groupService.deleteGroup("Group1")).thenReturn("Group1 deleted successfully");
+        doNothing().when(groupService).deleteGroup("Group1");
 
         mockMvc.perform(delete("/api/groups/Group1")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Group1 deleted successfully"));
+                .andExpect(status().isNoContent());
 
         verify(groupService, times(1)).deleteGroup("Group1");
     }
