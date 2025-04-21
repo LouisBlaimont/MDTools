@@ -1,7 +1,6 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,13 +58,13 @@ public class UserController {
    /**
     * Registers a new user in the database.
     *
-    * @param body The user to register.
+    * @param dto The user to register.
     * @return The registered user.
     */
    @PostMapping
    @ResponseStatus(HttpStatus.CREATED)
-   public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> body) {
-      UserDto newUser = userService.registerUser(body);
+   public ResponseEntity<?> registerUser(@RequestBody UserDto dto) {
+      UserDto newUser = userService.registerUser(dto);
       if (newUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
       }
@@ -81,8 +80,8 @@ public class UserController {
     */
    @PatchMapping("username/{username}")
    @ResponseStatus(HttpStatus.OK)
-   public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody Map<String, Object> body) {
-      UserDto updatedUser = userService.updateUser(username, body);
+   public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody UserDto userDto) {
+      UserDto updatedUser = userService.updateUser(username, userDto);
       if (updatedUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
       }
@@ -98,8 +97,8 @@ public class UserController {
     */
    @PatchMapping("{id}")
    @ResponseStatus(HttpStatus.OK)
-   public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-      UserDto updatedUser = userService.updateUser(id, body);
+   public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+      UserDto updatedUser = userService.updateUser(id, userDto);
       if (updatedUser == null) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
       }
@@ -141,6 +140,9 @@ public class UserController {
    @GetMapping("/list")
    public ResponseEntity<List<UserDto>> getAllUser() {
       List<UserDto> users = userService.getAllUsers();
+      if (users.isEmpty()) {
+         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(users);
+      }
       return new ResponseEntity<>(users, HttpStatus.OK);
    }
 }

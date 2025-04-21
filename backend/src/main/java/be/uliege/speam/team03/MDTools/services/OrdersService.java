@@ -36,9 +36,9 @@ public class OrdersService {
     private final InstrumentRepository instrumentRepository;
 
     /**
-     * Gets the instruments of the order given by id
-     * @param id
-     * @return List of OrdersDTO
+     * Gets the instruments of the provided order
+     * @param id The unique identifier of the order
+     * @return List of OrderItemDTO representing the instruments within the order
      */
     public List<OrderItemDTO> findInstrumentsOfOrder(Long id){
         Optional<Orders> orderMaybe = ordersRepository.findById(id);
@@ -58,23 +58,23 @@ public class OrdersService {
     }
 
     /**
-     * Gets the names of the orders of the user given by id.
-     * @param id
-     * @return List of String (names of orders)
+     * Gets the informations about all orders of a specific user
+     * @param id The unique identifier of the user
+     * @return List of OrdersDTO representing the existing orders
      */
     public List<OrdersDTO> findOrdersOfUser(Long id){
         Optional<User> userMaybe = userRepository.findByUserId(id);
         if(userMaybe.isEmpty()){
             throw new ResourceNotFoundException("User not found.");
         }
-        List<OrdersDTO> orders = ordersRepository.findByUserId(id).stream().map(order -> new OrdersDTO(order.getId(), order.getOrderName())).collect(Collectors.toList());
+        List<OrdersDTO> orders = ordersRepository.findByUserId(id).stream().map(order -> new OrdersDTO(order.getId(), order.getOrderName(), order.getIsExported(), order.getCreationDate(), order.getExportDate())).collect(Collectors.toList());
         return orders;
     }
 
     /**
      * Add an instrument to an order or increases the quantity of this instrument if already present in the order
-     * @param body contains the instrument id, the order id, the user id and the quantity
-     * @return List of OrderItemDTO
+     * @param body contains the instrument identifier, the order identifier, the user identifier and the quantity
+     * @return List of OrderItemDTO representing the instrument within the updated order
      */
     public List<OrderItemDTO> addInstrumentToOrder(Map<String, Object> body){
         Long orderId = ((Number) body.get("orderId")).longValue();
@@ -132,10 +132,10 @@ public class OrdersService {
 
     /**
      * Removes instrument from specific order
-     * @param orderId Id of the order
-     * @param userId Id of the user
-     * @param instrumentId Id of the instrument to be removed
-     * @return True if instrument was successfully removed, else throws an error
+     * @param orderId The unique identifier of the order
+     * @param userId The unique identifier of the user
+     * @param instrumentId The unique identifier of the instrument to be removed
+     * @return True if instrument was successfully removed
      */
     public List<OrderItemDTO> removeInstrumentFromOrder(Long orderId, Long userId, Long instrumentId){
         Optional<User> userMaybe = userRepository.findByUserId(userId);
@@ -170,7 +170,7 @@ public class OrdersService {
 
     /**
      * Create new empty order for the user provided in the body with the name provided in the body
-     * @param body
+     * @param body Contains the name of the new order
      * @return True if successfully created
      */
     public List<OrdersDTO> createNewOrder(Map<String, Object> body){
@@ -182,17 +182,18 @@ public class OrdersService {
             throw new ResourceNotFoundException("User doesn't exist.");
         }
 
-        List<Orders> sameOrders = ordersRepository.findByOrderName(orderName);
+        List<Orders> sameOrders = ordersRepository.findByOrderNameIgnoreCase(orderName);
         for (Orders order : sameOrders){
-            if(order.getUserId() == userId){
+            if(order.getUserId() == userId && order.getIsExported() == false){
                 throw new BadRequestException("Order with that name already exists for that user");
             }
         }
 
         Orders newOrder = new Orders();
         newOrder.setUserId(userId);
-        newOrder.setOrderDate(new Timestamp(System.currentTimeMillis()));
+        newOrder.setCreationDate(new Timestamp(System.currentTimeMillis()));
         newOrder.setOrderName(orderName);
+        newOrder.setIsExported(false);
         ordersRepository.save(newOrder);
         return findOrdersOfUser(userId); 
     }
@@ -219,10 +220,10 @@ public class OrdersService {
     }
 
     /**
-     * Changes the name of the order with order Id
-     * @param orderId
-     * @param body
-     * @return
+     * Changes the name of a specific order
+     * @param orderId The unique identifier of the order
+     * @param body Contains the new name of the order
+     * @return List of OrderItemDTO representing the updated order
      */
     public List<OrderItemDTO> editOrder(Long orderId, Map<String, Object> body){
         Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
@@ -239,9 +240,9 @@ public class OrdersService {
             throw new ResourceNotFoundException("Name is required");
         }
 
-        List<Orders> sameOrders = ordersRepository.findByOrderName(newName);
+        List<Orders> sameOrders = ordersRepository.findByOrderNameIgnoreCase(newName);
         for (Orders sameOrder : sameOrders){
-            if(sameOrder.getUserId() == userId){
+            if(sameOrder.getUserId() == userId && sameOrder.getIsExported() == false){
                 throw new BadRequestException("Order with that name already exists for that user");
             }
         }
@@ -256,6 +257,28 @@ public class OrdersService {
             orderItemsDTO.add(orderItemDTO);
         }
         return orderItemsDTO;
+    }
+
+    /**
+     * Updates information about a newly exported order :
+     * - sets isExported to true
+     * - sets exportDate
+     * @param orderId The unique identifier of the order
+     * @return List of OrdersDTO representing the updated orders
+     */
+    public List<OrdersDTO> orderExported(Long orderId){
+        Optional<Orders> orderMaybe = ordersRepository.findById(orderId);
+
+        if(orderMaybe.isEmpty()){
+            throw new ResourceNotFoundException("Order not found.");
+        }
+
+        Orders order = orderMaybe.get();
+        Long userId = order.getUserId();
+        order.setIsExported(true);
+        order.setExportDate(new Timestamp(System.currentTimeMillis()));
+        ordersRepository.save(order);
+        return findOrdersOfUser(userId);
     }
     
 }

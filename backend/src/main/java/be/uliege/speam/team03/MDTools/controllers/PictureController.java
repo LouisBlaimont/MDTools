@@ -1,6 +1,5 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -12,7 +11,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +62,13 @@ public class PictureController {
       return metadata;
    }
 
+   /**
+    * Uploads a single picture for an instrument.
+    * 
+    * @param file The input stream containing the picture file data
+    * @param referenceId The ID of the instrument that the picture belongs to
+    * @return The metadata of the stored picture
+    */
    private Picture uploadSingleInstrumentPicture(InputStream file, Long referenceId) {
       PictureType type = PictureType.INSTRUMENT;
       Picture metadata = storageService.storePicture(file, type, referenceId);

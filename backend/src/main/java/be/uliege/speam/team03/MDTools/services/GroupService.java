@@ -183,10 +183,10 @@ public class GroupService {
      * @param groupName the name of the group to be deleted.
      * @return a string message indicating the result of the deletion.
      */
-    public String deleteGroup(String groupName){
+    public void deleteGroup(String groupName) throws ResourceNotFoundException{
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
-            return null; 
+            throw new ResourceNotFoundException("Cannot find group with name: " + groupName);
         }
         Group group = groupMaybe.get();
 
@@ -209,7 +209,6 @@ public class GroupService {
         }
 
         groupRepository.delete(group);
-        return "Successfully deleted group.";
     }
 
     /**

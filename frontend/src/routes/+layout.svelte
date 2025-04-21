@@ -45,6 +45,7 @@
 
   let showMoreMenu = false;
   let moreButton;
+  let dataButton;
 
   function toggleMoreMenu(event) {
     event.stopPropagation();
@@ -137,6 +138,7 @@
         {#if $isAdmin || $isWebmaster}
           <div class="relative">
             <button
+              bind:this={dataButton}
               onclick={toggleDataMenu}
               class="text-white hover:text-teal-300 transition flex items-center gap-1"
             >
@@ -148,7 +150,7 @@
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
                 class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-32 z-50 text-sm"
-                use:clickOutside
+                use:clickOutside={{ exclude: [dataButton] }}
                 onclick_outside={closeMenu}
               >
                 <a href="/admin/import" class="block px-4 py-2 hover:bg-teal-400 transition"
@@ -178,18 +180,21 @@
             <div
               class="absolute right-0 bg-teal-500 text-white shadow-lg rounded mt-2 w-40 z-50 text-sm"
               use:clickOutside={{ exclude: [moreButton] }}
-              onclick_outside={closeMoreMenu}
+              onclick_outside={() => {closeMoreMenu(); closeManageMenu();}}
             >
               {#if $isAdmin || $isWebmaster}
                 <a href="/admin/supplier" class="block px-4 py-2 hover:bg-teal-400 transition"
+                  onclick={closeMoreMenu}
                   >{$_('header.more.suppliers')}</a
                 >
                 <a href="/admin/abbreviations" class="block px-4 py-2 hover:bg-teal-400 transition"
+                  onclick={closeMoreMenu}
                   >{$_('header.more.abbreviations')}</a
                 >
 
                 {#if $isWebmaster}
                   <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition"
+                    onclick={closeMoreMenu}
                     >{$_('header.more.webmaster')}</a
                   >
                 {/if}

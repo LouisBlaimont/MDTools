@@ -3,7 +3,6 @@ package be.uliege.speam.team03.MDTools.services;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -68,28 +67,26 @@ public class UserService {
     * @param user The user to register.
     * @return The registered user.
     */
-   public UserDto registerUser(Map<String, Object> body) {
-      String email = (String) body.get("email");
+   public UserDto registerUser(UserDto userDto) {
+      String email = userDto.getEmail();
       if (!isValidEmail(email)) {
          throw new BadRequestException("Invalid email address.");
       }
       if (userRepository.findByEmail(email).isPresent()) {
          throw new BadRequestException("User with email " + email + " already exists.");
       }
-      String username = (String) body.get("username");
+      String username = userDto.getUsername();
       if (userRepository.findByUsername(username).isPresent()) {
          throw new BadRequestException("User with username " + username + " already exists.");
       }
-      UserDto userDto = new UserDto();
-      userDto.setEmail(email);
-      userDto.setUsername(username);
+   
       userDto.setRoles(List.of("ROLE_USER"));
       userDto.setEnabled(true);
-
+   
       Timestamp currentTimestamp = Timestamp.from(Instant.now());
       userDto.setCreatedAt(currentTimestamp);
       userDto.setUpdatedAt(currentTimestamp);
-
+   
       User newUser = UserMapper.toEntity(userDto);
       userRepository.save(newUser);
       return UserMapper.toDto(newUser);
@@ -102,10 +99,13 @@ public class UserService {
     * @param body   The new values of the user.
     * @return The updated user.
     */
-   public UserDto updateUser(Object identifier, Map<String, Object> body) {
+   public UserDto updateUser(Object identifier, UserDto userDto) {
+      if (identifier == null || (identifier instanceof String && ((String) identifier).isBlank())) {
+         throw new BadRequestException("Invalid identifier. Identifier cannot be null or empty.");
+      }
       User userToUpdate;
       if (identifier instanceof Long) {
-         userToUpdate = userRepository.findById((Long) identifier)
+         userToUpdate = userRepository.findById(((Long) identifier))
                  .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + identifier));
      } else if (identifier instanceof String) {
          userToUpdate = userRepository.findByUsername((String) identifier)
@@ -113,8 +113,7 @@ public class UserService {
      } else {
          throw new BadRequestException("Invalid identifier type. Must be a Long (ID) or String (username).");
      }
-      
-      String email = (String) body.get("email");
+      String email = userDto.getEmail();
       if (email != null) {
          if (!isValidEmail(email)) {
             throw new BadRequestException("Invalid email address.");
@@ -125,27 +124,54 @@ public class UserService {
          }
          userToUpdate.setEmail(email);
       }
-      String newUsername = (String) body.get("username");
+      String newUsername = userDto.getUsername();
       if (newUsername != null) {
+         if (newUsername.length() < 1 || newUsername.length() > 30) {
+            throw new BadRequestException("Username must be between 1 and 30 characters.");
+         }
+         if (!newUsername.matches("^[\\p{L}0-9._-]+$")) {
+            throw new BadRequestException("Username can only contain letters, numbers, dots, underscores, and hyphens.");
+         }
          Optional<User> user = userRepository.findByUsername(newUsername);
          if (user.isPresent() && !Objects.equals(user.get().getUserId(), userToUpdate.getUserId())) {
             throw new BadRequestException("User with username " + newUsername + " already exists.");
          }
-         userToUpdate.setUsername(newUsername);
-      }
-      Boolean enabled = (Boolean) body.get("enabled");
-      if (enabled != null) {
-         userToUpdate.setEnabled(enabled);
+      } else {
+         newUsername = userToUpdate.getUsername();
       }
 
-      @SuppressWarnings("unchecked")
-      List<String> roles = (List<String>) body.get("roles");
+      String jobPosition = userDto.getJobPosition();
+      if (jobPosition != null) {
+         userToUpdate.setJobPosition(jobPosition);
+      }
+      String workplace = userDto.getWorkplace();
+      if (workplace != null) {
+         userToUpdate.setWorkplace(workplace);
+      }
+      String roleName = userDto.getRoleName();
+      if (roleName != null) {
+         if (roleName.length() < 1 || roleName.length() > 30) {
+            throw new BadRequestException("Role name must be between 1 and 30 characters.");
+         }
+         if (!roleName.matches("^[\\p{L}0-9._-]+$")) {
+            throw new BadRequestException("Role name can only contain letters, numbers, dots, underscores, and hyphens.");
+         }
+      } else {
+         roleName = userToUpdate.getRoleName();
+      }
+      userToUpdate.setRoleName(roleName);
+
+      Boolean enabled = (Boolean) userDto.isEnabled();
+      if (enabled && userToUpdate.getAuthorities().isEmpty()) {
+         throw new BadRequestException("User must have at least one role to be enabled.");
+      }
+
+      List<String> roles = (List<String>) userDto.getRoles();
       if (roles != null) {
          userToUpdate.setAuthorities(UserMapper.toAuthorities(roles));
       }
 
       userToUpdate.setUpdatedAt(Timestamp.from(Instant.now()));
-
       userRepository.save(userToUpdate);
       return UserMapper.toDto(userToUpdate);
    }

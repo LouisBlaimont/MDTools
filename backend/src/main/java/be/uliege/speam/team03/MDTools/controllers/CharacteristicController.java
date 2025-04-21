@@ -34,6 +34,14 @@ public class CharacteristicController {
         return ResponseEntity.status(HttpStatus.OK).body(names);
     }
 
+    /**
+     * Retrieves all possible values for a characteristic within a specific subgroup.
+     * 
+     * @param charName     the name of the characteristic to get values for
+     * @param subGroupName the name of the subgroup to search in
+     * @return ResponseEntity containing a list of all possible values for the characteristic
+     * @throws ResourceNotFoundException if the characteristic or subgroup cannot be found
+     */
     @GetMapping("/{charName}/values-in/{subGroupName}")
     public ResponseEntity<List<String>> getPossibleValuesOfChar(@PathVariable String charName, @PathVariable String subGroupName) throws ResourceNotFoundException{
         List<String> values = characteristicService.getPossibleValuesOfChar(charName, subGroupName);

@@ -26,7 +26,7 @@ describe('search page functions', () => {
             page: {
                 subscribe : (fn) => {
                     fn({
-                        url : new URL('http://localhost:3000/searches?group=&subgroup='),
+                        url : new URL('http://localhost:3000/searches?group=&subgroup=&category=&instrument='),
                     });
                     return () => {};
                 },
@@ -41,8 +41,8 @@ describe('search page functions', () => {
         const mockResponse = {json : vi.fn().mockResolvedValue(mockGroups), ok:true};
         fetch.mockResolvedValue(mockResponse);
         render(SearchPage);
-        await waitFor(() => expect(screen.getByText('Group1')).toBeTruthy());
-        await waitFor(() => expect(screen.getByText('Group2')).toBeTruthy());
+        await waitFor(() => expect(screen.getAllByText('Group1')).toBeTruthy());
+        await waitFor(() => expect(screen.getAllByText('Group2')).toBeTruthy());
     });
 
     //Test of findSubGroups()

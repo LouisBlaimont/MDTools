@@ -16,8 +16,10 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
+import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.services.UserService;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +55,11 @@ public class AuthenticationControllerTest {
         Map<String, Object> claims = Map.of(
             "sub", "12345",
             "email", "test@example.com", 
+            "username", "Test User",
             "name", "Test User",
+            "jobPosition", "Developer",
+            "workplace", "Company XYZ",
+            "roleName", "Admin",
             "exp", Instant.now().plusSeconds(3600).getEpochSecond()
         );
         
@@ -74,27 +80,44 @@ public class AuthenticationControllerTest {
 
     @Test
     void testGetAuthenticatedUser_WithOidcUser_ReturnsUserInfo() throws BadRequestException {
-        // Arange
-        when(userService.getUserIdByEmail("test@example.com")).thenReturn(123L);
-        
+        // Arrange
+        when(userService.getUserByEmail("test@example.com")).thenReturn(
+            new UserDto(
+                123L, 
+                "Test User", 
+                "test@example.com", 
+                "Developer", 
+                "Company XYZ", 
+                "Admin", 
+                List.of("ROLE_USER", "ROLE_ADMIN"), 
+                true, 
+                Timestamp.valueOf("2025-01-01 12:00:00"), 
+                Timestamp.valueOf("2025-04-01 12:00:00")
+            )
+        );
+
         // Act
         ResponseEntity<Map<String, Object>> response = authController.getAuthenticatedUser(oidcUser);
-        
+
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        
+
         Map<String, Object> responseBody = response.getBody();
         assertNotNull(responseBody);
+        assertEquals(123L, responseBody.get("id"));
         assertEquals("test@example.com", responseBody.get("email"));
         assertEquals("Test User", responseBody.get("name"));
-        
+        assertEquals("Developer", responseBody.get("jobPosition"));
+        assertEquals("Company XYZ", responseBody.get("workplace"));
+        assertEquals("Admin", responseBody.get("roleName"));
+
         @SuppressWarnings("unchecked")
         List<String> roles = (List<String>) responseBody.get("roles");
         assertNotNull(roles);
         assertEquals(2, roles.size());
         assertTrue(roles.contains("ROLE_USER"));
         assertTrue(roles.contains("ROLE_ADMIN"));
-        
+
         assertNotNull(responseBody.get("expiresAt"));
     }
 

@@ -18,6 +18,12 @@ public class RoleController {
    
    private final RoleService roleService;
 
+   /**
+    * Retrieves all available authority names in the system.
+    * This endpoint is restricted to users with WEBMASTER role.
+    *
+    * @return ResponseEntity containing a list of authority names as strings
+    */
    @PreAuthorize("hasRole('WEBMASTER')")
    @GetMapping("/list")
    public ResponseEntity<List<String>> getAllAuthorities() {

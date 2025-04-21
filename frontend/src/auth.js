@@ -17,6 +17,7 @@ export async function checkUser() {
   if (res.ok) {
     const data = await res.json();
     user.set(data);
+    console.log("User data:", data);
   } else {
     user.set(null);
   }
