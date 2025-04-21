@@ -23,12 +23,18 @@
     
     $: notEditing = !$isEditing;
 
+    /**
+     * binding the current index to the selectedSupplierIndex writable
+     * @param index index to bind
+     */
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
     }
 
+    /**
+     * To redirect to the page with all the alternatives
+     */
     function seeAllAlternatives(){
-        console.log($selectedCategoryIndex);
         if ($selectedCategoryIndex !== null && $selectedCategoryIndex !== "" && $selectedCategoryIndex >= 0){
             goto("/alternatives");
             return
@@ -71,7 +77,7 @@
                     alt="supplier{row.id}"
                     src={row.picturesId && row.picturesId[0]
                     ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`: "/default/no_picture.png"}
-                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isIntrument: true })}
+                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: true })}
                     onmouseover={() => (hoveredSupplierImageIndex.set(index))}
                     onmouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index
@@ -252,18 +258,3 @@
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
-  id="big-category-pannel"
->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <span
-    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
-    onclick={(event) => {
-      event.stopPropagation();
-      closeBigPicture();
-    }}>&times;</span
-  >
-  <img class="h-[300px]" id="big-category" alt="big category" />
-</div>

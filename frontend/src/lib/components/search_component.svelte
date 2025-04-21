@@ -22,7 +22,7 @@
   import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
 
   let page_size = 2;
-
+  
   export const updateURLParams = derived(
     [selectedGroup, selectedSubGroup],  // Dependencies
     ([$selectedGroup, $selectedSubGroup]) => {
@@ -193,6 +193,10 @@
 
       searchByCharacteristics();
   }
+
+  /**
+   * Deleting all the filled characteristics 
+   */
   function deleteAllCharacteristics() {
     for (let i = 0; i < $characteristics.length; i++) {
       const characteristic = $characteristics[i];
@@ -295,7 +299,13 @@
   let showKeywordsResult = $state(false);
   let clickTimeout = 500;
 
-  // goto searches with the selected instrument found by keywords
+  /**
+   * goto searches with the selected instrument found by keywords
+   * @param group selected group
+   * @param subgroup selected subgroup
+   * @param catId selected catId
+   * @param instrumentId selected instrumentId
+   */
   async function moveToSearchesBis(group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
     // handle when the instrument has no category
@@ -312,7 +322,9 @@
     reload.set(true);
   }
 
-  // function to handle the keyword inputs and calling endpoint
+  /**
+   * function to handle the keyword inputs and calling endpoint
+   */
   let searchByKeywords = throttle(async () => {
     try {
       showKeywordsResult = false;
@@ -341,7 +353,11 @@
     }
   }, 300);
 
-  // handles the delay between to search by keywords
+  /**
+   * handles the delay between to search by keywords
+   * @param fn
+   * @param delay
+   */
   function throttle(fn, delay) {
     let lastCall = 0;
     return (...args) => {
@@ -353,7 +369,10 @@
     };
   }
 
-  // get category, group and subgroup from selected instrument, then call moveToSearchesBis
+  /**
+   *  get category, group and subgroup from selected instrument, then call moveToSearchesBis
+   * @param row selected instrument 
+   */
   async function selectedInstrument(row) {
     try {
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
@@ -371,6 +390,10 @@
   let filteredAutocompleteOptions = [];
   let currentAutocompleteField = null;
 
+  /**
+   * triggering the autocomplete option
+   * @param charName
+   */
   async function triggerAutocomplete(charName){
     currentAutocompleteField = charName;
     if(!autocompleteOptions[currentAutocompleteField]){
@@ -381,6 +404,10 @@
     showAutocompleteDropDown = true;
   }
 
+  /**
+   * fetching all the characteristics
+   * @param charName
+   */
   async function fetchCharacteristicOptions(charName){
     try{
       const response = await apiFetch(`/api/characteristics/${charName}/values-in/${$selectedSubGroup}`);

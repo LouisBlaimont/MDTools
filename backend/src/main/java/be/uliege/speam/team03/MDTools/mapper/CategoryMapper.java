@@ -13,15 +13,16 @@ public class CategoryMapper {
     private CategoryRepository categoryRepository;
     private final PictureStorageService pictureStorageService;
 
-    public CategoryMapper(CategoryRepository categoryRepository) {
+    public CategoryMapper(CategoryRepository categoryRepository, PictureStorageService pictureStorageService) {
         this.categoryRepository = categoryRepository;
+        this.pictureStorageService = pictureStorageService;
     }
 
     /**
      * Maps a Category entity to a CategoryDTO object.
      * 
-     * @param category
-     * @return
+     * @param category the category to convert
+     * @return the converted category DTO 
      */
     public CategoryDTO mapToCategoryDto(Category category){
         Long id = category.getId();
@@ -56,7 +57,8 @@ public class CategoryMapper {
         else{
             lenAbrv = null;
         }
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
+
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) category.getId(), PictureType.CATEGORY));
 
         return categoryDTO;
     }

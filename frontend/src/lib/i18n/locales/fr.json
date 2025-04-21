@@ -177,6 +177,23 @@
         "cancel": "Annuler",
         "delete": "Supprimer"
       }
+    },
+    "add_picture": {
+      "titleCat": "Ajouter des images pour un type d'instrument",
+      "titleInstr": "Ajouter des images pour l'instrument ",
+      "select": "Sélectionner des images",
+      "add": "Ajouter les images",
+      "button": {
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "need_select": "Veuillez séléctionner des images.",
+      "ok": "Images ajoutées avec succès !",
+      "fail": "Échec de l'envoi des images. <br> Erreur : ",
+      "fail2": "Erreur lors de l'envoi des images.",
+      "error": "Erreur",
+      "file": "Sélectionner des fichiers"
     }
   },
   "profile_page": {

@@ -241,15 +241,6 @@ public class InstrumentService {
         return instrumentsDTO;
     }
 
-    // /**
-    //  * Find the maximum instrument ID.
-    //  * 
-    //  * @return the maximum instrument ID
-    //  */
-    // public Long findMaxInstrumentId() {
-    //     return instrumentRepository.findMaxInstrumentId();
-    // }
-
     /**
      * Save an instrument.
      * 

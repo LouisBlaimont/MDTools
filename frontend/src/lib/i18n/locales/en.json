@@ -169,6 +169,23 @@
         "cancel": "Cancel",
         "delete": "Delete"
       }
+    },
+    "add_picture": {
+      "titleCat": "Add pictures for this type of instruments ",
+      "titleInstr": "Add pictures for this instrument ",
+      "select": "Select pictures",
+      "add": "Add the pictures",
+      "button": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "need_select": "You need to select some images.",
+      "ok": "Pictures added with succes!",
+      "fail": "Fail to send the pictures. <br> Error : ",
+      "fail2": "Error while sending the pictures.",
+      "error": "Error",
+      "file": "Select files"
     }
   },
   "profile_page": {
