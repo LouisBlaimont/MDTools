@@ -43,15 +43,15 @@ public class ExcelController {
     public ResponseEntity<?> receiveJsonData(@RequestBody ImportRequestDTO importRequest) {
         if (importRequest == null || importRequest.getData().isEmpty()) {
             logger.warn("Received request with empty JSON payload!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "The received JSON is empty."));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "error", "The received JSON is empty."));
         }
 
         try {
             excelImportService.processImport(importRequest);
-            return ResponseEntity.ok().body(Map.of("message", "Data imported successfully!"));
+            return ResponseEntity.ok().body(Map.of("success", true, "message", "Data imported successfully!"));
         } catch (Exception e) {
             logger.error("Error while processing data: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal error during import."));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", "Internal error during import."));
         }
     }
 }
