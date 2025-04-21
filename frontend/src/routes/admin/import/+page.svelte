@@ -14,6 +14,10 @@
   let dragging = false;
   let showModal = false;
 
+  /**
+   * Handle file drop into the drop zone.
+   * @param {DragEvent} event
+   */
   function handleDrop(event) {
     event.preventDefault();
     dragging = false;
@@ -28,15 +32,26 @@
     }
   }
 
+  /**
+   * Handle dragover to activate visual feedback.
+   * @param {DragEvent} event
+   */
   function handleDragOver(event) {
     event.preventDefault();
     dragging = true;
   }
 
+  /**
+   * Reset visual feedback when dragging leaves drop zone.
+   */
   function handleDragLeave() {
     dragging = false;
   }
 
+  /**
+   * Handle file selection via input field.
+   * @param {Event} event
+   */
   function handleFileSelection(event) {
     if (event.target.files.length) {
       file = event.target.files[0];
@@ -49,6 +64,10 @@
     }
   }
 
+  /**
+   * Trigger import modal if file is valid.
+   * @param {Event} event
+   */
   function handleImport(event) {
     event.preventDefault();
     if (!file || !isValidExcelFile(file)) {
@@ -59,17 +78,26 @@
     }
   }
 
+  /**
+   * Remove the currently selected file.
+   */
   function removeFile() {
     file = null;
     errorMessage = "";
   }
 
+  /**
+   * Check if file has a valid Excel extension.
+   * @param {File} file
+   * @returns {boolean}
+   */
   function isValidExcelFile(file) {
     const validExtensions = [".xlsx", ".xls"];
     return validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
   }
 
   onMount(() => {
+    // Redirect non-admin users to unauthorized page
     if (!isAdmin) {
       goto("/unauthorized");
     }

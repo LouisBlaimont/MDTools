@@ -66,7 +66,11 @@
         console.error("Error loading initial data", err);
       }
     });
-  
+    /**
+     * Handle mouse down on the modal for dragging.
+     * @param {MouseEvent} event - The mouse down event.
+     * @param {string} modalKey - The modal identifier key.
+     */
     function handleModalMouseDown(event, modalKey = "importModal") {
       draggingModal = modalKey;
       dragOffset = {
@@ -75,6 +79,10 @@
       };
     }
   
+    /**
+     * Update modal position on mouse move.
+     * @param {MouseEvent} event - The mouse move event.
+     */
     function handleModalMouseMove(event) {
       if (draggingModal) {
         modalPositions[draggingModal] = {
@@ -84,43 +92,74 @@
       }
     }
   
+    /**
+     * Reset dragging state on mouse up.
+     */
     function handleModalMouseUp() {
       draggingModal = null;
     }
   
+    /**
+     * Change current view and save history.
+     * @param {string} view - Target view to display.
+     */
     function goTo(view) {
       viewHistory.push(currentView);
       currentView = view;
       isNextEnabled = false;
     }
   
+    /**
+     * Go back to the previous view in history.
+     */
     function goBack() {
       currentView = viewHistory.pop() || "main";
     }
   
+    /**
+     * Handle selection of an import option.
+     * @param {string} option - Selected option value.
+     */
     function handleSelectGroup(option) {
       selectedOption = option;
       isNextEnabled = true;
     }
   
+    /**
+     * Handle change of group input value.
+     * @param {string} value - New group value.
+     */
     function handleGroupChange(value) {
       selectedGroup = value;
       selectedSubGroup = "";
       isNextEnabled = false;
     }
   
+    /**
+     * Handle change of sub-group input value.
+     * @param {string} value - New sub-group value.
+     */
     function handleSubGroupChange(value) {
       selectedSubGroup = value;
       isNextEnabled = selectedGroup && selectedSubGroup;
       loadCharacteristics(value);
     }
   
+    /**
+     * Handle supplier input selection.
+     * @param {string} value - New supplier name.
+     */
     function handleSupplierChange(value) {
       selectedSupplier = value;
       isNextEnabled = !!value;
       setRequiredColumns();
     }
   
+    /**
+     * Load characteristics from API and update required columns.
+     * @param {string} subGroup - Selected sub-group name.
+     */
+
     async function loadCharacteristics(subGroup) {
       const list = await fetchCharacteristics(subGroup);
       requiredColumns = [
@@ -130,6 +169,9 @@
       ];
     }
   
+    /**
+     * Set required columns depending on selected import option.
+     */
     async function setRequiredColumns() {
       if (selectedOption === "NonCategorized") {
         requiredColumns = ["reference", "supplier", "sold_by_md", "closed", "supplier_description", "price", "obsolete"];
@@ -142,6 +184,9 @@
       }
     }
   
+    /**
+     * Proceed to next modal view, loading necessary data when needed.
+     */
     async function handleNext() {
       viewHistory.push(currentView);
   
@@ -173,10 +218,19 @@
       }
     }
   
+    /**
+     * Normalize Excel header name for comparison.
+     * @param {string} header - Raw header from Excel file.
+     * @returns {string} Normalized header.
+     */
     function normalizeHeader(header) {
       return header.normalize("NFD").replace(/\p{Diacritic}/gu, "").trim().toLowerCase().replace(/\s+/g, "_");
     }
   
+    /**
+     * Parse Excel file and map headers to required columns.
+     * @returns {Promise<void>}
+     */
     async function extractExcelDataToJson() {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -207,7 +261,9 @@
       });
     }
   
-
+    /**
+     * Submit Excel data to backend and display feedback.
+     */
     async function handleImportFinal() {
         try {
             isLoading = true;
