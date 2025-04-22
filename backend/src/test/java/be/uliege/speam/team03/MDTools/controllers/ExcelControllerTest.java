@@ -113,4 +113,14 @@ class ExcelControllerTest {
                 .build();
         }
     }
+
+    @WithMockUser(username = "testuser", roles = {"USER"})
+    @Test
+    void receiveJsonData_ShouldReturnBadRequest_WhenRequestIsNull() throws Exception {
+        mockMvc.perform(post("/api/import/excel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("") 
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
 }

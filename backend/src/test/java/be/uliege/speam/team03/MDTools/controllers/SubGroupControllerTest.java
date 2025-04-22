@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.mock.web.MockMultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -238,5 +239,97 @@ class SubGroupControllerTest {
       mockMvc.perform(delete("/subgroups/" + subGroupName).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
    }
+   @Test
+      void testAddCharacteristicToSubGroup_Success() throws Exception {
+      SubGroupDTO updatedSubGroup = new SubGroupDTO(1L, "subgroup1", 2L, null, 2, null, 2L);
+      when(subGroupService.addCharacteristicToSubGroup("subgroup1", "Char1"))
+                  .thenReturn(updatedSubGroup);
 
+      mockMvc.perform(post("/api/subgroups/subgroup1/characteristics")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"name\":\"Char1\"}"))
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("$.name").value("subgroup1"));
+
+      verify(subGroupService).addCharacteristicToSubGroup("subgroup1", "Char1");
+      }
+
+      @Test
+      void testAddCharacteristicToSubGroup_BadRequest() throws Exception {
+      mockMvc.perform(post("/api/subgroups/subgroup1/characteristics")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"name\":\"\"}"))
+                  .andExpect(status().isBadRequest());
+
+      verify(subGroupService, never()).addCharacteristicToSubGroup(any(), any());
+      }
+      @Test
+      void testUpdateCharacteristicOrder_Success() throws Exception {
+          List<Map<String, Object>> newOrder = List.of(Map.of("name", "Char1", "position", 1));
+          SubGroupDTO updated = new SubGroupDTO(1L, "subgroup1", 2L, null, 2, null, 2L);
+      
+          when(subGroupService.updateCharacteristicOrder(eq("subgroup1"), any())).thenReturn(updated);
+      
+          mockMvc.perform(put("/api/subgroups/subgroup1/characteristics/order")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(new ObjectMapper().writeValueAsString(newOrder)))
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("$.name").value("subgroup1"));
+      
+          verify(subGroupService).updateCharacteristicOrder(eq("subgroup1"), any());
+      }
+      @Test
+      void testRemoveCharacteristicFromSubGroup_Success() throws Exception {
+          SubGroupDTO updated = new SubGroupDTO(1L, "subgroup1", 2L, null, 2, null, 2L);
+          when(subGroupService.removeCharacteristicFromSubGroup("subgroup1", "Char1"))
+                  .thenReturn(updated);
+      
+          mockMvc.perform(delete("/api/subgroups/subgroup1/characteristics/Char1"))
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("$.name").value("subgroup1"));
+      
+          verify(subGroupService).removeCharacteristicFromSubGroup("subgroup1", "Char1");
+      }
+
+      @Test
+      void testSetGroupPicture_Success() throws Exception {
+          MockMultipartFile file = new MockMultipartFile("file", "image.jpg", "image/jpeg", "dummy".getBytes());
+          SubGroupDTO updated = new SubGroupDTO(1L, "subgroup1", 2L, null, 2, null, 2L);
+      
+          when(subGroupService.setSubGroupPicture(eq("subgroup1"), any())).thenReturn(updated);
+      
+          mockMvc.perform(multipart("/api/subgroups/subgroup1/picture").file(file))
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("$.name").value("subgroup1"));
+      
+          verify(subGroupService).setSubGroupPicture(eq("subgroup1"), any());
+      }                
+      @Test
+      void testFindAllSubGroups_Success() throws Exception {
+          List<SubGroupDTO> subGroups = List.of(
+              new SubGroupDTO(1L, "sub1", 2L, null, 2, null, 5L),
+              new SubGroupDTO(2L, "sub2", 3L, null, 4, null, 6L)
+          );
+      
+          when(subGroupService.findAllSubGroups()).thenReturn(subGroups);
+      
+          mockMvc.perform(get("/api/subgroups/all")
+                  .contentType(MediaType.APPLICATION_JSON))
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("$[0].name").value("sub1"))
+                  .andExpect(jsonPath("$[1].name").value("sub2"));
+      
+          verify(subGroupService).findAllSubGroups();
+      }
+      @Test
+      void testAddCharacteristicToSubGroup_MissingName() throws Exception {
+          // Pas de champ "name" du tout dans le body
+          mockMvc.perform(post("/api/subgroups/subgroup1/characteristics")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{}"))
+                  .andExpect(status().isBadRequest());
+      
+          verify(subGroupService, never()).addCharacteristicToSubGroup(any(), any());
+      }
+            
 }
