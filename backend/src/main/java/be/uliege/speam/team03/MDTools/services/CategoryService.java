@@ -55,7 +55,7 @@ public class CategoryService {
         this.categoryRepository = categoryRepo;
         this.categoryCharRepository = catCharRepo;
         this.charValAbbrevService = charValAbbrevService;
-        this.catMapper = new CategoryMapper(categoryRepo);
+        this.catMapper = new CategoryMapper(categoryRepo, pictureStorageService);
         this.pictureStorageService = pictureStorageService;
         this.instrumentService = instrumentService;
     }
@@ -216,7 +216,7 @@ public class CategoryService {
         }
 
         newCategory.setCategoryCharacteristic(newCategoryCharacteristics);
-        newCategory.setPictureId(null);
+        newCategory.setPicturesId(null); // ?
         return catMapper.mapToCategoryDto(newCategory);
     }
 
@@ -465,30 +465,31 @@ public class CategoryService {
         return catMapper.mapToCategoryDto(category) ;
     }
 
-    /**
-     * Set the picture of the category
-     * 
-     * @param categoryId the id of the category
-     * @param picture    the picture to set
-     * @return the categoryDTO
-     */
-    public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
-        Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
-        if (categoryMaybe.isEmpty()) {
-            throw new ResourceNotFoundException("Group not found.");
-        }
-        Category category = categoryMaybe.get();
+    // // not used i think
+    // /**
+    //  * Set the picture of the category
+    //  * 
+    //  * @param categoryId the id of the category
+    //  * @param picture    the picture to set
+    //  * @return the categoryDTO
+    //  */
+    // public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
+    //     Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
+    //     if (categoryMaybe.isEmpty()) {
+    //         throw new ResourceNotFoundException("Group not found.");
+    //     }
+    //     Category category = categoryMaybe.get();
 
-        if (category.getPictureId() != null) {
-            pictureStorageService.deletePicture(category.getPictureId());
-        }
+    //     if (category.getPicturesId() != null) {
+    //         pictureStorageService.deletePicture(category.getPicturesId());
+    //     }
 
-        Picture metadata = pictureStorageService.storePicture(picture, PictureType.GROUP, categoryId);
+    //     Picture metadata = pictureStorageService.storePicture(picture, PictureType.GROUP, categoryId);
 
-        category.setPictureId(metadata.getId());
-        Category savedCategory = categoryRepository.save(category);
-        return catMapper.mapToCategoryDto(savedCategory);
-    }
+    //     category.setPicturesId(metadata.getId());
+    //     Category savedCategory = categoryRepository.save(category);
+    //     return catMapper.mapToCategoryDto(savedCategory);
+    // }
     
 
     public CategoryDTO searchCategory(Long categoryId) {

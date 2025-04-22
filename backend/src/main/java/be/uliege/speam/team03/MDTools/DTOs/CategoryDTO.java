@@ -1,5 +1,7 @@
 package be.uliege.speam.team03.MDTools.DTOs;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -20,5 +22,5 @@ public class CategoryDTO {
     private String function;
     private String shape;
     private String lenAbrv;
-    private Long pictureId;
+    private List<Long> picturesId;
 }

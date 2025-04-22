@@ -32,6 +32,9 @@
     }
   });
 
+  /**
+   * fetching needed data while mounting
+   */
   async function fetchData() {
       if ($userId != null) {
         await findOrdersNames();
@@ -52,7 +55,11 @@
     }
   });
 
-  // moving to the search page with selected group (and subgroup)
+  /**
+   * moving to the search page with selected group (and subgroup)
+   * @param group selected group
+   * @param subgroup selected subgroup
+   */
   function moveToSearches(group, subgroup) {
     clearTimeout(clickTimeout);
     goto(
@@ -134,7 +141,14 @@
   }
 
   /* Dealing with the search by keywords */
-  // goto searches with the selected instrument found by keywords
+  /**
+   * goto searches with the selected instrument found by keywords
+   * @param instrument
+   * @param group
+   * @param subgroup
+   * @param catId
+   * @param instrumentId
+   */
   async function moveToSearchesBis(instrument, group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
     
@@ -154,7 +168,9 @@
     }
   }
 
-  // function to handle the keyword inputs and calling endpoint
+  /**
+   * function to handle the keyword inputs and calling endpoint
+   */
   let searchByKeywords = throttle(async () => {
     try {
       showKeywordsResult = false;
@@ -195,7 +211,10 @@
     };
   }
 
-  // get category, group and subgroup from selected instrument, then call moveToSearchesBis
+  /**
+   * get category, group and subgroup from selected instrument, then call moveToSearchesBis
+   * @param row
+   */
   async function selectedInstrumentHome(row) {
     try {
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);

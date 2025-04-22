@@ -67,6 +67,7 @@
     "title": {
       "instruments_types": "Instruments types",
       "table": {
+        "group": "GROUP",
         "subgroup": "SUBGROUP",
         "function": "FUNCTION",
         "name": "NAME",
@@ -148,8 +149,10 @@
   },
   "modals": {
     "big_picture": {
-      "title": "Pictures of the instrument",
-      "no_pictures": "No pictures available for this instrument",
+      "titleInstrument": "Pictures of the instrument",
+      "titleCategory": "Pictures of the type of instruments",
+      "no_picturesInstrument": "No pictures available for this instrument",
+      "no_picturesCategory": "No pictures available for this type of instruments",
       "close": "Close",
       "add_picture": "Add a picture",
       "deletion_error": "Error while deleting the picture. Error : ",
@@ -168,6 +171,23 @@
         "cancel": "Cancel",
         "delete": "Delete"
       }
+    },
+    "add_picture": {
+      "titleCat": "Add pictures for this type of instruments ",
+      "titleInstr": "Add pictures for this instrument ",
+      "select": "Select pictures",
+      "add": "Add the pictures",
+      "button": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "need_select": "You need to select some images.",
+      "ok": "Pictures added with succes!",
+      "fail": "Fail to send the pictures. <br> Error : ",
+      "fail2": "Error while sending the pictures.",
+      "error": "Error",
+      "file": "Select files"
     },
     "delete_order" : {
       "delete_title" : "Delete order",

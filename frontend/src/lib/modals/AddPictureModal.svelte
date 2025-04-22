@@ -3,17 +3,22 @@
   import { getContext } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { apiFetch } from "$lib/utils/fetch";
-  import { currentSuppliers } from "$lib/stores/searches";
+  import { currentSuppliers, categories } from "$lib/stores/searches";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
+  import { modals } from "svelte-modals";
+  import BigPicturesModal from "./BigPicturesModal.svelte";
 
-  const { isOpen, close, instrument, index } = $props();
+  const { isOpen, close, instrument, index , isInstrument } = $props();
 
-  let files = [];
+  let files = $state([]);
 
-
+  /**
+   * Sending the pictures to the backend
+   */
   async function submitForm() {
     if (files.length === 0) {
-      toast.push("Veuillez sélectionner des images.");
+      toast.push($_('modals.add_picture.need_select'));
       return;
     }
 
@@ -22,8 +27,13 @@
       formData.append("files", file);
     });
     formData.append("referenceId", instrument.id);
-    formData.append("type", "instrument");
-
+    if (isInstrument) {
+      formData.append("type", "instrument");
+    }
+    else {
+      formData.append("type", "category");
+    }
+  
     try {
       const response = await apiFetch(`/api/pictures/multiple`, {
         method: "POST",
@@ -31,26 +41,53 @@
       });
 
       if (response.ok) {
-        toast.push("Images ajoutées avec succès !");
-        const responseData = await response.json();
-        responseData.forEach((picture) => {
-          currentSuppliers.update((suppliers) => {
-            suppliers.forEach((supplier) => {
-              if (supplier.id === instrument.id) {
-                supplier.picturesId.push(picture.id);
-              }
+        toast.push($_('modals.add_picture.ok'));
+        if (isInstrument) {
+          const responseData = await response.json();
+          responseData.forEach((picture) => {
+            currentSuppliers.update((suppliers) => {
+              suppliers.forEach((supplier) => {
+                if (supplier.id === instrument.id) {
+                  supplier.picturesId.push(picture.id);
+                }
+              });
+              return suppliers;
             });
-            return suppliers;
+          close();
+          modals.open(BigPicturesModal, { instrument, index, isInstrument });
           });
-        });
-        close();
-      } else {
-        toast.push("Échec de l'envoi des images. <br> Erreur : " + response.statusText);
+        }
+        else {
+          const responseData = await response.json();
+          responseData.forEach((picture) => {
+            categories.update((cats) => {
+              cats.forEach((cat) => {
+                if (cat.id === instrument.id) {
+                  cat.picturesId.push(picture.id);
+                }
+              });
+              return cats;
+            });
+          close();
+          modals.open(BigPicturesModal, { instrument, index, isInstrument });
+          });
+        }
+      }
+    
+      else {
+        toast.push($_('modals.add_picture.fail') + response.statusText);
       }
     } catch (error) {
-      toast.push("Erreur lors de l'envoi des images.");
-      console.error("Erreur:", error);
+      toast.push($_('modals.add_picture.fail2'));
+      console.error($_('modals.add_picture.error'), error);
     }
+  }
+
+  /**
+   * binding the files to the real input 
+   */
+  function inputFiles() {
+    document.getElementById('fileInput').click();
   }
 </script>
 
@@ -72,37 +109,57 @@
               </div>
               <div class="text-center sm:mt-0 sm:ml-4 sm:text-left place-self-center">
                 <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                  Ajouter des images pour {instrument.reference}
+                  {#if isInstrument}
+                    {$_('modals.add_picture.titleInstr')} {instrument.reference}
+                  {:else} 
+                    {$_('modals.add_picture.titleCat')}
+                  {/if}
                 </h3>
               </div>
             </div>
 
             <form onsubmit={submitForm} class="max-w-4xl mx-10">
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700"
-                  >Sélectionner des images</label
-                >
-                <input
-                  type="file"
-                  accept="image/*"
-                  class="mt-1 block w-full"
-                  multiple
-                  onchange={(e) => (files = Array.from(e.target.files))}
-                />
+              <div class="mb-4 flex">
+                <!-- svelte-ignore a11y_label_has_associated_control -->
+                <div>
+                  <!-- Second input to cover the one by default (is hidden) in order to change the language -->
+                  <input 
+                  type="button"
+                  id="loadFile" 
+                  for="fileInput"
+                  class="border rounded bg-gray-200 border-black p-1"
+                  value={$_('modals.add_picture.file')}
+                  onclick={() => inputFiles()}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    class="mt-1 block w-full"
+                    style="display:none;"
+                    id="fileInput"
+                    multiple
+                    onchange={(e) => (files = Array.from(e.target.files))}
+                  />
+                </div>
+                <div class="ml-2">
+                  {#each files as file}
+                    {file.name}
+                    <br>
+                  {/each}
+                </div>
               </div>
               <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
                   type="submit"
                   class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                >
-                  Ajouter les images
-                </button>
+                >{$_('modals.add_picture.add')}</button>
                 <button
                   type="button"
                   class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                  onclick={close}
+                  onclick={() => ( modals.open(BigPicturesModal, { instrument, index, isInstrument }),
+                close())}
                 >
-                  Annuler
+                  {$_('modals.add_picture.button.cancel')}
                 </button>
               </div>
             </form>

@@ -5,7 +5,7 @@
   import { modals } from "svelte-modals";
   import AddPictureModal from "./AddPictureModal.svelte";
   import { apiFetch } from "$lib/utils/fetch";
-  import { currentSuppliers } from "$lib/stores/searches";
+  import { currentSuppliers, categories } from "$lib/stores/searches";
   import Icon from "@iconify/svelte";
   import { isAdmin } from "$lib/stores/user_stores";
   import { _ } from "svelte-i18n";
@@ -14,15 +14,20 @@
     // provided by <Modals />
     isOpen,
     close,
-
     // your props
     instrument,
     index, // index of the instrument in the list
+    isInstrument, // to use the modal with instruments and categories 
   } = $props();
 
   let instrument_reactive = $state(instrument);
 
-  async function deltePicture(id, index) {
+  /**
+   * Handle the deleting of a picture
+   * @param id id of the picture
+   * @param index position of the picture in the array of pictures
+   */
+  async function deletePicture(id, index) {
     try {
       const response = await apiFetch("/api/pictures/" + encodeURIComponent(id), {
         method: "DELETE",
@@ -31,16 +36,31 @@
         throw new Error($_('modals.big_picture.deletion_error') + response.statusText);
       }
       // remove from array
-      instrument_reactive.picturesId.splice(index, 1);
-      // remove from the list of instruments
-      currentSuppliers.update((suppliers) => {
-        suppliers.forEach((supplier) => {
-          if (supplier.id === instrument.id) {
-            supplier.picturesId.splice(index, 1);
-          }
+      if (isInstrument) {
+        instrument_reactive.picturesId.splice(index, 1);
+        // remove from the list of instruments
+        currentSuppliers.update((suppliers) => {
+          suppliers.forEach((supplier) => {
+            if (supplier.id === instrument.id) {
+              supplier.picturesId.splice(index, 1);
+            }
+          });
+          return suppliers;
         });
-        return suppliers;
-      });
+      }
+      else {
+        instrument_reactive.picturesId.splice(index, 1);
+        // remove from the list of categories
+        categories.update((cats) => {
+          cats.forEach((cat) => {
+            if (cat.id === instrument.id) {
+              cat.picturesId.splice(index, 1);
+            }
+          });
+          return cats;
+        });
+      }
+
     } catch (error) {
       console.error("Erreur:", error);
     }
@@ -48,12 +68,17 @@
 
   let deleteTimeouts = {};
 
+  /**
+   * Handling the toasts for deleting a picture
+   * @param id id of the picture to delete
+   * @param index position of the picture in the array of pictures
+   */
   function handleDelete(id, index) {
     if (deleteTimeouts[id]) {
       // Second click: Delete the image
       clearTimeout(deleteTimeouts[id]);
       delete deleteTimeouts[id];
-      deltePicture(id, index);
+      deletePicture(id, index);
       toast.pop(0); // Remove the confirmation toast
       toast.push($_('modals.big_picture.deletion_success'), {
         theme: {
@@ -80,6 +105,10 @@
       }, 5000); // 5 seconds timeout to cancel the confirmation
     }
   }
+
+  function reloadPage() {
+    console.log("finished adding pictures");
+  }
 </script>
 
 {#if isOpen}
@@ -102,14 +131,26 @@
               </div>
               <div class="text-center sm:mt-0 sm:ml-4 sm:text-left place-self-center">
                 <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                  {$_('modals.big_picture.title')} {instrument.reference}
+                  {#if isInstrument}
+                    {$_('modals.big_picture.titleInstrument')} {instrument.reference}
+                  {:else} 
+                    {$_('modals.big_picture.titleCategory')}
+                  {/if}                  
                 </h3>
               </div>
             </div>
-            {#if instrument_reactive.picturesId.length == 0}
-              <div class="text-center w-full m-5 my-12">
-                <p>{$_('modals.big_picture.no_pictures')}</p>
-              </div>
+            {#if isInstrument}
+              {#if instrument_reactive.picturesId.length == 0}
+                <div class="text-center w-full m-5 my-12">
+                  <p>{$_('modals.big_picture.no_picturesInstrument')}</p>                    
+                </div>
+              {/if}
+            {:else}
+              {#if instrument_reactive.picturesId.length == 0}
+                <div class="text-center w-full m-5 my-12">
+                  <p>{$_('modals.big_picture.no_picturesCategory')}</p>
+                </div>
+              {/if}
             {/if}
             <div class="mx-10 grid grid-cols-2 md:grid-cols-3 gap-4">
               {#each instrument_reactive.picturesId as id, index}
@@ -123,25 +164,25 @@
                       <Icon icon="material-symbols:delete-forever" width="16" height="16" />
                     </button>
                   {/if}
-                  <img
-                    class="h-auto max-w-full rounded-lg"
-                    src={PUBLIC_API_URL + "/api/pictures/" + encodeURIComponent(id)}
-                    alt="picture {index}"
-                  />
-                </div>
+                    <img
+                      class="h-auto max-w-full rounded-lg"
+                      src={PUBLIC_API_URL + "/api/pictures/" + encodeURIComponent(id)}
+                      alt="picture {index}"
+                    />
+                  </div>
               {/each}
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                onclick={() => close()}>{$_('modals.big_picture.close')}</button
-              >
+                onclick={() => close()}>{$_('modals.big_picture.close')}</button>
               <button
                 class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                onclick={() => modals.open(AddPictureModal, { instrument, index })}
+                onclick={() => ( modals.open(AddPictureModal, { instrument, index, isInstrument }),
+                close())}
                 >
                 {$_('modals.big_picture.add_picture')}
-              </button>
+              </button>              
             </div>
           </div>
         </div>

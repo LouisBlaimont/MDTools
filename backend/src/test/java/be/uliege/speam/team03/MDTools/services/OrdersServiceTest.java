@@ -2,6 +2,8 @@ package be.uliege.speam.team03.MDTools.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import java.sql.Timestamp;
@@ -32,6 +34,8 @@ import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.OrderItemsRepository;
 import be.uliege.speam.team03.MDTools.repositories.OrdersRepository;
 import be.uliege.speam.team03.MDTools.repositories.UserRepository;
+import be.uliege.speam.team03.MDTools.services.PictureStorageService;
+
 
 @ExtendWith(MockitoExtension.class)
 public class OrdersServiceTest {
@@ -51,6 +55,10 @@ public class OrdersServiceTest {
     @Mock
     private InstrumentRepository instrumentRepository;
     
+    @Mock
+    private PictureStorageService pictureStorageService;
+    
+
     @InjectMocks
     private OrdersService ordersService;
     
@@ -63,7 +71,7 @@ public class OrdersServiceTest {
     private Group testGroup;
     private SubGroup testSubGroup;
     private Supplier testSupplier;
-    
+
     @BeforeEach
     void setUp() {
         testUser = new User();

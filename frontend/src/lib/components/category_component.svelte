@@ -30,6 +30,7 @@
     import { modals } from "svelte-modals";
     import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
     import { _ } from "svelte-i18n";
+    import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
 
     /**
      * Display the characteristic values of the category at line index in the table.
@@ -82,17 +83,17 @@
      * @param index
      */
     async function selectCategory(index) {
-        currentSuppliers.set([]);
-        alternatives.set([]);
-        selectedCategoryIndex.set(index);
-        selectedSupplierIndex.set("");
+      currentSuppliers.set([]);
+      alternatives.set([]);
+      selectedCategoryIndex.set(index);
+      selectedSupplierIndex.set("");
 
-        // Scroll the corresponding image into view
-        if (imageRefs[index] instanceof HTMLElement) {
-            imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
-        } else {
-            console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
-        }
+      // Scroll the corresponding image into view
+      if (imageRefs[index] instanceof HTMLElement) {
+          imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } else {
+        console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
+      }
 
       // selecting the categoryId
       const cat = $categories[$selectedCategoryIndex];
@@ -143,34 +144,28 @@
         }
         return;
     }
-
-    function showBigPicture(img) {
-        const pannel = document.getElementById("big-category-pannel");
-        const overlay = document.getElementById("overlay");
-        const picture = document.getElementById("big-category");
-        pannel.style.display = "flex";
-        overlay.style.display = "block";
-        picture.src = img;
-    }
-
-    function closeBigPicture() {
-        const pannel = document.getElementById("big-category-pannel");
-        const overlay = document.getElementById("overlay");
-        pannel.style.display = "none";
-        overlay.style.display = "none";
-    }
     
     let imageContainerRef;
     let imageRefs = [];
     let findSubGroups = $findSubGroupsStore;
     let findCharacteristics = $findCharacteristicsStore;
 
-    function registerImageRef(el, index) {
-        if (el) {
-            imageRefs[index] = el; // Store the element in the array
-        }
+    function imageRef(node, index) {
+      imageRefs[index] = node;
+      return {
+          destroy() {
+              imageRefs[index] = null;
+          }
+      };
     }
 
+    let timeout;
+    const clickDelay = 200;
+    function clickOnAlt(row, index){
+        timeout = setTimeout(() => {
+            modals.open(BigPicturesModal, {instrument:row, index:index});
+        }, clickDelay);
+    }
 </script>
 
 <div class="flex">
@@ -185,7 +180,7 @@
                 <th colspan="2" class="text-center py-2">
                   <button
                     class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                    on:click={()=>modals.open(addCategoryModal)}
+                    onclick={()=>modals.open(addCategoryModal)}
                   >
                     Ajouter
                   </button>
@@ -203,7 +198,7 @@
               <th colspan="2" class="text-center pb-1">
                 <button
                   class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                  on:click={()=>modals.open(addCategoryModal)}
+                  onclick={()=>modals.open(addCategoryModal)}
                 >
                   Ajouter
                 </button>
@@ -217,7 +212,7 @@
         {/if}
         <tr>
           {#if $isEditing && $selectedSubGroup}
-            <th class="text-center border border-solid border-[black]"></th>
+            <th class="text-center border border-solid border-[black]">GROUPE</th>
           {/if}
           {#if !$selectedSubGroup}
           <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
@@ -236,10 +231,10 @@
               class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
               class:bg-[lightgray]={$hoveredCategoryIndex === index &&
                 $selectedCategoryIndex !== index}
-              on:click={() => selectCategory(index)}
-              on:dblclick={() => selectCategoryWithChar(index)}
-              on:mouseover={() => hoveredCategoryIndex.set(index)}
-              on:mouseout={() => hoveredCategoryIndex.set(null)}
+              onclick={() => selectCategory(index)}
+              ondblclick={() => selectCategoryWithChar(index)}
+              onmouseover={() => hoveredCategoryIndex.set(index)}
+              onmouseout={() => hoveredCategoryIndex.set(null)}
             >
               {#if $isEditing && $selectedSubGroup}
                 <EditCategoryButton category={row} />
@@ -258,7 +253,7 @@
     </table>
   </div>
 
-  <!-- PICTURES CORRESPONDING TO THE CATEGORIES -->
+  <!-- PICTURES OF THE CATEGORIES -->
   <div class="flex-[1] max-h-[150vh] overflow-y-auto ml-3 max-w-[150px]" bind:this={imageContainerRef}>
       <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
           <span class="p-1">{$_('category_component.pictures.title')}</span>
@@ -269,18 +264,13 @@
           <!-- svelte-ignore a11y_mouse_events_have_key_events -->
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <img
+              use:imageRef={index}
               alt="tool{row.id}"
-              src={row.pictureId ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}` : "/default/no_picture.png"}
-              bind:this={imageRefs[index]}
-              ref={el => registerImageRef(el, index)}
-              on:click={() =>
-              showBigPicture(
-                  row.pictureId
-                  ? PUBLIC_API_URL + `/api/pictures/${row.pictureId}`
-                  : "/default/no_picture.png"
-              )}
-              on:mouseover={() => (hoveredCategoryImageIndex.set(index))}
-              on:mouseout={() => (hoveredCategoryImageIndex.set(null))}
+              src={row.picturesId && row.picturesId[0]
+                    ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`: "/default/no_picture.png"}
+              onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: false })}
+              onmouseover={() => (hoveredCategoryImageIndex.set(index))}
+              onmouseout={() => (hoveredCategoryImageIndex.set(null))}
               class="mb-[3px] {$selectedCategoryIndex === index
               ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
               : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
@@ -293,18 +283,3 @@
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
-<div
-class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
-id="big-category-pannel"
->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<span
-    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
-    on:click={(event) => {
-    event.stopPropagation();
-    closeBigPicture();
-    }}>&times;</span
->
-<img class="h-[300px]" id="big-category" alt="big category" />
-</div>

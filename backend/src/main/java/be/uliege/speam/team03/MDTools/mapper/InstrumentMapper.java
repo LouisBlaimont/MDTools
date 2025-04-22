@@ -70,7 +70,7 @@ public class InstrumentMapper {
     }
 
     /**
-     * Convert an instrument DTO to an entity.
+     * Convert an instrument DTO to an Instrument entity.
      * 
      * @param instrumentDTO the instrument DTO to convert
      * @return the converted instrument entity

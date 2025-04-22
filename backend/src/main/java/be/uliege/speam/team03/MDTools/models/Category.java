@@ -38,7 +38,7 @@ public class Category {
     private String shape;
 
     @Column(name="picture_id", nullable = true)
-    private Long pictureId;
+    private List<Long> picturesId;
 
     public Category(SubGroup subGroup){
         this.subGroup = subGroup;

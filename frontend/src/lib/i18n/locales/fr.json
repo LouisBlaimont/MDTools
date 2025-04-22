@@ -75,6 +75,7 @@
     "title": {
       "instruments_types": "Types d'instruments",
       "table": {
+        "group": "GROUPE",
         "subgroup": "SOUS-GROUPE",
         "function": "FONCTION",
         "name": "NOM",
@@ -154,10 +155,13 @@
     "on": "sur",
     "page": "Page"
   },
+
   "modals": {
     "big_picture": {
-      "title": "Photos de l'instrument",
-      "no_pictures": "Aucune photo disponible pour cet instrument",
+      "titleInstrument": "Photos de l'instrument",
+      "titleCategory": "Photos du type d'instruments",
+      "no_picturesInstrument": "Aucune photo disponible pour cet instrument",
+      "no_picturesCategory": "Aucune photo disponible pour ce type d'instruments",
       "close": "Fermer",
       "add_picture": "Ajouter une photo",
       "deletion_error": "Erreur lors de la suppression de la photo. Erreur : ",
@@ -176,6 +180,23 @@
         "cancel": "Annuler",
         "delete": "Supprimer"
       }
+    },
+    "add_picture": {
+      "titleCat": "Ajouter des images pour un type d'instrument",
+      "titleInstr": "Ajouter des images pour l'instrument ",
+      "select": "Sélectionner des images",
+      "add": "Ajouter les images",
+      "button": {
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "need_select": "Veuillez séléctionner des images.",
+      "ok": "Images ajoutées avec succès !",
+      "fail": "Échec de l'envoi des images. <br> Erreur : ",
+      "fail2": "Erreur lors de l'envoi des images.",
+      "error": "Erreur",
+      "file": "Sélectionner des fichiers"
     },
     "delete_order" : {
       "delete_title" : "Supprimer la commande",
