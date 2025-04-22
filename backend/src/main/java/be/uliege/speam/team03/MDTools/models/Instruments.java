@@ -1,5 +1,6 @@
 package be.uliege.speam.team03.MDTools.models;
 
+import java.sql.Timestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,4 +46,7 @@ public class Instruments {
 
     @Column(name = "obsolete")
     private Boolean obsolete;
+
+    @Column(name = "price_date")
+    private Timestamp priceDate;
 }

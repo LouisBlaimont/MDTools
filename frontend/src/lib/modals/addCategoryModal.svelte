@@ -1,12 +1,27 @@
 <script>
     import { goto } from "$app/navigation";
     import { apiFetch } from "$lib/utils/fetch";
-    import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
+    import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup, groups, showSubGroups, subGroups } from "$lib/stores/searches";
+    import { findSubGroups, findCharacteristics } from "$lib/components/search";
+    import { fetchGroups } from "../../api";
+    import { _ } from "svelte-i18n";
+    import { onMount } from "svelte";
 
     const {
         isOpen,
         close,
+        fromSearches,
     } = $props();
+
+    onMount(async () => {
+        if(!fromSearches){
+            const data = await fetchGroups();
+            groups.set(data.map(group => group.name));
+            subGroups.set(Object.fromEntries(
+            data.map(group => [group.name, group.subGroups.map(sub => sub.name)])
+            ));
+        }
+    });
 
 
     // Draggable modal functionality
@@ -171,10 +186,44 @@
                     class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
                     onmousedown={startDrag}
                 >
+                    {#if fromSearches}
                     <h2 class="text-xl font-bold">Ajouter une catégorie au sous groupe {$selectedSubGroup}</h2>
+                    {:else}
+                    <h2 class="text-xl font-bold">Ajouter une catégorie</h2>  
+                    {/if}
                 </div>
 
                 <div class="p-4">
+                {#if !fromSearches}
+                    <label class="w-2/5 mt-2 mb-2" for="groupOptions">{$_('search_page.label.group')}</label>
+                    <select
+                    id="groupOptions"
+                    bind:value={$selectedGroup}
+                    onchange={(e) => {
+                    selectedSubGroup.set("");
+                    findSubGroups(e.target.value);
+                    }}
+                    >
+                    <option value="none">---</option>
+                    {#each $groups as group}
+                        <option value={group}>{group}</option>
+                    {/each}
+                    </select>
+
+                    {#if $showSubGroups}
+                    <label class="w-2/5 mt-2 mb-2 ml-4" for="subGroupOptions">{$_('search_page.label.subgroup')}</label>
+                    <select
+                        id="subGroupOptions"
+                        bind:value={$selectedSubGroup}
+                        onchange={(e) => findCharacteristics(e.target.value)}
+                    >
+                        <option value="none">---</option>
+                        {#each $subGroups as subGroup}
+                        <option value={subGroup}>{subGroup}</option>
+                        {/each}
+                    </select>
+                    {/if}
+                {/if}
                 {#if $showChars}
                 {#each $characteristics as char}
                     {#if char==="Length"}
@@ -271,7 +320,7 @@
                 <div class="flex justify-end gap-4 mb-4">
                     <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
                     <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                    <button type="button" onclick={()=>addCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter</button>
+                    <button type="button" onclick={()=>addCategory()} class="mr-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter</button>
                 </div>
             </div>
         </div>

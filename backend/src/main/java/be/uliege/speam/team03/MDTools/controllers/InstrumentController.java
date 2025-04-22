@@ -8,7 +8,6 @@ import be.uliege.speam.team03.MDTools.repositories.*;
 import lombok.AllArgsConstructor;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
-import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.*;
@@ -32,7 +31,6 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public class InstrumentController {
     private final InstrumentService instrumentService;
-    private final SupplierService supplierService;
     private final PictureRepository pictureRepository;
     private final PictureStorageService pictureStorageService;
     private final CategoryService categoryService;

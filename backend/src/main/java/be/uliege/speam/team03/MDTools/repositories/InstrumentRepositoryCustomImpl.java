@@ -23,7 +23,7 @@ public class InstrumentRepositoryCustomImpl implements InstrumentRepositoryCusto
                                                     "d.supplier_description, " +
                                                     "d.supplier_id, " + 
                                                     "d.category_id, " + 
-                                                    "d.price, " + "d.obsolete, "
+                                                    "d.price, " + "d.obsolete, " + "d.price_date, "
         );
 
         // Build GREATEST function for similarity scoring

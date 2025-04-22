@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GroupSummaryDTO {
+    private Long id;
     private String name;
     private int instrCount;
     private Long pictureId;

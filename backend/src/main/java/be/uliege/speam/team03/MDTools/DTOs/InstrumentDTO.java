@@ -2,6 +2,7 @@ package be.uliege.speam.team03.MDTools.DTOs;
 
 
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +26,7 @@ public class InstrumentDTO {
     private Float price;
     private Boolean obsolete;
     private List<Long> picturesId;
+    private Timestamp priceDate;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 

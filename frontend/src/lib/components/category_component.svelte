@@ -180,7 +180,7 @@
                 <th colspan="2" class="text-center py-2">
                   <button
                     class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                    onclick={()=>modals.open(addCategoryModal)}
+                    onclick={()=>modals.open(addCategoryModal, {fromSearches : true})}
                   >
                     Ajouter
                   </button>

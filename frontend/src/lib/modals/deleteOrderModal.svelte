@@ -22,7 +22,7 @@
             if (!response.ok){
                 throw new Error(`Failed to delete order : ${response.status}`);
             }
-            return response.json();
+            return;
         })
         .then((result) => {
             ordersNames.update(currentOrdersNames => currentOrdersNames.filter(order => order.id !== $selectedOrderId));

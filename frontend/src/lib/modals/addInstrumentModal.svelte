@@ -1,27 +1,25 @@
 <script>
-    import { createEventDispatcher } from "svelte";
     import { apiFetch } from "$lib/utils/fetch";
-    import { instrumentCharacteristics, reload } from "$lib/stores/searches";
+    import { instrumentCharacteristics, reload, selectedGroup, selectedSubGroup } from "$lib/stores/searches";
     import { modals } from "svelte-modals";
+    import { goto } from "$app/navigation";
 
-    export let isOpen = false;
-    export let close;
-    export let initInstrument = null;
-    export let initCategory = null;
+    const {
+        isOpen,
+        close,
+        initCategory, 
+    } = $props();
 
     let file = null;
-    let reference = "";
-    let supplier = "";
-    let supplierDescription = "";
-    let price = "";
-    let alt = "";
-    let obsolete = false;
-    let id = "";
-    let categoryId = initCategory ? initCategory.id : ""; // Set default category ID
+    let reference = $state("");
+    let supplier = $state("");
+    let supplierDescription = $state("");
+    let price = $state("");
+    let obsolete = $state(false);
+    let id = $state("");
+    let categoryId = $state(initCategory ? initCategory.id : ""); // Set default category ID
 
-    const dispatch = createEventDispatcher();
-
-    let posX = 0, posY = 0, offsetX = 0, offsetY = 0, isDragging = false;
+    let posX =$state(0), posY = $state(0), offsetX = 0, offsetY = 0, isDragging = false;
 
     function startDrag(event) {
         isDragging = true;
@@ -41,51 +39,63 @@
     }
 
     async function submitForm() {
-        if (file)
-        {
-            try {
-                const response = await apiFetch('/api/instrument', {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        reference, 
-                        supplier, 
-                        categoryId,
-                        supplierDescription, 
-                        price, 
-                        alt, 
-                        obsolete, 
-                        id 
-                    })
-                });
-                if (!response.ok) {
-                    throw new Error("Failed to add instrument");
+        if(supplier===""){
+            const errorNoSupp = document.getElementById("error-no-supplier");
+            errorNoSupp.classList.remove("hidden");
+            return
+        }
+        const errorNoSupp = document.getElementById("error-no-supplier");
+        errorNoSupp.classList.add("hidden");
+        const errorSameRef = document.getElementById("error-same-ref");
+        errorSameRef.classList.add("hidden");
+        const pbPicture= document.getElementById("error-picture");
+        pbPicture.classList.add("hidden");
+        try {
+            const response = await apiFetch('/api/instrument', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                reference, 
+                supplier, 
+                categoryId,
+                supplierDescription, 
+                price, 
+                obsolete, 
+                id 
+                })
+            });
+            if (!response.ok) {
+                if(response.status === 400){
+                    const errorSameRef = document.getElementById("error-same-ref");
+                    errorSameRef.classList.remove("hidden");
+                    return;
                 }
+                throw new Error("Failed to create instrument");
+            }
+            const instr = await response.json();
+
+            if(file){
                 const formData = new FormData();
                 formData.append("file", file);
-                const img = await apiFetch("/api/instrument/" + encodeURIComponent(response.getbody(id)) + "/picture", {
+                const img = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instr.id), {
                     method: "POST",
                     body: formData,
                 });
-                if (img.ok) {
-                    const data = await response.json();
-                    id = data.filePath; // Assuming the API returns the file path
-                } else if (!img.ok) {
-                    dispatch("error", { message: "Erreur lors du téléchargement de l'image." });
-                    return;
+                if (!img.ok) {
+                    const response = await apiFetch("/api/instrument/" + encodeURIComponent(instr.id), {
+                        method : "DELETE"
+                    });
+                    const pbPicture= document.getElementById("error-picture");
+                    pbPicture.classList.add("hidden");
+                    throw new Error("Failed to add picture");
                 }
-            } catch (error) {
-                dispatch("error", { message: "Erreur lors dde l'ajout de l'instrument." });
-                return;
             }
-        }
-
-        if (response.ok) {
-            dispatch("success", { message: "Instrument ajouté!" });
             close();
+            goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instr.categoryId)}&instrument=${encodeURIComponent(instr.id)}`);
             reload.set(true);
-        } else {
-            dispatch("error", { message: "Impossible d'ajouter un instrument." });
+        }catch(error){
+            console.error("Error", error);
+            return;
         }
     }
 
@@ -102,12 +112,12 @@
 
     // Autocomplete functionality
     let autocompleteOptions = {};
-    let categorizedOptions = {};
-    let currentAutocompleteField = null;
-    let currentCategory = null;
+    let categorizedOptions = $state({});
+    let currentAutocompleteField = $state(null);
+    let currentCategory = $state(null);
     let autocompleteInput = "";
-    let filteredAutocompleteOptions = [];
-    let showAutocompleteDropdown = false;
+    let filteredAutocompleteOptions = $state([]);
+    let showAutocompleteDropdown = $state(false);
 
     async function fetchCharacteristicOptions(characteristicName) {
         try {
@@ -116,10 +126,6 @@
                 'supplier': {
                     endpoint: 'supplier',
                     extractValue: (item) => item.name,
-                },
-                'reference': {
-                    endpoint: 'instrument',
-                    extractValue: (item) => item.reference,
                 },
                 'supplierDescription': {
                     endpoint: 'instrument',
@@ -204,9 +210,6 @@
         } else if (currentAutocompleteField) {
             // For other fields, update the corresponding variable
             switch (currentAutocompleteField) {
-                case 'reference':
-                    reference = inputValue;
-                    break;
                 case 'supplier':
                     supplier = inputValue;
                     break;
@@ -264,9 +267,6 @@
         } else {
             // Standard selection for other fields
             switch(currentAutocompleteField) {
-                case 'reference':
-                    reference = option;
-                    break;
                 case 'supplier':
                     supplier = option;
                     break;
@@ -307,9 +307,6 @@
 
         // Get current value from the field
         switch(characteristicName) {
-            case 'reference':
-                autocompleteInput = reference;
-                break;
             case 'supplier':
                 autocompleteInput = supplier;
                 break;
@@ -339,8 +336,8 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div 
             class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
-            on:mousemove={drag}
-            on:mouseup={stopDrag}
+            onmousemove={drag}
+            onmouseup={stopDrag}
         >
             <div 
                 class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
@@ -348,56 +345,38 @@
             >
                 <div 
                     class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-                    on:mousedown={startDrag}
+                    onmousedown={startDrag}
                 >
                     <h2 class="text-xl font-bold">Ajouter un instrument</h2>
                 </div>
-                <form on:submit|preventDefault={submitForm} class="p-4">
+                <form class="p-4" onsubmit={submitForm} preventDefault>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block mb-2">Référence:</label>
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    bind:value={reference} 
-                                    data-field="reference"
-                                    on:focus={() => triggerAutocomplete("reference")}
-                                    on:input={handleAutocompleteInput}
-                                    on:blur={closeAutocomplete}
-                                    class="w-full p-2 border rounded" 
-                                    placeholder="Entrer une référence"
-                                />
-                                {#if showAutocompleteDropdown && currentAutocompleteField === "reference"}
-                                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                                    <ul 
-                                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                        on:mousedown={event => event.preventDefault()}
-                                    >
-                                        {#each filteredAutocompleteOptions as option}
-                                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                            <button
-                                                type="button"
-                                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
-                                                role="option"
-                                                on:click={() => selectAutocompleteOption(option)}
-                                            >
-                                                {option}
-                                            </button>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                            </div>
+                            <label class="block mb-2" for="ref">Référence:</label>
+                            <input 
+                                id="ref"
+                                type="text" 
+                                bind:value={reference} 
+                                data-field="reference"
+                                onfocus={() => triggerAutocomplete("reference")}
+                                oninput={handleAutocompleteInput}
+                                onblur={closeAutocomplete}
+                                class="w-full p-2 border rounded" 
+                                placeholder="Entrer une référence"
+                            /> 
+                            <span id="error-same-ref" class="mb-5 text-red-600 hidden">Cette référence existe déjà.</span>    
                         </div>
                         <div>
-                            <label class="block mb-2">Fournisseur:</label>
+                            <label class="block mb-2" for="supplier">Fournisseur:</label>
                             <div class="relative">
                                 <input 
+                                    id="supplier"
                                     type="text" 
                                     bind:value={supplier} 
                                     data-field="supplier"
-                                    on:focus={() => triggerAutocomplete("supplier")}
-                                    on:input={handleAutocompleteInput}
-                                    on:blur={closeAutocomplete}
+                                    onfocus={() => triggerAutocomplete("supplier")}
+                                    oninput={handleAutocompleteInput}
+                                    onblur={closeAutocomplete}
                                     class="w-full p-2 border rounded" 
                                     placeholder="Entrer un fournisseur"
                                 />
@@ -405,7 +384,7 @@
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                     <ul 
                                         class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                        on:mousedown={event => event.preventDefault()}
+                                        onmousedown={event => event.preventDefault()}
                                     >
                                         {#each filteredAutocompleteOptions as option}
                                             <!-- svelte-ignore a11y_role_has_required_aria_props -->
@@ -413,7 +392,7 @@
                                                 type="button"
                                                 class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
                                                 role="option"
-                                                on:click={() => selectAutocompleteOption(option)}
+                                                onclick={() => selectAutocompleteOption(option)}
                                             >
                                                 {option}
                                             </button>
@@ -421,17 +400,19 @@
                                     </ul>
                                 {/if}
                             </div>
+                            <span id="error-no-supplier" class="mb-5 text-red-600 hidden">Entrez un fournisseur.</span>
                         </div>
                         <div>
-                            <label class="block mb-2">Description du fournisseur:</label>
+                            <label class="block mb-2" for="description">Description du fournisseur:</label>
                             <div class="relative">
                                 <input 
+                                    id="description"
                                     type="text" 
                                     bind:value={supplierDescription} 
                                     data-field="supplierDescription"
-                                    on:focus={() => triggerAutocomplete("supplierDescription")}
-                                    on:input={handleAutocompleteInput}
-                                    on:blur={closeAutocomplete}
+                                    onfocus={() => triggerAutocomplete("supplierDescription")}
+                                    oninput={handleAutocompleteInput}
+                                    onblur={closeAutocomplete}
                                     class="w-full p-2 border rounded"
                                     placeholder="Entrer la description du fournisseur" 
                                 />
@@ -439,7 +420,7 @@
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                     <ul 
                                         class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                        on:mousedown={event => event.preventDefault()}
+                                        onmousedown={event => event.preventDefault()}
                                     >
                                         {#each filteredAutocompleteOptions as option}
                                             <!-- svelte-ignore a11y_role_has_required_aria_props -->
@@ -447,7 +428,7 @@
                                                 type="button"
                                                 class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
                                                 role="option"
-                                                on:click={() => selectAutocompleteOption(option)}
+                                                onclick={() => selectAutocompleteOption(option)}
                                             >
                                                 {option}
                                             </button>
@@ -457,8 +438,9 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block mb-2">Prix:</label>
+                            <label class="block mb-2" for="price">Prix:</label>
                             <input 
+                                id="price"
                                 type="number" 
                                 bind:value={price} 
                                 min="0" 
@@ -468,62 +450,65 @@
                             />
                         </div>
                     </div>
-                    <label class="block mb-2 mt-4">Catégorie:</label>
-                    <div class="relative mb-4">
-                        <input 
-                            type="text" 
-                            data-field="categoryId"
-                            bind:value={categoryId}
-                            on:focus={() => triggerAutocomplete("categoryId")}
-                            on:input={handleAutocompleteInput}
-                            on:blur={closeAutocomplete}
-                            class="w-full p-2 border rounded" 
-                            placeholder="Sélectionner une catégorie"
-                        />
-                        {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
-                            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                            <ul 
-                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}
-                            >
-                                {#each filteredAutocompleteOptions as option}
-                                    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                                    <button
-                                        type="button"
-                                        class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
-                                        role="option"
-                                        on:click={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                        {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
-                                            <span class="text-xs text-gray-500 ml-2">
-                                                ({categorizedOptions[option].length} items)
-                                            </span>
-                                        {/if}
-                                    </button>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
+                    {#if !initCategory}
+                        <label class="block mb-2 mt-4" for="category">Catégorie:</label>
+                        <div class="relative mb-4">
+                            <input 
+                                id="category"
+                                type="text" 
+                                data-field="categoryId"
+                                bind:value={categoryId}
+                                onfocus={() => triggerAutocomplete("categoryId")}
+                                oninput={handleAutocompleteInput}
+                                onblur={closeAutocomplete}
+                                class="w-full p-2 border rounded" 
+                                placeholder="Sélectionner une catégorie"
+                            />
+                            {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
+                                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                                <ul 
+                                    class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                    onmousedown={event => event.preventDefault()}
+                                >
+                                    {#each filteredAutocompleteOptions as option}
+                                        <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                                        <button
+                                            type="button"
+                                            class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
+                                            role="option"
+                                            onclick={() => selectAutocompleteOption(option)}
+                                        >
+                                            {option}
+                                            {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
+                                                <span class="text-xs text-gray-500 ml-2">
+                                                    ({categorizedOptions[option].length} items)
+                                                </span>
+                                            {/if}
+                                        </button>
+                                    {/each}
+                                </ul>
+                            {/if}
+                        </div>
+                    {/if}
 
-                    <label class="block mb-2">Alternatives:</label>
-                    <input type="text" bind:value={alt} class="w-full p-2 border rounded mb-4" placeholder="Sélectionner des alternatives"/>
-
-                    <label class="block mb-2">Obsolescence:</label>
+                    <label class="block mb-2" for="obsolescence">Obsolescence:</label>
                     <div class="flex gap-4 mb-4">
-                        <label><input type="radio" bind:group={obsolete} value={true} /> Oui</label>
-                        <label><input type="radio" bind:group={obsolete} value={false} /> Non</label>
+                        <label><input id="obsolescence" type="radio" bind:group={obsolete} value={true} /> Oui</label>
+                        <label><input id="obsolescence" type="radio" bind:group={obsolete} value={false} /> Non</label>
                     </div>
 
-                    <label class="block mb-2">Image:</label>
+                    <label class="block mb-2" for="img">Image:</label>
                     <input
+                        id="img"
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
-                        on:change={(e) => (file = e.target.files[0])}
+                        onchange={(e) => (file = e.target.files[0])}
                     />
+                    <span id="error-picture" class="mb-5 text-red-600 hidden">Problème d'ajout d'image</span> 
+
                     <div class="flex justify-end gap-4">
-                        <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
-                        <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
+                        <button type="button" onclick={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
+                        <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
                         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter</button>
                     </div>
                 </form>

@@ -332,7 +332,7 @@
               <div class="flex justify-end gap-4 mb-4">
                 <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
                 <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                <button type="button" onclick={()=>editCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Modifier</button>
+                <button type="button" onclick={()=>editCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Modifier</button>
               </div>
           </div>
       </div>
