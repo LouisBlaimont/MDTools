@@ -20,6 +20,8 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -444,5 +446,90 @@ public class CategoryControllerTest {
         instrumentDTO.setId(id);
         instrumentDTO.setReference(ref);
         return instrumentDTO;
+    }
+
+    @Test
+    public void testUpdateCategory_ShouldReturnUpdatedCategory() throws Exception {
+        Long categoryId = 1L;
+        String subGroupName = "SubGroup1";
+    
+        Map<String, Object> body = new HashMap<>();
+        body.put("Material", "Steel");
+        body.put("Materialabrev", "ST");
+    
+        CategoryDTO updatedCategory = createCategoryDTO(categoryId, "UpdatedCategory", subGroupName, "Group1");
+    
+        when(categoryService.updateCategory(categoryId, subGroupName, body)).thenReturn(updatedCategory);
+    
+        mockMvc.perform(patch("/api/category/{id}/subgroup/{subGroupName}", categoryId, subGroupName)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("UpdatedCategory"));
+    
+        verify(categoryService, times(1)).updateCategory(categoryId, subGroupName, body);
+    }
+    
+    @Test
+    public void testGetCategoryFromGroup() throws Exception {
+        List<CategoryDTO> categories = List.of(
+            createCategoryDTO(1L, "Cat1", "Sub1", "Group1"),
+            createCategoryDTO(2L, "Cat2", "Sub1", "Group1")
+        );
+    
+        when(categoryService.findCategoriesOfGroup("Group1")).thenReturn(categories);
+    
+        mockMvc.perform(get("/api/category/group/Group1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].name").value("Cat1"))
+            .andExpect(jsonPath("$[1].name").value("Cat2"));
+    
+        verify(categoryService, times(1)).findCategoriesOfGroup("Group1");
+    }
+    
+    @Test
+    public void testGetCategoriesFromSubGroup() throws Exception {
+        List<CategoryDTO> categories = List.of(
+            createCategoryDTO(1L, "Cat1", "Sub1", "Group1"),
+            createCategoryDTO(2L, "Cat2", "Sub1", "Group1")
+        );
+    
+        when(categoryService.findCategoriesOfSubGroup("Sub1")).thenReturn(categories);
+    
+        mockMvc.perform(get("/api/category/subgroup/Sub1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].name").value("Cat1"))
+            .andExpect(jsonPath("$[1].name").value("Cat2"));
+    
+        verify(categoryService, times(1)).findCategoriesOfSubGroup("Sub1");
+    }
+    
+    @Test
+    public void testGetInstrumentsFromCategory() throws Exception {
+        List<InstrumentDTO> instruments = List.of(
+            createInstrumentDTO(1L, "REF123"),
+            createInstrumentDTO(2L, "REF456")
+        );
+    
+        when(instrumentService.findInstrumentsOfCatergory(1L)).thenReturn(instruments);
+    
+        mockMvc.perform(get("/api/category/instruments/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].reference").value("REF123"))
+            .andExpect(jsonPath("$[1].reference").value("REF456"));
+    
+        verify(instrumentService, times(1)).findInstrumentsOfCatergory(1L);
+    }
+
+    @Test
+    public void testDeleteCategory_ShouldReturnTrue() throws Exception {
+        when(categoryService.deleteCategory(1L)).thenReturn(true);
+    
+        mockMvc.perform(delete("/api/category/delete/1"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("true"));
+    
+        verify(categoryService, times(1)).deleteCategory(1L);
     }
 }
