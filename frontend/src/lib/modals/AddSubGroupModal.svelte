@@ -133,9 +133,9 @@
             </div>
             
             <div class="flex justify-end gap-4 mt-4">
-                <button type="submit" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded ">Enregistrer</button>
                 <button type="button" on:click={erase} class="mt-4 px-4 py-2 bg-red-500 text-white rounded">Effacer</button>
                 <button type="button" on:click={cancel} class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Annuler</button>
+                <button type="submit" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded ">Enregistrer</button>
             </div>
         </form>
     </div>

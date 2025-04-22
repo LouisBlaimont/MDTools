@@ -198,31 +198,31 @@
                 <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une catégorie au sous-groupe {$selectedSubGroup}</h2>
             </div>
 
-                <div class="p-4">
+                <div class="bg-gray-100 p-6 rounded-b-lg">
                 {#if $showChars}
                 {#each $characteristics as char}
                     {#if char==="Length"}
-                        <label class="block mb-2" for="input-{char}">{char}:</label>
-                        <div class="relative mb-4">
+                        <label class="font-semibold text-lg" for="input-{char}">{char}:</label>
+                        <div class="relative mb-2">
                             <input 
                             type="number" 
                             min="0"
                             step="0.01"
                             id="input-{char}"
                             bind:value={newCharValues[char]}
-                            class="w-full p-2 border rounded" 
+                            class="w-full p-2 mt-1 mb-3 border rounded" 
                             >
                         </div>
                     {:else if char === "Function" || char === "Name"}
-                        <label class="block mb-2" for="input-{char}">{char}:</label>
-                        <div class="relative mb-4">
+                        <label class="font-semibold text-lg" for="input-{char}">{char}:</label>
+                        <div class="relative mb-2">
                             <input 
                             type="text" 
                             id="input-{char}"
                             bind:value={newCharValues[char]}
                             onfocus={()=> triggerAutocomplete(char)}
                             oninput={handleAutocompleteInput}
-                            class="w-full p-2 border rounded" 
+                            class="w-full p-2 mt-1 mb-3 border rounded" 
                         >
                             {#if showAutocompleteDropDown && currentAutocompleteField === char}
                                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -245,16 +245,16 @@
                             {/if}
                         </div>
                     {:else}
-                        <div class="grid grid-cols-2 gap-4 items-center mb-4 ">
+                        <div class="grid grid-cols-2 gap-4 items-center mb-2 ">
                             <div class="relative">
-                                <label class="block mb-2" for="input-{char}">{char}:</label>
+                                <label class="font-semibold text-lg" for="input-{char}">{char}:</label>
                                 <input
                                     type = "text"
                                     id="input-{char}"
                                     bind:value={newCharValues[char]}
                                     onfocus={()=> triggerAutocomplete(char)}
                                     oninput={handleAutocompleteInput}
-                                    class="w-full p-2 border rounded"
+                                    class="w-full p-2 mt-1 mb-3 border rounded"
                                 >
                                 {#if showAutocompleteDropDown && currentAutocompleteField === char}
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -277,25 +277,25 @@
                                 {/if}
                             </div>
                             <div>
-                                <label class="block mb-2" for="input-{char}-abbrev">Abbréviation:</label>
+                                <label class="font-semibold text-lg" for="input-{char}-abbrev">Abbréviation:</label>
                                 <input
                                     type = "text"
                                     id="input-{char}-abbrev"
                                     bind:value={newCharAbbrev[char]}
-                                    class="w-full p-2 border rounded"
+                                    class="w-full p-2 mt-1 mb-3 border rounded"
                                 >
                             </div>
                         </div>
                     {/if}
                 {/each}
                 {/if}
-                </div>
                 <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">Cette catégorie existe déjà.</span>
 
                 <div class="flex justify-end gap-4 mb-4">
                     <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
                     <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
                     <button type="button" onclick={()=>addCategory()} class="bg-teal-500 text-white px-4 py-2 mr-4 rounded hover:bg-teal-700">Ajouter</button>
+                </div>
                 </div>
             </div>
         </div>

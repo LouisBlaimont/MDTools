@@ -573,7 +573,7 @@
                         {#each characteristics as characteristic}
                             {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
                                 <div>
-                                    <label class="block mb-2">
+                                    <label class="font-semibold text-lg">
                                         {#if characteristic.name === 'supplier'}
                                             Fournisseur:
                                         {:else if characteristic.name === 'categoryId'}
@@ -629,7 +629,7 @@
                                                     characteristic.value = 0;
                                                 }
                                             }}
-                                            class="w-full p-2 border rounded mb-4"
+                                            class="w-full p-2 mt-1 mb-3 border rounded"
                                         />
                                     {:else}
                                         <input
@@ -639,7 +639,7 @@
                                             onfocus={() => triggerAutocomplete(characteristic.name)}
                                             oninput={handleAutocompleteInput}
                                             onblur={() => closeAutocomplete()}
-                                            class="w-full p-2 border rounded mb-4"
+                                            class="w-full p-2 mt-1 mb-3 border rounded"
                                         />
                                         {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -671,7 +671,7 @@
                         {/each}
                     </div>
                     
-                    <label class="block mb-2">Image:</label>
+                    <label class="font-semibold text-lg">Image:</label>
                     <input
                         class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
@@ -688,7 +688,7 @@
                       oninput={searchByKeywords}/>
                       <button type="button" class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" onclick={() => addAlternative(instrumentToAdd)}>Ajouter</button>
                     </label> -->
-                    <span>Alternatives:</span>
+                    <label class="font-semibold text-lg">Alternatives:</label>
                     <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives"> -->
                     <div class="flex justify-content">
                       <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
