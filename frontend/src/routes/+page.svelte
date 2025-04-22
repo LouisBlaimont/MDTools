@@ -156,7 +156,7 @@
     if (catId == null) {
       await modals.open(editInstrumentModal, { 
         instrument,
-        message: "You need to assign a category to this instrument!" 
+        message: $_('search_page.assign') 
       });
     }
     else {

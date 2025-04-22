@@ -1,8 +1,10 @@
 <script>
+  import { _ } from "svelte-i18n";
+  import { createEventDispatcher } from "svelte";
+
   export let suppliers = [];
   export let selectedSupplier = "";
 
-  import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
   /** Emit selected supplier on input */

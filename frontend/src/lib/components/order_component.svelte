@@ -96,7 +96,7 @@
             <div class="mr-4">
                 <button
                 class="border bg-green-600 mt-[10px] p-2.5 rounded-[10px] border-solid border-[none] cursor-pointer"
-                on:click={() => exportOrderToExcel()}>{$_('orders_component.export')}</button
+                on:click={() => exportOrderToExcel()}>{$_('orders_component.export.button')}</button
                 >
             </div>
             <div>

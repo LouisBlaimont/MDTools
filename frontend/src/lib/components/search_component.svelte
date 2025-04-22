@@ -9,7 +9,8 @@
       selectedSupplierIndex, quantity, selectedGroup, selectedSubGroup, 
       showChars, charValues, currentSuppliers, categories, characteristics, 
       showSubGroups, showCategories, subGroups, groups, errorMessage, 
-  findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, categories_pageable, keywords2, keywordsResult2, autocompleteOptions}
+      findSubGroupsStore, findCharacteristicsStore, alternatives, hoveredAlternativeIndex, 
+      categories_pageable, keywords2, keywordsResult2, autocompleteOptions}
   from "$lib/stores/searches";    
   import { apiFetch } from "$lib/utils/fetch";
   import { browser } from "$app/environment";
@@ -145,7 +146,7 @@
       .then((response) => {
           if (!response.ok) {
           categories.set([]);
-          toast.push("Aucun résultat trouvé");
+          toast.push($_('search_page.no_result'));
           throw new Error(`Failed to search by characteristics : ${response.status}`);
           }
           return response.json();
@@ -312,7 +313,7 @@
     if (catId == null) {
       await modals.open(editInstrumentModal, { 
         instrument,
-        message: "You need to assign a category to this instrument!" 
+        message: $_('search_page.assign')
       });
     }
     keywords2.set(null);
@@ -548,7 +549,7 @@
           class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
           onclick={()=> modals.open(AddGroupModal)}
         >
-          Ajouter
+        {$_('search_page.button.add')}
         </button>
       {/if}
   </div>
@@ -573,7 +574,7 @@
           class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
           onclick={()=> modals.open(AddSubGroupModal)}
         >
-          Ajouter
+        {$_('search_page.button.add')}
         </button>
       {/if}
       </div>

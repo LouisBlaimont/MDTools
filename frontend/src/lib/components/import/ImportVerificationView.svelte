@@ -1,29 +1,31 @@
 <script>
-  export let jsonData = [];
-  export let requiredColumns = [];
-  export let columnMapping = {};
-  export let selectedOption = "";
-  export let showAddCharacteristicModal = false;
+    import { _ } from "svelte-i18n";
+    import { createEventDispatcher } from "svelte";
 
-  import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
+    export let jsonData = [];
+    export let requiredColumns = [];
+    export let columnMapping = {};
+    export let selectedOption = "";
+    export let showAddCharacteristicModal = false;
 
-  function handleImportClick() {
-    dispatch("import");
-  }
+    const dispatch = createEventDispatcher();
 
-  function handleBackClick() {
-    dispatch("back");
-  }
-
-  /** Update the column mapping, or remove if value is empty */
-  function updateColumnMapping(index, value) {
-    if (!value || value.trim() === "") {
-      delete columnMapping[index];
-    } else {
-      columnMapping[index] = value;
+    function handleImportClick() {
+      dispatch("import");
     }
-  }
+
+    function handleBackClick() {
+      dispatch("back");
+    }
+
+    /** Update the column mapping, or remove if value is empty */
+    function updateColumnMapping(index, value) {
+      if (!value || value.trim() === "") {
+        delete columnMapping[index];
+      } else {
+        columnMapping[index] = value;
+      }
+    }
 </script>
 
 <!-- Header and back button -->

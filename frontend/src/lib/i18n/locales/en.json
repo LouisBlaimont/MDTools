@@ -61,8 +61,11 @@
       "search": "Search",
       "clear": "Clear all",
       "add": "Add"
-    }
+    },
+    "assign": "You need to assign a category to this instrument!",
+    "no_result":"No result found"
   },
+
   "category_component": {
     "title": {
       "instruments_types": "Instruments types",
@@ -106,7 +109,6 @@
     "show_orders": "Show orders",
     "create_order": "Create order",
     "see_previous_orders": "See previous orders",
-    "export": "Export",
     "table": {
       "reference": "REF",
       "brand": "BRAND",
@@ -118,7 +120,12 @@
       "quantity": "QTY",
       "unite_price_excl_vat": "UP excl. VAT",
       "total_price_excl_vat": "TP excl. VAT"
-    }
+    },
+    "export": {
+      "order": "Order",
+      "button": "Export"
+    },
+    "alert": "Missing order data"
   },
   "admin": {
     "supplier_page": {
@@ -245,6 +252,19 @@
       "view_edit" : "View/edit order",
       "complete" : "Complete order", 
       "create" : "Create an order"
+    }
+  },
+  "import_pages": {
+    "loading": {
+      "chargement": "Loading..."
+    },
+    "main": {
+      "group": "Group and subgroup of instruments",
+      "instrument": "Instruments with no type",
+      "catalogue": "Catalogue",
+      "alternative": "Alternatives",
+      "crossref": "Crossref",
+      "option": "Importation options"
     }
   }
 }

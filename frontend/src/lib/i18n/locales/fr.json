@@ -69,8 +69,11 @@
       "search": "Rechercher",
       "clear": "Tout effacer",
       "add": "Ajouter"
-    }
+    },
+    "assign": "Veuillez assigner cet instrument à un type!",
+    "no_result":"Aucun résultat trouvé"
   },
+
   "category_component": {
     "title": {
       "instruments_types": "Types d'instruments",
@@ -114,7 +117,6 @@
     "show_orders": "Afficher les commandes",
     "create_order": "Créer une commande",
     "see_previous_orders": "Voir les commandes précédentes",
-    "export": "Exporter",
     "table": {
       "reference": "RÉF",
       "brand": "MARQUE",
@@ -126,7 +128,12 @@
       "quantity": "QTE",
       "unite_price_excl_vat": "PU HTVA",
       "total_price_excl_vat": "PT HTVA"
-    }
+    },
+    "export": {
+      "order": "Commande",
+      "button": "Exporter"
+    },
+    "alert": "Pas de données à exporter"
   },
   "admin": {
     "supplier_page": {
@@ -248,6 +255,25 @@
       "view_edit" : "Voir/modifier commande",
       "complete" : "Compléter commande", 
       "create" : "Créer une commande"
+    }
+  },
+  "import_pages": {
+    "loading": {
+      "chargement": "Chargement..."
+    },
+    "main": {
+      "group": "Groupe et sous-groupe d'instruments",
+      "instrument": "Instruments non catégorisés",
+      "catalog": "Catalogue",
+      "alternative": "Alternatives",
+      "crossref": "Crossref",
+      "option": "Options d'Importation"
+    },
+    "subgroup": {
+      "select": "Sélectionnez le groupe et sous-groupe",
+      "group": "Groupe :",
+      "enter_group": "Entrez un groupe",
+      "subgroup": "Sous-groupe :"
     }
   }
 }

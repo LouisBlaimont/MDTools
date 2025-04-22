@@ -1,6 +1,8 @@
 <script>
+    import { _ } from "svelte-i18n";
+
     /** Loading message shown below the spinner */
-    export let message = "Chargement...";
+    export let message = $_('import_pages.loading.chargement');
   </script>
   
   <!-- Spinner and message centered vertically -->
