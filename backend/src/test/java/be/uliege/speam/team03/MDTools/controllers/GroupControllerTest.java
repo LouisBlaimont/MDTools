@@ -137,8 +137,8 @@ public class GroupControllerTest {
     @Test
     void testGetSummaries_Success() throws Exception {
         List<GroupSummaryDTO> summaries = List.of(
-                new GroupSummaryDTO("Group1", 5, 1L),
-                new GroupSummaryDTO("Group2", 10, 2L)
+                new GroupSummaryDTO(1L, "Group1", 5, 1L),
+                new GroupSummaryDTO(2L, "Group2", 10, 2L)
         );
 
         when(groupService.getGroupsSummary()).thenReturn(summaries);
@@ -146,8 +146,10 @@ public class GroupControllerTest {
         mockMvc.perform(get("/api/groups/summary")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Group1"))
                 .andExpect(jsonPath("$[0].instrCount").value(5))
+                .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].name").value("Group2"))
                 .andExpect(jsonPath("$[1].instrCount").value(10));
 

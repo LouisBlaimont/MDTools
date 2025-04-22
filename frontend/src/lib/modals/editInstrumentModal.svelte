@@ -1,5 +1,5 @@
 <script>
-  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3} from "$lib/stores/searches";
+  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3, groups_summary} from "$lib/stores/searches";
   import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
   import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
@@ -43,6 +43,7 @@
 
   // Function to handle form submission
   async function handleSubmit(event) {
+    let updatedInstr = null;
     event.preventDefault(); // Prevent the default form submission behavior
 
     // If a file is selected, upload it
@@ -50,7 +51,7 @@
       try {
         const fileData = new FormData();
         fileData.append("file", file);
-        const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id) + "/picture",
+        const response = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instrument.id),
           {
             method: "POST",
             body: fileData,
@@ -82,6 +83,7 @@
         if (!response.ok) {
           throw new Error("Failed to update the instrument characteristics");
         }
+        updatedInstr = await response.json();
       } catch (error) {
         console.error("Error:", error);
       }
@@ -125,7 +127,28 @@
       altToRemove.set([]);
     }
     close();
-    goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+
+    if(updatedInstr){
+      const group = $groups_summary.find(group => group.id === updatedInstr.groupId);
+      selectedGroup.set(group.name);
+      try{
+        const response = await apiFetch(`/api/subgroups/all`);
+        if(!response.ok){
+          throw new Error(`Failed to fetch subgroups`);
+        }
+        const data = await response.json();
+        const subGroup = data.find(subgroup => subgroup.id === updatedInstr.subGroupId);
+        selectedSubGroup.set(subGroup.name);
+      } catch(error) {
+        console.log("Error :", error);
+        return;
+      }
+
+      goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(updatedInstr.categoryId)}&instrument=${encodeURIComponent(updatedInstr.id)}`)
+    }
+    else{
+      goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+    }
     reload.set(true);
 
   }
@@ -216,10 +239,6 @@
         'supplier': {
           endpoint: 'supplier',
           extractValue: (item) => item.name,
-        },
-        'reference': {
-          endpoint: 'instrument',
-          extractValue: (item) => item.reference,
         },
         'supplierDescription': {
           endpoint: 'instrument',
@@ -571,7 +590,7 @@
                 <form onsubmit={handleSubmit} preventDefault class="p-4">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
-                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
+                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId' && characteristic.name !== 'priceDate'} 
                                 <div>
                                     <label class="block mb-2">
                                         {#if characteristic.name === 'supplier'}
@@ -631,6 +650,16 @@
                                             }}
                                             class="w-full p-2 border rounded mb-4"
                                         />
+                                    {:else if characteristic.name === 'reference'}
+                                    <input
+                                      type="text"
+                                      bind:value={characteristic.value}
+                                      onchange={() => (characteristicsEdited = true)}
+                                      onfocus={() => triggerAutocomplete(characteristic.name)}
+                                      oninput={handleAutocompleteInput}
+                                      onblur={() => closeAutocomplete()}
+                                      class="w-full p-2 border rounded mb-4"
+                                    />        
                                     {:else}
                                         <input
                                             type="text"

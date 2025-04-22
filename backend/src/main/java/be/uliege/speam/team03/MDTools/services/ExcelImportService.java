@@ -96,7 +96,7 @@ public class ExcelImportService {
                 continue;
             }
     
-            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
+            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReferenceIgnoreCase(reference);
             if (existingInstrumentOpt.isPresent()) {
                 Instruments existingInstrument = existingInstrumentOpt.get();
                 boolean updated = updateExistingInstrument(existingInstrument, row, null, availableColumns, new ArrayList<>(), false);
@@ -149,7 +149,7 @@ public class ExcelImportService {
             // Check if it exists and obsolete = true → make obsolete = false
             String reference = cleanString(row.get("reference"));
             if (reference != null) {
-                Optional<Instruments> existing = instrumentRepository.findByReference(reference.trim());
+                Optional<Instruments> existing = instrumentRepository.findByReferenceIgnoreCase(reference.trim());
                 existing.ifPresent(instrument -> {
                     if (Boolean.TRUE.equals(instrument.getObsolete())) {
                         instrument.setObsolete(false);
@@ -205,7 +205,7 @@ public class ExcelImportService {
             return;
         }
     
-        Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReference(reference);
+        Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReferenceIgnoreCase(reference);
         if (existingInstrumentOpt.isPresent()) {
             Instruments existingInstrument = existingInstrumentOpt.get();
 
@@ -564,7 +564,7 @@ public class ExcelImportService {
         // 1. Find the shared category from the first instrument that has one
         Category sharedCategory = null;
         for (String ref : references) {
-            Optional<Instruments> opt = instrumentRepository.findByReference(ref);
+            Optional<Instruments> opt = instrumentRepository.findByReferenceIgnoreCase(ref);
             if (opt.isPresent() && opt.get().getCategory() != null) {
                 sharedCategory = opt.get().getCategory();
                 break;
@@ -576,7 +576,7 @@ public class ExcelImportService {
     
         // 3. Loop through references and apply rules
         for (String ref : references) {
-            Optional<Instruments> opt = instrumentRepository.findByReference(ref);
+            Optional<Instruments> opt = instrumentRepository.findByReferenceIgnoreCase(ref);
     
             if (opt.isPresent()) {
                 Instruments instrument = opt.get();
@@ -632,7 +632,7 @@ public class ExcelImportService {
                 continue;
             }
 
-            Instruments instr1 = instrumentRepository.findByReference(ref1)
+            Instruments instr1 = instrumentRepository.findByReferenceIgnoreCase(ref1)
                     .orElseGet(() -> {
                         Instruments newInstr = new Instruments();
                         newInstr.setReference(ref1);
@@ -640,7 +640,7 @@ public class ExcelImportService {
                         return instrumentRepository.save(newInstr);
                     });
 
-            Instruments instr2 = instrumentRepository.findByReference(ref2)
+            Instruments instr2 = instrumentRepository.findByReferenceIgnoreCase(ref2)
                     .orElseGet(() -> {
                         Instruments newInstr = new Instruments();
                         newInstr.setReference(ref2);

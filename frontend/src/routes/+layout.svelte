@@ -245,7 +245,7 @@
                         onclick={() => {
                           closeManageMenu();
                           closeMoreMenu();
-                          modals.open(addCategoryModal);
+                          modals.open(addCategoryModal, {fromSearches : false});
                         }}
                       >
                         {$_('header.more.add_category')}
