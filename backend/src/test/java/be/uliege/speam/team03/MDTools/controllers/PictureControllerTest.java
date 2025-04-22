@@ -69,7 +69,7 @@ public class PictureControllerTest {
         when(storageService.storePicture(any(MultipartFile.class), eq(PictureType.INSTRUMENT), eq(1L)))
                 .thenReturn(expectedPicture);
 
-        mockMvc.perform(multipart("/api/pictures")
+        mockMvc.perform(multipart("/api/pictures/single")
                 .file(file)
                 .param("type", "INSTRUMENT")
                 .param("referenceId", "1"))
@@ -82,7 +82,7 @@ public class PictureControllerTest {
     // Edge case: Missing file parameter
     @Test
     void uploadPicture_MissingFile_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(multipart("/api/pictures")
+        mockMvc.perform(multipart("/api/pictures/single")
                 .param("type", "INSTRUMENT")
                 .param("referenceId", "1"))
                 .andExpect(status().isBadRequest());
@@ -94,9 +94,6 @@ public class PictureControllerTest {
     @Test
     void uploadPicture_EmptyFile_ThrowsIllegalArgumentException() {
         MockMultipartFile emptyFile = new MockMultipartFile("file", "empty.png", "image/png", new byte[0]);
-
-        when(storageService.storePicture(eq(emptyFile), any(), any()))
-                .thenThrow(new IllegalArgumentException("File cannot be empty"));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             pictureController.uploadPicture(emptyFile, "INSTRUMENT", 1L);
@@ -168,7 +165,7 @@ public class PictureControllerTest {
     void uploadPicture_MissingType_ReturnsBadRequest() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "test.png", "image/png", "content".getBytes());
 
-        mockMvc.perform(multipart("/api/pictures")
+        mockMvc.perform(multipart("/api/pictures/single")
                 .file(file)
                 .param("referenceId", "1"))
                 .andExpect(status().isBadRequest());
@@ -179,7 +176,7 @@ public class PictureControllerTest {
     void uploadPicture_MissingReferenceId_ReturnsBadRequest() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "test.png", "image/png", "content".getBytes());
 
-        mockMvc.perform(multipart("/api/pictures")
+        mockMvc.perform(multipart("/api/pictures/single")
                 .file(file)
                 .param("type", "INSTRUMENT"))
                 .andExpect(status().isBadRequest());

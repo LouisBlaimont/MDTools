@@ -34,6 +34,7 @@ public class OrdersService {
     private final OrderItemsRepository orderItemsRepository;
     private final UserRepository userRepository;
     private final InstrumentRepository instrumentRepository;
+    private final PictureStorageService pictureStorageService;
 
     /**
      * Gets the instruments of the provided order
@@ -50,7 +51,7 @@ public class OrdersService {
         List<OrderItemDTO> orderItemsDTO = new ArrayList<>();
         
         for (OrderItems orderItem : orderItems ){
-            OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository);
+            OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository, pictureStorageService);
             OrderItemDTO orderItemDTO = orderItemMapper.mapToOrderItemDTO(orderItem);
             orderItemsDTO.add(orderItemDTO);
         }
@@ -123,7 +124,7 @@ public class OrdersService {
         List<OrderItemDTO> orderItemsDTO = new ArrayList<>();
         List<OrderItems> orderItems = orderItemsRepository.findOrderItemsByOrderId(orderId);
         for (OrderItems orderItem : orderItems ){
-            OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository);
+            OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository, pictureStorageService);
             OrderItemDTO orderItemDTO = orderItemMapper.mapToOrderItemDTO(orderItem);
             orderItemsDTO.add(orderItemDTO);
         }
@@ -157,7 +158,7 @@ public class OrdersService {
             List<OrderItemDTO> orderItemsDTO = new ArrayList<>();
             List<OrderItems> orderItems = orderItemsRepository.findOrderItemsByOrderId(orderId);
             for (OrderItems orderItem : orderItems ){
-                OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository);
+                OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository, pictureStorageService);
                 OrderItemDTO orderItemDTO = orderItemMapper.mapToOrderItemDTO(orderItem);
                 orderItemsDTO.add(orderItemDTO);
             }
@@ -252,7 +253,7 @@ public class OrdersService {
         List<OrderItemDTO> orderItemsDTO = new ArrayList<>();
         List<OrderItems> orderItems = orderItemsRepository.findOrderItemsByOrderId(orderId);
         for (OrderItems orderItem : orderItems ){
-            OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository);
+            OrderItemMapper orderItemMapper = new OrderItemMapper(categoryRepository, pictureStorageService);
             OrderItemDTO orderItemDTO = orderItemMapper.mapToOrderItemDTO(orderItem);
             orderItemsDTO.add(orderItemDTO);
         }

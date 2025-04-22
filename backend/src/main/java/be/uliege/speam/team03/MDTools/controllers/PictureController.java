@@ -88,7 +88,11 @@ public class PictureController {
          @RequestParam("file") MultipartFile file,
          @RequestParam("type") String pictureType,
          @RequestParam("referenceId") Long referenceId) {
-      
+
+      if (file == null || file.isEmpty()) {
+         throw new IllegalArgumentException("File cannot be empty");
+      }
+           
       MultipartFile fileToSend = file;
       Picture metadataList = this.uploadSinglePicture(fileToSend, pictureType, referenceId);
 

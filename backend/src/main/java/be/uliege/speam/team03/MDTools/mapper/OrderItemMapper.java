@@ -14,8 +14,9 @@ public class OrderItemMapper {
     private CategoryRepository categoryRepository;
     private PictureStorageService pictureStorageService;
 
-    public OrderItemMapper(CategoryRepository categoryRepository){
+    public OrderItemMapper(CategoryRepository categoryRepository, PictureStorageService pictureStorageService){
         this.categoryRepository = categoryRepository;
+        this.pictureStorageService = pictureStorageService;
     }
 
     public OrderItemDTO mapToOrderItemDTO(OrderItems orderItem){

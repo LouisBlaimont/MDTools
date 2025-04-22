@@ -57,6 +57,7 @@ public class OrdersServiceTest {
     
     @Mock
     private PictureStorageService pictureStorageService;
+    
 
     @InjectMocks
     private OrdersService ordersService;
