@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,7 +38,7 @@ public class Category {
     private String shape;
 
     @Column(name="picture_id", nullable = true)
-    private Long pictureId;
+    private List<Long> picturesId;
 
     public Category(SubGroup subGroup){
         this.subGroup = subGroup;

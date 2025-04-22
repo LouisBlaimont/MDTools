@@ -20,9 +20,10 @@
   import { _ } from "svelte-i18n";
   import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
   import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
+  import { findCharacteristics, findSubGroups } from "./search.js";
 
   let page_size = 2;
-
+  
   export const updateURLParams = derived(
     [selectedGroup, selectedSubGroup],  // Dependencies
     ([$selectedGroup, $selectedSubGroup]) => {
@@ -56,55 +57,12 @@
       document.removeEventListener('click', handleClickOutside);
     };
   });
-    
-
-  /**
-   * Gets characteristics and categories of subgroup with the name subGroup
-   * @param subGroup
-   */
-  export async function findCharacteristics(subGroup) {
-      if (subGroup == "none") {
-          selectedSubGroup.set("");
-          findSubGroups($selectedGroup);
-          return;
-      }
-      selectedSubGroup.set(subGroup);
-      showChars.set(true);
-
-      charValues.set([]);
-      selectedCategoryIndex.set("");
-      currentSuppliers.set([]);
-      selectedSupplierIndex.set("");
-      alternatives.set([]);
-      let subgroup = [];
-
-      try {
-      const response = await apiFetch(`/api/subgroups/${subGroup}`);
-      const response_2 = await apiFetch(`/api/category/subgroup/${subGroup}`);
-
-      if (!response.ok) {
-          throw new Error(`Failed to fetch characteristics : ${response.statusText}`);
-      }
-      if (!response_2.ok) {
-          throw new Error(`Failed to fetch categories: ${response_2.statusText}`);
-      }
-
-      subgroup = await response.json();
-      categories.set(await response_2.json());
-      } catch (error) {
-      console.log(error);
-      errorMessage.set(error.message);
-      }
-
-      characteristics.set(subgroup.subGroupCharacteristics.map(c => c.name));
-      return;
-  }
 
   /**
    * Filters the categories depending on the input of the user.
    */
-  let minLength = null;
-  let maxLength = null;
+  let minLength = $state(null);
+  let maxLength = $state(null);
   function searchByCharacteristics() {
     let char_vals = [];
     for (let i = 0; i < $characteristics.length; i++) {
@@ -193,6 +151,10 @@
 
       searchByCharacteristics();
   }
+
+  /**
+   * Deleting all the filled characteristics 
+   */
   function deleteAllCharacteristics() {
     for (let i = 0; i < $characteristics.length; i++) {
       const characteristic = $characteristics[i];
@@ -225,68 +187,6 @@
       searchByCharacteristics();
   }
 
-  /**
-   * Gets subgroups of group and their categories
-   * @param group
-   */
-  export async function findSubGroups(group) {
-      if (group == "none") {
-          selectedGroup.set("");
-          selectedSubGroup.set("");
-          selectedCategoryIndex.set(null);
-          selectedSupplierIndex.set(null);
-          showCategories.set(false);
-          categories.set([]);
-          showSubGroups.set(false);
-          subGroups.set([]);
-          showChars.set(false);
-          charValues.set([]);
-          characteristics.set([]);
-          currentSuppliers.set([]);
-          alternatives.set([]);
-          return;
-      }
-      const previousGroup = $selectedGroup;
-      selectedGroup.set(group);
-      showSubGroups.set(true);
-      showCategories.set(true);
-      
-      currentSuppliers.set([]);
-      selectedSupplierIndex.set("");
-      selectedCategoryIndex.set("");
-      alternatives.set([]);
-
-      selectedSubGroup.set("");
-
-      showChars.set(false);
-      characteristics.set([]);
-      charValues.set([]);
-
-      let subGroups_all_info = [];
-      try {
-      const response = await apiFetch(`/api/subgroups/group/${group}`);
-      const response_2 = await apiFetch(`/api/category/group/${group}`);
-
-      if (!response.ok) {
-          subGroups.set([]);
-          throw new Error(`Failed to fetch subgroups: ${response.statusText}`);
-      }
-      if (!response_2.ok) {
-          subGroups.set([]);
-          categories.set([]);
-          throw new Error(`Failed to fetch categories: ${response_2.statusText}`);
-      }
-
-      subGroups_all_info = await response.json();
-      categories.set(await response_2.json());
-      } catch (error) {
-      console.error(error);
-      errorMessage.set(error.message);
-      }
-      subGroups.set(subGroups_all_info.map((subgroup) => subgroup.name));
-      return;
-  }
-
   findSubGroupsStore.set(findSubGroups);
   findCharacteristicsStore.set(findCharacteristics);
 
@@ -295,7 +195,13 @@
   let showKeywordsResult = $state(false);
   let clickTimeout = 500;
 
-  // goto searches with the selected instrument found by keywords
+  /**
+   * goto searches with the selected instrument found by keywords
+   * @param group selected group
+   * @param subgroup selected subgroup
+   * @param catId selected catId
+   * @param instrumentId selected instrumentId
+   */
   async function moveToSearchesBis(group, subgroup, catId, instrumentId) {
     clearTimeout(clickTimeout);
     // handle when the instrument has no category
@@ -312,7 +218,9 @@
     reload.set(true);
   }
 
-  // function to handle the keyword inputs and calling endpoint
+  /**
+   * function to handle the keyword inputs and calling endpoint
+   */
   let searchByKeywords = throttle(async () => {
     try {
       showKeywordsResult = false;
@@ -341,7 +249,11 @@
     }
   }, 300);
 
-  // handles the delay between to search by keywords
+  /**
+   * handles the delay between to search by keywords
+   * @param fn
+   * @param delay
+   */
   function throttle(fn, delay) {
     let lastCall = 0;
     return (...args) => {
@@ -353,7 +265,10 @@
     };
   }
 
-  // get category, group and subgroup from selected instrument, then call moveToSearchesBis
+  /**
+   *  get category, group and subgroup from selected instrument, then call moveToSearchesBis
+   * @param row selected instrument 
+   */
   async function selectedInstrument(row) {
     try {
       let response = await apiFetch(`/api/instrument/getCategory/${row.categoryId}`);
@@ -366,11 +281,18 @@
     }
   }
 
+  /**
+   * Options for different fields
+   */
   let autocompleteInput = '';
-  let showAutocompleteDropDown = false;
-  let filteredAutocompleteOptions = [];
-  let currentAutocompleteField = null;
+  let showAutocompleteDropDown =$state(false);
+  let filteredAutocompleteOptions = $state([]);
+  let currentAutocompleteField = $state(null);
 
+  /**
+   * triggering the autocomplete option
+   * @param charName
+   */
   async function triggerAutocomplete(charName){
     currentAutocompleteField = charName;
     if(!autocompleteOptions[currentAutocompleteField]){
@@ -381,6 +303,10 @@
     showAutocompleteDropDown = true;
   }
 
+  /**
+   * fetching all the characteristics
+   * @param charName
+   */
   async function fetchCharacteristicOptions(charName){
     try{
       const response = await apiFetch(`/api/characteristics/${charName}/values-in/${$selectedSubGroup}`);
@@ -495,7 +421,7 @@
     </div>
   </form>
 
-  <label class="font-semibold">{$_('search_page.label.characteristics')}</label>
+  <label class="font-semibold" for="char">{$_('search_page.label.characteristics')}</label>
   <div class="flex items-center">
       <label class="w-2/5 mt-2 mb-2" for="groupOptions">{$_('search_page.label.group')}</label>
       <select

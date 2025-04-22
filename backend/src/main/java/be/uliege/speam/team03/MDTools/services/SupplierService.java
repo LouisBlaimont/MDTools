@@ -7,8 +7,11 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
+import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.SupplierMapper;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.SupplierPageRepository;
@@ -31,7 +34,7 @@ public class SupplierService {
     public SupplierDTO findSupplierByName(String supplierName) {
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
         if (!supplierMaybe.isPresent()) {
-            throw new IllegalArgumentException("Supplier with name " + supplierName + " does not exist");
+            throw new ResourceNotFoundException("Supplier with name " + supplierName + " does not exist");
         }
         Supplier supplier = supplierMaybe.get();
         return new SupplierDTO(supplier.getSupplierName(), supplier.getId(), supplier.getSoldByMd(), supplier.getClosed());
@@ -63,13 +66,7 @@ public class SupplierService {
      */
     public SupplierDTO saveSupplier(SupplierDTO supplier) {
         if (supplier.getName() == null || supplier.getName().isEmpty()) {
-            throw new IllegalArgumentException("Supplier name cannot be null or empty");
-        }
-        if (supplier.getId() != null) {
-            Optional<Supplier> supplierMaybe = supplierRepository.findById(supplier.getId());
-            if (supplierMaybe.isPresent()) {
-                throw new IllegalArgumentException("Supplier with ID " + supplier.getId() + " already exists");
-            }
+            throw new BadRequestException("Supplier name cannot be null or empty");
         }
         Supplier savedSupplier = supplierRepository.save(supplierMapper.convertToEntity(supplier));
         return supplierMapper.convertToDTO(savedSupplier);
@@ -81,9 +78,12 @@ public class SupplierService {
      * @param supplierId the ID of the supplier to find
      * @return the SupplierDTO with the specified ID, or null if no supplier is found
      */
-    public SupplierDTO findSupplierById(Long supplierId) {
+    public SupplierDTO findSupplierById(Long supplierId) throws ResourceNotFoundException {
         Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
-        return supplierMaybe.map(supplierMapper::convertToDTO).orElse(null);
+        if (!supplierMaybe.isPresent()) {
+            throw new ResourceNotFoundException("Supplier with ID " + supplierId + " does not exist");
+        }
+        return supplierMapper.convertToDTO(supplierMaybe.get());
     }
 
     /**

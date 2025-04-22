@@ -23,7 +23,6 @@ import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
-import be.uliege.speam.team03.MDTools.services.SubGroupService;
 import lombok.AllArgsConstructor;
 
 /**
@@ -103,24 +102,24 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK).body(newCategory);
     }
 
-    /**
-     * Handles the HTTP POST request to set a picture for a specific category.
-     *
-     * @param id   The ID of the category for which the picture is to be set.
-     * @param file The picture file to be uploaded, provided as a multipart file.
-     * @return A ResponseEntity containing the updated CategoryDTO and an HTTP
-     *         status of OK.
-     * @throws ResourceNotFoundException If the category with the specified ID is
-     *                                   not found.
-     */
-    @PostMapping("/{id}/picture")
-    public ResponseEntity<CategoryDTO> setGroupPicture(@PathVariable Long id, @RequestParam("file") MultipartFile file)
-            throws ResourceNotFoundException {
-        CategoryDTO categoryUpdated = null;
-        categoryUpdated = categoryService.setCategoryPicture(id, file);
+    // /**
+    //  * Handles the HTTP POST request to set a picture for a specific category.
+    //  *
+    //  * @param id   The ID of the category for which the picture is to be set.
+    //  * @param file The picture file to be uploaded, provided as a multipart file.
+    //  * @return A ResponseEntity containing the updated CategoryDTO and an HTTP
+    //  *         status of OK.
+    //  * @throws ResourceNotFoundException If the category with the specified ID is
+    //  *                                   not found.
+    //  */
+    // @PostMapping("/{id}/picture")
+    // public ResponseEntity<CategoryDTO> setGroupPicture(@PathVariable Long id, @RequestParam("file") MultipartFile file)
+    //         throws ResourceNotFoundException {
+    //     CategoryDTO categoryUpdated = null;
+    //     categoryUpdated = categoryService.setCategoryPicture(id, file);
 
-        return ResponseEntity.status(HttpStatus.OK).body(categoryUpdated);
-    }
+    //     return ResponseEntity.status(HttpStatus.OK).body(categoryUpdated);
+    // }
 
     /**
      * Handles POST requests to search for categories based on specific

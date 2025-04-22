@@ -64,13 +64,14 @@ public class InstrumentMapper {
             dto.setObsolete(instrument.getObsolete());
             dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
             dto.setId(instrument.getId());
+            dto.setPriceDate(instrument.getPriceDate());
             instrumentDTOs.add(dto);
         }
         return instrumentDTOs;
     }
 
     /**
-     * Convert an instrument DTO to an entity.
+     * Convert an instrument DTO to an Instrument entity.
      * 
      * @param instrumentDTO the instrument DTO to convert
      * @return the converted instrument entity
@@ -83,6 +84,7 @@ public class InstrumentMapper {
         instrument.setSupplierDescription(instrumentDTO.getSupplierDescription());
         instrument.setPrice(instrumentDTO.getPrice());
         instrument.setObsolete(instrumentDTO.getObsolete());
+        instrument.setPriceDate(instrumentDTO.getPriceDate());
         instrument.setSupplier(null);
 
         // retrieve supplier based on supplier name

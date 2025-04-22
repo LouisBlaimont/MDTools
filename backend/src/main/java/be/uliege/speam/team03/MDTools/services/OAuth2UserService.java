@@ -41,7 +41,6 @@ public class OAuth2UserService extends OidcUserService {
       return createOidcUserWithAuthorities(oidcUser, user);
    }
 
-
    private OidcUser createOidcUserWithAuthorities(OidcUser oidcUser, User user) {
       // Assuming user roles or authorities are available. You can change this to reflect your model.
       Collection<GrantedAuthority> authorities = user.getAuthorities();

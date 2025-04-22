@@ -1,5 +1,5 @@
 <script>
-  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3} from "$lib/stores/searches";
+  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3, groups_summary} from "$lib/stores/searches";
   import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
   import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
@@ -43,6 +43,7 @@
 
   // Function to handle form submission
   async function handleSubmit(event) {
+    let updatedInstr = null;
     event.preventDefault(); // Prevent the default form submission behavior
 
     // If a file is selected, upload it
@@ -50,7 +51,7 @@
       try {
         const fileData = new FormData();
         fileData.append("file", file);
-        const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id) + "/picture",
+        const response = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instrument.id),
           {
             method: "POST",
             body: fileData,
@@ -82,6 +83,7 @@
         if (!response.ok) {
           throw new Error("Failed to update the instrument characteristics");
         }
+        updatedInstr = await response.json();
       } catch (error) {
         console.error("Error:", error);
       }
@@ -125,7 +127,28 @@
       altToRemove.set([]);
     }
     close();
-    goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+
+    if(updatedInstr){
+      const group = $groups_summary.find(group => group.id === updatedInstr.groupId);
+      selectedGroup.set(group.name);
+      try{
+        const response = await apiFetch(`/api/subgroups/all`);
+        if(!response.ok){
+          throw new Error(`Failed to fetch subgroups`);
+        }
+        const data = await response.json();
+        const subGroup = data.find(subgroup => subgroup.id === updatedInstr.subGroupId);
+        selectedSubGroup.set(subGroup.name);
+      } catch(error) {
+        console.log("Error :", error);
+        return;
+      }
+
+      goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(updatedInstr.categoryId)}&instrument=${encodeURIComponent(updatedInstr.id)}`)
+    }
+    else{
+      goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+    }
     reload.set(true);
 
   }
@@ -216,10 +239,6 @@
         'supplier': {
           endpoint: 'supplier',
           extractValue: (item) => item.name,
-        },
-        'reference': {
-          endpoint: 'instrument',
-          extractValue: (item) => item.reference,
         },
         'supplierDescription': {
           endpoint: 'instrument',
@@ -408,11 +427,10 @@
     showAutocompleteDropdown = true;
   }
   
-  function addAlternative(instrument){
+  function addAlternative(instrumenttoAdd){
     const errorSameSupp = document.getElementById("error-same-supplier");
     const errorAlreadyAlt = document.getElementById("error-already-alt");
     const errorDifferentGroup = document.getElementById("error-different-group");
-    const instrumenttoAdd = instrument;
     if(instrument.supplier === instrumenttoAdd.supplier){
       errorSameSupp.classList.remove('hidden');
       return;
@@ -571,7 +589,7 @@
                 <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
-                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
+                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId' && characteristic.name !== 'priceDate'} 
                                 <div>
                                     <label class="font-semibold text-lg">
                                         {#if characteristic.name === 'supplier'}
@@ -629,8 +647,18 @@
                                                     characteristic.value = 0;
                                                 }
                                             }}
-                                            class="w-full p-2 mt-1 mb-3 border rounded"
+                                            class="w-full p-2 border rounded mb-4"
                                         />
+                                    {:else if characteristic.name === 'reference'}
+                                    <input
+                                      type="text"
+                                      bind:value={characteristic.value}
+                                      onchange={() => (characteristicsEdited = true)}
+                                      onfocus={() => triggerAutocomplete(characteristic.name)}
+                                      oninput={handleAutocompleteInput}
+                                      onblur={() => closeAutocomplete()}
+                                      class="w-full p-2 mt-1 mb-3 border rounded"
+                                    />        
                                     {:else}
                                         <input
                                             type="text"
@@ -693,10 +721,6 @@
                     <div class="flex justify-content">
                       <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
                       oninput={searchByKeywords}/>
-                      <!-- <button type="button" class="mb-4 h-11 ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded-lg" onclick={() => addAlternative(instrumentToAdd)}>
-                        Ajouter
-                        </button> -->
-                      <!-- </label> -->
                       <span id="error-same-supplier" class="text-red-600 text-sm hidden">Les alternatives doivent avoir des fournisseurs differents.</span>
                       <span id="error-different-group" class="text-red-600 text-sm hidden">Les alternatives doivent faire partie du même groupe.</span>
                       <span id="error-already-alt" class="text-red-600 text-sm hidden">Cette alternative existe déjà.</span>

@@ -100,7 +100,7 @@ public class InstrumentServiceTest {
     @Test
     void findByReference_WhenInstrumentExists_ReturnsInstrumentDTO() {
         // Arrange
-        when(instrumentRepository.findByReference("Test Reference")).thenReturn(Optional.of(instrument));
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.of(instrument));
         when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
 
 
@@ -115,7 +115,7 @@ public class InstrumentServiceTest {
     @Test
     void findByReference_WhenInstrumentDoesNotExist_ReturnsNull() {
         // Arrange
-        when(instrumentRepository.findByReference("Nonexistent Reference")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("Nonexistent Reference")).thenReturn(Optional.empty());
 
         // Act
         InstrumentDTO result = instrumentService.findByReference("Nonexistent Reference");
@@ -246,7 +246,7 @@ public class InstrumentServiceTest {
 
         // Arrange
         instrument.setSupplier(new Supplier());
-        when(instrumentRepository.findByReference("Test Reference")).thenReturn(Optional.of(instrument));
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.of(instrument));
         when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
 
         // Act
@@ -261,7 +261,7 @@ public class InstrumentServiceTest {
     @Test
     void findInstrumentsByReference_WhenInstrumentDoesNotExist_ReturnsNull() {
         // Arrange
-        when(instrumentRepository.findByReference("Nonexistent Reference")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("Nonexistent Reference")).thenReturn(Optional.empty());
 
         // Act
         List<InstrumentDTO> result = instrumentService.findInstrumentsByReference("Nonexistent Reference");
@@ -315,9 +315,11 @@ public class InstrumentServiceTest {
         Map<String, Object> updateData = Map.of("reference", "Nonexistent Reference");
 
         // Act
-        InstrumentDTO result = instrumentService.updateInstrument(updateData, (long) 999);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.updateInstrument(updateData, 999L);
+        });
+        
+        assertTrue(exception.getMessage().contains("Instrument not found with ID: 999"));
     }
 }

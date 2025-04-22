@@ -4,6 +4,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.mock.web.MockMultipartFile;
+
 
 import java.util.*;
 
@@ -14,8 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.GroupSummaryDTO;
@@ -104,12 +108,11 @@ public class GroupControllerTest {
 
     @Test
     void testDeleteGroup_Success() throws Exception {
-        when(groupService.deleteGroup("Group1")).thenReturn("Group1 deleted successfully");
+        doNothing().when(groupService).deleteGroup("Group1");
 
         mockMvc.perform(delete("/api/groups/Group1")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Group1 deleted successfully"));
+                .andExpect(status().isNoContent());
 
         verify(groupService, times(1)).deleteGroup("Group1");
     }
@@ -134,8 +137,8 @@ public class GroupControllerTest {
     @Test
     void testGetSummaries_Success() throws Exception {
         List<GroupSummaryDTO> summaries = List.of(
-                new GroupSummaryDTO("Group1", 5, 1L),
-                new GroupSummaryDTO("Group2", 10, 2L)
+                new GroupSummaryDTO(1L, "Group1", 5, 1L),
+                new GroupSummaryDTO(2L, "Group2", 10, 2L)
         );
 
         when(groupService.getGroupsSummary()).thenReturn(summaries);
@@ -143,11 +146,56 @@ public class GroupControllerTest {
         mockMvc.perform(get("/api/groups/summary")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Group1"))
                 .andExpect(jsonPath("$[0].instrCount").value(5))
+                .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].name").value("Group2"))
                 .andExpect(jsonPath("$[1].instrCount").value(10));
 
         verify(groupService, times(1)).getGroupsSummary();
     }
+    @Test
+    void testFindAllGroups_Success() throws Exception {
+        List<GroupDTO> groups = List.of(
+                new GroupDTO(1L, "Group1", 3, 1L, null),
+                new GroupDTO(2L, "Group2", 5, 2L, null)
+        );
+
+        when(groupService.findAllGroups()).thenReturn(groups);
+
+        mockMvc.perform(get("/api/groups/all")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Group1"))
+                .andExpect(jsonPath("$[0].instrCount").value(3))
+                .andExpect(jsonPath("$[1].name").value("Group2"))
+                .andExpect(jsonPath("$[1].instrCount").value(5));
+
+        verify(groupService, times(1)).findAllGroups();
+    }
+    @Test
+    void testSetGroupPicture_Success() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "image.jpg", "image/jpeg", "dummy image content".getBytes());
+    
+        GroupDTO updatedGroup = new GroupDTO(
+                1L,
+                "Group1",
+                2,
+                99L,  
+                null
+        );
+    
+        when(groupService.setGroupPicture(eq("Group1"), any(MultipartFile.class)))
+                .thenReturn(updatedGroup);
+    
+        mockMvc.perform(multipart("/api/groups/Group1/picture")
+                .file(file))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Group1"))
+                .andExpect(jsonPath("$.pictureId").value(99));
+    
+        verify(groupService, times(1)).setGroupPicture(eq("Group1"), any(MultipartFile.class));
+    }    
 }

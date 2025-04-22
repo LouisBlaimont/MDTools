@@ -1,34 +1,33 @@
 <script> 
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { isAdmin } from "$lib/stores/user_stores";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
+    import { goto } from "$app/navigation";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, 
-            quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, 
-            hoveredAlternativeIndex, showCategories} from "$lib/stores/searches";   
+    import { isEditing, categories, selectedCategoryIndex, selectedSupplierIndex, currentSuppliers,
+            hoveredSupplierImageIndex, hoveredSupplierIndex, alternatives,
+            hoveredAlternativeIndex} from "$lib/stores/searches";   
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
-    import { _ } from "svelte-i18n";
+    import { _, getDateFormatter, locale } from "svelte-i18n";
     import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";    
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { apiFetch } from "$lib/utils/fetch";
-    import DeleteOrderModal from "$lib/modals/deleteOrderModal.svelte";
     import { selectAlternative, removeAlternative } from "./alternatives.js";
-    import Icon from "@iconify/svelte";
     
     $: notEditing = !$isEditing;
 
+    /**
+     * binding the current index to the selectedSupplierIndex writable
+     * @param index index to bind
+     */
     function selectSupplier(index) {
         selectedSupplierIndex.set(index);
     }
 
+    /**
+     * To redirect to the page with all the alternatives
+     */
     function seeAllAlternatives(){
-        console.log($selectedCategoryIndex);
         if ($selectedCategoryIndex !== null && $selectedCategoryIndex !== "" && $selectedCategoryIndex >= 0){
             goto("/alternatives");
             return
@@ -70,9 +69,8 @@
                 <img
                     alt="supplier{row.id}"
                     src={row.picturesId && row.picturesId[0]
-                    ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`
-                    : "/default/no_picture.png"}
-                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index })}
+                    ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`: "/default/no_picture.png"}
+                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: true })}
                     onmouseover={() => (hoveredSupplierImageIndex.set(index))}
                     onmouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index
@@ -170,7 +168,7 @@
                     {row.supplierDescription}
                 </td>                
                 <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.price}"
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
                 >
                     {row.price}
                 </td>   
@@ -180,6 +178,7 @@
     </table>
 
     <!-- TABLE OF THE ALTERNATIVES -->
+    {#if $alternatives.length >0} 
     <table class="w-full border-collapse mt-4">
         <thead>
             <tr class="bg-white text-teal-400">
@@ -228,10 +227,10 @@
                 >
                 {#if $isEditing}
                     <td 
-                    class="text-center border border-solid border-[black]"
+                    class="w-[1px] text-center border border-solid border-[black] {row.obsolete ? 'text-white' : 'text-red-500'}"
                     onclick={() => removeAlternative(row.id)}
                     >
-                    <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
+                    &times;
                     </td>
                 {/if}
                 {#if notEditing}
@@ -240,31 +239,35 @@
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                     >
                 {/if}
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)} >{row.reference}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.supplierDescription}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.price}</td>
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.reference}"
+                >
+                    {row.reference}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplier}"
+                >
+                    {row.supplier}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
+                >
+                    {row.supplierDescription}
+                </td>                
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
+                >
+                    {row.price}
+                </td>   
                 </tr>
             {/each}
         </tbody>
     </table>
+    {/if}
 
 </div>
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="hidden fixed box-border bg-[rgba(0,0,0,0.8)] justify-center items-center -translate-x-2/4 -translate-y-2/4 p-[50px] rounded-[30px] left-2/4 top-2/4"
-  id="big-category-pannel"
->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <span
-    class="absolute text-[white] text-[40px] cursor-pointer transition-[color] duration-[0.3s] right-[15px] top-2.5 hover:text-[red] cursor-pointer"
-    onclick={(event) => {
-      event.stopPropagation();
-      closeBigPicture();
-    }}>&times;</span
-  >
-  <img class="h-[300px]" id="big-category" alt="big category" />
-</div>

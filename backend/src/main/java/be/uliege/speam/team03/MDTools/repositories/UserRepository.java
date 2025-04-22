@@ -29,6 +29,11 @@ public interface UserRepository extends JpaRepository<User, Long>{
     */
    public Optional<User> findByEmail(String email);
 
+   /**
+    * Retrieves user object based on an username
+    * @param username
+    * @return the user object corresponding
+    */
    @EntityGraph(attributePaths = "authorities")
    public Optional<User> findByUsername(String username);
 

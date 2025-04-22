@@ -1,6 +1,5 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -12,7 +11,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +62,13 @@ public class PictureController {
       return metadata;
    }
 
+   /**
+    * Uploads a single picture for an instrument.
+    * 
+    * @param file The input stream containing the picture file data
+    * @param referenceId The ID of the instrument that the picture belongs to
+    * @return The metadata of the stored picture
+    */
    private Picture uploadSingleInstrumentPicture(InputStream file, Long referenceId) {
       PictureType type = PictureType.INSTRUMENT;
       Picture metadata = storageService.storePicture(file, type, referenceId);
@@ -78,13 +83,20 @@ public class PictureController {
     * @param referenceId the reference ID associated with the picture
     * @return a ResponseEntity containing the metadata of the uploaded picture
     */
-   @PostMapping
+   @PostMapping("/single")
    public ResponseEntity<Picture> uploadPicture(
          @RequestParam("file") MultipartFile file,
          @RequestParam("type") String pictureType,
          @RequestParam("referenceId") Long referenceId) {
 
-      return ResponseEntity.ok(this.uploadSinglePicture(file, pictureType, referenceId));
+      if (file == null || file.isEmpty()) {
+         throw new IllegalArgumentException("File cannot be empty");
+      }
+           
+      MultipartFile fileToSend = file;
+      Picture metadataList = this.uploadSinglePicture(fileToSend, pictureType, referenceId);
+
+      return ResponseEntity.ok(metadataList);
    }
 
    /**
@@ -93,7 +105,7 @@ public class PictureController {
     * @param files       the multipe picture files to be uploaded
     * @param pictureType the type of the picture (e.g., "JPEG", "PNG")
     * @param referenceId the reference ID associated with the picture
-    * @return a ResponseEntity containing the metadata of the uploaded picture
+    * @return a ResponseEntity containing the metadata of the uploaded pictures
     */
    @PostMapping("/multiple")
    public ResponseEntity<List<Picture>> uploadPictures(

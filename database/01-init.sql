@@ -121,7 +121,8 @@ CREATE TABLE instruments (
     reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
-    obsolete BOOLEAN DEFAULT FALSE
+    obsolete BOOLEAN DEFAULT FALSE,
+    price_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_instruments_supplier_id ON instruments(supplier_id);
@@ -147,8 +148,10 @@ CREATE TABLE alternatives (
 CREATE TABLE orders (
     order_id BIGSERIAL PRIMARY KEY,
     user_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
-    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    order_name TEXT
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_name TEXT,
+    exported BOOLEAN DEFAULT FALSE,
+    export_date TIMESTAMP DEFAULT NULL
 );
 
 -- Table order_items
@@ -273,3 +276,30 @@ CREATE TRIGGER trigger_refresh_shapes
 AFTER UPDATE OR INSERT ON sub_group_characteristic
 FOR EACH ROW
 EXECUTE FUNCTION refresh_shapes_for_subgroup();
+
+-- Update shapes when an abbrevation is modified
+CREATE OR REPLACE FUNCTION refresh_shapes_for_abbreviation()
+RETURNS TRIGGER AS $$
+DECLARE
+    cat_id BIGINT;
+BEGIN
+    -- For each category using the characteristic value
+    FOR cat_id IN
+        SELECT DISTINCT category_id
+        FROM category_characteristic
+        WHERE characteristic_value =  NEW.characteristic_value
+    LOOP
+        -- Force an update on category_characteristic to trigger update_shape
+        UPDATE category_characteristic
+        SET characteristic_value = characteristic_value
+        WHERE category_id = cat_id AND characteristic_value = NEW.characteristic_value;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_refresh_shapes_on_abbrev
+AFTER UPDATE OR INSERT ON category_characteristic_abbreviations
+FOR EACH ROW
+EXECUTE FUNCTION refresh_shapes_for_abbreviation();

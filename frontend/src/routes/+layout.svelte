@@ -122,7 +122,10 @@
   <header class="bg-teal-500 h-16 flex items-center justify-between px-6">
     <!-- Logo -->
     <div class="flex items-center space-x-4">
-      <img alt="Logo MD" src="/logo-blanc.png" class="h-10" />
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <img alt="Logo MD" src="/logo-blanc.png" class="h-10" 
+      onclick={() => redirectToHome()}/>
       <I18nSelector />
     </div>
 
@@ -235,6 +238,16 @@
                         }}
                       >
                         {$_('header.more.add_supplier')}
+                      </button>
+                      <button
+                        class="block px-4 py-2 hover:bg-teal-400 transition text-left w-full"
+                        onclick={() => {
+                          closeManageMenu();
+                          closeMoreMenu();
+                          modals.open(addCategoryModal, {fromSearches : false});
+                        }}
+                      >
+                        {$_('header.more.add_category')}
                       </button>
                       <!-- Add Group Button -->
                       <button

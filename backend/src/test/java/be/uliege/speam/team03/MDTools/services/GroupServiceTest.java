@@ -11,11 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class GroupServiceTest {
@@ -37,6 +40,9 @@ class GroupServiceTest {
 
    @InjectMocks
    private GroupService groupService;
+
+   @Mock
+   private PictureStorageService pictureStorageService;
 
    @BeforeEach
    void setUp() {
@@ -166,10 +172,9 @@ class GroupServiceTest {
       when(groupRepository.findByName("Group1")).thenReturn(Optional.of(group));
 
       // Act
-      String result = groupService.deleteGroup("Group1");
+      groupService.deleteGroup("Group1");
 
       // Assert
-      assertEquals("Successfully deleted group.", result);
       verify(groupRepository, times(1)).delete(group);
    }
 
@@ -179,10 +184,10 @@ class GroupServiceTest {
       when(groupRepository.findByName("NonExistentGroup")).thenReturn(Optional.empty());
 
       // Act
-      String result = groupService.deleteGroup("NonExistentGroup");
+      assertThrows(ResourceNotFoundException.class, () -> {
+          groupService.deleteGroup("NonExistentGroup");
+      });
 
-      // Assert
-      assertNull(result);
    }
 
    @Test
@@ -266,5 +271,85 @@ class GroupServiceTest {
       assertEquals(10, result.get(0).getInstrCount());
       assertEquals("Group2", result.get(1).getName());
       assertEquals(20, result.get(1).getInstrCount());
+   }
+
+   @Test
+   void testSetGroupPicture_SuccessWithOldPicture() throws Exception {
+      // Arrange
+      Group group = new Group("Group1");
+      group.setId(1L);
+      group.setPictureId(42L); // old picture
+      group.setSubGroups(new ArrayList<>()); // ⬅️ essentiel pour éviter le NPE
+
+      MultipartFile file = mock(MultipartFile.class);
+      Picture storedPicture = new Picture();
+      storedPicture.setId(99L); // new picture
+
+      when(groupRepository.findByName("Group1")).thenReturn(Optional.of(group));
+      doNothing().when(pictureStorageService).deletePicture(42L);
+      when(pictureStorageService.storePicture(eq(file), eq(PictureType.GROUP), eq(1L))).thenReturn(storedPicture);
+      when(groupRepository.save(any(Group.class))).thenAnswer(i -> i.getArgument(0));
+
+      // Act
+      GroupDTO result = groupService.setGroupPicture("Group1", file);
+
+      // Assert
+      assertNotNull(result);
+      assertEquals(99L, result.getPictureId());
+      verify(pictureStorageService).deletePicture(42L);
+      verify(pictureStorageService).storePicture(file, PictureType.GROUP, 1L);
+      verify(groupRepository).save(group);
+   }
+
+
+   @Test
+   void testSetGroupPicture_GroupNotFound() {
+      // Arrange
+      MultipartFile file = mock(MultipartFile.class);
+      when(groupRepository.findByName("UnknownGroup")).thenReturn(Optional.empty());
+
+      // Act + Assert
+      assertThrows(ResourceNotFoundException.class, () -> groupService.setGroupPicture("UnknownGroup", file));
+      verify(pictureStorageService, never()).storePicture(
+         any(MultipartFile.class),
+         any(PictureType.class),
+         any(Long.class)
+      );
+   }
+   @Test
+   void testFindGroupById_Success() {
+      // Arrange
+      Group group = new Group("Group1");
+      group.setId(1L);
+      group.setInstrCount(0); // initial, sera mis à jour
+
+      SubGroup subGroup = new SubGroup("SubGroup1", group);
+      subGroup.setId(10L);
+
+      group.setSubGroups(List.of(subGroup));
+
+      when(groupRepository.findById(1L)).thenReturn(Optional.of(group));
+      when(groupRepository.nbInstrOfGroup(1L)).thenReturn(5);
+      when(subGroupService.nbInstrOfSubGroup(10L)).thenReturn(3);
+
+      // Act
+      GroupDTO result = groupService.findGroupById(1L);
+
+      // Assert
+      assertNotNull(result);
+      assertEquals("Group1", result.getName());
+      assertEquals(5, result.getInstrCount());
+      assertEquals(1, result.getSubGroups().size());
+      assertEquals("SubGroup1", result.getSubGroups().get(0).getName());
+      assertEquals(3, result.getSubGroups().get(0).getInstrCount());
+   }
+
+   @Test
+   void testFindGroupById_NotFound() {
+       when(groupRepository.findById(99L)).thenReturn(Optional.empty());
+   
+       GroupDTO result = groupService.findGroupById(99L);
+   
+       assertNull(result);
    }
 }

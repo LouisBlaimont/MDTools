@@ -183,10 +183,10 @@ public class GroupService {
      * @param groupName the name of the group to be deleted.
      * @return a string message indicating the result of the deletion.
      */
-    public String deleteGroup(String groupName){
+    public void deleteGroup(String groupName) throws ResourceNotFoundException{
         Optional<Group> groupMaybe = groupRepository.findByName(groupName);
         if (groupMaybe.isPresent() == false){
-            return null; 
+            throw new ResourceNotFoundException("Cannot find group with name: " + groupName);
         }
         Group group = groupMaybe.get();
 
@@ -209,7 +209,6 @@ public class GroupService {
         }
 
         groupRepository.delete(group);
-        return "Successfully deleted group.";
     }
 
     /**
@@ -270,7 +269,7 @@ public class GroupService {
      */
     public List<GroupSummaryDTO> getGroupsSummary(){
         List<Group> groups = (List<Group>) groupRepository.findAll();
-        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getName(), nbInstrOfGroup(group.getId()), group.getPictureId())).toList();
+        List<GroupSummaryDTO> groupsSummaryDTO = groups.stream().map(group -> new GroupSummaryDTO(group.getId(), group.getName(), nbInstrOfGroup(group.getId()), group.getPictureId())).toList();
         return groupsSummaryDTO;
     }
 

@@ -1,5 +1,6 @@
 package be.uliege.speam.team03.MDTools.services;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,14 +10,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.Instruments;
 import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.Supplier;
-import be.uliege.speam.team03.MDTools.repositories.AlternativesRepository;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
@@ -29,10 +31,10 @@ public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
-    private final AlternativesRepository alternativesRepository;
     private final SubGroupRepository subGroupRepository;
     private final InstrumentMapper instrumentMapper;
     private final PictureStorageService pictureStorageService;
+    private final SupplierService supplierService;
 
     /**
      * Find all instruments of a specific supplier.
@@ -42,7 +44,7 @@ public class InstrumentService {
      * @throws IllegalArgumentException if the supplier name is null or empty
      */
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
-        Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findByReferenceIgnoreCase(reference);
         if (!instrumentMaybe.isPresent()) {
             return null;
         }
@@ -58,6 +60,7 @@ public class InstrumentService {
             instrument.getPrice(),
             instrument.getObsolete(),
             null,
+            instrument.getPriceDate(),
             instrument.getId()
         ));
         return instrumentDTOs;
@@ -70,7 +73,7 @@ public class InstrumentService {
      * @return the instrument with the specified reference, or null if no instrument is found
      */
     public InstrumentDTO findByReference(String reference) {
-        Optional<Instruments> instrumentMaybe = instrumentRepository.findByReference(reference);
+        Optional<Instruments> instrumentMaybe = instrumentRepository.findByReferenceIgnoreCase(reference);
         if (!instrumentMaybe.isPresent()) {
             return null;
         }
@@ -86,6 +89,7 @@ public class InstrumentService {
         dto.setObsolete(instrument.getObsolete());
         dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
         dto.setId(instrument.getId());
+        dto.setPriceDate(instrument.getPriceDate());
         
         return dto;
     }
@@ -96,24 +100,12 @@ public class InstrumentService {
      * @param id the ID of the instrument
      * @return the instrument with the specified ID, or null if no instrument is found
      */
-    public InstrumentDTO findById(Long id) {
+    public InstrumentDTO findById(Long id) throws ResourceNotFoundException {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
         if (!instrumentMaybe.isPresent()) {
             throw new ResourceNotFoundException("Instrument not found with ID: " + id);
         }
-        Instruments instrument = instrumentMaybe.get();
-        InstrumentDTO dto = new InstrumentDTO();
-        dto.setSupplier(instrument.getSupplier() != null ? instrument.getSupplier().getSupplierName() : null);
-        dto.setCategoryId(instrument.getCategory() != null ? instrument.getCategory().getId() : null);
-        dto.setGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getGroup().getId() : null);
-        dto.setSubGroupId(instrument.getCategory() != null ? instrument.getCategory().getSubGroup().getId() : null);
-        dto.setReference(instrument.getReference());
-        dto.setSupplierDescription(instrument.getSupplierDescription());
-        dto.setPrice(instrument.getPrice());
-        dto.setObsolete(instrument.getObsolete());
-        dto.setPicturesId(pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrument.getId(), PictureType.INSTRUMENT));
-        dto.setId(instrument.getId());
-        return dto;
+        return instrumentMapper.convertToDTO(instrumentMaybe.get()); 
     }
 
     /**
@@ -135,8 +127,8 @@ public class InstrumentService {
      */
     public List<InstrumentDTO> findInstrumentsBySupplierName(String supplierName) {
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
-        if (!supplierMaybe.isPresent()) {
-            return null;
+        if (supplierMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("Supplier not found with name: " + supplierName);
         }
         Supplier supplier = supplierMaybe.get();
         List<Instruments> instruments = instrumentRepository.findBySupplierId(supplier.getId()).orElse(null);
@@ -150,7 +142,7 @@ public class InstrumentService {
      * @return a list of instruments for the specified supplier, or null if no instruments are found
      * @throws IllegalArgumentException if the supplier ID is null
      */
-    public List<InstrumentDTO> findInstrumentsBySupplierId(Long supplierId) {
+    public List<InstrumentDTO> findInstrumentsBySupplierId(Long supplierId) throws ResourceNotFoundException, BadRequestException {
         Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
         if (!supplierMaybe.isPresent()) {
             return null;
@@ -162,11 +154,11 @@ public class InstrumentService {
 
     public InstrumentDTO updateInstrument(Map<String, Object> body, Long id) {
         if (body == null || body.isEmpty()) {
-            return null;
+            throw new BadRequestException("No data provided to update the instrument.");
         }
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
         if (!instrumentMaybe.isPresent()) {
-            return null;
+            throw new ResourceNotFoundException("Instrument not found with ID: " + id);
         }
         Instruments instrument = instrumentMaybe.get();
         String reference = (String) body.get("reference");
@@ -177,9 +169,11 @@ public class InstrumentService {
         Float price = priceValue != null ? priceValue.floatValue() : null;
         boolean obsolete = (boolean) body.get("obsolete");
 
-        Optional<Instruments> instrumentByReference = instrumentRepository.findByReference(reference);
+        Float previousPrice = instrument.getPrice();
+
+        Optional<Instruments> instrumentByReference = instrumentRepository.findByReferenceIgnoreCase(reference);
         if (instrumentByReference.isPresent() && instrumentByReference.get().getId() != id) {
-            return null;
+            throw new BadRequestException("An instrument with this reference already exists.");
         }
 
         instrument.setReference(reference);
@@ -188,6 +182,10 @@ public class InstrumentService {
         instrument.setObsolete(obsolete);
         instrument.setSupplier(supplierRepository.findBySupplierName(supplier).orElse(null));
         instrument.setCategory(categoryRepository.findById(categoryId).orElse(null));
+
+        if(price != null && previousPrice != price){
+            instrument.setPriceDate(new Timestamp(System.currentTimeMillis()));
+        }
 
         Instruments updatedInstrument = instrumentRepository.save(instrument);
 
@@ -234,21 +232,12 @@ public class InstrumentService {
             // get pictures of the instrument
             List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
 
-            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getSubGroup().getGroup().getId(), category.getSubGroup().getId(), category.getId(), reference, supplierDescription, price, obsolete, pictures, instrumentId);
+            InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getSubGroup().getGroup().getId(), category.getSubGroup().getId(), category.getId(), reference, supplierDescription, price, obsolete, pictures, instrument.getPriceDate(),instrumentId);
 
             instrumentsDTO.add(instrumentDTO);
         }
         return instrumentsDTO;
     }
-
-    // /**
-    //  * Find the maximum instrument ID.
-    //  * 
-    //  * @return the maximum instrument ID
-    //  */
-    // public Long findMaxInstrumentId() {
-    //     return instrumentRepository.findMaxInstrumentId();
-    // }
 
     /**
      * Save an instrument.
@@ -293,8 +282,8 @@ public class InstrumentService {
     public List<InstrumentDTO> findInstrumentsBySubGroup(String subGroupName) {
         // Fetch the subgroup by name
         Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (!subGroupMaybe.isPresent()) {
-            return null; // No subgroup found
+        if (subGroupMaybe.isEmpty()) {
+            throw new ResourceNotFoundException("SubGroup not found with name: " + subGroupName);
         }
         SubGroup subGroup = subGroupMaybe.get();
 
@@ -315,6 +304,11 @@ public class InstrumentService {
         return instrumentsDTO;
     }
 
+    /**
+     * Retrieves a list of instruments that matches the given keywords
+     * @param keywords list of keywords
+     * @return list of instrument dto or null object
+     */
     public List<InstrumentDTO> searchInstrument(List<String> keywords) {
         if (keywords.isEmpty()) {
             return null;
@@ -322,5 +316,47 @@ public class InstrumentService {
         List<Instruments> instruments = instrumentRepository.searchByKeywords(keywords);
         return instrumentMapper.convertToDTO(instruments);
     }
-}
 
+    /**
+     * Add an instrument
+     * @param newInstrument the instrument to add
+     * @return  the saved instrument dto
+     * @throws BadRequestException
+     */
+    public InstrumentDTO addInstrument(InstrumentDTO newInstrument) throws BadRequestException {
+        if (newInstrument.getReference() == null || newInstrument.getReference().isEmpty()) {
+            throw new BadRequestException("Reference is required to identify an instrument");
+        }
+
+        Optional<Instruments> existingInstruments = instrumentRepository.findByReferenceIgnoreCase(newInstrument.getReference());
+
+        if(existingInstruments.isPresent()) {
+            throw new BadRequestException("An instrument with this reference already exists.");
+        }
+        if(newInstrument.getSupplier() == null || newInstrument.getSupplier().isEmpty()) {
+            throw new BadRequestException("Supplier name cannot be null or empty");
+        }
+        if(newInstrument.getCategoryId() == null) {
+            throw new BadRequestException("Category ID is required to identify an instrument");
+        }
+        if(newInstrument.getPrice() == null) {
+            newInstrument.setPrice(0F);
+        }
+
+        // Check if the supplier exists
+        SupplierDTO supplier = supplierService.findSupplierByName(newInstrument.getSupplier());
+        if (supplier == null) {
+            throw new BadRequestException("Supplier not found: " + newInstrument.getSupplier());
+        }
+
+        // Check if the category exists
+        Optional<Category> categoryMaybe = categoryRepository.findById(newInstrument.getCategoryId());
+        if (categoryMaybe.isEmpty()) {
+            throw new BadRequestException("Category not found with ID: " + newInstrument.getCategoryId());
+        }
+
+        newInstrument.setPriceDate(new Timestamp(System.currentTimeMillis()));
+
+        return this.save(newInstrument);
+    }
+}

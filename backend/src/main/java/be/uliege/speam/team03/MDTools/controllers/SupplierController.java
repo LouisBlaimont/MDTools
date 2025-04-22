@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -48,11 +49,8 @@ public class SupplierController {
      *         no instruments are found
      */
     @GetMapping("/{supplierId}/instruments")
-    public ResponseEntity<?> getInstrumentsOfSupplier(@PathVariable Long supplierId) {
+    public ResponseEntity<List<InstrumentDTO>> getInstrumentsOfSupplier(@PathVariable Long supplierId) {
         List<InstrumentDTO> products = instrumentService.findInstrumentsBySupplierId(supplierId);
-        if (products == null || products.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No products found for the supplier " + supplierId);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
@@ -64,11 +62,8 @@ public class SupplierController {
      *         found
      */
     @GetMapping("/{supplierId}")
-    public ResponseEntity<?> getSupplierById(@PathVariable Long supplierId) {
+    public ResponseEntity<SupplierDTO> getSupplierById(@PathVariable Long supplierId) {
         SupplierDTO supplier = supplierService.findSupplierById(supplierId);
-        if (supplier == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No supplier found with id: " + supplierId);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(supplier);
     }
 
@@ -78,11 +73,8 @@ public class SupplierController {
      * @return a list of all suppliers, or a 404 status if no suppliers are found
      */
     @GetMapping("/all")
-    public ResponseEntity<?> getAllSuppliers() {
+    public ResponseEntity<List<SupplierDTO>> getAllSuppliers() {
         List<SupplierDTO> suppliers = supplierService.findAllSuppliers();
-        if (suppliers == null || suppliers.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No suppliers found");
-        }
         return ResponseEntity.status(HttpStatus.OK).body(suppliers);
     }
 
@@ -94,14 +86,11 @@ public class SupplierController {
      * @return a paginated list of suppliers
      */
     @GetMapping
-    public ResponseEntity<?> getPaginatedSuppliers(
+    public ResponseEntity<Page<SupplierDTO>> getPaginatedSuppliers(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Page<SupplierDTO> suppliers = supplierService.findPaginatedSuppliers(PageRequest.of(page, size));
-        if (suppliers.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No suppliers found");
-        }
         return ResponseEntity.status(HttpStatus.OK).body(suppliers);
     }
 
@@ -114,22 +103,7 @@ public class SupplierController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> addSupplier(@RequestBody SupplierDTO newSupplier) {
-        if (newSupplier.getName() == null || newSupplier.getName().isEmpty()) {
-            throw new IllegalArgumentException("Supplier name cannot be null or empty");
-        }
-        // Check if a supplier with the same ID already exists so that we don't
-        // overwrite it
-        if (newSupplier.getId() != null) {
-            SupplierDTO existingSupplier = supplierService.findSupplierById(newSupplier.getId());
-            if (existingSupplier != null) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Supplier with this id exists already.\n");
-            }
-        } else {
-            // Assign a new ID to the supplier (the id of the last supplier + 1)
-            Long maxSupplierId = supplierService.findMaxSupplierId();
-            newSupplier.setId(maxSupplierId + 1);
-        }
+    public ResponseEntity<SupplierDTO> addSupplier(@NonNull @RequestBody SupplierDTO newSupplier) {
         SupplierDTO savedSupplier = supplierService.saveSupplier(newSupplier);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSupplier);
     }
@@ -172,7 +146,7 @@ public class SupplierController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplierById(id);
-        ResponseEntity.status(HttpStatus.NO_CONTENT).body("Supplier deleted successfully");
+        ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
@@ -183,11 +157,8 @@ public class SupplierController {
      *         or a 404 status if the supplier does not exist.
      */
     @GetMapping("name/{name}")
-    public ResponseEntity<?> findSupplierByName(@PathVariable String name) {
+    public ResponseEntity<SupplierDTO> findSupplierByName(@PathVariable String name) {
         SupplierDTO supplier = supplierService.findSupplierByName(name);
-        if (supplier == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Supplier not found");
-        }
         return ResponseEntity.ok(supplier);
     }
 }

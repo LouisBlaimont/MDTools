@@ -321,6 +321,15 @@ public class SubGroupService {
         return SubGroupMapper.toDto(subGroup);
     }
 
+    /**
+     * Changing the order of the characteristics of a subgroup
+     * 
+     * @param subGroupName subgroup in which we want to change order
+     * @param newOrder new order for the characteristics
+     * @return subgroup dto with new order
+     * @throws ResourceNotFoundException
+     * @throws BadRequestException
+     */
     public SubGroupDTO updateCharacteristicOrder(String subGroupName, List<Map<String, Object>> newOrder)
         throws ResourceNotFoundException, BadRequestException {
     

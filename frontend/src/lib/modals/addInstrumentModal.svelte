@@ -1,27 +1,25 @@
 <script>
-    import { createEventDispatcher } from "svelte";
     import { apiFetch } from "$lib/utils/fetch";
-    import { instrumentCharacteristics, reload } from "$lib/stores/searches";
+    import { instrumentCharacteristics, reload, selectedGroup, selectedSubGroup } from "$lib/stores/searches";
     import { modals } from "svelte-modals";
+    import { goto } from "$app/navigation";
 
-    export let isOpen = false;
-    export let close;
-    export let initInstrument = null;
-    export let initCategory = null;
+    const {
+        isOpen,
+        close,
+        initCategory, 
+    } = $props();
 
     let file = null;
-    let reference = "";
-    let supplier = "";
-    let supplierDescription = "";
-    let price = "";
-    let alt = "";
-    let obsolete = false;
-    let id = "";
-    let categoryId = initCategory ? initCategory.id : ""; // Set default category ID
+    let reference = $state("");
+    let supplier = $state("");
+    let supplierDescription = $state("");
+    let price = $state("");
+    let obsolete = $state(false);
+    let id = $state("");
+    let categoryId = $state(initCategory ? initCategory.id : ""); // Set default category ID
 
-    const dispatch = createEventDispatcher();
-
-    let posX = 0, posY = 0, offsetX = 0, offsetY = 0, isDragging = false;
+    let posX =$state(0), posY = $state(0), offsetX = 0, offsetY = 0, isDragging = false;
 
     function startDrag(event) {
         isDragging = true;
@@ -41,51 +39,63 @@
     }
 
     async function submitForm() {
-        if (file)
-        {
-            try {
-                const response = await apiFetch('/api/instrument', {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        reference, 
-                        supplier, 
-                        categoryId,
-                        supplierDescription, 
-                        price, 
-                        alt, 
-                        obsolete, 
-                        id 
-                    })
-                });
-                if (!response.ok) {
-                    throw new Error("Failed to add instrument");
+        if(supplier===""){
+            const errorNoSupp = document.getElementById("error-no-supplier");
+            errorNoSupp.classList.remove("hidden");
+            return
+        }
+        const errorNoSupp = document.getElementById("error-no-supplier");
+        errorNoSupp.classList.add("hidden");
+        const errorSameRef = document.getElementById("error-same-ref");
+        errorSameRef.classList.add("hidden");
+        const pbPicture= document.getElementById("error-picture");
+        pbPicture.classList.add("hidden");
+        try {
+            const response = await apiFetch('/api/instrument', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                reference, 
+                supplier, 
+                categoryId,
+                supplierDescription, 
+                price, 
+                obsolete, 
+                id 
+                })
+            });
+            if (!response.ok) {
+                if(response.status === 400){
+                    const errorSameRef = document.getElementById("error-same-ref");
+                    errorSameRef.classList.remove("hidden");
+                    return;
                 }
+                throw new Error("Failed to create instrument");
+            }
+            const instr = await response.json();
+
+            if(file){
                 const formData = new FormData();
                 formData.append("file", file);
-                const img = await apiFetch("/api/instrument/" + encodeURIComponent(response.getbody(id)) + "/picture", {
+                const img = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instr.id), {
                     method: "POST",
                     body: formData,
                 });
-                if (img.ok) {
-                    const data = await response.json();
-                    id = data.filePath; // Assuming the API returns the file path
-                } else if (!img.ok) {
-                    dispatch("error", { message: "Erreur lors du téléchargement de l'image." });
-                    return;
+                if (!img.ok) {
+                    const response = await apiFetch("/api/instrument/" + encodeURIComponent(instr.id), {
+                        method : "DELETE"
+                    });
+                    const pbPicture= document.getElementById("error-picture");
+                    pbPicture.classList.add("hidden");
+                    throw new Error("Failed to add picture");
                 }
-            } catch (error) {
-                dispatch("error", { message: "Erreur lors dde l'ajout de l'instrument." });
-                return;
             }
-        }
-
-        if (response.ok) {
-            dispatch("success", { message: "Instrument ajouté!" });
             close();
+            goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instr.categoryId)}&instrument=${encodeURIComponent(instr.id)}`);
             reload.set(true);
-        } else {
-            dispatch("error", { message: "Impossible d'ajouter un instrument." });
+        }catch(error){
+            console.error("Error", error);
+            return;
         }
     }
 
@@ -102,12 +112,12 @@
 
     // Autocomplete functionality
     let autocompleteOptions = {};
-    let categorizedOptions = {};
-    let currentAutocompleteField = null;
-    let currentCategory = null;
+    let categorizedOptions = $state({});
+    let currentAutocompleteField = $state(null);
+    let currentCategory = $state(null);
     let autocompleteInput = "";
-    let filteredAutocompleteOptions = [];
-    let showAutocompleteDropdown = false;
+    let filteredAutocompleteOptions = $state([]);
+    let showAutocompleteDropdown = $state(false);
 
     async function fetchCharacteristicOptions(characteristicName) {
         try {
@@ -116,10 +126,6 @@
                 'supplier': {
                     endpoint: 'supplier',
                     extractValue: (item) => item.name,
-                },
-                'reference': {
-                    endpoint: 'instrument',
-                    extractValue: (item) => item.reference,
                 },
                 'supplierDescription': {
                     endpoint: 'instrument',
@@ -204,9 +210,6 @@
         } else if (currentAutocompleteField) {
             // For other fields, update the corresponding variable
             switch (currentAutocompleteField) {
-                case 'reference':
-                    reference = inputValue;
-                    break;
                 case 'supplier':
                     supplier = inputValue;
                     break;
@@ -264,9 +267,6 @@
         } else {
             // Standard selection for other fields
             switch(currentAutocompleteField) {
-                case 'reference':
-                    reference = option;
-                    break;
                 case 'supplier':
                     supplier = option;
                     break;
@@ -307,9 +307,6 @@
 
         // Get current value from the field
         switch(characteristicName) {
-            case 'reference':
-                autocompleteInput = reference;
-                break;
             case 'supplier':
                 autocompleteInput = supplier;
                 break;
