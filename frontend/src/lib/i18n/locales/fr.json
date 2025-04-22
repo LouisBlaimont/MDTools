@@ -229,6 +229,16 @@
       "error_already_exists" :"Ce nom de commande existe déjà",
       "cancel" : "Annuler",
       "edit" : "Modifier"
+    },
+    "import": {
+      "loading": "Chargement...",
+      "loading_data": "Chargement des données...",
+      "loading_import": "Importation en cours...",
+      "success": "Importation réussie !",
+      "error": "Erreur d'import :",
+      "error_send": "Erreur lors de l'envoi :",
+      "next": "Suivant"
+      
     }
   },
   "profile_page": {
@@ -273,7 +283,36 @@
       "select": "Sélectionnez le groupe et sous-groupe",
       "group": "Groupe :",
       "enter_group": "Entrez un groupe",
-      "subgroup": "Sous-groupe :"
+      "enter_subgroup": "Entrez un sous-groupe",
+      "subgroup": "Sous-groupe :",
+      "add_group": "Ajouter un groupe",
+      "add_subgroup": "Ajouter un sous-groupe"
+    },
+    "supplier": {
+      "select": "Sélectionnez le fournisseur",
+      "supplier": "Fournisseur :",
+      "enter_supp": "Entrez un fournisseur"
+    },
+    "verification": {
+      "verif": "Vérification des Colonnes",
+      "overview": "Voici un aperçu du fichier Excel importé :",
+      "no_data": "Aucune donnée disponible.",
+      "import": "Importer"
+    },
+    "svelte": {
+      "error": "Erreur : Le fichier sélectionné n'est pas un fichier Excel valide.",
+      "import": "Importation de fichiers Excel",
+      "import2": "Importation de fichiers",
+      "drag": "Glissez et déposez un fichier Excel ici pour l'importer",
+      "choose": "Choisir un fichier",
+      "import_button": "Importer",
+      "success": "Fichiers importés avec succès",
+      "import_error": "Erreur lors de l'importation des fichiers",
+      "zip_import": "Importation de fichiers ZIP",
+      "delete": "Fichier supprimé",
+      "click": "Glissez et déposez un fichier zip ici ou cliquez pour en sélectionner un",
+      "continue": "Continuer",
+      "response": "Réponse du serveur"
     }
   }
 }

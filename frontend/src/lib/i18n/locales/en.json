@@ -220,6 +220,16 @@
       "error_already_exists" :"This order name already exists",
       "cancel" : "Cancel",
       "edit" : "Edit"
+    },
+    "import": {
+      "loading": "Loading...",
+      "loading_data": "Loading of data...",
+      "loading_import": "Import in progress...",
+      "success": "Successful import !",
+      "error": "Import error :",
+      "error_send": "Error when sending :",
+      "next": "Next"
+      
     }
   },
   "profile_page": {
@@ -265,6 +275,41 @@
       "alternative": "Alternatives",
       "crossref": "Crossref",
       "option": "Importation options"
+    },
+    "subgroup": {
+      "select": "Select the group and subgroup",
+      "group": "Group :",
+      "enter_group": "Enter a group",
+      "enter_subgroup": "Enter a subgroup",
+      "subgroup": "Subgroup :",
+      "add_group": "Add a group",
+      "add_subgroup": "Add a subgroup"
+    },
+    "supplier": {
+      "select": "Select the supplier",
+      "supplier": "Supplier :",
+      "enter_supp": "Enter a supplier"
+    },
+    "verification": {
+      "verif": "Verification of the columns",
+      "overview": "Overview of the imported Excel file :",
+      "no_data": "No data available.",
+      "import": "Import"
+    },
+    "svelte": {
+      "error": "Error : the chosen file is not a valid Excel file.",
+      "import": "Import of Excel files",
+      "import2": "Import of files",
+      "drag": "Drag and drop an Excel file here to import it",
+      "choose": "Choose a file",
+      "import_button": "Import",
+      "success": "Files imported with success",
+      "import_error": "Error while importing files",
+      "zip_import": "Import of ZIP files",
+      "delete": "File deleted",
+      "click": "Drag and drop a zip file here or click to select one",
+      "continue": "Continue",
+      "response": "Server response"
     }
   }
 }

@@ -11,6 +11,7 @@
     import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
     import { modals } from "svelte-modals";
     import { toast } from "@zerodevx/svelte-toast";
+    import { _ } from "svelte-i18n";
   
     import {
       fetchGroups,
@@ -47,7 +48,7 @@
     };
     let draggingModal = null;
     let dragOffset = { x: 0, y: 0 };
-    let loadingMessage = "Chargement...";
+    let loadingMessage = $_('modals.import.loading');
 
   
     onMount(async () => {
@@ -202,17 +203,17 @@
           isNextEnabled = false;
         } else if (["Crossref", "Alternatives", "NonCategorized"].includes(selectedOption)) {
           isLoading = true;
-          loadingMessage = "Chargement des données...";
+          loadingMessage = $_('modals.import.loading_data');
           await setRequiredColumns();
           await extractExcelDataToJson();
         }
       } else if (currentView === "Supplier" && isNextEnabled) {
         isLoading = true;
-        loadingMessage = "Chargement des données...";
+        loadingMessage = $_('modals.import.loading_data');
         await extractExcelDataToJson();
       } else if (currentView === "SubGroup" && isNextEnabled) {
         isLoading = true;
-        loadingMessage = "Chargement des données...";
+        loadingMessage = $_('modals.import.loading_data');
         await loadCharacteristics(selectedSubGroup);
         await extractExcelDataToJson();
       }
@@ -267,7 +268,7 @@
     async function handleImportFinal() {
         try {
             isLoading = true;
-            loadingMessage = "Importation en cours...";
+            loadingMessage = $_('modals.import.loading_import');
 
             const response = await sendExcelToBackend(
             jsonData,
@@ -281,14 +282,14 @@
             isLoading = false;
 
             if (response.success) {
-            toast.push("Importation réussie !");
-            dispatch("close");
+              toast.push($_('modals.import.success'));
+              dispatch("close");
             } else {
-            toast.push(`Erreur d'import : ${response.message}`);
+              toast.push(`${$_('modals.import.error')}${response.message}`);
             }
         } catch (err) {
             isLoading = false;
-            toast.push(`Erreur lors de l'envoi : ${err.message}`);
+            toast.push(`${$_('modals.import.error_send')}${err.message}`);
         }
     }
   </script>
@@ -353,7 +354,7 @@
             on:click={handleNext}
             disabled={!isNextEnabled}
           >
-            Suivant
+            {$_('modals.import.next')}
           </button>
         </div>
       {/if}

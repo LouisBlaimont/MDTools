@@ -40,7 +40,9 @@
   <!-- Header with back button -->
   <div class="flex items-center mb-4">
     <button class="text-gray-700 mr-4" onclick={() => dispatch("back")}>←</button>
-    <h2 class="text-2xl font-bold">{$_('import_pages.subgroup.select')}</h2>
+    <h2 class="text-2xl font-bold">
+      {$_('import_pages.subgroup.select')}
+    </h2>
   </div>
   
   <!-- Group input -->
@@ -70,7 +72,7 @@
       type="text"
       bind:value={selectedSubGroup}
       class="w-full p-3 border rounded"
-      placeholder="Entrez un sous-groupe"
+      placeholder={$_('import_pages.subgroup.enter_subgroup')}
       oninput={handleSubGroupInput}
       list="subgroup-options"
       disabled={selectedGroup === ""}
@@ -87,7 +89,7 @@
         class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
         onclick={() => modals.open(AddGroupModal)}
       >
-        Ajouter un groupe
+      {$_('import_pages.subgroup.add_group')}
       </button>
   
       {#if selectedGroup !== ""}
@@ -95,7 +97,7 @@
           class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
           onclick={() => modals.open(AddSubGroupModal)}
         >
-          Ajouter un sous-groupe
+          {$_('import_pages.subgroup.add_subgroup')}
         </button>
       {/if}
     </div>

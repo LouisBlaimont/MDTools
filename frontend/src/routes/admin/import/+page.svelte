@@ -5,6 +5,7 @@
   import ImportModal from "$lib/modals/ImportModal.svelte";
   import ZipImport from "./zipImport.svelte";
   import Icon from '@iconify/svelte';
+  import { _ } from "svelte-i18n";
   import { modals } from "svelte-modals";
 
 
@@ -24,7 +25,7 @@
     if (event.dataTransfer.files.length) {
       file = event.dataTransfer.files[0];
       if (!isValidExcelFile(file)) {
-        errorMessage = "Erreur : Le fichier sélectionné n'est pas un fichier Excel valide.";
+        errorMessage = $_('import_pages.svelte.error');
         file = null;
       } else {
         errorMessage = "";
@@ -56,7 +57,7 @@
     if (event.target.files.length) {
       file = event.target.files[0];
       if (!isValidExcelFile(file)) {
-        errorMessage = "Erreur : Le fichier sélectionné n'est pas un fichier Excel valide.";
+        errorMessage = $_('import_pages.svelte.error');
         file = null;
       } else {
         errorMessage = "";
@@ -71,7 +72,7 @@
   function handleImport(event) {
     event.preventDefault();
     if (!file || !isValidExcelFile(file)) {
-      errorMessage = "Erreur : Le fichier sélectionné n'est pas un fichier Excel valide.";
+      errorMessage = $_('import_pages.svelte.error');
     } else {
       errorMessage = "";
       showModal = true;
@@ -105,11 +106,11 @@
 </script>
 
 <svelte:head>
-  <title>Importation de fichiers</title>
+  <title>{$_('import_pages.svelte.import2')}</title>
 </svelte:head>
 
 <main class="w-full flex flex-col items-center">
-  <h1 class="text-2xl font-bold mt-6">Importation de fichiers Excel</h1>
+  <h1 class="text-2xl font-bold mt-6">{$_('import_pages.svelte.import')}</h1>
 
   <div
     class="w-3/4 h-64 border-4 border-dashed border-gray-500 rounded-lg flex items-center justify-center mt-6 bg-gray-100"
@@ -135,7 +136,7 @@
         </button>
       </div>
     {:else}
-      <p class="text-gray-600">Glissez et déposez un fichier Excel ici pour l'importer</p>
+      <p class="text-gray-600">{$_('import_pages.svelte.drag')}</p>
     {/if}
   </div>
 
@@ -157,14 +158,14 @@
       type="button"
       onclick={() => fileInput.click()}
     >
-      Choisir un fichier
+      {$_('import_pages.svelte.choose')}
     </button>
     {#if file}
       <button
         class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2 ml-2"
         type="submit"
       >
-        Importer
+      {$_('import_pages.svelte.import_button')}
       </button>
     {/if}
   </form>

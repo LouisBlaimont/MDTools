@@ -31,10 +31,10 @@
 <!-- Header and back button -->
 <div class="flex items-center mb-4">
   <button class="text-gray-700 mr-4" onclick={handleBackClick}>←</button>
-  <h2 class="text-2xl font-bold">Vérification des Colonnes</h2>
+  <h2 class="text-2xl font-bold">{$_('import_pages.verification.verif')}</h2>
 </div>
 
-<p class="text-gray-700 mb-4">Voici un aperçu du fichier Excel importé :</p>
+<p class="text-gray-700 mb-4">{$_('import_pages.verification.overview')}</p>
 
 <!-- Table preview of Excel content -->
 <div class="overflow-auto" style="max-height: 60vh; max-width: 100%;">
@@ -89,13 +89,13 @@
       </tbody>
     </table>
   {:else}
-    <p class="text-gray-600">Aucune donnée disponible.</p>
+    <p class="text-gray-600">{$_('import_pages.verification.no_data')}</p>
   {/if}
 </div>
 
 <!-- Import button -->
 <div class="flex justify-end mt-4">
   <button class="bg-blue-600 text-white py-2 px-4 rounded" onclick={handleImportClick}>
-    Importer
+    {$_('import_pages.verification.import')}
   </button>
 </div>

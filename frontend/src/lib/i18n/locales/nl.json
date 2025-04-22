@@ -1,0 +1,319 @@
+{
+    "header": {
+      "home": "Home",
+      "search": "Zoek op",
+      "data": "Gegevens",
+      "more": {
+        "title": "Meer",
+        "suppliers": "Leveranciers",
+        "abbreviations": "Afkortingen",
+        "webmaster": "Webmaster",
+        "add": "Voeg  toe",
+        "add_instrument": "Een instrument toevoegen",
+        "add_supplier": "Een leverancier toevoegen",
+        "add_category": "Een categorie toevoegen",
+        "add_group": "Een groep toevoegen",
+        "add_subgroup": "Een subgroep toevoegen"
+      }
+    },
+  
+    "homepage": {
+      "button": {
+        "search": "Zoek op"
+      },
+      "keyword_search": {
+        "label": "Zoeken op trefwoord(en)",
+        "placeholder": "Voer een trefwoord in"
+      },
+      "group_search": {
+        "label": "Zoeken op groep of subgroep",
+        "placeholder": "Voer een groep of subgroep in"
+      },
+      "search_by_reference": {
+        "label": "Zoeken op referentie",
+        "placeholder": "Een referentie invoeren"
+      },
+      "search_order": {
+        "label": "Een bestelling zoeken",
+        "error" : "Selecteer een bestelling"
+      },
+      "previous_orders": {
+        "label": "Alle vorige bestellingen bekijken",
+        "button": "Zie"
+      },
+      "admin": {
+        "button": {
+          "add_group": "Een groep toevoegen",
+          "add_subgroup": "Een subgroep toevoegen"
+        }
+      }
+    },
+  
+    "profile": "Profiel",
+    "sign_in": "Aanmelden",
+    "log_out": "Ontkoppelen",
+  
+    "search_page": {
+      "label": {
+        "keyword": "Zoeken op trefwoord(en)",
+        "characteristics": "RZoeken op kenmerken :",
+        "group": "Groep",
+        "subgroup": "Subgroep"
+      },
+      "placeholder": {
+        "keyword": "Voer een trefwoord in",
+        "min": "min",
+        "max": "max"
+      },
+      "button": {
+        "search": "Zoek op",
+        "clear": "Alles verwijderen",
+        "add": "Voeg  toe"
+      },
+      "assign": "Wijs dit instrument toe aan een type!",
+      "no_result":"Geen resultaten gevonden"
+    },
+  
+    "category_component": {
+      "title": {
+        "instruments_types": "Soorten instrumenten",
+        "table": {
+          "group": "GROEP",
+          "subgroup": "SUB-GROEP",
+          "function": "FUNCTIE",
+          "name": "NAAM",
+          "shape": "FORM",
+          "dimension": "MAAT"
+        }
+      },
+      "admin": {
+        "button": {
+          "add_category": "Een instrumenttype toevoegen"
+        }
+      },
+      "pictures": {
+        "title": "Afbeeldingen"
+      }
+    },
+    "instruments_component": {
+      "title": {
+        "instruments": "Instrumenten",
+        "suppliers": "Leveranciers",
+        "alternatives": "Alternatieven"
+      },
+      "table": {
+        "reference": "REF",
+        "brand": "MERK",
+        "description": "BESCHRIJVING",
+        "price": "PRIJS"
+      },
+      "button": {
+        "see_more": "Meer zien"
+      },
+      "toasts": "Selecteer een categorie om de alternatieven te bekijken.",
+      "add": "Een instrument toevoegen"
+    },
+    "orders_component": {
+      "show_orders": "Bestellingen weergeven",
+      "create_order": "Een bestelling maken",
+      "see_previous_orders": "Bekijk eerdere bestellingen",
+      "table": {
+        "reference": "REF",
+        "brand": "MERK",
+        "group": "GROEP",
+        "function": "FUNCTIE",
+        "name": "NAAM",
+        "shape": "FORM",
+        "dimension": "MAAT",
+        "quantity": "HOEV",
+        "unite_price_excl_vat": "PU HTVA",
+        "total_price_excl_vat": "PT HTVA"
+      },
+      "export": {
+        "order": "Bestellen",
+        "button": "Exporteer"
+      },
+      "alert": "Geen gegevens om te exporteren"
+    },
+    "admin": {
+      "supplier_page": {
+        "title": "Beheer van leveranciers",
+        "button": {
+          "add_supplier": "Een leverancier toevoegen",
+          "edit_supplier": "De leverancier wijzigen",
+          "delete_supplier": "Leverancier verwijderen"
+        },
+        "placeholder": {
+          "search": "Een leverancier zoeken"
+        },
+        "table": {
+          "title": "Lijst van leveranciers",
+          "name": "Naam",
+          "sold": "Verkocht",
+          "status": "Status",
+          "actions": "Acties",
+          "yes": "Ja",
+          "no": "Geen",
+          "closed": "Gesloten",
+          "open": "Open",
+          "edit": "Aanpassen"
+        }
+      }
+    },
+    "pagination": {
+      "on": "op",
+      "page": "Pagina"
+    },
+  
+    "modals": {
+      "big_picture": {
+        "titleInstrument": "Foto's van het instrument",
+        "titleCategory": "Foto's van het type instrumenten",
+        "no_picturesInstrument": "Geen foto's beschikbaar voor dit instrument",
+        "no_picturesCategory": "Geen foto's beschikbaar voor dit type instrument",
+        "close": "Sluit",
+        "add_picture": "Een foto toevoegen",
+        "deletion_error": "Fout bij het verwijderen van foto. Fout: ",
+        "deletion_success": "Foto succesvol verwijderd",
+        "deletion_confirmation": "<strong>Wil je deze foto echt verwijderen?</strong><br>Druk nogmaals om te bevestigen"
+      },
+      "edit_user": {
+        "title": "Je profiel aanpassen",
+        "name": "Naam",
+        "email": "E-mail",
+        "active": "Activa",
+        "yes": "Ja",
+        "no": "Geen",
+        "button": {
+          "save": "Registreer",
+          "cancel": "Annuleren",
+          "delete": "Verwijder"
+        }
+      },
+      "add_picture": {
+        "titleCat": "Afbeeldingen toevoegen voor een type instrument",
+        "titleInstr": "Afbeeldingen voor het instrument toevoegen ",
+        "select": "Afbeeldingen selecteren",
+        "add": "Afbeeldingen toevoegen",
+        "button": {
+          "save": "Registreer",
+          "cancel": "Annuleren",
+          "delete": "Verwijder"
+        },
+        "need_select": "Selecteer afbeeldingen.",
+        "ok": "Afbeeldingen succesvol toegevoegd!",
+        "fail": "Mislukt bij het verzenden van afbeeldingen. <br> Fout : ",
+        "fail2": "Fout bij het verzenden van afbeeldingen.",
+        "error": "Fout",
+        "file": "Bestanden selecteren"
+      },
+      "delete_order" : {
+        "delete_title" : "Opdracht verwijderen",
+        "deletion_success" : "Bestelling succesvol verwijderd",
+        "irreversible_action" : "Houd er rekening mee dat deze actie onomkeerbaar is.",
+        "cancel" : "Annuleren",
+        "delete" : "Verwijder"
+      },
+      "create_order" : {
+        "create_title" : "Een nieuwe bestelling maken",
+        "name" : "Naam van nieuwe bestelling",
+        "error_no_name" : "Voer een opdrachtnaam in",
+        "error_already_exists" : "Deze opdrachtnaam bestaat al",
+        "cancel" : "Annuleren",
+        "create" : "Maak"
+      },
+      "edit_order" : {
+        "edit_title" : "De bestelnaam wijzigen",
+        "name" : "Nieuwe bestelnaam",
+        "error_no_name" : "Voer een opdrachtnaam in",
+        "error_already_exists" :"Deze opdrachtnaam bestaat al",
+        "cancel" : "Annuleren",
+        "edit" : "Aanpassen"
+      },
+      "import": {
+        "loading": "Laden...",
+        "loading_data": "Gegevens laden...",
+        "loading_import": "Importeren bezig...",
+        "success": "Een geslaagde import!",
+        "error": "Fout bij importeren :",
+        "error_send": "Fout bij verzenden :",
+        "next": "Volgende"
+        
+      }
+    },
+    "profile_page": {
+      "title": "Gebruikersprofiel",
+      "name": "Naam",
+      "email": "E-mail",
+      "button": {
+        "edit_profile": "Profiel wijzigen",
+        "back": "Terug naar"
+      }
+    },
+    "order_pages" : {
+      "dates" : {
+        "creationDate" : "gemaakt op ",
+        "exportDate" : "geëxporteerd op"
+      },
+      "single" : {
+        "export" :  "Exporteer",
+        "edit" : "Naam wijzigen",
+        "complete" : "Compleet",
+        "delete" : "Verwijder"
+      },
+      "all": {
+        "view_edit" : "Bestelling bekijken/wijzigen",
+        "complete" : "Volledige bestelling", 
+        "create" : "Een bestelling maken"
+      }
+    },
+    "import_pages": {
+      "loading": {
+        "chargement": "Laden..."
+      },
+      "main": {
+        "group": "Instrumentengroep en subgroep",
+        "instrument": "Niet-gecategoriseerde instrumenten",
+        "catalog": "Catalogus",
+        "alternative": "Alternatieven",
+        "crossref": "Kruisreferentie",
+        "option": "Importopties"
+      },
+      "subgroup": {
+        "select": "Selecteer de groep en subgroep",
+        "group": "Groep :",
+        "enter_group": "Een groep invoeren",
+        "enter_subgroup": "Een subgroep invoeren",
+        "subgroup": "Subgroep :",
+        "add_group": "Een groep toevoegen",
+        "add_subgroup": "Een subgroep toevoegen"
+      },
+      "supplier": {
+        "select": "Selecteer de leverancier",
+        "supplier": "Leverancier :",
+        "enter_supp": "Voer een leverancier in"
+      },
+      "verification": {
+        "verif": "Kolommen controleren",
+        "overview": "Hier is een voorbeeld van het geïmporteerde Excel-bestand:",
+        "no_data": "Geen gegevens beschikbaar.",
+        "import": "Importeren"
+      },
+      "svelte": {
+        "error": "Fout: Het geselecteerde bestand is geen geldig Excel-bestand.",
+        "import": "Excel-bestanden importeren",
+        "import2": "Bestanden importeren",
+        "drag": "Sleep een Excel-bestand hierheen om het te importeren",
+        "choose": "Kies een bestand",
+        "import_button": "Importeren",
+        "success": "Succesvol geïmporteerde bestanden",
+        "import_error": "Fout bij het importeren van bestanden",
+        "zip_import": "ZIP-bestanden importeren",
+        "delete": "Bestand verwijderd",
+        "click": "Sleep een zipbestand hierheen of klik om er een te selecteren",
+        "continue": "Ga verder",
+        "response": "Reactie server"
+      }
+    }
+  }
+  
