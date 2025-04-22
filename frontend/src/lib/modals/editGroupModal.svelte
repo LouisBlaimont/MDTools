@@ -90,6 +90,9 @@
   }
 
   async function handleDelete() {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce groupe ?")) {
+      return;
+    }
     try {
       const response = await apiFetch("/api/groups/" + encodeURIComponent(group.name), {
         method: "DELETE",

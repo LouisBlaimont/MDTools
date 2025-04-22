@@ -88,6 +88,9 @@
     close();
   }
   async function handleDelete() {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce sous-groupe ?")) {
+      return;
+    }
     try {
       const response = await apiFetch("/api/subgroups/" + encodeURIComponent(subgroup.name), {
         method: "DELETE",

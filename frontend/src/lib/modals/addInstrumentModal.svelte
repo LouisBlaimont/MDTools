@@ -371,14 +371,14 @@
                 {#if showAutocompleteDropdown && currentAutocompleteField === "reference"}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
                         on:mousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
                             <!-- svelte-ignore a11y_role_has_required_aria_props -->
                             <button
                                 type="button"
-                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw]"
                                 role="option"
                                 on:click={() => selectAutocompleteOption(option)}
                             >
@@ -402,14 +402,14 @@
                 {#if showAutocompleteDropdown && currentAutocompleteField === "supplier"}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
                         on:mousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
                             <!-- svelte-ignore a11y_role_has_required_aria_props -->
                             <button
                                 type="button"
-                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw]"
                                 role="option"
                                 on:click={() => selectAutocompleteOption(option)}
                             >
@@ -433,14 +433,14 @@
                 {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
                         on:mousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
                             <!-- svelte-ignore a11y_role_has_required_aria_props -->
                             <button
                                 type="button"
-                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw]"
                                 role="option"
                                 on:click={() => selectAutocompleteOption(option)}
                             >
@@ -474,14 +474,14 @@
                 {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
                         on:mousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
                             <!-- svelte-ignore a11y_role_has_required_aria_props -->
                             <button
                                 type="button"
-                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
+                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw] {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
                                 role="option"
                                 on:click={() => selectAutocompleteOption(option)}
                             >
