@@ -710,12 +710,6 @@
                             Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.
                         </div>
                     {/if}
-                    <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives">
-                      Alternatives:
-                      <input type="text" name="id_add_alternatives" class="block w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mb-4" autocomplete="off" bind:value={$keywords3}
-                      oninput={searchByKeywords}/>
-                      <button type="button" class="ml-2 px-4 py-1 bg-yellow-100 text-black hover:bg-gray-500 transition rounded" onclick={() => addAlternative(instrumentToAdd)}>Ajouter</button>
-                    </label> -->
                     <label class="font-semibold text-lg">Alternatives:</label>
                     <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives"> -->
                     <div class="flex justify-content">

@@ -191,11 +191,11 @@
 {#if isOpen}
     <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div
-        class="relative z-10"
-        aria-labelledby="modal-title"
-        role="dialog"
-        aria-modal="true"
-    >
+            class="relative z-10"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             class="fixed inset-0 z-10 flex items-center justify-center"
@@ -346,6 +346,8 @@
                     <button type="button" onclick={()=>addCategory()} class="mr-2 bg-teal-500 text-white px-4 py-2 mr-4 rounded hover:bg-teal-700">Ajouter</button>
                 </div>
             </div>
+        </div>
+    </div>
         </div>
     </div>
 {/if}
