@@ -24,7 +24,7 @@ public class CategoryMapper {
      * @param category the category to convert
      * @return the converted category DTO 
      */
-    public CategoryDTO mapToCategoryDto(Category category){
+    public CategoryDTO mapToCategoryDto(Category category, PictureStorageService pictureStorageService){
         Long id = category.getId();
         String gName = category.getSubGroup().getGroup().getName();
         String subgName = category.getSubGroup().getName();

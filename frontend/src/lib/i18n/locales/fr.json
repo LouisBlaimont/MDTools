@@ -85,7 +85,7 @@
     },
     "admin": {
       "button": {
-        "add_category": "Ajouter une catégorie"
+        "add_category": "Ajouter un type d'instruments"
       }
     },
     "pictures": {
@@ -106,7 +106,9 @@
     },
     "button": {
       "see_more": "Voir plus"
-    }
+    },
+    "toasts": "Veuillez sélectionner une catégorie pour en voir les alternatives.",
+    "add": "Ajouter un instrument"
   },
   "orders_component": {
     "show_orders": "Afficher les commandes",

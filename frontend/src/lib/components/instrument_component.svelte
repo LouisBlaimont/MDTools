@@ -40,7 +40,7 @@
             return
         }
         else {
-            toast.push("Veuillez sélectionner une catégorie pour en voir les alternatives.");
+            toast.push($_('instruments_component.toasts'));
             return;
         }
     }
@@ -102,7 +102,7 @@
                         const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
                         modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
                         }}>
-                        Ajouter
+                        {$_('instruments_component.add')}
                     </button>
                 </th>
                 {:else}
