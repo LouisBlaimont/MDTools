@@ -3,6 +3,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { invalidateAll, invalidate } from "$app/navigation";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   const {
     // provided by <Modals />
@@ -39,14 +40,14 @@
         }
       } catch (error) {
         console.error(error);
-        toast.push("Erreur lors de la modification de l'abbreviation", {
+        toast.push($_('modals.edit_abb.toast1'), {
           theme: {
             "--toastBackground": "#f44336",
             "--toastColor": "#fff",
           },
         });
       }
-      toast.push("Abbreviation modifiée avec succès", {
+      toast.push($_('modals.edit_abb.toast2'), {
         theme: {
           "--toastBackground": "#4caf50",
           "--toastColor": "#fff",
@@ -79,13 +80,13 @@
                   </div>
                   <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 class="text-base font-semibold text-gray-900" id="modal-title">
-                      Modifier une abbreviation
+                      {$_('modals.edit_abb.edit')}
                     </h3>
                     <div class="flex flex-row">
                       <div class="m-2">
                         <label
                           class="block my-2 text-sm font-medium text-gray-900"
-                          for="user_avatar">Complet</label
+                          for="user_avatar">{$_('modals.edit_abb.complete')}</label
                         >
                         <input
                           type="text"
@@ -97,7 +98,7 @@
                       <div class="m-2">
                         <label
                           class="block my-2 text-sm font-medium text-gray-900"
-                          for="user_avatar">Abbréviation</label
+                          for="user_avatar">{$_('modals.edit_abb.abb')}</label
                         >
                         <input
                           type="text"
@@ -113,12 +114,12 @@
                   <button
                     type="submit"
                     class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    >Enregistrer</button
+                    >{$_('modals.edit_abb.save')}</button
                   >
                   <button
                     type="button"
                     class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onclick={() => close()}>Annuler</button
+                    onclick={() => close()}>{$_('modals.edit_abb.cancel')}</button
                   >
                 </div>
               </div>

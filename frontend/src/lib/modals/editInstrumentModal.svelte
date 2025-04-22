@@ -5,6 +5,7 @@
   import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
   import Icon from "@iconify/svelte";
   import Loading from "$lib/Loading.svelte";
+  import { _ } from "svelte-i18n";
 
   // Destructure the props provided by <Modals />
   const {

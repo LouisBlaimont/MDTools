@@ -3,6 +3,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { reload } from "$lib/stores/searches";
   import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
 
   const {
     isOpen, // Indicates if the modal is open

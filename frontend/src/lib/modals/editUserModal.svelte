@@ -6,6 +6,8 @@
   import { createListbox } from "svelte-headlessui";
   import { Transition } from "svelte-transition";
   import { reload } from "$lib/stores/searches";
+  import { _ } from "svelte-i18n";
+
   // Destructure the props provided by <Modals />
   const {
     isOpen, // Indicates if the modal is open

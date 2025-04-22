@@ -5,6 +5,7 @@
     import { orderItems, ordersNames, quantity, selectedOrderId} from "$lib/stores/searches";
     import { userId } from "$lib/stores/user_stores.js";
     import { addInstrument, findOrderItems} from "../components/order_component.js";
+    import { _ } from "svelte-i18n";
 
     const {
         isOpen,
@@ -33,20 +34,20 @@
 
   <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-lg lg:max-w-4xl p-6">
 
-    <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">Commander référence {instrument.reference} :</h2>
+    <h2 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">{$_('modals.add_to_order.order')} {instrument.reference} :</h2>
 
     {#if isObsolete}
-      <h4 class="text-lg font-semibold text-red-500 text-center">L'instrument est obsolète, impossible de le commander.</h4>
+      <h4 class="text-lg font-semibold text-red-500 text-center">{$_('modals.add_to_order.obs')}</h4>
     {/if}
 
     <div class="max-w-4xl mx-auto mt-4" >
         <table class="w-full border-collapse">
             <thead class="bg-teal-400">
                 <tr>
-                <th class="text-center border border-solid border-[black] w-24">REF</th>
-                <th class="text-center border border-solid border-[black] w-32">MARQUE</th>
-                <th class="text-center border border-solid border-[black]">DESCRIPTION</th>
-                <th class="text-center border border-solid border-[black] w-16">PRIX</th>
+                <th class="text-center border border-solid border-[black] w-24">{$_('modals.add_to_order.ref')}</th>
+                <th class="text-center border border-solid border-[black] w-32">{$_('modals.add_to_order.brand')}</th>
+                <th class="text-center border border-solid border-[black]">{$_('modals.add_to_order.descr')}</th>
+                <th class="text-center border border-solid border-[black] w-16">{$_('modals.add_to_order.price')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,7 +65,7 @@
             <div class="flex flex-col md:flex-row items-center w-full space-y-2 md:space-y-0 md:space-x-4 ">
 
             <div class = "flex items-center space-x-1 w-full md:w-auto">
-                <label for="qte" class="text-gray-900">Quantité:</label>
+                <label for="qte" class="text-gray-900">{$_('modals.add_to_order.qtt')}</label>
                 <input
                 type="number"
                 id="qte"
@@ -77,7 +78,7 @@
             <div class="flex-grow"></div>
 
             <div class = "flex items-center space-x-1 w-full md:w-auto">
-                <label for="order" class="text-gray-900">Commande:</label>
+                <label for="order" class="text-gray-900">{$_('modals.add_to_order.order2')}</label>
                 <select 
                     id="order"
                     name="order"
@@ -112,7 +113,7 @@
           class="inline-block w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
           onclick={() => close()}
         >
-          Annuler
+        {$_('modals.add_to_order.cancel')}
         </button>
         {#if isNotObsolete}
           <button
@@ -120,7 +121,7 @@
             class="inline-block w-auto justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500"
             onclick={handleAddInstrument}
           >
-            Commander
+          {$_('modals.add_to_order.ordering')}
           </button>
         {/if}
       </div>

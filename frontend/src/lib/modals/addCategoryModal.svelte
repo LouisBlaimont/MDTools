@@ -1,6 +1,7 @@
 <script>
     import { goto } from "$app/navigation";
     import { apiFetch } from "$lib/utils/fetch";
+    import { _ } from "svelte-i18n";
     import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
 
     const {
@@ -171,7 +172,7 @@
                     class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
                     onmousedown={startDrag}
                 >
-                    <h2 class="text-xl font-bold">Ajouter une catégorie au sous groupe {$selectedSubGroup}</h2>
+                    <h2 class="text-xl font-bold">{$_('modals.add_category.add_cat')} {$selectedSubGroup}</h2>
                 </div>
 
                 <div class="p-4">
@@ -253,7 +254,7 @@
                                 {/if}
                             </div>
                             <div>
-                                <label class="block mb-2" for="input-{char}-abbrev">Abbréviation:</label>
+                                <label class="block mb-2" for="input-{char}-abbrev">{$_('modals.add_category_abbreviations')}</label>
                                 <input
                                     type = "text"
                                     id="input-{char}-abbrev"
@@ -266,12 +267,12 @@
                 {/each}
                 {/if}
                 </div>
-                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">Cette catégorie existe déjà.</span>
+                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.add_category.exists')}</span>
 
                 <div class="flex justify-end gap-4 mb-4">
-                    <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
-                    <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                    <button type="button" onclick={()=>addCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter</button>
+                    <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_category.erase')}</button>
+                    <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.add_category.cancel')}</button>
+                    <button type="button" onclick={()=>addCategory()} class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">{$_('modals.add_category.add')}</button>
                 </div>
             </div>
         </div>

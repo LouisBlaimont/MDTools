@@ -1,6 +1,7 @@
 <script>
   import { apiFetch } from "$lib/utils/fetch";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   const {
     // provided by <Modals />

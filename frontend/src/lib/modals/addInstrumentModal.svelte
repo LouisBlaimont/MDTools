@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { apiFetch } from "$lib/utils/fetch";
     import { instrumentCharacteristics, reload } from "$lib/stores/searches";
+    import { _ } from "svelte-i18n";
     import { modals } from "svelte-modals";
 
     export let isOpen = false;
@@ -71,21 +72,21 @@
                     const data = await response.json();
                     id = data.filePath; // Assuming the API returns the file path
                 } else if (!img.ok) {
-                    dispatch("error", { message: "Erreur lors du téléchargement de l'image." });
+                    dispatch("error", { message: $_('modals.add_instrument.error_loading') });
                     return;
                 }
             } catch (error) {
-                dispatch("error", { message: "Erreur lors dde l'ajout de l'instrument." });
+                dispatch("error", { message: $_('modals.add_instrument.error_add') });
                 return;
             }
         }
 
         if (response.ok) {
-            dispatch("success", { message: "Instrument ajouté!" });
+            dispatch("success", { message: $_('modals.add_instrument.added') });
             close();
             reload.set(true);
         } else {
-            dispatch("error", { message: "Impossible d'ajouter un instrument." });
+            dispatch("error", { message: $_('modals.add_instrument.not_possible')});
         }
     }
 
@@ -350,12 +351,13 @@
                     class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
                     on:mousedown={startDrag}
                 >
-                    <h2 class="text-xl font-bold">Ajouter un instrument</h2>
+                    <h2 class="text-xl font-bold">{$_('modals.add_instrument.add_inst')}</h2>
                 </div>
                 <form on:submit|preventDefault={submitForm} class="p-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block mb-2">Référence:</label>
+                            <!-- svelte-ignore a11y_label_has_associated_control -->
+                            <label class="block mb-2">{$_('modals.add_instrument.ref')}</label>
                             <div class="relative">
                                 <input 
                                     type="text" 
@@ -365,7 +367,7 @@
                                     on:input={handleAutocompleteInput}
                                     on:blur={closeAutocomplete}
                                     class="w-full p-2 border rounded" 
-                                    placeholder="Entrer une référence"
+                                    placeholder={$_('modals.add_instrument.enter_ref')}
                                 />
                                 {#if showAutocompleteDropdown && currentAutocompleteField === "reference"}
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -389,7 +391,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block mb-2">Fournisseur:</label>
+                            <label class="block mb-2">{$_('modals.add_instrument.supplier')}</label>
                             <div class="relative">
                                 <input 
                                     type="text" 
@@ -399,7 +401,7 @@
                                     on:input={handleAutocompleteInput}
                                     on:blur={closeAutocomplete}
                                     class="w-full p-2 border rounded" 
-                                    placeholder="Entrer un fournisseur"
+                                    placeholder={$_('modals.add_instrument.enter_supplier')}
                                 />
                                 {#if showAutocompleteDropdown && currentAutocompleteField === "supplier"}
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -423,7 +425,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block mb-2">Description du fournisseur:</label>
+                            <label class="block mb-2">{$_('modals.add_instrument.description')}</label>
                             <div class="relative">
                                 <input 
                                     type="text" 
@@ -433,7 +435,7 @@
                                     on:input={handleAutocompleteInput}
                                     on:blur={closeAutocomplete}
                                     class="w-full p-2 border rounded"
-                                    placeholder="Entrer la description du fournisseur" 
+                                    placeholder={$_('modals.add_instrument.enter_description')} 
                                 />
                                 {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
                                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -457,18 +459,18 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block mb-2">Prix:</label>
+                            <label class="block mb-2">{$_('modals.add_instrument.price')}</label>
                             <input 
                                 type="number" 
                                 bind:value={price} 
                                 min="0" 
                                 step="0.01" 
                                 class="w-full p-2 border rounded" 
-                                placeholder="Entrer le prix"
+                                placeholder={$_('modals.add_instrument.enter_price')}
                             />
                         </div>
                     </div>
-                    <label class="block mb-2 mt-4">Catégorie:</label>
+                    <label class="block mb-2 mt-4">{$_('modals.add_instrument.cat')}</label>
                     <div class="relative mb-4">
                         <input 
                             type="text" 
@@ -478,7 +480,7 @@
                             on:input={handleAutocompleteInput}
                             on:blur={closeAutocomplete}
                             class="w-full p-2 border rounded" 
-                            placeholder="Sélectionner une catégorie"
+                            placeholder={$_('modals.add_instrument.enter_cat')}
                         />
                         {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -506,25 +508,25 @@
                         {/if}
                     </div>
 
-                    <label class="block mb-2">Alternatives:</label>
-                    <input type="text" bind:value={alt} class="w-full p-2 border rounded mb-4" placeholder="Sélectionner des alternatives"/>
+                    <label class="block mb-2">{$_('modals.add_instrument.alt')}</label>
+                    <input type="text" bind:value={alt} class="w-full p-2 border rounded mb-4" placeholder={$_('modals.add_instrument.enter_alt')}/>
 
-                    <label class="block mb-2">Obsolescence:</label>
+                    <label class="block mb-2">{$_('modals.add_instrument.obs')}</label>
                     <div class="flex gap-4 mb-4">
-                        <label><input type="radio" bind:group={obsolete} value={true} /> Oui</label>
-                        <label><input type="radio" bind:group={obsolete} value={false} /> Non</label>
+                        <label><input type="radio" bind:group={obsolete} value={true} /> {$_('modals.add_instrument.yes')}</label>
+                        <label><input type="radio" bind:group={obsolete} value={false} /> {$_('modals.add_instrument.no')}</label>
                     </div>
 
-                    <label class="block mb-2">Image:</label>
+                    <label class="block mb-2">{$_('modals.add_instrument.picture')}</label>
                     <input
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
                         on:change={(e) => (file = e.target.files[0])}
                     />
                     <div class="flex justify-end gap-4">
-                        <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">Effacer</button>
-                        <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter</button>
+                        <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.add_instrument.erase')}</button>
+                        <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.add_instrument.cancel')}</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajou{$_('modals.add_instrument.add')}ter</button>
                     </div>
                 </form>
             </div>

@@ -5,6 +5,7 @@
     import { selectedGroup } from "$lib/stores/searches";
     import { userId } from "$lib/stores/user_stores";
     import { apiFetch } from "$lib/utils/fetch";
+    import { _ } from "svelte-i18n";
     import { createEventDispatcher } from "svelte";
 
     const {
@@ -36,7 +37,7 @@
     }
 
     function cancel() {
-        dispatch("cancel", { message: "Operation cancelled." });
+        dispatch("cancel", { message: $_('modals.add_subgroup.cancel_op') });
         close();
     }
 
@@ -59,12 +60,11 @@
         });
         close();
         if (response.ok) {
-            dispatch("success", { message: "Ajout sous-groupe réussi!" });
+            dispatch("success", { message: $_('modals.add_subgroup.success') });
         } else {
-            dispatch("error", { message: "Impossible d'ajouter un sous-groupe." });
+            dispatch("error", { message: $_('modals.add_subgroup.fail') });
         }
     }
-
 </script>
 
 {#if isOpen}
@@ -79,33 +79,33 @@
         class="relative transform overflow-auto rounded-lg text-left transition-all sm:w-full sm:max-w-lg lg:max-w-4xl"
         style="max-height: 80vh;">
             <form onsubmit={submitForm} preventDefault class="bg-gray-100 p-6 rounded-lg shadow-lg">
-                <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">Ajouter un sous-groupe d'instruments</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">{$_('modals.add_subgroup.add_subgroup')}</h2>
         
-                <label for="subgroup_name" class="font-semibold text-lg">Nom du sous-groupe:</label>
-                <input type="text" bind:value={name} placeholder="Entrez le nom du sous-groupe"
+                <label for="subgroup_name" class="font-semibold text-lg">{$_('modals.add_subgroup.name')}</label>
+                <input type="text" bind:value={name} placeholder={$_('modals.add_subgroup.enter_name')}
                     class="w-full p-2 mt-1 mb-3 border rounded">
                 
-                <label for="characateristics" class="font-semibold text-lg">Caractéristiques:</label>   
+                <label for="characateristics" class="font-semibold text-lg">{$_('modals.add_subgroup.enter_char')}</label>   
                 {#if characteristics !== null}
                     {#each characteristics as char, index}
                         <div class="flex items-center mt-2">
                             <input type="text" bind:value={characteristics[index]} 
-                            placeholder="Entrez une caractéristique"
+                            placeholder={$_('modals.add_subgroup.enter_char')}
                                 class="flex-1 p-2 border rounded" oninput={(e) => updateCharacteristic(index, e.target.value)}>
                         </div>
                     {/each}
                 {/if}
                 
-                <button type="button" onclick={addCharacteristic} class="mt-4 px-4 py-2 bg-teal-500 text-white rounded">Ajouter une caractéristique</button>
+                <button type="button" onclick={addCharacteristic} class="mt-4 px-4 py-2 bg-teal-500 text-white rounded">{$_('modals.add_subgroup.add_char')}</button>
                 
                 <div class="mt-3">
-                <label for="picture" class="font-semibold text-lg">Ajouter une image du sous-groupe:</label>
+                <label for="picture" class="font-semibold text-lg">{$_('modals.add_subgroup.add_picture')}</label>
                 <input type="file" bind:value={picture} class="w-full p-2 mt-1 border rounded">
                 </div>
         
-                <button type="submit" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded ">Enregistrer</button>
-                <button type="button" onclick={erase} class="mt-4 px-4 py-2 bg-red-500 text-white rounded">Effacer</button>
-                <button type="button" onclick={cancel} class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Annuler</button>
+                <button type="submit" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded ">{$_('modals.add_subgroup.save')}</button>
+                <button type="button" onclick={erase} class="mt-4 px-4 py-2 bg-red-500 text-white rounded">{$_('modals.add_subgroup.erase')}</button>
+                <button type="button" onclick={cancel} class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">{$_('modals.add_subgroup.cancel')}</button>
             </form>
         </div>
 </div>

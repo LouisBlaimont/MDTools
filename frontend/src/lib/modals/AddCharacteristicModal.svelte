@@ -5,6 +5,7 @@
 
   import { onMount } from "svelte";
   import { addCharacteristicToSubGroup, fetchCharacteristics, fetchAllCharacteristics, updateCharacteristicOrder , removeCharacteristicFromSubGroup} from "../../api.js";
+  import { _ } from "svelte-i18n";
   import { dndzone } from "svelte-dnd-action";
 
   import { createEventDispatcher } from 'svelte';
@@ -127,9 +128,9 @@
 <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
   <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative">
     <button class="absolute top-2 right-2 text-gray-600" on:click={onClose}>✖</button>
-    <h2 class="text-xl font-semibold mb-4">Ajouter une nouvelle caractéristique</h2>
+    <h2 class="text-xl font-semibold mb-4">{$_('modals.add_char.add_char')}</h2>
 
-    <input type="text" placeholder="Nom de la caractéristique" class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
+    <input type="text" placeholder={$_('modals.add_char.name')} class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
 
     {#if filteredSuggestions.length > 0}
       <ul class="mt-2 border rounded bg-white max-h-40 overflow-auto text-sm z-50">
@@ -140,14 +141,14 @@
         {/each}
       </ul>
     {:else if newCharacteristicName.trim() !== ""}
-      <p class="text-xs text-gray-400 mt-2 italic">Aucune suggestion.</p>
+      <p class="text-xs text-gray-400 mt-2 italic">{$_('modals.add_char.no_suggestion')}</p>
     {/if}
 
-    <button on:click={createNewCharacteristic} class="bg-blue-600 text-white px-4 py-2 rounded mt-4">Ajouter</button>
+    <button on:click={createNewCharacteristic} class="bg-blue-600 text-white px-4 py-2 rounded mt-4">{$_('modals.add_char.add_button')}</button>
 
     <hr class="my-4" />
 
-    <h3 class="text-lg font-semibold mb-2">Forme :</h3>
+    <h3 class="text-lg font-semibold mb-2">{$_('modals.add_char.form')}</h3>
     <div
       use:dndzone={{
         items: characteristicsInShape,
@@ -186,7 +187,7 @@
       {/each}
     </div>
 
-    <h4 class="mt-4 font-medium">Non incluses dans la forme :</h4>
+    <h4 class="mt-4 font-medium">{$_('modals.add_char.not_included')}</h4>
     <ul class="mt-2">
       {#each characteristicsOutOfShape as char (char.name)}
         <li class="flex justify-between items-center bg-gray-100 p-2 rounded mb-1">
@@ -214,7 +215,7 @@
                 dispatch('added');
               }}
             >
-              Ajouter à la forme
+              {$_('modals.add_char.add_to_form')}
             </button>
             <button
               class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600"
