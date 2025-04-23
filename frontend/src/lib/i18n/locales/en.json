@@ -11,7 +11,7 @@
       "add": "Add",
       "add_instrument": "Add instrument",
       "add_supplier": "Add supplier",
-      "add_category": "Add category",
+      "add_category": "Add type of instruments",
       "add_group": "Add group",
       "add_subgroup": "Add subgroup"
     }
@@ -62,13 +62,13 @@
       "clear": "Clear all",
       "add": "Add"
     },
-    "assign": "You need to assign a category to this instrument!",
+    "assign": "You need to assign this instrument to a type of instruments!",
     "no_result":"No result found"
   },
 
   "category_component": {
     "title": {
-      "instruments_types": "Instruments types",
+      "instruments_types": "Type of instruments",
       "table": {
         "group": "GROUP",
         "subgroup": "SUBGROUP",
@@ -80,7 +80,7 @@
     },
     "admin": {
       "button": {
-        "add_category": "Add an instrument type"
+        "add_category": "Add a type of instruments"
       }
     },
     "pictures": {
@@ -102,7 +102,7 @@
     "button": {
       "see_more": "See more"
     },
-    "toasts": "Please select a category to see the alternatives.",
+    "toasts": "Please select a type of instruments to see the alternatives.",
     "add": "Add an instrument"
   },
   "orders_component": {
@@ -150,6 +150,65 @@
         "open": "Open",
         "edit": "Edit"
       }
+    },
+    "abb": {
+      "abbreviation": "Abbreviations",
+      "handle": "Gestion of abbrviations",
+      "add": "Add an abbreviation",
+      "full": "Full",
+      "enter_abb": "Add an abbreviation",
+      "result": "No results",
+      "add_button": "Add",
+      "action": "Actions",
+      "abbreviations": "Abbreviation",
+      "loading": "Loading...",
+      "no_abb": "No abbreviation found",
+      "next": "Next",
+      "previous": "Previous",
+      "page": "Page",
+      "sur": "of"
+    },
+    "add_cat": {
+      "dispatch": "Please select a group and a subgroup",
+      "added_cat": "Type of instruments added!",
+      "not_poss": "Impossible to add a type of instruments",
+      "op_cancel": "Operation cancelled.",
+      "add_type": "Add a type of instruments",
+      "group": "Group:",
+      "subgroup": "Name of subgroup:",
+      "fct": "Fonction:",
+      "type_name": "Name of type of instruments:",
+      "shape": "Shape:",
+      "abbreviation": "Abbreviation:",
+      "source": "Picture source",
+      "add": "Add", 
+      "erase": "Erase",
+      "cancel": "Cancel",
+      "enter_group": "Enter a group",
+      "enter_subgroup": "Enter a subgroup",
+      "enter_fct": "Enter a function",
+      "enter_type": "Enter a name of type of instruments",
+      "enter_shape": "Enter a shape",
+      "enter_abb": "Enter an abbreviation",
+      "enter_id": "Enter ID of the picture"
+    },
+    "export": {
+      "export_file": "Export an Excel file",
+      "question": "What do you want to export?",
+      "select": "Select a group",
+      "choose": "Choose a group",
+      "select_subgroup": "Select a subgroup",
+      "choose_subgroup": "Choose a subgroup",
+      "select_supplier": "Select a supplier",
+      "choose_supp": "Choose a supplier",
+      "include": "Suppliers to include",
+      "exported": "Export all suppliers",
+      "language": "Available langages",
+      "french": "French",
+      "dutch": "Dutch", 
+      "english": "English",
+      "export_button": "Export",
+      "column": "Select the columns"
     }
   },
   "pagination": {
@@ -232,7 +291,7 @@
     },
     "add_category": {
       "add_cat": "Add a type of isntrument to the subgroup",
-      "abbreviations": "Abbrevation:",
+      "abbreviations": "Abbreviation:",
       "exists": "This type of instruments already exists",
       "erase": "Erase",
       "cancel": "Cancel",
@@ -260,7 +319,8 @@
       "add_pictures": "Add a picture of the group",
       "save": "Save",
       "erase": "Erase",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "char": "Characteristics:"
     },
     "add_instrument": {
       "error_loading": "Error downloading image.",
@@ -276,8 +336,8 @@
       "enter_description": "Enter supplier description",
       "price": "Price:",
       "enter_price": "Enter price",
-      "cat": "Category:",
-      "enter_cat": "Select a category",
+      "cat": "Type of instruments:",
+      "enter_cat": "Select a type of instruments",
       "alt": "Alternatives:",
       "enter_alt": "Selecting alternatives",
       "obs": "Obsolescence:",
@@ -304,7 +364,7 @@
       "cancel_op": "Operation cancelled.",
       "success": "Added subgroup with success",
       "fail": "Impossible to add a subgroup",
-      "add_subgroup": "Add a subgrou of instruments",
+      "add_subgroup": "Add a subgroup of instruments",
       "name": "Name of subgroup:",
       "enter_name": "Enter name of subgroup",
       "char": "Characteristics:",
@@ -337,6 +397,84 @@
       "abb": "Abbreviation",
       "save": "Save",
       "cancel": "Cancel"
+    },
+    "edit_cat": {
+      "delete": "Are you sure that you want to delete this type of instruments?",
+      "edit": "Edit the type of instruments :",
+      "abb": "Abbreviation:",
+      "exists": "this type of instruments already exists.",
+      "modif": "No modification has been done.",
+      "not_deleted": "This type of instruments still contains instrument, it can not be deleted.",
+      "supp": "Delete",
+      "cancel": "Cancel",
+      "modified": "Modify"
+    },
+    "edit_group": {
+      "modif": "Modify a group",
+      "name": "Name",
+      "picture": "Picture",
+      "warning": "A picture already exists for this group, the new picture will erase the current one.",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "edit_instrument": {
+      "warning": "Are you sure that you want to delete this alternative?",
+      "modif": "Modify instrument ",
+      "loading": "Loading...",
+      "supplier": "Supplier:",
+      "cat": "Category:",
+      "ref": "Reference:",
+      "descr": "Supplier description:",
+      "price": "Price:",
+      "obs": "Obsolescence:",
+      "picture": "Picture",
+      "confirm": "A picture already exists for this instrument, the new picture will erase the current one.",
+      "alt": "Alternatives:",
+      "diff_supp": "The alternatives should have different suppliers",
+      "group": "The alternatives should be in the same group",
+      "exists": "This alternative already exists",
+      "ref2": "Reference",
+      "brand": "Brand",
+      "description": "Description",
+      "price2": "Price",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "edit_subgroup": {
+      "modif": "Modify a subgroup",
+      "name": "Name",
+      "picture": "Picture",
+      "delete": "A picture already exists for this subgroup, the new picture will erase the current one.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "edit_supplier": {
+      "modif": "Modify the supplier ",
+      "loading": "Loading...",
+      "name": "Name:",
+      "sold": "On sale:",
+      "yes": "Yes",
+      "no": "No",
+      "status": "Status:",
+      "open": "Open",
+      "closed": "Closed",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "edituser": {
+      "confirm": "Are you sure that you want to deleted this account?",
+      "modif": "Modify the user ",
+      "loading": "Loading...",
+      "username": "Username",
+      "enter_name": "Username",
+      "email": "Email address",
+      "role": "Roles",
+      "empty": "emptu",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save"
     }
 
   },
@@ -419,5 +557,44 @@
       "continue": "Continue",
       "response": "Server response"
     }
+  },
+  "login": {
+    "connection": "Connection",
+    "welcome": "Welcome on MDTools",
+    "ways": "Connect using the various connection methods available.",
+    "dex": "Connect with DEX"
+  },
+  "alt": {
+    "type": "Type of instruments",
+    "alternatives": "Alternatives :",
+    "ref": "Reference",
+    "brand": "Brand",
+    "descr": "Description",
+    "price": "Price",
+    "delete": "Delete",
+    "picture": "Pictures"
+  },
+  "add_user": {
+    "add": "Add a user",
+    "name": "Username:",
+    "email": "Email:",
+    "button_add": "Add",
+    "erase": "Erase",
+    "cancel": "Cancel"
+  },
+  "logs": {
+    "gestion": "Gestion of the site",
+    "admin": "Administration of the site",
+    "consult": "Consult logs",
+    "access": "Access logs",
+    "user": "Users",
+    "username": "Username",
+    "email": "Email",
+    "role": "Roles",
+    "actions": "Actions",
+    "activ": "Activ",
+    "inactiv": "Disabled",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

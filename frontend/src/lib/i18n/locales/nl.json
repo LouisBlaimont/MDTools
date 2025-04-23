@@ -158,6 +158,65 @@
           "open": "Open",
           "edit": "Aanpassen"
         }
+      },
+      "abb": {
+        "abbreviation": "Afkortingen",
+        "handle": "Beheer van afkortingen",
+        "add": "Een afkorting toevoegen",
+        "full": "Volledig",
+        "enter_abb": "Een afkorting toevoegen",
+        "result": "Geen resultaten",
+        "add_button": "Voeg toe",
+        "action": "Acties",
+        "abbreviations": "Afkorting",
+        "loading": "Laden...",
+        "no_abb": "Geen afkorting gevonden",
+        "next": "Volgende",
+        "previous": "Vorige",
+        "page": "Pagina",
+        "sur": "van"
+      },
+      "add_cat": {
+        "dispatch": "Selecteer een groep en een subgroep",
+        "added_cat": "Type instrumenten toegevoegd!",
+        "not_poss": "Onmogelijk om een type instrument toe te voegen",
+        "op_cancel": "Operatie geannuleerd.",
+        "add_type": "Een type instrument toevoegen",
+        "group": "Groep:",
+        "subgroup": "Naam van subgroep:",
+        "fct": "Actie:",
+        "type_name": "Naam van het type instrument:",
+        "shape": "Vorm:",
+        "abbreviation": "Afkorting:",
+        "source": "Bron",
+        "add": "Voeg toe", 
+        "erase": "Wis",
+        "cancel": "Annuleren",
+        "enter_group": "Een groep invoeren",
+        "enter_subgroup": "Een subgroep invoeren",
+        "enter_fct": "Een functie invoeren",
+        "enter_type": "Voer een naam of type instrument in",
+        "enter_shape": "Een vorm invoeren",
+        "enter_abb": "Voer een afkorting in",
+        "enter_id": "ID van de foto invoeren"
+      },
+      "export": {
+        "export_file": "Een Excel-bestand exporteren",
+        "question": "Wat wil je exporteren?",
+        "select": "Selecteer een groep",
+        "choose": "Kies een groep",
+        "select_subgroup": "Selecteer een subgroep",
+        "choose_subgroup": "Kies een subgroep",
+        "select_supplier": "Selecteer een leverancier",
+        "choose_supp": "Kies een leverancier",
+        "include": "Leveranciers",
+        "exported": "Alle leveranciers exporteren",
+        "language": "Beschikbare talen",
+        "french": "Frans",
+        "dutch": "Nederlands", 
+        "english": "Engels",
+        "export_button": "Exporteer",
+        "column": "Selecteer de kolommen"
       }
     },
     "pagination": {
@@ -269,7 +328,8 @@
         "add_pictures": "Een foto van de groep toevoegen",
         "save": "Sla",
         "erase": "Wis",
-        "cancel": "Annuleren"
+        "cancel": "Annuleren",
+        "char": "Kenmerken:"
       },
       "add_instrument": {
         "error_loading": "Fout bij het downloaden van de afbeelding.",
@@ -346,6 +406,84 @@
         "abb": "Afkorting",
         "save": "Sla",
         "cancel": "Annuleren"
+      },
+      "edit_cat": {
+        "delete": "Weet je zeker dat je deze categorie wilt verwijderen?",
+        "edit": "Bewerk categorie :",
+        "abb": "Afkorting:",
+        "exists": "Deze categorie bestaat al. ",
+        "modif": "Er zijn geen wijzigingen aangebracht.",
+        "not_deleted": "De categorie bevat nog steeds instrumenten en kan niet worden verwijderd.",
+        "supp": "Verwijder",
+        "cancel": "Annuleren",
+        "modified": "Aanpassen"
+      },
+      "edit_group": {
+        "modif": "Een groep wijzigen",
+        "name": "Naam",
+        "picture": "Afbeelding",
+        "warning": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+        "save": "Registreer",
+        "cancel": "Annuleren"
+      },
+      "edit_instrument": {
+        "warning": "Weet je zeker dat je dit alternatief wilt afschaffen?",
+        "modif": "Het instrument aanpassen ",
+        "loading": "Laden...",
+        "supplier": "Leverancier:",
+        "cat": "Categorie:",
+        "ref": "Referentie:",
+        "descr": "Beschrijving leverancier:",
+        "price": "Price:",
+        "obs": "Veroudering:",
+        "picture": "Afbeelding",
+        "confirm": "Er bestaat al een afbeelding voor dit instrument. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+        "alt": "Alternatieven:",
+        "diff_supp": "De alternatieven moeten verschillende leveranciers hebben.",
+        "group": "De alternatieven moeten deel uitmaken van dezelfde groep.",
+        "exists": "Dit alternatief bestaat al.",
+        "ref2": "Referentie",
+        "brand": "Merk",
+        "description": "Beschrijving",
+        "price2": "Prijzen",
+        "delete": "Verwijder",
+        "cancel": "Annuleren",
+        "save": "Registreer"
+      },
+      "edit_subgroup": {
+        "modif": "Een subgroep wijzigen",
+        "name": "Naam",
+        "picture": "Afbeelding",
+        "delete": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+        "cancel": "Annuleren",
+        "save": "Registreer"
+      },
+      "edit_supplier": {
+        "modif": "De leverancier wijzigen ",
+        "loading": "Laden...",
+        "name": "Naam:",
+        "sold": "In de uitverkoop:",
+        "yes": "Ja",
+        "no": "Geen",
+        "status": "Status:",
+        "open": "Open",
+        "closed": "Gesloten",
+        "delete": "Verwijder",
+        "cancel": "Annuleren",
+        "save": "Registreer"
+      },
+      "edituser": {
+        "confirm": "Weet je zeker dat je deze account wilt verwijderen?",
+        "modif": "Gebruiker wijzigen ",
+        "loading": "Laden...",
+        "username": "Gebruikersnaam",
+        "enter_name": "Gebruikersnaam",
+        "email": "E-mailadres",
+        "role": "Rollen",
+        "empty": "vacuüm",
+        "delete": "Verwijder",
+        "cancel": "Annuleren",
+        "save": "Registreer"
       }
     },
     "profile_page": {
@@ -421,6 +559,45 @@
         "continue": "Ga verder",
         "response": "Reactie server"
       }
+    },
+    "login": {
+      "connection": "Aansluiting",
+      "welcome": "Welkom op MDTools",
+      "ways": "Maak verbinding via de verschillende beschikbare verbindingsmethoden.",
+      "dex": "Maak verbinding met DEX"
+    },
+    "alt": {
+      "type": "Type instrumenten",
+      "alternatives": "Alternatieven :",
+      "ref": "Referentie",
+      "brand": "Merk",
+      "descr": "Beschrijving",
+      "price": "Prijs",
+      "delete": "Verwijder",
+      "picture": "Foto's"
+    },
+    "add_user": {
+      "add": "Een gebruiker toevoegen",
+      "name": "Gebruikersnaam:",
+      "email": "E-mail:",
+      "button_add": "Voeg toe",
+      "erase": "Wis",
+      "cancel": "Annuleren"
+    },
+    "logs": {
+      "gestion": "Beheer van de site",
+      "admin": "Beheer van de site",
+      "consult": "Logboeken raadplegen",
+      "access": "Toegangslogboeken",
+      "user": "Gebruikers",
+      "username": "Gebruikersnaam",
+      "email": "E-mail",
+      "role": "Rollen",
+      "actions": "Acties",
+      "activ": "Activ",
+      "inactiv": "Uitgeschakeld",
+      "previous": "Vorige",
+      "next": "Volgende"
     }
   }
   

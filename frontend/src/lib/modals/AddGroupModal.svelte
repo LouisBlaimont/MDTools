@@ -82,7 +82,7 @@
                 <input type="text" bind:value={subGroupName} placeholder={$_('modals.add_group.enter_subname')}
                     class="w-full p-2 mt-1 mb-3 border rounded">
                 
-                <label for="characateristics" class="font-semibold text-lg">Caractéristiques:</label>   
+                <label for="characateristics" class="font-semibold text-lg">{$_('modals.add_group.char')}</label>   
                 {#each characteristics as char, index}
                     <div class="flex items-center mt-2">
                         <input type="text" bind:value={characteristics[index]} placeholder={$_('modals.add_group.enter_char')}

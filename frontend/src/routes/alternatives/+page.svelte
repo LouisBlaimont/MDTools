@@ -13,7 +13,7 @@
   <div class="flex justify-center items-center p-4">
     <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-6xl border border-gray-300 flex flex-col">
         <div class="mb-6 border-b pb-4">
-            <h2 class="text-lg font-bold text-black">Category :</h2>
+            <h2 class="text-lg font-bold text-black">{$_('alt.type')}</h2>
             <div class="inline-flex space-x-0 border-2 border-black rounded-lg">
                 <div class="px-4 py-2 border-r-2 border-black">{category.groupName}</div>
                 <div class="px-4 py-2 border-r-2 border-black">{category.subGroupName}</div>
@@ -24,18 +24,18 @@
 
             </div>
 
-            <h2 class="text-lg font-bold text-black mt-4">Alternatives :</h2>
+            <h2 class="text-lg font-bold text-black mt-4">{$_('alt.alternatives')}</h2>
             <table class="w-full border border-gray-200 text-sm">
             <thead>
               <tr class="bg-gray-200">
-                <th class="p-2 text-center">Référence</th>
-                <th class="p-2 text-center">Marque</th>
-                <th class="p-2 text-center">Description</th>
-                <th class="p-2 text-center">Prix</th>
+                <th class="p-2 text-center">{$_('alt.ref')}</th>
+                <th class="p-2 text-center">{$_('alt.brand')}</th>
+                <th class="p-2 text-center">{$_('alt.descr')}</th>
+                <th class="p-2 text-center">{$_('alt.price')}</th>
                 {#if $isAdmin}
-                  <th class="p-2 text-center">Supprimer</th>
+                  <th class="p-2 text-center">{$_('alt.delete')}</th>
                 {/if}
-                <th class="p-2 text-center">Photos</th>
+                <th class="p-2 text-center">{$_('alt.picture')}</th>
               </tr>
             </thead>
             <tbody>

@@ -351,7 +351,7 @@
                     class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
                     on:mousedown={startDrag}
                 >
-                    <h2 class="text-xl font-bold">{$_('modals.add_instrument.add_inst')}</h2>
+                    <h2 class="text-xl font-bold">{$_('modals.add_instrument.add_instr')}</h2>
                 </div>
                 <form on:submit|preventDefault={submitForm} class="p-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -526,7 +526,7 @@
                     <div class="flex justify-end gap-4">
                         <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.add_instrument.erase')}</button>
                         <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.add_instrument.cancel')}</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajou{$_('modals.add_instrument.add')}ter</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.add_instrument.add')}</button>
                     </div>
                 </form>
             </div>

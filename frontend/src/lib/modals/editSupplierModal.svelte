@@ -193,7 +193,7 @@
         class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
         on:mousedown={startDrag}
       >
-        <h2 class="text-xl font-bold">Modifier le fournisseur {name}</h2>
+        <h2 class="text-xl font-bold">{$_('modals.edit_supplier.modif')}{name}</h2>
         <!-- Edit Icon -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +233,7 @@
                     fill="currentFill"
                 />
             </svg>
-            <span class="sr-only">Chargement...</span>
+            <span class="sr-only">{$_('modals.edit_supplier.loading')}.</span>
         </div>
       {:then} 
       <form on:submit|preventDefault={handleSubmit} class="p-4">
@@ -242,7 +242,7 @@
             {#if detail.name !== "id"}
                 <div>
                 {#if detail.name === "name"}
-                    <label class="block mb-2">Nom:</label>
+                    <label class="block mb-2">{$_('modals.edit_supplier.name')}</label>
                     <input
                     type="text"
                     bind:value={detail.value}
@@ -273,7 +273,7 @@
                     </ul>
                     {/if}
                 {:else if detail.name === "soldByMd"}
-                    <label class="block mb-2">En vente:</label>
+                    <label class="block mb-2">{$_('modals.edit_supplier.sold')}</label>
                     <div class="flex gap-4 mb-4">
                     <label>
                         <input
@@ -282,7 +282,7 @@
                             value={true}
                             on:change={() => (detailsEdited = true)}
                         />
-                        Oui
+                        {$_('modals.edit_supplier.yes')}
                     </label>
                     <label>
                         <input
@@ -291,11 +291,11 @@
                         value={false}
                         on:change={() => (detailsEdited = true)}
                         />
-                        Non
+                        {$_('modals.edit_supplier.no')}
                     </label>
                     </div>
                 {:else if detail.name === "closed"}
-                    <label class="block mb-2">Statut:</label>
+                    <label class="block mb-2">{$_('modals.edit_supplier.status')}</label>
                     <div class="flex gap-4 mb-4">
                     <label>
                         <input
@@ -304,7 +304,7 @@
                         value={true}
                         on:change={() => (detailsEdited = true)}
                         />
-                        Fermé
+                        {$_('modals.edit_supplier.closed')}
                     </label>
                     <label>
                         <input
@@ -313,7 +313,7 @@
                         value={false}
                         on:change={() => (detailsEdited = true)}
                         />
-                        Ouvert
+                        {$_('modals.edit_supplier.open')}
                     </label>
                     </div>
                 {:else}
@@ -331,9 +331,9 @@
         </div>
         
         <div class="flex justify-end gap-4 mt-4">
-          <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-          <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+          <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.edit_supplier.delete')}</button>
+          <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.edit_supplier.cancel')}</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.edit_supplier.save')}</button>
         </div>
       </form>
       {/await}

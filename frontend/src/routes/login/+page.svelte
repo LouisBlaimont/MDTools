@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-  <title>Connexion</title>
+  <title>{$_('login.connection')}</title>
 </svelte:head>
 
 <main class="flex flex-col md:flex-row justify-center w-11/12 lg:w-3/4 mx-auto mt-6 p-6">
@@ -20,9 +20,9 @@
     class="flex w-full md:w-1/3 lg:w-1/4 mb-6 md:mb-0 justify-center items-center border-3 rounded-lg bg-teal-500 shadow-lg shadow-teal-500"
   >
     <div class="flex flex-col items-center w-full p-6">
-      <h1 class="text-2xl text-center mb-2 text-white">Bienvenue sur MDTools</h1>
+      <h1 class="text-2xl text-center mb-2 text-white">{$_('login.welcome')}</h1>
       <span class="text-center text-white"
-        >Connectez-vous avec les différents moyens de connexion présents.</span
+        >{$_('login.ways')}</span
       >
     </div>
   </div>
@@ -46,7 +46,7 @@
           <span
             class="w-full h-16 px-5 py-2.5 flex items-center relative transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-transparent text-lg overflow-hidden"
           >
-            <p class="flex=none">Se connecter avec DEX</p>
+            <p class="flex=none">{$_('login.dex')}</p>
             <img
               src="https://raw.githubusercontent.com/cncf/artwork/d926e82ea34c851c75d15536b4994488d49b5db8/projects/dex/icon/color/dex-icon-color.svg"
               alt="DEX Logo"

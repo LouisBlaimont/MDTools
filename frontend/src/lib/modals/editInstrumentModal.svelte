@@ -436,7 +436,7 @@
   }
 
   async function removeAlt(instrId){
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette alternative ?")){
+    if (confirm($_('modals.edit_instrument.warning'))){
       removingAlt.set(true);
       altToRemove.update(alt => [...alt, instrId]);
       alternativesOfInstr = alternativesOfInstr.filter(instr => instr.id !== instrId);
@@ -523,7 +523,7 @@
                 class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
                 onmousedown={startDrag}
             >
-                <h2 class="text-xl font-bold">Modifier l'instrument {reference}</h2>
+                <h2 class="text-xl font-bold">{$_('modals.edit_instrument.modif')}{reference}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -566,7 +566,7 @@
                             fill="currentFill"
                         />
                     </svg>
-                    <span class="sr-only">Chargement...</span>
+                    <span class="sr-only">{$_('modals.edit_instrument.loading')}</span>
                 </div>
             {:then}
                 <form onsubmit={handleSubmit} preventDefault class="p-4">
@@ -574,19 +574,20 @@
                         {#each characteristics as characteristic}
                             {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
                                 <div>
+                                    <!-- svelte-ignore a11y_label_has_associated_control -->
                                     <label class="block mb-2">
                                         {#if characteristic.name === 'supplier'}
-                                            Fournisseur:
+                                            {$_('modals.edit_instrument.supplier')}
                                         {:else if characteristic.name === 'categoryId'}
-                                            Catégorie:
+                                          {$_('modals.edit_instrument.cat')}
                                         {:else if characteristic.name === 'reference'}
-                                            Référence:
+                                          {$_('modals.edit_instrument.ref')}
                                         {:else if characteristic.name === 'supplierDescription'}
-                                            Description du fournisseur:
+                                          {$_('modals.edit_instrument.descr')}
                                         {:else if characteristic.name === 'price'}
-                                            Prix:
+                                          {$_('modals.edit_instrument.price')}
                                         {:else if characteristic.name === 'obsolete'}
-                                            Obsolescence:
+                                          {$_('modals.edit_instrument.obs')}
                                         {:else}
                                             {characteristic.name}:
                                         {/if}
@@ -672,7 +673,7 @@
                         {/each}
                     </div>
                     
-                    <label class="block mb-2">Image:</label>
+                    <label class="block mb-2">{$_('modals.edit_instrument.picture')}</label>
                     <input
                         class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
@@ -680,16 +681,16 @@
                     />
                     {#if instrument.pictureId}
                         <div class="mt-1 text-sm text-red-500 mb-4">
-                            Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.
+                            {$_('modals.edit_instrument.confirm')}
                         </div>
                     {/if}
-                    <span>Alternatives:</span>
+                    <span>{$_('modals.edit_instrument.alt')}</span>
                     <div class="flex justify-content">
                       <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
                       oninput={searchByKeywords}/>
-                      <span id="error-same-supplier" class="text-red-600 text-sm hidden">Les alternatives doivent avoir des fournisseurs differents.</span>
-                      <span id="error-different-group" class="text-red-600 text-sm hidden">Les alternatives doivent faire partie du même groupe.</span>
-                      <span id="error-already-alt" class="text-red-600 text-sm hidden">Cette alternative existe déjà.</span>
+                      <span id="error-same-supplier" class="text-red-600 text-sm hidden">{$_('modals.edit_instrument.diff_supp')}</span>
+                      <span id="error-different-group" class="text-red-600 text-sm hidden">{$_('modals.edit_instrument.group')}</span>
+                      <span id="error-already-alt" class="text-red-600 text-sm hidden">{$_('modals.edit_instrument.exists')}</span>
                     </div>
 
                     <!-- Search results dropdown -->
@@ -723,11 +724,11 @@
                     <table class="w-full border border-gray-200 text-sm mt-3">
                       <thead>
                         <tr class="bg-gray-200">
-                          <th class="p-2 text-center">Référence</th>
-                          <th class="p-2 text-center">Marque</th>
-                          <th class="p-2 text-center">Description</th>
-                          <th class="p-2 text-center">Prix</th>
-                          <th class="p-2 text-center">Supprimer</th>
+                          <th class="p-2 text-center">{$_('modals.edit_instrument.ref2')}</th>
+                          <th class="p-2 text-center">{$_('modals.edit_instrument.brand')}</th>
+                          <th class="p-2 text-center">{$_('modals.edit_instrument.description')}</th>
+                          <th class="p-2 text-center">{$_('modals.edit_instrument.price2')}</th>
+                          <th class="p-2 text-center">{$_('modals.edit_instrument.delete')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -771,9 +772,9 @@
                     </table>
                     
                     <div class="flex justify-end gap-4 mt-4">
-                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.edit_instrument.delete')}</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.edit_instrument.cancel')}</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.edit_instrument.save')}</button>
                     </div>
                 </form>
             {/await}

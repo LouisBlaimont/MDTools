@@ -217,7 +217,7 @@
                 {/if}
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.reference')}</th>
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.brand')}</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.brand')}</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.description')}</th>
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.price')}</th>
             </tr>
         </thead>

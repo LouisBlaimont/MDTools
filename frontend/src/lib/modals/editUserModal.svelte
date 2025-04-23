@@ -94,7 +94,7 @@
 
   // Function to handle instrument deletion
   async function handleDelete() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer ce compte ?")) {
+      if (confirm($_('modals.edituser.confirm'))) {
           try {
               const response = await apiFetch("/api/user/" + encodeURIComponent(user.username), {
                   method: "DELETE",
@@ -272,7 +272,7 @@
                 class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
                 on:mousedown={startDrag}
             >
-                <h2 class="text-xl font-bold">Modifier l'utilisateur {user.username}</h2>
+                <h2 class="text-xl font-bold">{$_('modals.edituser.modif')}{user.username}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -315,7 +315,7 @@
                             fill="currentFill"
                         />
                     </svg>
-                    <span class="sr-only">Chargement...</span>
+                    <span class="sr-only">{$_('modals.edituser.loading')}</span>
                 </div>
             {:then}
                 <form on:submit|preventDefault={handleSubmit} class="p-4">
@@ -325,7 +325,7 @@
                           {#if characteristic.name === "username"}
                             <!-- Division for Username -->
                             <div class="space-y-2">
-                              <label for="username" class="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
+                              <label for="username" class="block text-sm font-medium text-gray-700">{$_('modals.edituser.username')}</label>
                               <input
                                 type="text"
                                 id="username"
@@ -335,7 +335,7 @@
                                 on:input={handleAutocompleteInput}
                                 on:blur={() => closeAutocomplete()}
                                 class="w-full p-2 border rounded mb-4 rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                placeholder="Nom d'utilisateur"
+                                placeholder={$_('modals.edituser.enter_name')}
                               />
                               {#if showAutocompleteDropdown && currentAutocompleteField === "username"}
                                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -358,7 +358,7 @@
 
                           <!-- Division for Email -->
                           <div class="space-y-2">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700">{$_('modals.edituser.email')}</label>
                             <!-- svelte-ignore event_directive_deprecated -->
                             <input
                               type="email"
@@ -369,7 +369,7 @@
                               on:input={handleAutocompleteInput}
                               on:blur={() => closeAutocomplete()}
                               class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                              placeholder="Adresse email"
+                              placeholder={$_('modals.edituser.email')}
                             />
                             {#if showAutocompleteDropdown && currentAutocompleteField === "email"}
                               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -389,7 +389,7 @@
                       {:else if characteristic.name === "roles"}
                           <!-- Division for Roles -->
                             <div class="space-y-2">
-                              <label for="roles" class="block text-sm font-medium text-gray-700">Rôles</label>
+                              <label for="roles" class="block text-sm font-medium text-gray-700">{$_('modals.edituser.role')}</label>
                               <div class="relative">
                               <span class="inline-block w-full">
                                   <button
@@ -408,7 +408,7 @@
                                           {/if}
                                       </span>
                                       {:else}
-                                      <span class="flex items-center gap-1 rounded-sm px-2 py-0.5">Empty</span>
+                                      <span class="flex items-center gap-1 rounded-sm px-2 py-0.5">{$_('modals.edituser.empty')}</span>
                                       {/each}
                                   </div>
                                   <span
@@ -462,9 +462,9 @@
                       <div>
                     
                     <div class="mt-4 space-x-4 flex justify-end">
-                        <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" on:click={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                        <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.edituser.delete')}</button>
+                        <button type="button" on:click={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.edituser.cancel')}</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.edituser.save')}</button>
                     </div>
                 </form>
             {/await}

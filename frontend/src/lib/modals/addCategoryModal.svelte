@@ -254,7 +254,7 @@
                                 {/if}
                             </div>
                             <div>
-                                <label class="block mb-2" for="input-{char}-abbrev">{$_('modals.add_category_abbreviations')}</label>
+                                <label class="block mb-2" for="input-{char}-abbrev">{$_('modals.add_category.abbreviations')}</label>
                                 <input
                                     type = "text"
                                     id="input-{char}-abbrev"
