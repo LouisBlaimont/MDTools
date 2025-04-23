@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicAbbreviationDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.CharacteristicValueAbbreviation;
 import be.uliege.speam.team03.MDTools.repositories.CategoryCharacteristicRepository;
@@ -85,6 +86,9 @@ public class CharacteristicAbbreviationService {
     *                            characteristic value
     */
    public void addAbbreviation(String characteristicValue, String abbreviation) {
+      if(abbreviation == null || abbreviation.trim().isEmpty()) {
+         throw new BadRequestException("Abbreviation cannot be null or empty");
+      }
       repository.save(new CharacteristicValueAbbreviation(characteristicValue, abbreviation));
    }
 
@@ -97,10 +101,16 @@ public class CharacteristicAbbreviationService {
    public void addAbbreviation(CharacteristicAbbreviationDTO dto) {
       String characteristicValue = dto.getValue();
       String abbreviation = dto.getAbbreviation();
+      if(abbreviation == null || abbreviation.trim().isEmpty()) {
+         throw new BadRequestException("Abbreviation cannot be null or empty");
+      }
       repository.save(new CharacteristicValueAbbreviation(characteristicValue, abbreviation));
    }
 
    public void updateAbbreviation(String characteristicValue, String abbreviation) {
+      if(abbreviation == null || abbreviation.trim().isEmpty()) {
+         throw new BadRequestException("Abbreviation cannot be null or empty");
+      }
       repository.findByValue(characteristicValue).ifPresent(abbrev -> {
          abbrev.setAbbreviation(abbreviation);
          repository.save(abbrev);
@@ -122,6 +132,9 @@ public class CharacteristicAbbreviationService {
    public CharacteristicAbbreviationDTO updateAbbreviation(@NonNull CharacteristicAbbreviationDTO dto) {
       String characteristicValue = dto.getValue();
       String abbreviation = dto.getAbbreviation();
+      if(abbreviation == null || abbreviation.trim().isEmpty()) {
+         throw new BadRequestException("Abbreviation cannot be null or empty");
+      }
       Optional<CharacteristicValueAbbreviation> existingAbbrev = repository.findByValue(characteristicValue);
       CharacteristicValueAbbreviation response;
       if (existingAbbrev.isPresent()) {
