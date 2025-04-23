@@ -17,6 +17,7 @@
   import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";
   import { modals } from "svelte-modals";
   import addSupplierModal from "$lib/modals/addSupplierModal.svelte";
+  import addCategoryModal from "$lib/modals/addCategoryModal.svelte";
   import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
   import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
   import { stopImmediatePropagation } from "svelte/legacy";

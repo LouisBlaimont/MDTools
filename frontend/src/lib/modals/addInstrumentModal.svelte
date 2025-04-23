@@ -19,6 +19,8 @@
     let id = $state("");
     let categoryId = $state(initCategory ? initCategory.id : ""); // Set default category ID
 
+    let inputSize;
+
     let posX =$state(0), posY = $state(0), offsetX = 0, offsetY = 0, isDragging = false;
 
     function startDrag(event) {
@@ -360,9 +362,6 @@
                     type="text" 
                     bind:value={reference} 
                     data-field="reference"
-                    onfocus={() => triggerAutocomplete("reference")}
-                    oninput={handleAutocompleteInput}
-                    onblur={closeAutocomplete}
                     class="w-full p-2 mt-1 mb-3 border rounded" 
                     placeholder="Entrer une référence"
                 />
@@ -374,6 +373,7 @@
                     type="text" 
                     bind:value={supplier} 
                     data-field="supplier"
+                    bind:this={inputSize}
                     onfocus={() => triggerAutocomplete("supplier")}
                     oninput={handleAutocompleteInput}
                     onblur={closeAutocomplete}
@@ -384,6 +384,7 @@
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
                         class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
+                        style="width: {inputSize?.offsetWidth || 'auto'}px;"
                         onmousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
@@ -401,32 +402,13 @@
                 {/if}
                 <span id="error-no-supplier" class="mb-5 text-red-600 hidden">Veuillez entrer un fournisseur.</span>
 
-                {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <ul 
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
-                        onmousedown={event => event.preventDefault()}
-                    >
-                        {#each filteredAutocompleteOptions as option}
-                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                            <button
-                                type="button"
-                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw]"
-                                role="option"
-                                onclick={() => selectAutocompleteOption(option)}
-                            >
-                                {option}
-                            </button>
-                        {/each}
-                    </ul>
-                {/if}
-
-                <label for="description" class="font-semibold text-lg">Description du fournisseur:</label>
+                <label for="supplierDescription" class="font-semibold text-lg">Description du fournisseur:</label>
                 <input 
-                    id="description"
+                    id="supplierDescription"
                     type="text" 
                     bind:value={supplierDescription} 
                     data-field="supplierDescription"
+                    bind:this={inputSize}
                     onfocus={() => triggerAutocomplete("supplierDescription")}
                     oninput={handleAutocompleteInput}
                     onblur={closeAutocomplete}
@@ -437,6 +419,7 @@
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
                         class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
+                        style="width: {inputSize?.offsetWidth || 'auto'}px;"
                         onmousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
@@ -470,6 +453,7 @@
                     type="text" 
                     data-field="categoryId"
                     bind:value={categoryId}
+                    bind:this={inputSize}
                     onfocus={() => triggerAutocomplete("categoryId")}
                     oninput={handleAutocompleteInput}
                     onblur={closeAutocomplete}
@@ -480,6 +464,7 @@
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul 
                         class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
+                        style="width: {inputSize?.offsetWidth || 'auto'}px;"
                         onmousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}

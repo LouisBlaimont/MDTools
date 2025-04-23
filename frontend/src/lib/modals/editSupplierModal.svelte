@@ -14,6 +14,8 @@
   let details = $state([]);
   let detailsEdited = false;
 
+  let inputSize;
+
   let posX = $state(0);
   let posY = $state(0);
   let offsetX = 0;
@@ -247,6 +249,7 @@
                     <input
                       type="text"
                       bind:value={detail.value}
+                      bind:this={inputSize}
                       on:change={() => (detailsEdited = true)}
                       on:focus={() => {
                           currentAutocompleteField = detail.name;
@@ -260,7 +263,8 @@
                     {#if showAutocompleteDropdown && currentAutocompleteField === detail.name}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto"
+                        style="width: {inputSize?.offsetWidth || 'auto'}px;"
                         on:mousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}

@@ -21,6 +21,8 @@
   let characteristics = $state([]);
   let users = $state([]);
 
+  let inputSize;
+
   
   // Function to handle form submission
   async function handleSubmit(event) {
@@ -327,6 +329,7 @@
                                 type="text"
                                 id="username"
                                 bind:value={characteristic.value}
+                                bind:this={inputSize}
                                 onchange={() => (userEdited = true)}
                                 onfocus={() => triggerAutocomplete("username")}
                                 oninput={handleAutocompleteInput}
@@ -338,6 +341,7 @@
                                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                 <ul 
                                   class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
                                   onmousedown={event => event.preventDefault()}
                                 >
                                   {#each filteredAutocompleteOptions as option}
@@ -361,6 +365,7 @@
                               type="email"
                               id="email"
                               bind:value={characteristic.value}
+                              bind:this={inputSize}
                               onchange={() => (userEdited = true)}
                               onfocus={() => triggerAutocomplete("email")}
                               oninput={handleAutocompleteInput}
@@ -371,7 +376,8 @@
                             {#if showAutocompleteDropdown && currentAutocompleteField === "email"}
                               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                               <ul class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                onmousedown={event => event.preventDefault()}>
+                                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
+                                  onmousedown={event => event.preventDefault()}>
                                 {#each filteredAutocompleteOptions as option}
                                     <li
                                         class="px-4 py-2 hover:bg-gray-200 cursor-pointer"

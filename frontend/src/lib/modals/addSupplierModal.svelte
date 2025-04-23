@@ -12,6 +12,8 @@
     let name = $state("");
     let soldByMd = $state(null);
     let closed = $state(null);
+
+    let inputSize;
   
     let posX = $state(0);
     let posY = $state(0);
@@ -198,13 +200,15 @@
                 }}
                 on:input={handleAutocompleteInput}
                 on:blur={closeAutocomplete}
+                bind:this={inputSize}
                 class="w-full p-2 mt-1 border rounded mb-4"
                 placeholder="Entrer le nom du fournisseur"
               />
               {#if showAutocompleteDropdown && currentAutocompleteField === "name"}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
               <ul
-                  class="absolute z-10 mt-1 max-w-[80vw] bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  class="absolute z-10 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto"
+                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
                   on:mousedown={event => event.preventDefault()}
               >
                   {#each filteredAutocompleteOptions as option}

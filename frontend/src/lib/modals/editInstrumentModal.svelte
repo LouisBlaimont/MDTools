@@ -41,6 +41,8 @@
   let reference = $state(instrument.reference); // State for the instrument reference
   let characteristics = $state([]); // State for the instrument characteristics
 
+  let inputSize;
+
   // Function to handle form submission
   async function handleSubmit(event) {
     let updatedInstr = null;
@@ -654,9 +656,6 @@
                                       type="text"
                                       bind:value={characteristic.value}
                                       onchange={() => (characteristicsEdited = true)}
-                                      onfocus={() => triggerAutocomplete(characteristic.name)}
-                                      oninput={handleAutocompleteInput}
-                                      onblur={() => closeAutocomplete()}
                                       class="w-full p-2 mt-1 mb-3 border rounded"
                                     />        
                                     {:else}
@@ -664,6 +663,7 @@
                                             type="text"
                                             bind:value={characteristic.value}
                                             onchange={() => (characteristicsEdited = true)}
+                                            bind:this={inputSize}
                                             onfocus={() => triggerAutocomplete(characteristic.name)}
                                             oninput={handleAutocompleteInput}
                                             onblur={() => closeAutocomplete()}
@@ -673,6 +673,7 @@
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                             <ul 
                                                 class="absolute z-10 mt-1 w-1/2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                                style="width: {inputSize?.offsetWidth || 'auto'}px;"
                                                 onmousedown={event => event.preventDefault()}
                                             >
                                                 {#each filteredAutocompleteOptions as option}
