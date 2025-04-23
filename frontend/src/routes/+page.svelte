@@ -79,12 +79,12 @@
   function startEditing() {
     if (isEditing) {
       isEditing = false;
-      toast.push("Fin de l'édition des groupes.");
+      toast.push($_('homepage.toast1'));
       document.getElementById("editGroupsButton").classList.remove("bg-yellow-500");
       return;
     } else {
       isEditing = true;
-      toast.push("Choisissez un groupe pour le modifier.");
+      toast.push($_('homepage.toast2'));
       document.getElementById("editGroupsButton").classList.add("bg-yellow-500");
     }
   }

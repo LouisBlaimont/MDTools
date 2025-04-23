@@ -24,8 +24,6 @@
   import "$lib/i18n"; // Import to initialize. Important :)
   import { isLoading, locale, waitLocale, _ } from "svelte-i18n";
   import I18nSelector from "$lib/components/i18n_selector.svelte";
-
-  import { t } from "svelte-i18n";
   import Loading from "$lib/Loading.svelte";
 
   async function i18nInit() {

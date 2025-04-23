@@ -38,7 +38,9 @@
         "add_group": "Add group",
         "add_subgroup": "Add subgroup"
       }
-    }
+    },
+    "toast1": "End of edition of the groups",
+    "toast2": "Choose a group to modify"
   },
 
   "profile": "Profile",
@@ -580,7 +582,10 @@
     "email": "Email:",
     "button_add": "Add",
     "erase": "Erase",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "toast1": "Utilisateur ajouté!",
+    "toast2": "Impossible d'ajouter un utilisateur.",
+    "toast3":  "Operation annulée."
   },
   "logs": {
     "gestion": "Gestion of the site",
@@ -595,6 +600,13 @@
     "activ": "Activ",
     "inactiv": "Disabled",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "modif": "Modifier l'utilisateur",
+    "activer": "Activer",
+    "deactiver": "Désactiver",
+    "compte": "Le compte de",
+    "activé": "a été activé.",
+    "désactivé": "a été désactivé.",
+    "error": "An error occurred while fetching users. Please try again.<br> Erreur:"
   }
 }

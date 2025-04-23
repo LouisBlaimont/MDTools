@@ -7,6 +7,7 @@
   import { browser } from "$app/environment";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
   import { preventDefault } from "svelte/legacy";
 
 </script>

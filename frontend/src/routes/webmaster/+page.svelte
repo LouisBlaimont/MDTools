@@ -4,6 +4,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
   import UserButton from "./UserButton.svelte";
 
   import Icon from "@iconify/svelte";
@@ -88,7 +89,7 @@
         throw new Error("Failed to fetch users.");
       }
     } catch (error) {
-      toast.push("An error occurred while fetching users. Please try again.<br> Erreur:" + error);
+      toast.push($_('logs.error') + error);
     }
   }
 

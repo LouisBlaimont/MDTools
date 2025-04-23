@@ -6,6 +6,7 @@
     import { selectAlternative, removeAlternative } from "$lib/components/alternatives.js";
     import { isAdmin } from "$lib/stores/user_stores";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
+    import { _ } from "svelte-i18n";
 
     const category = $categories[$selectedCategoryIndex]; 
   </script>
