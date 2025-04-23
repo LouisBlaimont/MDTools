@@ -251,7 +251,7 @@
                 {#if $showChars}
                 {#each $characteristics as char}
                     {#if char==="Length"}
-                        <label class="font-semibold text-lg" for="input-{char}">{char}:</label>
+                        <label class="block font-semibold text-lg" for="input-{char}">{char}:</label>
                         <div class="relative mb-2">
                             <input 
                             type="number" 
