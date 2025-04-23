@@ -41,6 +41,8 @@
   let reference = $state(instrument.reference); // State for the instrument reference
   let characteristics = $state([]); // State for the instrument characteristics
 
+  let inputSize;
+
   // Function to handle form submission
   async function handleSubmit(event) {
     let updatedInstr = null;
@@ -199,7 +201,7 @@
       }
   }
 
-  // Dragging functionality to match addModal
+  // Dragging functionality
   let posX = $state(0);
   let posY = $state(0); 
   let offsetX = 0;
@@ -526,10 +528,9 @@
 
 {#if isOpen}
 <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
-        class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
+        class="fixed inset-0 z-10 flex items-center justify-center"
         onmousemove={drag}
         onmouseup={stopDrag}
     >
@@ -538,14 +539,14 @@
             style="transform: translate({posX}px, {posY}px);"
         >
             <div 
-                class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
                 onmousedown={startDrag}
             >
-                <h2 class="text-xl font-bold">Modifier l'instrument {reference}</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier l'instrument {reference}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  fill="white"
+                  fill="teal-500"
                   version="1.1"
                   id="Capa_1"
                   viewBox="0 0 494.936 494.936"
@@ -587,12 +588,12 @@
                     <span class="sr-only">Chargement...</span>
                 </div>
             {:then}
-                <form onsubmit={handleSubmit} preventDefault class="p-4">
+                <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
                             {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId' && characteristic.name !== 'priceDate'} 
                                 <div>
-                                    <label class="block mb-2">
+                                    <label class="font-semibold text-lg">
                                         {#if characteristic.name === 'supplier'}
                                             Fournisseur:
                                         {:else if characteristic.name === 'categoryId'}
@@ -655,25 +656,24 @@
                                       type="text"
                                       bind:value={characteristic.value}
                                       onchange={() => (characteristicsEdited = true)}
-                                      onfocus={() => triggerAutocomplete(characteristic.name)}
-                                      oninput={handleAutocompleteInput}
-                                      onblur={() => closeAutocomplete()}
-                                      class="w-full p-2 border rounded mb-4"
+                                      class="w-full p-2 mt-1 mb-3 border rounded"
                                     />        
                                     {:else}
                                         <input
                                             type="text"
                                             bind:value={characteristic.value}
                                             onchange={() => (characteristicsEdited = true)}
+                                            bind:this={inputSize}
                                             onfocus={() => triggerAutocomplete(characteristic.name)}
                                             oninput={handleAutocompleteInput}
                                             onblur={() => closeAutocomplete()}
-                                            class="w-full p-2 border rounded mb-4"
+                                            class="w-full p-2 mt-1 mb-3 border rounded"
                                         />
                                         {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                             <ul 
-                                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                                class="absolute z-10 mt-1 w-1/2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                                style="width: {inputSize?.offsetWidth || 'auto'}px;"
                                                 onmousedown={event => event.preventDefault()}
                                             >
                                                 {#each filteredAutocompleteOptions as option}
@@ -700,7 +700,7 @@
                         {/each}
                     </div>
                     
-                    <label class="block mb-2">Image:</label>
+                    <label class="font-semibold text-lg">Image:</label>
                     <input
                         class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
@@ -711,7 +711,8 @@
                             Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.
                         </div>
                     {/if}
-                    <span>Alternatives:</span>
+                    <label class="font-semibold text-lg">Alternatives:</label>
+                    <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives"> -->
                     <div class="flex justify-content">
                       <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
                       oninput={searchByKeywords}/>
@@ -799,9 +800,9 @@
                     </table>
                     
                     <div class="flex justify-end gap-4 mt-4">
-                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
+                        <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
                     </div>
                 </form>
             {/await}

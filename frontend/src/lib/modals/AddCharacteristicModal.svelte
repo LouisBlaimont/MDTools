@@ -1,8 +1,4 @@
 <script>
-  export let isOpen = false;
-  export let onClose = () => {};
-  export let selectedSubGroup;
-
   import { onMount } from "svelte";
   import { addCharacteristicToSubGroup, fetchCharacteristics, fetchAllCharacteristics, updateCharacteristicOrder , removeCharacteristicFromSubGroup} from "../../api.js";
   import { dndzone } from "svelte-dnd-action";
@@ -10,20 +6,48 @@
   import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
 
-  let newCharacteristicName = "";
+  const { isOpen, selectedSubGroup, onClose } = $props();
+
+  // Dragging functionality
+  let posX = $state(0);
+  let posY = $state(0); 
+  let offsetX = 0;
+  let offsetY = 0;
+  let isDragging = false;
+
+  function startDrag(event) {
+      isDragging = true;
+      offsetX = event.clientX - posX;
+      offsetY = event.clientY - posY;
+  }
+
+  function drag(event) {
+      if (isDragging) {
+          posX = event.clientX - offsetX;
+          posY = event.clientY - offsetY;
+      }
+  }
+
+  function stopDrag() {
+      isDragging = false;
+  }
+
+  let newCharacteristicName = $state("");
   let allCharacteristics = [];
   let requiredColumns = [];
-  let filteredSuggestions = [];
+  let filteredSuggestions = $state([]);
 
-  let characteristicsInShape = [];
-  let characteristicsOutOfShape = [];
+  let characteristicsInShape = $state([]);
+  let characteristicsOutOfShape = $state([]);
 
-  $: if (newCharacteristicName.trim() !== "") {
-    const input = newCharacteristicName.trim().toLowerCase();
-    filteredSuggestions = allCharacteristics
-      .filter(c => c.toLowerCase().includes(input))
-      .filter(c => !requiredColumns.includes(c));
-  }
+  $effect(() => {
+    if (newCharacteristicName.trim() !== "") {
+      const input = newCharacteristicName.trim().toLowerCase();
+      filteredSuggestions = allCharacteristics
+        .filter(c => c.toLowerCase().includes(input))
+        .filter(c => !requiredColumns.includes(c));
+    }
+  });
 
   /**
    * Create and add a new characteristic to the selected subgroup.
@@ -69,9 +93,11 @@
       .map((c, i) => ({ id: `${c.name}-out-${i}`, name: c.name, orderPosition: null }));
   }
 
-  $: if (isOpen && selectedSubGroup) {
-    loadCharacteristics(selectedSubGroup).catch(console.error);
-  }
+  $effect(() => {
+    if (isOpen && selectedSubGroup) {
+      loadCharacteristics(selectedSubGroup).catch(console.error);
+    }
+  });
 
   /**
    * Deletes a characteristic from the selected subgroup, regardless of whether it's in the form.
@@ -124,11 +150,29 @@
 </script>
   
 {#if isOpen}
-<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative">
-    <button class="absolute top-2 right-2 text-gray-600" on:click={onClose}>✖</button>
-    <h2 class="text-xl font-semibold mb-4">Ajouter une nouvelle caractéristique</h2>
-
+  <div
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+    >
+    <div class="fixed inset-0 bg-black bg-opacity-30"></div>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+            class="fixed inset-0 z-10 flex items-center justify-center"
+            on:mousemove={drag}
+            on:mouseup={stopDrag}
+        >
+    
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg absolute max-h-[80vh] overflow-y-auto"
+       style="transform: translate({posX}px, {posY}px);"
+  >
+  <div class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg" 
+       on:mousedown={startDrag}
+  >
+    <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une nouvelle caractéristique</h2>
+  </div>
+  <div class="p-4">
     <input type="text" placeholder="Nom de la caractéristique" class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
 
     {#if filteredSuggestions.length > 0}
@@ -226,7 +270,18 @@
           </div>
         </li>
       {/each}
-    </ul>      
+    </ul>  
+
+    <div class="flex justify-end gap-4 mt-6">
+      <button 
+        class="bg-gray-500 text-white px-4 py-2 rounded"
+        on:click={onClose}
+      >
+        Annuler
+      </button>
+    </div>
   </div>
 </div>
+  </div>
+  </div>
 {/if}

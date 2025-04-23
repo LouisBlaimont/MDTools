@@ -21,6 +21,8 @@
   let characteristics = $state([]);
   let users = $state([]);
 
+  let inputSize;
+
   
   // Function to handle form submission
   async function handleSubmit(event) {
@@ -255,30 +257,29 @@
 
 {#if isOpen}
 <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
-        class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
-        on:mousemove={drag}
-        on:mouseup={stopDrag}
+        class="fixed inset-0 z-10 flex items-center justify-center"
+        onmousemove={drag}
+        onmouseup={stopDrag}
     >
         <div 
             class="bg-white rounded-lg shadow-lg max-h-[80vh] overflow-y-auto absolute"
             style="transform: translate({posX}px, {posY}px); max-width: 40vw;"
         >
             <div 
-                class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-                on:mousedown={startDrag}
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+                onmousedown={startDrag}
             >
-                <h2 class="text-xl font-bold">Modifier l'utilisateur {user.username}</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier l'utilisateur {user.username}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  fill="white"
+                  fill="teal-500"
                   version="1.1"
                   id="Capa_1"
                   viewBox="0 0 494.936 494.936"
-                  class="w-6 h-6"
+                  class="w-6 h-6 ml-2"
                 >
                 <g>
                   <g>
@@ -316,35 +317,37 @@
                     <span class="sr-only">Chargement...</span>
                 </div>
             {:then}
-                <form on:submit|preventDefault={handleSubmit} class="p-4">
-                    <div class="grid grid-cols-1">
+                <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
+                    <div class="mt-2">
                       {#each characteristics as characteristic}
                         <div>
                           {#if characteristic.name === "username"}
                             <!-- Division for Username -->
                             <div class="space-y-2">
-                              <label for="username" class="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
+                              <label for="username" class="font-semibold text-lg">Nom d'utilisateur</label>
                               <input
                                 type="text"
                                 id="username"
                                 bind:value={characteristic.value}
-                                on:change={() => (userEdited = true)}
-                                on:focus={() => triggerAutocomplete("username")}
-                                on:input={handleAutocompleteInput}
-                                on:blur={() => closeAutocomplete()}
-                                class="w-full p-2 border rounded mb-4 rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                bind:this={inputSize}
+                                onchange={() => (userEdited = true)}
+                                onfocus={() => triggerAutocomplete("username")}
+                                oninput={handleAutocompleteInput}
+                                onblur={() => closeAutocomplete()}
+                                class="w-full p-2 mt-1 mb-3 border rounded"
                                 placeholder="Nom d'utilisateur"
                               />
                               {#if showAutocompleteDropdown && currentAutocompleteField === "username"}
                                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                 <ul 
                                   class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                  on:mousedown={event => event.preventDefault()}
+                                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
+                                  onmousedown={event => event.preventDefault()}
                                 >
                                   {#each filteredAutocompleteOptions as option}
                                       <li
                                           class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                          on:click={() => selectAutocompleteOption(option)}
+                                          onclick={() => selectAutocompleteOption(option)}
                                       >
                                           {option}
                                       </li>
@@ -355,28 +358,30 @@
                           {:else if characteristic.name === "email"}
 
                           <!-- Division for Email -->
-                          <div class="space-y-2">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
+                          <div class="space-y-2 mt-2">
+                            <label for="email" class="font-semibold text-lg">Adresse email</label>
                             <!-- svelte-ignore event_directive_deprecated -->
                             <input
                               type="email"
                               id="email"
                               bind:value={characteristic.value}
-                              on:change={() => (userEdited = true)}
-                              on:focus={() => triggerAutocomplete("email")}
-                              on:input={handleAutocompleteInput}
-                              on:blur={() => closeAutocomplete()}
-                              class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                              bind:this={inputSize}
+                              onchange={() => (userEdited = true)}
+                              onfocus={() => triggerAutocomplete("email")}
+                              oninput={handleAutocompleteInput}
+                              onblur={() => closeAutocomplete()}
+                              class="w-full p-2 mt-1 mb-3 border rounded"
                               placeholder="Adresse email"
                             />
                             {#if showAutocompleteDropdown && currentAutocompleteField === "email"}
                               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                               <ul class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                on:mousedown={event => event.preventDefault()}>
+                                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
+                                  onmousedown={event => event.preventDefault()}>
                                 {#each filteredAutocompleteOptions as option}
                                     <li
                                         class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                        on:click={() => selectAutocompleteOption(option)}
+                                        onclick={() => selectAutocompleteOption(option)}
                                     >
                                         {option}
                                     </li>
@@ -386,13 +391,13 @@
                         </div>
                       {:else if characteristic.name === "roles"}
                           <!-- Division for Roles -->
-                            <div class="space-y-2">
-                              <label for="roles" class="block text-sm font-medium text-gray-700">Rôles</label>
+                            <div class="space-y-2 mt-2">
+                              <label for="roles" class="font-semibold text-lg">Rôles</label>
                               <div class="relative">
                               <span class="inline-block w-full">
                                   <button
                                   use:listbox.button
-                                  on:change={onChange}
+                                  onchange={onChange}
                                   class="focus:shadow-outline-blue relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pr-10 pl-2 text-left text-sm transition duration-150 ease-in-out focus:border-blue-300 focus:outline-hidden sm:leading-5"
                                   >
                                   <div class="flex flex-wrap gap-2">
@@ -460,9 +465,9 @@
                       <div>
                     
                     <div class="mt-4 space-x-4 flex justify-end">
-                        <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">Supprimer</button>
-                        <button type="button" on:click={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">Annuler</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
+                        <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
                     </div>
                 </form>
             {/await}
