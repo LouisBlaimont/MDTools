@@ -167,13 +167,13 @@ public class CategoryService {
                 }
 
                 if(existingAbrev.isEmpty()){
-                    if (abrev.equals("")){
+                    if (abrev.trim().isEmpty()){
                         continue;
                     }
                     newAbreviations.add(new CharacteristicValueAbbreviation(stringVal, abrev));
                 }
                 else{
-                    if (abrev.equals("")){
+                    if (abrev.trim().isEmpty()){
                         continue;
                     }
                     updateAbreviations.add(new CharacteristicValueAbbreviation(stringVal, abrev)); 
