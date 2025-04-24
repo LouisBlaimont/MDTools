@@ -15,6 +15,8 @@
   let details = $state([]);
   let detailsEdited = false;
 
+  let inputSize;
+
   let posX = $state(0);
   let posY = $state(0);
   let offsetX = 0;
@@ -176,28 +178,31 @@
 </script>
 
 {#if isOpen}
-<div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <!-- svelte-ignore event_directive_deprecated -->
   <div
-    class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
-    on:mousemove={drag}
-    on:mouseup={stopDrag}
+    class="relative z-10"
+    aria-labelledby="modal-title"
+    role="dialog"
+    aria-modal="true"
   >
-    <div
-      class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
-      style="transform: translate({posX}px, {posY}px);"
-    >
-      <div
-        class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
-        on:mousedown={startDrag}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+      class="fixed inset-0 z-10 flex items-center justify-center"
+      on:mousemove={drag}
+      on:mouseup={stopDrag}
+  >
+      <div 
+          class="bg-white rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto absolute"
+          style="transform: translate({posX}px, {posY}px);"
       >
-        <h2 class="text-xl font-bold">{$_('modals.edit_supplier.modif')}{name}</h2>
+      <div
+          class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+          on:mousedown={startDrag}
+      >
+        <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_supplier.modif')}{name}</h2>
         <!-- Edit Icon -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill="white"
+          fill="teal-500"
           version="1.1"
           id="Capa_1"
           viewBox="0 0 494.936 494.936"
@@ -236,30 +241,31 @@
             <span class="sr-only">{$_('modals.edit_supplier.loading')}.</span>
         </div>
       {:then} 
-      <form on:submit|preventDefault={handleSubmit} class="p-4">
-        <div class="grid grid-cols-2 gap-4">
+      <form on:submit|preventDefault={handleSubmit} class="bg-gray-100 p-6 rounded-b-lg">
           {#each details as detail}
             {#if detail.name !== "id"}
                 <div>
                 {#if detail.name === "name"}
-                    <label class="block mb-2">{$_('modals.edit_supplier.name')}</label>
+                    <label for="name" class="font-semibold text-lg">{$_('modals.edit_supplier.name')}</label>
                     <input
-                    type="text"
-                    bind:value={detail.value}
-                    on:change={() => (detailsEdited = true)}
-                    on:focus={() => {
-                        currentAutocompleteField = detail.name;
-                        triggerAutocomplete(detail.name);
-                    }}
-                    on:input={handleAutocompleteInput}
-                    on:blur={closeAutocomplete}
-                    class="w-full p-2 border rounded mb-4"
-                    placeholder="Entrer le nom du fournisseur"
+                      type="text"
+                      bind:value={detail.value}
+                      bind:this={inputSize}
+                      on:change={() => (detailsEdited = true)}
+                      on:focus={() => {
+                          currentAutocompleteField = detail.name;
+                          triggerAutocomplete(detail.name);
+                      }}
+                      on:input={handleAutocompleteInput}
+                      on:blur={closeAutocomplete}
+                      class="w-full p-2 border rounded mb-4"
+                      placeholder="Entrer le nom du fournisseur"
                     />
                     {#if showAutocompleteDropdown && currentAutocompleteField === detail.name}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <ul
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto"
+                        style="width: {inputSize?.offsetWidth || 'auto'}px;"
                         on:mousedown={event => event.preventDefault()}
                     >
                         {#each filteredAutocompleteOptions as option}
@@ -273,7 +279,7 @@
                     </ul>
                     {/if}
                 {:else if detail.name === "soldByMd"}
-                    <label class="block mb-2">{$_('modals.edit_supplier.sold')}</label>
+                    <label for="soldByMd" class="font-semibold text-lg">{$_('modals.edit_supplier.sold')}</label>
                     <div class="flex gap-4 mb-4">
                     <label>
                         <input
@@ -295,7 +301,7 @@
                     </label>
                     </div>
                 {:else if detail.name === "closed"}
-                    <label class="block mb-2">{$_('modals.edit_supplier.status')}</label>
+                    <label for="closed" class="font-semibold text-lg">{$_('modals.edit_supplier.status')}</label>
                     <div class="flex gap-4 mb-4">
                     <label>
                         <input
@@ -317,7 +323,7 @@
                     </label>
                     </div>
                 {:else}
-                    <label class="block mb-2">{detail.name}:</label>
+                    <label class="font-semibold text-lg">{detail.name}:</label>
                     <input
                     type="text"
                     bind:value={detail.value}
@@ -328,12 +334,11 @@
                 </div>
             {/if}
           {/each}
-        </div>
         
         <div class="flex justify-end gap-4 mt-4">
-          <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.edit_supplier.delete')}</button>
-          <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.edit_supplier.cancel')}</button>
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.edit_supplier.save')}</button>
+          <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_supplier.delete')}</button>
+          <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_supplier.cancel')}</button>
+          <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.edit_supplier.save')}</button>
         </div>
       </form>
       {/await}

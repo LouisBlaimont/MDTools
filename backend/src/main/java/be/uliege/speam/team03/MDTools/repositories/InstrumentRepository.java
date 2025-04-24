@@ -19,7 +19,7 @@ public interface InstrumentRepository extends CrudRepository<Instruments, Intege
      * @param reference the reference of the instrument to search for.
      * @return Instrument that has the corresponding reference
      */
-    Optional<Instruments> findByReference(String reference);
+    Optional<Instruments> findByReferenceIgnoreCase(String reference);
     
     // Optional<Instruments> findByCategoryId(Long id);
     /**

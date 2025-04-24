@@ -13,6 +13,8 @@
     let name = $state("");
     let soldByMd = $state(null);
     let closed = $state(null);
+
+    let inputSize;
   
     let posX = $state(0);
     let posY = $state(0);
@@ -165,8 +167,12 @@
   </script>
   
   {#if isOpen}
-  <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
+    <div
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+    >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore event_directive_deprecated -->
     <div
@@ -179,15 +185,14 @@
         style="transform: translate({posX}px, {posY}px);"
       >
         <div
-          class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
+          class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
           on:mousedown={startDrag}
         >
           <h2 class="text-xl font-bold">{$_('modals.add_supplier.add_supp')}</h2>        
         </div> 
-        <form on:submit|preventDefault={handleSubmit} class="p-4">
-            <label class="block mb-2">{$_('modals.add_supplier.name')}
+        <form on:submit|preventDefault={handleSubmit} class="bg-gray-100 p-6 rounded-b-lg">
+            <label for="name" class="font-semibold text-lg">{$_('modals.add_supplier.name')}
             </label>
-            <div class="relative mb-4">
               <input
                 type="text"
                 bind:value={name}
@@ -197,13 +202,15 @@
                 }}
                 on:input={handleAutocompleteInput}
                 on:blur={closeAutocomplete}
-                class="w-full p-2 border rounded mb-4"
+                bind:this={inputSize}
+                class="w-full p-2 mt-1 border rounded mb-4"
                 placeholder={$_('modals.add_supplier.enter_supp')}
               />
               {#if showAutocompleteDropdown && currentAutocompleteField === "name"}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
               <ul
-                  class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  class="absolute z-10 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto"
+                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
                   on:mousedown={event => event.preventDefault()}
               >
                   {#each filteredAutocompleteOptions as option}
@@ -216,9 +223,8 @@
                   {/each}
               </ul>
               {/if}
-            </div>
 
-            <label class="block">{$_('modals.add_supplier.sold')}</label>
+            <label for="soldByMd" class="font-semibold text-lg">{$_('modals.add_supplier.sold')}</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
@@ -239,7 +245,7 @@
               </label>
             </div>
 
-            <label class="block mb-2">{$_('modals.add_supplier.status')}:</label>
+            <label for="closed" class="font-semibold text-lg">{$_('modals.add_supplier.status')}:</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
@@ -261,10 +267,10 @@
             </div>
           
           <div class="flex justify-end gap-4 mt-4">
-            <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.add_supplier.erase')}</button>
-            <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.add_supplier.cancel')}
+            <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_supplier.erase')}</button>
+            <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.add_supplier.cancel')}
             </button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.add_supplier.save')}
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.add_supplier.save')}
             </button>
           </div>
         </form>

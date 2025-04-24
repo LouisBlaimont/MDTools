@@ -1,5 +1,5 @@
 <script>
-  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3} from "$lib/stores/searches";
+  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3, groups_summary} from "$lib/stores/searches";
   import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
   import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
@@ -42,8 +42,11 @@
   let reference = $state(instrument.reference); // State for the instrument reference
   let characteristics = $state([]); // State for the instrument characteristics
 
+  let inputSize;
+
   // Function to handle form submission
   async function handleSubmit(event) {
+    let updatedInstr = null;
     event.preventDefault(); // Prevent the default form submission behavior
 
     // If a file is selected, upload it
@@ -51,7 +54,7 @@
       try {
         const fileData = new FormData();
         fileData.append("file", file);
-        const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id) + "/picture",
+        const response = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instrument.id),
           {
             method: "POST",
             body: fileData,
@@ -83,6 +86,7 @@
         if (!response.ok) {
           throw new Error("Failed to update the instrument characteristics");
         }
+        updatedInstr = await response.json();
       } catch (error) {
         console.error("Error:", error);
       }
@@ -126,7 +130,28 @@
       altToRemove.set([]);
     }
     close();
-    goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+
+    if(updatedInstr){
+      const group = $groups_summary.find(group => group.id === updatedInstr.groupId);
+      selectedGroup.set(group.name);
+      try{
+        const response = await apiFetch(`/api/subgroups/all`);
+        if(!response.ok){
+          throw new Error(`Failed to fetch subgroups`);
+        }
+        const data = await response.json();
+        const subGroup = data.find(subgroup => subgroup.id === updatedInstr.subGroupId);
+        selectedSubGroup.set(subGroup.name);
+      } catch(error) {
+        console.log("Error :", error);
+        return;
+      }
+
+      goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(updatedInstr.categoryId)}&instrument=${encodeURIComponent(updatedInstr.id)}`)
+    }
+    else{
+      goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instrument.categoryId)}&instrument=${encodeURIComponent(instrument.id)}`);
+    }
     reload.set(true);
 
   }
@@ -177,7 +202,7 @@
       }
   }
 
-  // Dragging functionality to match addModal
+  // Dragging functionality
   let posX = $state(0);
   let posY = $state(0); 
   let offsetX = 0;
@@ -217,10 +242,6 @@
         'supplier': {
           endpoint: 'supplier',
           extractValue: (item) => item.name,
-        },
-        'reference': {
-          endpoint: 'instrument',
-          extractValue: (item) => item.reference,
         },
         'supplierDescription': {
           endpoint: 'instrument',
@@ -508,10 +529,9 @@
 
 {#if isOpen}
 <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" aria-hidden="true"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
-        class="fixed inset-0 z-10 flex items-center justify-center bg-gray-500 bg-opacity-50"
+        class="fixed inset-0 z-10 flex items-center justify-center"
         onmousemove={drag}
         onmouseup={stopDrag}
     >
@@ -520,14 +540,14 @@
             style="transform: translate({posX}px, {posY}px);"
         >
             <div 
-                class="p-4 border-b cursor-move bg-black text-white flex items-center justify-between"
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
                 onmousedown={startDrag}
             >
-                <h2 class="text-xl font-bold">{$_('modals.edit_instrument.modif')}{reference}</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_instrument.modif')}{reference}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  fill="white"
+                  fill="teal-500"
                   version="1.1"
                   id="Capa_1"
                   viewBox="0 0 494.936 494.936"
@@ -569,13 +589,13 @@
                     <span class="sr-only">{$_('modals.edit_instrument.loading')}</span>
                 </div>
             {:then}
-                <form onsubmit={handleSubmit} preventDefault class="p-4">
+                <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
                     <div class="grid grid-cols-2 gap-4">
                         {#each characteristics as characteristic}
-                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'alt' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId'} 
+                            {#if characteristic.name !== 'id' && characteristic.name !== 'picturesId' && characteristic.name !== 'groupId' && characteristic.name !== 'subGroupId' && characteristic.name !== 'priceDate'} 
                                 <div>
                                     <!-- svelte-ignore a11y_label_has_associated_control -->
-                                    <label class="block mb-2">
+                                    <label class="font-semibold text-lg">
                                         {#if characteristic.name === 'supplier'}
                                             {$_('modals.edit_instrument.supplier')}
                                         {:else if characteristic.name === 'categoryId'}
@@ -633,20 +653,29 @@
                                             }}
                                             class="w-full p-2 border rounded mb-4"
                                         />
+                                    {:else if characteristic.name === 'reference'}
+                                    <input
+                                      type="text"
+                                      bind:value={characteristic.value}
+                                      onchange={() => (characteristicsEdited = true)}
+                                      class="w-full p-2 mt-1 mb-3 border rounded"
+                                    />        
                                     {:else}
                                         <input
                                             type="text"
                                             bind:value={characteristic.value}
                                             onchange={() => (characteristicsEdited = true)}
+                                            bind:this={inputSize}
                                             onfocus={() => triggerAutocomplete(characteristic.name)}
                                             oninput={handleAutocompleteInput}
                                             onblur={() => closeAutocomplete()}
-                                            class="w-full p-2 border rounded mb-4"
+                                            class="w-full p-2 mt-1 mb-3 border rounded"
                                         />
                                         {#if showAutocompleteDropdown && currentAutocompleteField === characteristic.name}
                                             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                                             <ul 
-                                                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                                class="absolute z-10 mt-1 w-1/2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                                style="width: {inputSize?.offsetWidth || 'auto'}px;"
                                                 onmousedown={event => event.preventDefault()}
                                             >
                                                 {#each filteredAutocompleteOptions as option}
@@ -673,7 +702,7 @@
                         {/each}
                     </div>
                     
-                    <label class="block mb-2">{$_('modals.edit_instrument.picture')}</label>
+                    <label class="font-semibold text-lg">{$_('modals.edit_instrument.picture')}</label>
                     <input
                         class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
@@ -684,7 +713,8 @@
                             {$_('modals.edit_instrument.confirm')}
                         </div>
                     {/if}
-                    <span>{$_('modals.edit_instrument.alt')}</span>
+                    <label class="font-semibold text-lg">{$_('modals.edit_instrument.alt')}</label>
+                    <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives"> -->
                     <div class="flex justify-content">
                       <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}
                       oninput={searchByKeywords}/>
@@ -772,9 +802,9 @@
                     </table>
                     
                     <div class="flex justify-end gap-4 mt-4">
-                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded">{$_('modals.edit_instrument.delete')}</button>
-                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded">{$_('modals.edit_instrument.cancel')}</button>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{$_('modals.edit_instrument.save')}</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_instrument.delete')}</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_instrument.cancel')}</button>
+                        <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.edit_instrument.save')}</button>
                     </div>
                 </form>
             {/await}

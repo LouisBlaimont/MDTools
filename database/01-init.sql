@@ -121,7 +121,8 @@ CREATE TABLE instruments (
     reference VARCHAR(100) NOT NULL,
     supplier_description TEXT,
     price NUMERIC(10, 2) NOT NULL,
-    obsolete BOOLEAN DEFAULT FALSE
+    obsolete BOOLEAN DEFAULT FALSE,
+    price_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_instruments_supplier_id ON instruments(supplier_id);
@@ -242,6 +243,47 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION trigger_shape_update_on_abbreviation_change()
+RETURNS TRIGGER AS $$
+DECLARE
+    cc_record RECORD;
+    value_to_check TEXT;
+BEGIN
+    -- Determine which value to use: NEW for INSERT/UPDATE, OLD for DELETE
+    IF TG_OP = 'DELETE' THEN
+        value_to_check := OLD.characteristic_value;
+    ELSE
+        value_to_check := NEW.characteristic_value;
+    END IF;
+
+    -- Find all category_characteristic records that use the affected abbreviation
+    FOR cc_record IN
+        SELECT category_id, characteristic_id
+        FROM category_characteristic
+        WHERE characteristic_value = value_to_check
+    LOOP
+        -- Trigger update to invoke the existing update_shape() function
+        UPDATE category_characteristic
+        SET characteristic_value = characteristic_value
+        WHERE category_id = cc_record.category_id
+          AND characteristic_id = cc_record.characteristic_id;
+    END LOOP;
+
+    -- Return appropriate row depending on operation
+    IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Create trigger to call this function when a new abbreviation is added or updated
+CREATE TRIGGER trigger_abbreviation_deletion
+AFTER DELETE OR INSERT OR UPDATE ON category_characteristic_abbreviations
+FOR EACH ROW
+EXECUTE FUNCTION trigger_shape_update_on_abbreviation_change();
 
 -- Update the trigger to reflect the modified function
 CREATE TRIGGER trigger_update_shape
@@ -275,3 +317,30 @@ CREATE TRIGGER trigger_refresh_shapes
 AFTER UPDATE OR INSERT ON sub_group_characteristic
 FOR EACH ROW
 EXECUTE FUNCTION refresh_shapes_for_subgroup();
+
+-- Update shapes when an abbrevation is modified
+CREATE OR REPLACE FUNCTION refresh_shapes_for_abbreviation()
+RETURNS TRIGGER AS $$
+DECLARE
+    cat_id BIGINT;
+BEGIN
+    -- For each category using the characteristic value
+    FOR cat_id IN
+        SELECT DISTINCT category_id
+        FROM category_characteristic
+        WHERE characteristic_value =  NEW.characteristic_value
+    LOOP
+        -- Force an update on category_characteristic to trigger update_shape
+        UPDATE category_characteristic
+        SET characteristic_value = characteristic_value
+        WHERE category_id = cat_id AND characteristic_value = NEW.characteristic_value;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_refresh_shapes_on_abbrev
+AFTER UPDATE OR INSERT ON category_characteristic_abbreviations
+FOR EACH ROW
+EXECUTE FUNCTION refresh_shapes_for_abbreviation();

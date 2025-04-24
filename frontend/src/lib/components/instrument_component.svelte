@@ -1,25 +1,18 @@
 <script> 
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { onMount } from "svelte";
-    import { isAdmin } from "$lib/stores/user_stores";
-    import { preventDefault } from "svelte/legacy";
-    import { get } from "svelte/store";
     import { PUBLIC_API_URL } from "$env/static/public";
+    import { goto } from "$app/navigation";
     import EditInstrumentButton from "../../routes/searches/EditInstrumentButton.svelte";    
-    import { isEditing, orderItems, reload, category_to_addInstrument, categories, selectedCategoryIndex, selectedSupplierIndex, 
-            quantity, currentSuppliers, hoveredSupplierImageIndex, hoveredSupplierIndex, alternatives, selectedGroup, selectedSubGroup, 
-            hoveredAlternativeIndex, showCategories} from "$lib/stores/searches";   
+    import { isEditing, categories, selectedCategoryIndex, selectedSupplierIndex, currentSuppliers,
+            hoveredSupplierImageIndex, hoveredSupplierIndex, alternatives,
+            hoveredAlternativeIndex} from "$lib/stores/searches";   
     import { modals } from "svelte-modals";
     import BigPicturesModal from "$lib/modals/BigPicturesModal.svelte";
-    import { _ } from "svelte-i18n";
+    import { _, getDateFormatter, locale } from "svelte-i18n";
     import addInstrumentModal from "$lib/modals/addInstrumentModal.svelte";    
     import addInstrumentToOrderModal from "$lib/modals/addInstrumentToOrderModal.svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { apiFetch } from "$lib/utils/fetch";
-    import DeleteOrderModal from "$lib/modals/deleteOrderModal.svelte";
     import { selectAlternative, removeAlternative } from "./alternatives.js";
-    import Icon from "@iconify/svelte";
     
     $: notEditing = !$isEditing;
 
@@ -175,7 +168,7 @@
                     {row.supplierDescription}
                 </td>                
                 <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.price}"
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
                 >
                     {row.price}
                 </td>   
@@ -185,6 +178,7 @@
     </table>
 
     <!-- TABLE OF THE ALTERNATIVES -->
+    {#if $alternatives.length >0} 
     <table class="w-full border-collapse mt-4">
         <thead>
             <tr class="bg-white text-teal-400">
@@ -233,10 +227,10 @@
                 >
                 {#if $isEditing}
                     <td 
-                    class="text-center border border-solid border-[black]"
+                    class="w-[1px] text-center border border-solid border-[black] {row.obsolete ? 'text-white' : 'text-red-500'}"
                     onclick={() => removeAlternative(row.id)}
                     >
-                    <span class="{row.obsolete ? 'text-white' : 'text-red-500'}">&times;</span>
+                    &times;
                     </td>
                 {/if}
                 {#if notEditing}
@@ -245,14 +239,33 @@
                     onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
                     >
                 {/if}
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)} >{row.reference}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.supplier}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.supplierDescription}</td>
-                <td class="text-center border border-solid border-[black]" onclick= {() => clickOnAlt(row, index)}>{row.price}</td>
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.reference}"
+                >
+                    {row.reference}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                title="{row.supplier}"
+                >
+                    {row.supplier}
+                </td> 
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
+                >
+                    {row.supplierDescription}
+                </td>                
+                <td 
+                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
+                >
+                    {row.price}
+                </td>   
                 </tr>
             {/each}
         </tbody>
     </table>
+    {/if}
 
 </div>
 

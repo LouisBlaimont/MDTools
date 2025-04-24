@@ -54,7 +54,7 @@ class ExcelImportServiceTest {
         mockSubGroup.setSubGroupCharacteristics(List.of());
 
         when(subGroupRepository.findByName("Subgroup A")).thenReturn(Optional.of(mockSubGroup));
-        when(instrumentRepository.findByReference("ref123")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref123")).thenReturn(Optional.empty());
 
         // Act
         excelImportService.processImport(dto);
@@ -74,7 +74,7 @@ class ExcelImportServiceTest {
         row.put("reference", "REF001");
         dto.setData(List.of(row));
 
-        when(instrumentRepository.findByReference("ref001")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref001")).thenReturn(Optional.empty());
 
         // Act
         excelImportService.processImport(dto);
@@ -114,7 +114,7 @@ class ExcelImportServiceTest {
         existingInstrument.setReference("ref123");
         existingInstrument.setSupplierDescription("Old Desc");
 
-        when(instrumentRepository.findByReference("ref123")).thenReturn(Optional.of(existingInstrument));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref123")).thenReturn(Optional.of(existingInstrument));
 
         // Act
         excelImportService.processImport(dto);
@@ -164,7 +164,7 @@ class ExcelImportServiceTest {
 
         when(supplierRepository.findAll()).thenReturn(List.of(supplier));
         when(instrumentRepository.findAllBySupplier(supplier)).thenReturn(List.of(oldInstrument));
-        when(instrumentRepository.findByReference("ref001")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref001")).thenReturn(Optional.empty());
 
         // Act
         excelImportService.processImport(dto);
@@ -194,7 +194,7 @@ class ExcelImportServiceTest {
 
         when(supplierRepository.findAll()).thenReturn(List.of(supplier));
         when(instrumentRepository.findAllBySupplier(supplier)).thenReturn(List.of(existing));
-        when(instrumentRepository.findByReference("ref001")).thenReturn(Optional.of(existing));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref001")).thenReturn(Optional.of(existing));
 
         // Act
         excelImportService.processImport(dto);
@@ -219,7 +219,7 @@ class ExcelImportServiceTest {
         supplier.setSupplierName("MySupplier");
 
         when(supplierRepository.findAll()).thenReturn(List.of(supplier));
-        when(instrumentRepository.findByReference("ref003")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref003")).thenReturn(Optional.empty());
 
         // Act
         excelImportService.processImport(dto);
@@ -257,8 +257,8 @@ class ExcelImportServiceTest {
         Map<String, Object> row = Map.of("ref_1", "REF_A", "ref_2", "REF_B");
         dto.setData(List.of(row));
 
-        when(instrumentRepository.findByReference("ref_a")).thenReturn(Optional.empty());
-        when(instrumentRepository.findByReference("ref_b")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_a")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_b")).thenReturn(Optional.empty());
         when(alternativesRepository.existsById(any())).thenReturn(false);
 
         Instruments createdA = new Instruments(); createdA.setId(1L); createdA.setReference("ref_a");
@@ -285,8 +285,8 @@ class ExcelImportServiceTest {
         Instruments a = new Instruments(); a.setId(10L); a.setReference("ref_x");
         Instruments b = new Instruments(); b.setId(20L); b.setReference("ref_y");
 
-        when(instrumentRepository.findByReference("ref_x")).thenReturn(Optional.of(a));
-        when(instrumentRepository.findByReference("ref_y")).thenReturn(Optional.of(b));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_x")).thenReturn(Optional.of(a));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_y")).thenReturn(Optional.of(b));
         when(alternativesRepository.existsById(any())).thenReturn(true); // simulate AB or BA exists
 
         // Act
@@ -307,8 +307,8 @@ class ExcelImportServiceTest {
         Instruments m = new Instruments(); m.setId(100L); m.setReference("ref_m");
         Instruments n = new Instruments(); n.setId(200L); n.setReference("ref_n");
 
-        when(instrumentRepository.findByReference("ref_m")).thenReturn(Optional.of(m));
-        when(instrumentRepository.findByReference("ref_n")).thenReturn(Optional.of(n));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_m")).thenReturn(Optional.of(m));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_n")).thenReturn(Optional.of(n));
         when(alternativesRepository.existsById(any())).thenReturn(false);
 
         // Act
@@ -352,8 +352,8 @@ class ExcelImportServiceTest {
         instr2.setReference("ref2");
         instr2.setCategory(null);
 
-        when(instrumentRepository.findByReference("ref1")).thenReturn(Optional.of(instr1));
-        when(instrumentRepository.findByReference("ref2")).thenReturn(Optional.of(instr2));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref1")).thenReturn(Optional.of(instr1));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref2")).thenReturn(Optional.of(instr2));
         when(supplierRepository.findAll()).thenReturn(List.of());
 
         ArgumentCaptor<Instruments> captor = ArgumentCaptor.forClass(Instruments.class);
@@ -381,8 +381,8 @@ class ExcelImportServiceTest {
         Map<String, Object> row = Map.of("reference1", "REF1", "reference2", "REF2");
         dto.setData(List.of(row));
 
-        when(instrumentRepository.findByReference("ref1")).thenReturn(Optional.empty());
-        when(instrumentRepository.findByReference("ref2")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref1")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("ref2")).thenReturn(Optional.empty());
         when(supplierRepository.findAll()).thenReturn(List.of());
 
         ArgumentCaptor<Instruments> captor = ArgumentCaptor.forClass(Instruments.class);
@@ -416,7 +416,7 @@ class ExcelImportServiceTest {
         Supplier supplier = new Supplier();
         supplier.setSupplierName("MySupplier");
 
-        when(instrumentRepository.findByReference("ref_x")).thenReturn(Optional.of(instr));
+        when(instrumentRepository.findByReferenceIgnoreCase("ref_x")).thenReturn(Optional.of(instr));
         when(supplierRepository.findAll()).thenReturn(List.of(supplier));
 
         ArgumentCaptor<Instruments> captor = ArgumentCaptor.forClass(Instruments.class);

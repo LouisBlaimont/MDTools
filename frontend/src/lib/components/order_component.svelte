@@ -2,7 +2,6 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { preventDefault } from "svelte/legacy";
     import { get } from "svelte/store";
     import { isEditing, orderItems, ordersNames, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, selectedOrderId, errorMessage, findOrdersNamesStore } from "$lib/stores/searches";  
     import { findOrderItems, addInstrument, getOrders, exportOrderToExcel, findOrdersNames } from "./order_component.js";
@@ -67,7 +66,7 @@
                     >{$_('orders_component.show_orders')}
                 </label>
                 <select id="commandes"
-                class="w-1/3 border border-gray-400 rounded p-0.5 border-solid border-[black]"
+                class="w-1/4 ml-2 p-1 bg-transparent text-slate-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 bind:value={$selectedOrderId}
                 on:change={(e) => {
                     if($selectedOrderId === "create"){

@@ -1,6 +1,5 @@
 <script>
   import { modals } from "svelte-modals";
-  import editCateogoryModal from "$lib/modals/editCategoryModal.svelte";
   import { isEditing } from "$lib/stores/searches";
   import { toast } from "@zerodevx/svelte-toast";
   import Icon from "@iconify/svelte";
