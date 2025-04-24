@@ -1,9 +1,11 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -127,6 +129,21 @@ public class GroupService {
         String subGroupName = (String)body.get("subGroupName");
         List<String> characteristics = (List<String>)body.get("characteristics");
         
+        if (characteristics == null) {
+            characteristics = new ArrayList<>();
+        } else {
+            characteristics = characteristics.stream()
+                .filter(c -> c != null && !c.trim().isEmpty())
+                .toList();
+        }
+
+        // Always include these three essential characteristics
+        Set<String> charSet = new LinkedHashSet<>(characteristics);
+        charSet.add("Name");
+        charSet.add("Function");
+        charSet.add("Length");
+        characteristics = new ArrayList<>(charSet);
+
         Optional<Group> sameGroup = groupRepository.findByName(groupName);
 
         if (sameGroup.isPresent()){
@@ -146,6 +163,7 @@ public class GroupService {
         subGroupsList.add(newSubGroup);
 
         List<SubGroupCharacteristic> subGroupDetails = new ArrayList<>();
+        int orderPositionCounter = 1;
 
         for (String charName : characteristics){
             Optional<Characteristic> sameChar = charRepository.findByName(charName);
@@ -159,7 +177,12 @@ public class GroupService {
             }
             
             SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroup.getId(), newChar.getId());
-            SubGroupCharacteristic subGroupDetail = new SubGroupCharacteristic(newSubGroup, newChar, 1);
+
+            Integer orderPosition = (!charName.equals("Name") && !charName.equals("Function") && !charName.equals("Length"))
+                ? orderPositionCounter++
+                : null;
+
+            SubGroupCharacteristic subGroupDetail = new SubGroupCharacteristic(newSubGroup, newChar, orderPosition);
             subGroupDetail.setId(key);
             subGroupDetails.add(subGroupDetail); 
         }

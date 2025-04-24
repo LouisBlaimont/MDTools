@@ -1,9 +1,11 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -100,6 +102,21 @@ public class SubGroupService {
         String subGroupName = (String) body.get("name");
         List<String> characteristics = (List<String>) body.get("characteristics");
 
+        if (characteristics == null) {
+            characteristics = new ArrayList<>();
+        } else {
+            characteristics = characteristics.stream()
+                .filter(c -> c != null && !c.trim().isEmpty())
+                .toList();
+        }
+
+        // Always include these three essential characteristics
+        Set<String> charSet = new LinkedHashSet<>(characteristics);
+        charSet.add("Name");
+        charSet.add("Function");
+        charSet.add("Length");
+        characteristics = new ArrayList<>(charSet);
+
         Optional<SubGroup> sameSubGroup = subGroupRepository.findByName(subGroupName);
         if (sameSubGroup.isPresent())
             throw new BadRequestException("Subgroup " + subGroupName + " already exists.");
@@ -108,6 +125,7 @@ public class SubGroupService {
         newSubGroup = subGroupRepository.save(newSubGroup);
 
         List<SubGroupCharacteristic> subGroupChars = new ArrayList<>();
+        int orderPositionCounter = 1;
 
         for (String charName : characteristics) {
             Optional<Characteristic> sameChar = charRepository.findByName(charName);
@@ -123,12 +141,15 @@ public class SubGroupService {
 
             SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId,
                     newChar.getId());
-            SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(newSubGroup, newChar, 1);
+
+            Integer orderPosition = (!charName.equals("Name") && !charName.equals("Function") && !charName.equals("Length"))
+                ? orderPositionCounter++
+                : null;
+            SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(newSubGroup, newChar, orderPosition);
             subGroupChar.setId(key);
             subGroupChars.add(subGroupChar);
         }
 
-        // This is where it doesn't work
         subGroupCharRepository.saveAll(subGroupChars);
 
         newSubGroup.setInstrCount(0);

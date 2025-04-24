@@ -2,25 +2,80 @@
     import { getContext } from "svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { modals } from "svelte-modals";
-    import { selectedGroup, reload} from "$lib/stores/searches";
+    import { selectedGroup, reload, autocompleteOptions} from "$lib/stores/searches";
     import { userId } from "$lib/stores/user_stores";
     import { apiFetch } from "$lib/utils/fetch";
     import { _ } from "svelte-i18n";
     import { createEventDispatcher } from "svelte";
     import { goto } from "$app/navigation";
+    import { get } from "svelte/store";
+
 
     export let isOpen = false;
     export let close;
 
     
     let groupName = $selectedGroup;
-    console.log("Group : " + groupName);
     let name = "";
     let picture = "";
     let characteristics = [""];
     const dispatch = createEventDispatcher();
 
     let posX = 0, posY = 0, offsetX = 0, offsetY = 0, isDragging = false;
+    let autocompleteInput = '';
+    let showAutocompleteDropDown = false;
+    let filteredAutocompleteOptions = [];
+    let currentAutocompleteField = null;
+    let currentAutocompleteIndex = null;
+
+    async function triggerAutocomplete(charName, index) {
+        currentAutocompleteField = charName;
+        currentAutocompleteIndex = index;
+
+        if (!autocompleteOptions[charName]) {
+            try {
+            const response = await apiFetch(`/api/characteristics/all`);
+            if (!response.ok) throw new Error();
+            const blacklist = ["Name", "Function", "Length"];
+            const values = await response.json();
+            const filtered = values.filter(v => !blacklist.includes(v));
+            autocompleteOptions.update((current) => ({
+                ...current,
+                [charName]: filtered
+            }));
+
+            } catch (e) {
+            console.error("Failed to load options");
+            }
+        }
+        const allOptions = get(autocompleteOptions)[charName] || [];
+        const selected = characteristics.filter((val, i) => i !== index);
+        filteredAutocompleteOptions = allOptions.filter(opt => !selected.includes(opt));
+
+        showAutocompleteDropDown = true;
+    }
+
+    function handleAutocompleteInput(event, index) {
+        const inputValue = event.target.value;
+        autocompleteInput = inputValue;
+        updateCharacteristic(index, inputValue);
+
+        const allOptions = get(autocompleteOptions)[currentAutocompleteField] || [];
+        const selected = characteristics.filter((val, i) => i !== index);
+        filteredAutocompleteOptions = allOptions
+            .filter(opt => !selected.includes(opt))
+            .filter(opt => opt.toLowerCase().includes(inputValue.toLowerCase()));
+
+        showAutocompleteDropDown = true;
+    }
+
+
+    function selectAutocompleteOption(option, index) {
+        updateCharacteristic(index, option);
+        autocompleteInput = '';
+        showAutocompleteDropDown = false;
+        currentAutocompleteField = null;
+    }
 
     function startDrag(event) {
         isDragging = true;
@@ -122,9 +177,31 @@
             {#if characteristics !== null}
                 {#each characteristics as char, index}
                     <div class="flex items-center mt-2">
-                        <input type="text" bind:value={characteristics[index]} 
-                        placeholder={$_('modals.add_subgroup.enter_char')}
-                            class="flex-1 p-2 border rounded" on:input={(e) => updateCharacteristic(index, e.target.value)}>
+                        <div class="relative w-full">
+                            <input
+                              type="text"
+                              class="flex-1 p-2 border rounded w-full"
+                              bind:value={characteristics[index]}
+                              on:focus={() => triggerAutocomplete(characteristics[index], index)}
+                              on:input={(e) => handleAutocompleteInput(e, index)}
+                              autocomplete="off"
+                            />
+                            {#if showAutocompleteDropDown && currentAutocompleteIndex === index}
+                            <ul class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto mt-1">
+                                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                                {#each filteredAutocompleteOptions as option}
+                                  <!-- svelte-ignore a11y_click_events_have_key_events -->
+                                  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                                  <li
+                                    class="px-4 py-2 text-left hover:bg-gray-200 cursor-pointer"
+                                    on:click={() => selectAutocompleteOption(option, index)}
+                                  >
+                                    {option}
+                                  </li>
+                                {/each}
+                              </ul>
+                            {/if}
+                          </div>                          
                     </div>
                 {/each}
             {/if}
