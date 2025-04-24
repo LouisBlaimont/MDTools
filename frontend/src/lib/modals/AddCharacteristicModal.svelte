@@ -46,7 +46,8 @@
       const input = newCharacteristicName.trim().toLowerCase();
       filteredSuggestions = allCharacteristics
         .filter(c => c.toLowerCase().includes(input))
-        .filter(c => !requiredColumns.includes(c));
+        .filter(c => !requiredColumns.includes(c))
+        .filter(c => !["name", "function", "length"].includes(c.toLowerCase()));
     }
   });
 
@@ -91,6 +92,7 @@
 
     characteristicsOutOfShape = characteristics
       .filter(c => c.orderPosition === null)
+      .filter(c => !["name", "function", "length"].includes(c.name.toLowerCase()))
       .map((c, i) => ({ id: `${c.name}-out-${i}`, name: c.name, orderPosition: null }));
   }
 
@@ -159,6 +161,7 @@
     >
     <div class="fixed inset-0 bg-black bg-opacity-30"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore event_directive_deprecated -->
     <div
             class="fixed inset-0 z-10 flex items-center justify-center"
             on:mousemove={drag}
