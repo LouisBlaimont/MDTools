@@ -310,7 +310,9 @@
       "exists": "Dit soort instrumenten bestaat al",
       "erase": "Wis",
       "cancel": "Annuleren",
-      "add": "Voeg  toe"
+      "picture" : "Afbeeldingen:",
+      "add": "Voeg  toe",
+      "pb" :"Probleem met het toevoegen van een afbeelding."
     },
     "add_char": {
       "add_char": "Een nieuw kenmerk toevoegen",
@@ -360,7 +362,7 @@
       "obs": "Veroudering:",
       "yes": "Ja",
       "no": "Geen",
-      "picture": "Veroudering::",
+      "picture": "Afbeeldingen:",
       "erase": "Wis",
       "cancel": "Annuleren",
       "add": "Voeg toe",
@@ -426,7 +428,9 @@
       "not_deleted": "De categorie bevat nog steeds instrumenten en kan niet worden verwijderd.",
       "supp": "Verwijder",
       "cancel": "Annuleren",
-      "save": "Registreer"
+      "save": "Registreer",
+      "picture" : "Afbeeldingen:",
+      "pb" :"Probleem met het toevoegen van een afbeelding."
     },
     "edit_group": {
       "modif": "Het groep wijzigen",
@@ -439,6 +443,7 @@
     },
     "edit_instrument": {
       "warning": "Weet je zeker dat je dit alternatief wilt afschaffen?",
+      "warning_delete" : "Weet je zeker dat je dit instrument wilt afschaffen?",
       "modif": "Het instrument aanpassen ",
       "loading": "Laden...",
       "supplier": "Leverancier:",
@@ -447,8 +452,7 @@
       "descr": "Beschrijving leverancier:",
       "price": "Price:",
       "obs": "Veroudering:",
-      "picture": "Afbeelding",
-      "confirm": "Er bestaat al een afbeelding voor dit instrument. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+      "picture": "Afbeeldingen:",
       "alt": "Alternatieven:",
       "diff_supp": "De alternatieven moeten verschillende leveranciers hebben.",
       "group": "De alternatieven moeten deel uitmaken van dezelfde groep.",
@@ -459,7 +463,8 @@
       "price2": "Prijzen",
       "delete": "Verwijder",
       "cancel": "Annuleren",
-      "save": "Registreer"
+      "save": "Registreer",
+      "pb" :"Probleem met het toevoegen van een afbeelding."
     },
     "edit_subgroup": {
       "modif": "Het subgroep wijzigen",

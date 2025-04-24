@@ -36,8 +36,7 @@ public class GroupController {
      * Retrieves all groups from the database.
      * 
      * @return A ResponseEntity containing:
-     *         - HTTP 200 OK with a list of GroupDTO objects if groups are found
-     *         - HTTP 404 NOT FOUND with an error message if no groups are found
+     *         - HTTP 200 OK with a list of GroupDTO objects if groups are founds
      */
     @GetMapping("/all")
     public ResponseEntity<List<GroupDTO>> findallGroups() {
@@ -61,6 +60,7 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK).body(groupDetails);
 
     }
+
 
     /**
      * Creates a new group or subgroup based on the provided data.

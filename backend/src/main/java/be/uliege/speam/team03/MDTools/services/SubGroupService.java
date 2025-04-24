@@ -226,7 +226,7 @@ public class SubGroupService {
      * @throws ResourceNotFoundException if the sub-group with the given name is not found
      * @throws BadRequestException if the sub-group name is empty
      */
-    public String deleteSubGroup(String subGroupName) throws ResourceNotFoundException, BadRequestException {
+    public Boolean deleteSubGroup(String subGroupName) throws ResourceNotFoundException, BadRequestException {
         if(ObjectUtils.isEmpty(subGroupName))
             throw new BadRequestException("Subgroup name is required.");
 
@@ -241,7 +241,8 @@ public class SubGroupService {
         subGroups.remove(subGroup);
         group.setSubGroups(subGroups);
         groupRepository.save(group);
-        return "Successfully deleted group.";
+        subGroupRepository.delete(subGroup);
+        return true;
     }
 
 

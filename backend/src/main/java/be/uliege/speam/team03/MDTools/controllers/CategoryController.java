@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
@@ -102,25 +100,6 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK).body(newCategory);
     }
 
-    // /**
-    //  * Handles the HTTP POST request to set a picture for a specific category.
-    //  *
-    //  * @param id   The ID of the category for which the picture is to be set.
-    //  * @param file The picture file to be uploaded, provided as a multipart file.
-    //  * @return A ResponseEntity containing the updated CategoryDTO and an HTTP
-    //  *         status of OK.
-    //  * @throws ResourceNotFoundException If the category with the specified ID is
-    //  *                                   not found.
-    //  */
-    // @PostMapping("/{id}/picture")
-    // public ResponseEntity<CategoryDTO> setGroupPicture(@PathVariable Long id, @RequestParam("file") MultipartFile file)
-    //         throws ResourceNotFoundException {
-    //     CategoryDTO categoryUpdated = null;
-    //     categoryUpdated = categoryService.setCategoryPicture(id, file);
-
-    //     return ResponseEntity.status(HttpStatus.OK).body(categoryUpdated);
-    // }
-
     /**
      * Handles POST requests to search for categories based on specific
      * characteristics.
@@ -173,7 +152,7 @@ public class CategoryController {
 
     /**
      * Updates the characteristics of a category identified by its ID.
-     *
+     * @param subGroupName the name of the subgroup of the category
      * @param id   the ID of the category to update
      * @param body a list of objects representing the new characteristics values and abbreviations for the category
      * @return a {@link ResponseEntity} containing the updated category an HTTP status of OK

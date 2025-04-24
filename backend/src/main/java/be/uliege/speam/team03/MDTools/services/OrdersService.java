@@ -211,11 +211,6 @@ public class OrdersService {
             throw new ResourceNotFoundException("Order not found.");
         }
         
-        //cascade deletion done in DB normally
-        List<OrderItems> orderItems = orderItemsRepository.findOrderItemsByOrderId(orderId);
-        if (orderItems.isEmpty() != true) {
-            orderItemsRepository.deleteAll(orderItems);
-        }
         ordersRepository.deleteById(orderId);
         return true;
     }

@@ -310,7 +310,9 @@
       "exists": "Ce type d'instruments existe déjà.",
       "erase": "Effacer",
       "cancel": "Annuler",
-      "add": "Ajouter"
+      "add": "Ajouter",
+      "picture" : "Images:",
+      "pb": "Problème d'ajout d'image."
     },
     "add_char": {
       "add_char": "Ajouter une nouvelle caractéristique",
@@ -360,7 +362,7 @@
       "obs": "Obsolescence:",
       "yes": "Oui",
       "no": "Non",
-      "picture": "Image:",
+      "picture": "Images:",
       "erase": "Effacer",
       "cancel": "Annuler",
       "add": "Ajouter",
@@ -426,7 +428,9 @@
       "not_deleted": "Le type d'instruments contient encore des instruments, il ne peut pas être supprimé.",
       "supp": "Supprimer",
       "cancel": "Annuler",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "picture" : "Images:",
+      "pb" :"Problème d'ajout d'image."
     },
     "edit_group": {
       "modif": "Modifier le groupe",
@@ -439,6 +443,7 @@
     },
     "edit_instrument": {
       "warning": "Êtes-vous sûr de vouloir supprimer cette alternative ?",
+      "warning_delete" : "Êtes-vous sûr de vouloir supprimer cet instrument?",
       "modif": "Modifier l'instrument ",
       "loading": "Chargement...",
       "supplier": "Fournisseur:",
@@ -447,8 +452,7 @@
       "descr": "Description du fournisseur:",
       "price": "Prix:",
       "obs": "Obsolescence:",
-      "picture": "Image",
-      "confirm": "Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.",
+      "picture": "Images:",
       "alt": "Alternatives:",
       "diff_supp": "Les alternatives doivent avoir des fournisseurs differents.",
       "group": "Les alternatives doivent faire partie du même groupe.",
@@ -459,7 +463,8 @@
       "price2": "Prix",
       "delete": "Supprimer",
       "cancel": "Annuler",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "pb" :"Problème d'ajout d'image."
     },
     "edit_subgroup": {
       "modif": "Modifier le sous-groupe",

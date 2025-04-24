@@ -144,14 +144,6 @@
           }
       };
     }
-
-    let timeout;
-    const clickDelay = 200;
-    function clickOnAlt(row, index){
-        timeout = setTimeout(() => {
-            modals.open(BigPicturesModal, {instrument:row, index:index});
-        }, clickDelay);
-    }
 </script>
 
 <div class="flex">
@@ -202,7 +194,7 @@
         {/if}
         <tr>
           {#if $isEditing && $selectedSubGroup}
-            <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.group')}</th>
+            <th class="text-center border border-solid border-[black]"></th>
           {/if}
           {#if !$selectedSubGroup}
           <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.subgroup')}</th>

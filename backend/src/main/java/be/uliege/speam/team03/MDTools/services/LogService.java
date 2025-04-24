@@ -61,7 +61,4 @@ public class LogService {
       List<Log> logs = logRepository.findAll();
       return logs.stream().map(LogMapper::mapToLogDto).toList();
    }
-
-   //TODO listing logs by filters
-   //TODO add pageable to list logs
 }

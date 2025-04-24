@@ -114,6 +114,7 @@ public class GroupService {
         GroupDTO groupDTO = GroupMapper.toDto(group);
         return groupDTO;
     }
+
     
     /**
      * Adds a new group.
@@ -189,25 +190,6 @@ public class GroupService {
             throw new ResourceNotFoundException("Cannot find group with name: " + groupName);
         }
         Group group = groupMaybe.get();
-
-        List<SubGroup> subGroups = group.getSubGroups();
-        
-        for (SubGroup subGroup : subGroups){
-            List<SubGroupCharacteristic> subGroupDetails = subGroup.getSubGroupCharacteristics();
-
-            List<Characteristic> exclusiveChars = new ArrayList<>();
-            for (SubGroupCharacteristic subGroupDetail : subGroupDetails){
-                Characteristic characteristic = subGroupDetail.getCharacteristic();
-                long charAssociatedWithGroups = subGroupCharRepository.countByCharacteristic(characteristic);
-                if (charAssociatedWithGroups == 1){
-                    exclusiveChars.add(characteristic);
-                }
-            }
-            subGroupCharRepository.deleteAll(subGroupDetails);
-            charRepository.deleteAll(exclusiveChars);
-            subGroupRepository.delete(subGroup);
-        }
-
         groupRepository.delete(group);
     }
 

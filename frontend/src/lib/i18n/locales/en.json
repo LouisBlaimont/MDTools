@@ -310,7 +310,9 @@
       "exists": "This type of instruments already exists",
       "erase": "Erase",
       "cancel": "Cancel",
-      "add": "Add"
+      "add": "Add",
+      "picture" : "Pictures:",
+      "pb": "Problem when adding a picture."
     },
     "add_char": {
       "add_char": "Add a new characteristic",
@@ -360,7 +362,7 @@
       "obs": "Obsolescence:",
       "yes": "Yes",
       "no": "No",
-      "picture": "Picture:",
+      "picture": "Pictures:",
       "erase": "Erase",
       "cancel": "Cancel",
       "add": "Add",
@@ -426,7 +428,9 @@
       "not_deleted": "This type of instruments still contains instrument, it can not be deleted.",
       "supp": "Delete",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "picture" :"Pictures:",
+      "pb" :"Problem when adding a picture."
     },
     "edit_group": {
       "modif": "Modify the group",
@@ -439,6 +443,7 @@
     },
     "edit_instrument": {
       "warning": "Are you sure that you want to delete this alternative?",
+      "warning_delete" : "Are you sure that you want to delete this instrument?",
       "modif": "Modify instrument ",
       "loading": "Loading...",
       "supplier": "Supplier:",
@@ -447,8 +452,7 @@
       "descr": "Supplier description:",
       "price": "Price:",
       "obs": "Obsolescence:",
-      "picture": "Picture",
-      "confirm": "A picture already exists for this instrument, the new picture will erase the current one.",
+      "picture": "Pictures:",
       "alt": "Alternatives:",
       "diff_supp": "The alternatives should have different suppliers",
       "group": "The alternatives should be in the same group",
@@ -459,7 +463,8 @@
       "price2": "Price",
       "delete": "Delete",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "pb" :"Problem when adding a picture."
     },
     "edit_subgroup": {
       "modif": "Modify the subgroup",

@@ -205,9 +205,9 @@ class SubGroupServiceTest {
       when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
       when(groupRepository.findByName(anyString())).thenReturn(Optional.of(group));
 
-      String result = subGroupService.deleteSubGroup(subGroupName);
+      Boolean result = subGroupService.deleteSubGroup(subGroupName);
 
-      assertEquals("Successfully deleted group.", result);
+      assertEquals(true, result);
    }
    @Test
    void testFindAllSubGroups_NoGroupFilter() {
