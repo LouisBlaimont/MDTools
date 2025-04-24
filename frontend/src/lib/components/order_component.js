@@ -4,6 +4,7 @@ import { userId } from "$lib/stores/user_stores.js";
 import { apiFetch } from "$lib/utils/fetch";
 import ExcelJS from "exceljs";
 import FileSaver from "file-saver";
+import confetti from "canvas-confetti";
 
 /**
  * Gets every order
@@ -117,6 +118,14 @@ export async function addInstrument(instrId, userId,orderId, quantity){
 * Export the current order items to a styled Excel file.
 */
 export async function exportOrderToExcel() {
+    if(Math.floor(Math.random() * 11) === 0){
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.9, x: 0.73 },
+        });
+    }
+
    const items = get(orderItems);
    const orderId = get(selectedOrderId);
    const orderName = get(ordersNames).find(o => o.id === orderId)?.name;
@@ -139,11 +148,8 @@ export async function exportOrderToExcel() {
        { header: "Montant TVAC", key: "totalTVAC", width: 15 }
    ];
 
-   let totalHTVA = 0;
-
    for (const item of items) {
        const total = item.totalPrice || 0;
-       totalHTVA += total;
 
        const parts = [
            item.category.groupName,
@@ -166,12 +172,6 @@ export async function exportOrderToExcel() {
            totalTVAC: (total * 1.21).toFixed(2)
        });
    }
-
-   const totalRow = sheet.addRow({
-       description: "Total",
-       totalHTVA: totalHTVA.toFixed(2),
-       totalTVAC: (totalHTVA * 1.21).toFixed(2)
-   });
 
    const lastRow = sheet.rowCount;
    const maxCol = sheet.columns.length;

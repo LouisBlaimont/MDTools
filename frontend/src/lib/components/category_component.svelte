@@ -254,6 +254,7 @@
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <!-- svelte-ignore a11y_mouse_events_have_key_events -->
           <!-- svelte-ignore a11y_click_events_have_key_events -->
+           <div class="flex justify-center items-center border-[1px] border-solid border-[lightgray] mb-0.5">
           <img
               use:imageRef={index}
               alt="tool{row.id}"
@@ -262,15 +263,15 @@
               onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: false })}
               onmouseover={() => (hoveredCategoryImageIndex.set(index))}
               onmouseout={() => (hoveredCategoryImageIndex.set(null))}
-              class="mb-[3px] {$selectedCategoryIndex === index
+              class="{$selectedCategoryIndex === index
               ? 'cursor-pointer border-2 border-solid border-[cornflowerblue]'
               : ''} {$hoveredCategoryImageIndex === index && $selectedCategoryIndex !== index
               ? 'hoveredcursor-pointer border-2 border-solid border-[lightgray]-image'
               : ''}"
           />
+        </div>
       {/each}
   </div>
 </div>      
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
-

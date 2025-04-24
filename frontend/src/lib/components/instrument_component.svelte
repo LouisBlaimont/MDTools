@@ -62,7 +62,7 @@
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
-            class="flex shrink-0 flex-col h-[95%] max-w-[150px] text-center box-border border mr-[3px] border-solid border-[black]"
+            class="flex shrink-0 flex-col h-[95%] max-w-[150px] text-center box-border border mr-[3px] border-solid border-[black] bg-white"
             >
                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -85,7 +85,7 @@
     </div>
 
     <!-- TABLE OF THE INSTRUMENTS -->
-    <table data-testid="suppliers-table" class="w-full border-collapse mt-4">
+    <table data-testid="suppliers-table" class="w-full border-collapse mt-4 bg-white">
         <thead class="bg-teal-400">
             <tr class="bg-white text-teal-400">
                 {#if $isEditing && $selectedCategoryIndex >=0 && $selectedCategoryIndex !== null && $selectedCategoryIndex !== '' }
@@ -270,4 +270,3 @@
 </div>
 
 <div class="hidden fixed w-full h-full bg-[rgba(0,0,0,0)] left-0 top-0" id="overlay"></div>
-

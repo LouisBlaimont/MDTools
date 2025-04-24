@@ -71,7 +71,7 @@
   let selectedGroup = $state(null);
   let selectedSubgroups = $state([]);
   let clickTimeout;
-  let isEditing = false;
+  let isEditing = $state(false);
   let showModal = $state(false);
   let showKeywordsResult = $state(false);
 
@@ -346,7 +346,7 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
         <!-- Buttons div -->
         {#if selectedGroup}
           <button
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 "
+            class="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-lg mb-2 w-15"
             aria-label="back to groups"
             onclick={() => (
               (selectedGroup = null), (selectedSubgroups = []), isEditing ? startEditing() : null
@@ -358,7 +358,7 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
 
         {#if $isAdmin}
           <button
-            class="px-4 py-2 bg-gray-100 hover:bg-yellow-500 rounded-lg mb-2"
+            class="flex items-center px-4 py-2 bg-gray-100 hover:bg-yellow-500 rounded-lg mb-2 w-15"
             aria-label="edit groups"
             id="editGroupsButton"
             onclick={() => startEditing()}
@@ -366,17 +366,17 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
             <Icon icon="material-symbols:edit" width="24" height="24" />
           </button>
         {/if}
-        {#if $isAdmin}
+        {#if $isAdmin && isEditing}
           {#if selected}
               <button
-              class="px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg"
+              class="flex items-center px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg w-15"
               onclick={()=> modals.open(AddGroupModal)}
               >{$_('homepage.admin.button.add_group')}
             </button>
           {/if}
           {#if selectedGroup}
             <button
-              class="px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg"
+              class="flex items-center px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg w-15"
               onclick={()=> modals.open(AddSubGroupModal)}
               >{$_('homepage.admin.button.add_subgroup')}
             </button>
