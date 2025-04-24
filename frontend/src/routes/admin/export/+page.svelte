@@ -4,8 +4,7 @@
     import { handleExport  } from "$lib/utils/exportToExcel";
     import { goto } from "$app/navigation";
     import { isAdmin } from "$lib/stores/user_stores";
-
-
+    import { _ } from "svelte-i18n";
   
     // State variables
     let selectedOption = ""; // Un seul choix possible
@@ -31,8 +30,8 @@
   
     let selectedColumns = [...allColumns]; 
   
-    let availableLanguages = ["Français", "Néerlandais", "Anglais"];
-    let selectedLanguages = ["Français"];
+    let availableLanguages = [$_('admin.export.french'), $_('admin.export.dutch'), $_('admin.export.english')];
+    let selectedLanguages = [$_('admin.export.french')];
   
     let characteristics = []; 
     let selectedCharacteristics = []; 
@@ -144,12 +143,12 @@
   </script>
   
   <main class="w-full flex flex-col p-6">
-    <h1 class="text-2xl font-bold mb-4">Exporter un fichier Excel</h1>
+    <h1 class="text-2xl font-bold mb-4">{$_('admin.export.export_file')}</h1>
   
     <div class="flex gap-6">
       
       <div class="w-1/4 border p-4">
-        <h2 class="text-lg font-semibold mb-2">Que voulez-vous exporter ?</h2>
+        <h2 class="text-lg font-semibold mb-2">{$_('admin.export.question')}</h2>
         {#each ["SubGroup", "Catalogue", "Alternatives", "Crossref", "Full"] as option}
           <label class="block">
             <input type="radio" name="exportOption" value={option} on:change={() => selectOption(option)} checked={selectedOption === option} />
@@ -160,17 +159,17 @@
   
       {#if selectedOption === "SubGroup"}
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">Sélectionnez un Groupe</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.select')}</h2>
           <select bind:value={selectedGroup} on:change={handleGroupChange} class="w-full p-2 mt-2 border">
-            <option value="">-- Choisir un groupe --</option>
+            <option value="">-- {$_('admin.export.choose')} --</option>
             {#each groups as group}
               <option value={group}>{group}</option>
             {/each}
           </select>
   
-          <h2 class="text-lg font-semibold mt-4">Sélectionnez un Sous-Groupe</h2>
+          <h2 class="text-lg font-semibold mt-4">{$_('admin.export.select_subgroup')}</h2>
           <select bind:value={selectedSubGroup} on:change={handleSubGroupChange} class="w-full p-2 mt-2 border" disabled={!selectedGroup}>
-            <option value="">-- Choisir un sous-groupe --</option>
+            <option value="">-- {$_('admin.export.choose_subgroup')} --</option>
             {#each (subGroups[selectedGroup] || []) as subGroup}
               <option value={subGroup}>{subGroup}</option>
             {/each}
@@ -179,9 +178,9 @@
       {/if}
       {#if selectedOption === "Catalogue"}
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">Sélectionnez un Fournisseur</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.select_supplier')}</h2>
           <select bind:value={selectedSupplier} class="w-full p-2 mt-2 border">
-            <option value="">-- Choisir un fournisseur --</option>
+            <option value="">-- {$_('admin.export.choose_supp')} --</option>
             {#each suppliers as supplier}
               <option value={supplier.name}>{supplier.name}</option>
             {/each}
@@ -191,7 +190,7 @@
 
       {#if selectedOption === "Crossref"}
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">Suppliers à inclure</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.include')}</h2>
 
           <label class="block mb-2">
             <input
@@ -199,7 +198,7 @@
               checked={exportAllSuppliers}
               on:change={() => exportAllSuppliers = !exportAllSuppliers}
             />
-            Export all suppliers
+            {$_('admin.export.exported')}
           </label>
 
           {#if !exportAllSuppliers}
@@ -229,7 +228,7 @@
 
       {#if selectedOption === "Alternatives"}
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">Langues disponibles</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.language')}</h2>
           {#each availableLanguages as language}
             <label class="block">
               <input
@@ -245,7 +244,7 @@
             class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-4 w-full"
             on:click={() => exportToExcel(null, [])}
           >
-            Exporter
+            {$_('admin.export.export_button')}
           </button>
         </div>
       {/if}
@@ -254,7 +253,7 @@
   
       {#if (selectedOption === "SubGroup" && selectedSubGroup) || (selectedOption === "Catalogue" && selectedSupplier) || selectedOption === "Full"}
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">Sélectionnez les Colonnes</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.column')}</h2>
           {#each allColumns as column}
             <label class="block">
               <input type="checkbox" checked={selectedColumns.includes(column)} on:change={() => toggleColumn(column)} />
@@ -263,7 +262,7 @@
           {/each}
   
           {#if characteristics.length > 0 && selectedOption === "SubGroup"}
-            <h2 class="text-lg font-semibold mt-4">Caractéristiques</h2>
+            <h2 class="text-lg font-semibold mt-4">{$_('admin.export.char')}</h2>
             {#each characteristics as characteristic}
               <label class="block">
                 <input type="checkbox" checked={selectedCharacteristics.includes(characteristic)} on:change={() => toggleCharacteristic(characteristic)} />
@@ -281,7 +280,7 @@
         (selectedOption === "Full" && selectedColumns.length > 0)
       }      
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">Langues disponibles</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.column')}</h2>
           {#each availableLanguages as language}
             <label class="block">
               <input type="checkbox" checked={selectedLanguages.includes(language)} on:change={() => toggleLanguage(language)} />
@@ -298,7 +297,7 @@
               )
             }
           >
-            Exporter
+            {$_('admin.export.export_button')}
           </button>                  
         </div>
       {/if}

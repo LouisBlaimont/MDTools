@@ -69,7 +69,7 @@ public class CategoryService {
         List<Category> categories = (List<Category>) categoryRepository.findAll();
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
         for (Category category : categories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category, pictureStorageService);
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
@@ -93,7 +93,7 @@ public class CategoryService {
 
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
         for (Category category : categories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category, pictureStorageService);
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
@@ -115,7 +115,7 @@ public class CategoryService {
         SubGroup subGroup = subGroupMaybe.get();
         List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
-        return categories.stream().map(category -> catMapper.mapToCategoryDto(category)).toList();
+        return categories.stream().map(category -> catMapper.mapToCategoryDto(category, pictureStorageService)).toList();
     }
 
 
@@ -217,7 +217,7 @@ public class CategoryService {
 
         newCategory.setCategoryCharacteristic(newCategoryCharacteristics);
         newCategory.setPicturesId(null); // ?
-        return catMapper.mapToCategoryDto(newCategory);
+        return catMapper.mapToCategoryDto(newCategory, pictureStorageService);
     }
 
 
@@ -283,7 +283,7 @@ public class CategoryService {
         if (filteredSearchBy.isEmpty() && minLength == 0.0 && maxLength == Double.POSITIVE_INFINITY) {
             List<CategoryDTO> categoriesDTO = new ArrayList<>();
             for (Category category : categories) {
-                CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+                CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category, pictureStorageService);
                 categoriesDTO.add(categoryDTO);
             }
             return categoriesDTO;
@@ -321,7 +321,7 @@ public class CategoryService {
 
         List<CategoryDTO> categoriesDTO = new ArrayList<>();
         for (Category category : filteredCategories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category);
+            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category, pictureStorageService);
             categoriesDTO.add(categoryDTO);
         }
         return categoriesDTO;
@@ -462,7 +462,7 @@ public class CategoryService {
         categoryRepository.save(category);
 
     
-        return catMapper.mapToCategoryDto(category) ;
+        return catMapper.mapToCategoryDto(category, pictureStorageService) ;
     }
 
     // // not used i think
@@ -494,7 +494,7 @@ public class CategoryService {
 
     public CategoryDTO searchCategory(Long categoryId) {
         Optional<Category> cat = categoryRepository.findById((long) categoryId);
-        return catMapper.mapToCategoryDto(cat.get());
+        return catMapper.mapToCategoryDto(cat.get(), pictureStorageService);
     }
 
     /**

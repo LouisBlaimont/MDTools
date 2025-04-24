@@ -6,6 +6,7 @@
   import { createCombobox } from "svelte-headlessui";
   import Transition from "svelte-transition";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   let abbreviations = $state();
   let non_existing_abbreviations = $state([]);
@@ -104,17 +105,17 @@
 </script>
 
 <svelte:head>
-  <title>Abbreviations</title>
+  <title>{$_('admin.abb.abbreviation')}</title>
   <meta name="description" content="Abbreviations management page" />
 </svelte:head>
 
 <div class="p-8 space-y-10">
   <section class="p-6">
-    <h2 class="text-2xl font-semibold mb-8 bg-white">Gestion des abbréviations</h2>
+    <h2 class="text-2xl font-semibold mb-8 bg-white">{$_('admin.abb.handle')}</h2>
 
     <!-- Abbreviations List Section -->
     <div class="bg-gray-50 border border-gray-300 rounded-lg p-6 size-fit">
-      <h3 class="text-lg font-medium">Abbréviations</h3>
+      <h3 class="text-lg font-medium">{$_('admin.abb.abbreviation')}</h3>
 
       <div class=" my-6 flex flex-row items-end">
         <!-- Search Bar -->
@@ -132,9 +133,9 @@
         <div class="max-w-xs mx-2">
           <label for="add-abbreviation" class="block my-1 text-sm font-medium text-gray-900">
             {#if !$combobox.selected}
-              Ajouter une abréviation
+              {$_('admin.abb.add')}
             {:else}
-              Complet
+              {$_('admin.abb.full')}
             {/if}
           </label>
           <div class="relative w-full">
@@ -143,7 +144,7 @@
               class="w-full py-2 pr-10 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={$combobox.selected ?? ""}
               id="add-abbreviation"
-              placeholder="Ajouter une abréviation"
+              placeholder={$_('admin.abb.enter_abb')}
             />
             <button
               use:combobox.button
@@ -174,7 +175,7 @@
                 </li>
               {:else}
                 <li class="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900">
-                  <span class="block truncate font-normal">Pas de résultats</span>
+                  <span class="block truncate font-normal">{$_('admin.abb.result')}</span>
                 </li>
               {/each}
             </ul>
@@ -182,7 +183,7 @@
         </div>
         {#if $combobox.selected}
           <div class="mx-0 max-w-xs">
-            <label class="block my-1 text-sm font-medium text-gray-900">Abbréviation</label>
+            <label class="block my-1 text-sm font-medium text-gray-900">{$_('admin.abb.result')}</label>
             <input
               type="text"
               bind:value={new_abbreviation}
@@ -201,7 +202,7 @@
               <span>
                 <Icon icon="material-symbols:add" width="24" height="24" />
               </span>
-              <span class="pl-2">Ajouter</span>
+              <span class="pl-2">{$_('admin.abb.add_button')}</span>
             </button>
           </div>
         {/if}
@@ -212,21 +213,21 @@
         <table class="table-fixed border-collapse">
           <thead>
             <tr class="bg-gray-100 text-left text-sm font-semibold">
-              <th class="px-6 py-4 w-96">Complet</th>
-              <th class="px-6 py-4 w-96">Abbréviation</th>
-              <th class="px-6 py-4 w-96">Actions</th>
+              <th class="px-6 py-4 w-96">{$_('admin.abb.full')}</th>
+              <th class="px-6 py-4 w-96">{$_('admin.abb.abbreviations')}</th>
+              <th class="px-6 py-4 w-96">{$_('admin.abb.action')}</th>
             </tr>
           </thead>
           <tbody>
             {#if loading}
               <!-- Loading Message -->
               <tr class="border-b hover:bg-gray-50 transition">
-                <td class="px-6 py-10" colspan="3">Chargement... <Loading /></td>
+                <td class="px-6 py-10" colspan="3">{$_('admin.abb.loading')}<Loading /></td>
               </tr>
             {:else if abbreviations.length === 0}
               <!-- No abbreviations found message -->
               <tr class="border-b hover:bg-gray-50 transition">
-                <td class="px-6 py-4 text-red-500" colspan="3">Aucune abréviation trouvée.</td>
+                <td class="px-6 py-4 text-red-500" colspan="3">{$_('admin.abb.no_abb')}</td>
               </tr>
             {:else}
               <!-- Abbreviations List -->
@@ -249,15 +250,15 @@
         <button
           onclick={() => (currentPage -= 1)}
           disabled={currentPage === 1}
-          aria-label="Précédent"
+          aria-label={$_('admin.abb.previous')}
         >
           <Icon icon="material-symbols:arrow-back-ios-rounded" width="24" height="24" />
         </button>
-        <span>Page {currentPage} sur {totalPages}</span>
+        <span>{$_('admin.abb.page')} {currentPage} {$_('admin.abb.sur')} {totalPages}</span>
         <button
           onclick={() => (currentPage += 1)}
           disabled={currentPage === totalPages}
-          aria-label="Suivant"
+          aria-label={$_('admin.abb.next')}
         >
           <Icon icon="material-symbols:arrow-forward-ios-rounded" width="24" height="24" />
         </button>

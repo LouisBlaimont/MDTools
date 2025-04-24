@@ -1,5 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import { _ } from "svelte-i18n";
+
   
     /** Currently selected import option */
     export let selectedOption = "";
@@ -10,18 +12,18 @@
     function handleSelect(option) {
       dispatch("select", option);
     }
-  
+    
     /** Available import options */
     const options = [
-      { label: "Groupe et sous-groupe d'instruments", value: "SubGroup" },
-      { label: "Instruments non catégorisés", value: "NonCategorized" },
-      { label: "Catalogue", value: "Catalogue" },
-      { label: "Alternatives", value: "Alternatives" },
-      { label: "Crossref", value: "Crossref" }
+      { label: $_('import_pages.main.group'), value: "SubGroup" },
+      { label: $_('import_pages.main.instrument'), value: "NonCategorized" },
+      { label: $_('import_pages.main.catalogue'), value: "Catalogue" },
+      { label: $_('import_pages.main.alternative'), value: "Alternatives" },
+      { label: $_('import_pages.main.crossref'), value: "Crossref" }
     ];
   </script>
   
-  <h2 class="text-2xl font-bold mb-6">Options d'Importation</h2>
+  <h2 class="text-2xl font-bold mb-6">{$_('import_pages.main.option')}</h2>
   
   <!-- List of selectable import types -->
   <div class="flex flex-col gap-4">

@@ -24,10 +24,11 @@
     subGroups,
     groups,
     errorMessage,
-    findSubGroupsStore,
+        findSubGroupsStore,
     findCharacteristicsStore,
     alternatives,
-    hoveredAlternativeIndex,
+    hoveredAlternativeIndex, 
+     
     categories_pageable,
     keywords2,
     keywordsResult2,
@@ -129,7 +130,7 @@
       .then((response) => {
         if (!response.ok) {
           categories.set([]);
-          toast.push("Aucun résultat trouvé");
+          toast.push($_('search_page.no_result'));
           throw new Error(`Failed to search by characteristics : ${response.status}`);
         }
         return response.json();
@@ -233,7 +234,7 @@
     if (catId == null) {
       await modals.open(editInstrumentModal, {
         instrument,
-        message: "You need to assign a category to this instrument!",
+        message: $_('search_page.assign')
       });
     }
     keywords2.set(null);
@@ -477,7 +478,7 @@
           class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
           onclick={() => modals.open(AddGroupModal)}
         >
-          Ajouter
+        {$_('search_page.button.add')}
         </button>
       {/if}
     </div>
@@ -495,17 +496,17 @@
           {#each $subGroups as subGroup}
             <option value={subGroup}>{subGroup}</option>
           {/each}
-        </select>
-        {#if $isEditing && $selectedGroup}
-          <!-- svelte-ignore node_invalid_placement_ssr -->
-          <button
-            type="button"
-            class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-            onclick={() => modals.open(AddSubGroupModal)}
-          >
-            Ajouter
-          </button>
-        {/if}
+      </select>
+      {#if $isEditing && $selectedGroup}
+        <!-- svelte-ignore node_invalid_placement_ssr -->
+        <button
+          type="button"
+          class="ml-2 px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+          onclick={()=> modals.open(AddSubGroupModal)}
+        >
+        {$_('search_page.button.add')}
+        </button>
+      {/if}
       </div>
     {/if}
   

@@ -33,7 +33,7 @@
             return
         }
         else {
-            toast.push("Veuillez sélectionner une catégorie pour en voir les alternatives.");
+            toast.push($_('instruments_component.toasts'));
             return;
         }
     }
@@ -95,7 +95,7 @@
                         const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
                         modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
                         }}>
-                        Ajouter
+                        {$_('instruments_component.add')}
                     </button>
                 </th>
                 {:else}
@@ -211,7 +211,7 @@
                 {/if}
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.reference')}</th>
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.brand')}</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.brand')}</th>
+                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.description')}</th>
                 <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.price')}</th>
             </tr>
         </thead>

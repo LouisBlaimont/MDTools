@@ -30,7 +30,7 @@
     }
 
     async function handleDelete() {
-        if (confirm("Êtes-vous sûr de vouloir supprimer ce compte ?")) {
+        if (confirm($_('modals.edit_user.confirm'))) {
             try {
                 const response = await apiFetch(`/api/user/${user.userId}`, {
                     method: "DELETE",

@@ -1,7 +1,8 @@
 <script>
-  import { goto } from "$app/navigation";
-  import { apiFetch } from "$lib/utils/fetch";
-  import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
+    import { goto } from "$app/navigation";
+    import { apiFetch } from "$lib/utils/fetch";
+    import { _ } from "svelte-i18n";
+    import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
 
   const {
       isOpen,
@@ -91,7 +92,7 @@
           [charName]: values
       }));
       } catch(error){
-      console.error('Failed to fetch options', error);
+        console.error('Failed to fetch options', error);
       }
   }
 
@@ -189,7 +190,7 @@
 
   // Deleting the category 
   async function handleDelete() {
-    if(confirm("Êtes-vous sûr de vouloir supprimer cette categorie ?")){
+    if(confirm($_('modals.edit_cat.delete'))){
         try {
             const response = await apiFetch(`/api/category/delete/${categoryToEdit.id}`, {
             method: "DELETE",
@@ -227,7 +228,7 @@
                 class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
                 onmousedown={startDrag}
             >
-            <h2 class="text-2xl font-bold text-teal-500 text-center">Éditer la categorie :</h2>
+            <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_cat.edit')}</h2>
                   <h4 class="text-xl font-bold text-teal-500 text-center">{categoryToEdit.groupName}, {categoryToEdit.subGroupName}, {categoryToEdit.name}, {categoryToEdit.function}, {categoryToEdit.shape}</h4>
                   <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -332,7 +333,7 @@
                               {/if}
                           </div>
                           <div>
-                              <label class="font-semibold text-lg" for="input-{char}-abbrev">Abbréviation:</label>
+                              <label class="font-semibold text-lg" for="input-{char}-abbrev">{$_('modals.edit_cat.abb')}</label>
                               <input
                                   type = "text"
                                   id="input-{char}-abbrev"
@@ -345,13 +346,13 @@
                   {/if}
               {/each}
               {/if}
-              <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">Cette catégorie existe déjà.</span>
-              <span id="error-no-modif" class="ml-5 mb-5 text-red-600 hidden">Aucune modification n'a été faite.</span>
-              <span id="error-category-not-empty" class="ml-5 mb-5 text-red-600 hidden">La catégorie contient encore des instruments, elle ne peut pas être supprimée.</span>
+              <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.edit_cat.exists')}</span>
+              <span id="error-no-modif" class="ml-5 mb-5 text-red-600 hidden">A{$_('modals.edit_cat.modif')}.</span>
+              <span id="error-category-not-empty" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.edit_cat.not_deleted')}</span>
               <div class="flex justify-end gap-4 mb-4 mr-4">
-                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
-                <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                <button type="button" onclick={()=>editCategory()} class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-blue-700">Enregistrer</button>
+                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_cat.supp')}</button>
+                <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_cat.cancel')}</button>
+                <button type="button" onclick={()=>editCategory()} class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-blue-700">{$_('modals.edit_cat.save')}</button>
               </div>
               </div>
           </div>

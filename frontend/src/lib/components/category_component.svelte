@@ -6,24 +6,10 @@
     import { get } from "svelte/store";
     import { isAdmin } from "$lib/stores/user_stores";
     import { PUBLIC_API_URL } from "$env/static/public";
-    import {
-        isEditing,
-        reload,
-        selectedGroup,
-        selectedSubGroup,
-        selectedCategoryIndex,
-        hoveredCategoryIndex,
-        charValues,
-        categories,
-        currentSuppliers,
-        showCategories,
-        errorMessage,
-        hoveredCategoryImageIndex,
-        alternatives,
-        selectedSupplierIndex,
-        findSubGroupsStore,
-        findCharacteristicsStore
-    } from "$lib/stores/searches";
+    import { isEditing, reload, selectedGroup, selectedSubGroup, selectedCategoryIndex,
+        hoveredCategoryIndex, charValues, categories, currentSuppliers,showCategories,
+        errorMessage, hoveredCategoryImageIndex, alternatives,selectedSupplierIndex,
+        findSubGroupsStore,findCharacteristicsStore} from "$lib/stores/searches";
     import EditButton from "../../routes/searches/EditButton.svelte";
     import EditCategoryButton from "../../routes/searches/EditCategoryButton.svelte";
     import { apiFetch } from "$lib/utils/fetch";
@@ -182,9 +168,13 @@
                     class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
                     onclick={()=>modals.open(addCategoryModal, {fromSearches : true})}
                   >
-                    Ajouter
+                  {$_('category_component.admin.button.add_category')}
                   </button>
                 </th>
+              {/if}
+            </tr>
+            <tr class="bg-white text-teal-400">
+              {#if $isEditing}
                 <th colspan="1" class="text-center pb-1">{$selectedGroup}</th>
                 <th colspan="1" class="text-center pb-1">{$selectedSubGroup}</th>
               {:else}
@@ -200,7 +190,7 @@
                   class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
                   onclick={()=>modals.open(addCategoryModal)}
                 >
-                  Ajouter
+                {$_('category_component.admin.button.add_category')}
                 </button>
               </th>
               <th colspan="3" class="text-center pb-1">{$selectedGroup}</th>
@@ -212,15 +202,16 @@
         {/if}
         <tr>
           {#if $isEditing && $selectedSubGroup}
-            <th class="text-center border border-solid border-[black]">GROUPE</th>
+            <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.group')}</th>
           {/if}
           {#if !$selectedSubGroup}
-          <th class="text-center border border-solid border-[black]">SOUS GROUPE</th>
+          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.subgroup')}</th>
           {/if}
-          <th class="text-center border border-solid border-[black]">FCT</th>
-          <th class="text-center border border-solid border-[black]">NOM</th>
-          <th class="text-center border border-solid border-[black]">FORME</th>
-          <th class="text-center border border-solid border-[black]">DIM</th>
+          <th class="text-center border border-solid border-[black]">
+            {$_('category_component.title.table.function')}</th>
+          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.name')}</th>
+          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.shape')}</th>
+          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.dimension')}</th>
         </tr>
       </thead>
       {#if $showCategories}

@@ -1,11 +1,11 @@
 <script>
     import { goto } from "$app/navigation";
     import { apiFetch } from "$lib/utils/fetch";
+    import { _ } from "svelte-i18n";
     import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup, groups, showSubGroups, subGroups } from "$lib/stores/searches";
     import { preventDefault } from "svelte/legacy";
     import { findSubGroups, findCharacteristics } from "$lib/components/search";
     import { fetchGroups } from "../../api";
-    import { _ } from "svelte-i18n";
     import { onMount } from "svelte";
 
     const {
@@ -211,9 +211,9 @@
                     onmousedown={startDrag}
                 >
                     {#if fromSearches}
-                    <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une catégorie au sous-groupe {$selectedSubGroup}</h2>
+                    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_category.add_cat')} {$selectedSubGroup}</h2>
                     {:else}
-                    <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une catégorie</h2>  
+                    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_category.add_cat2')} </h2>  
                     {/if}
                 </div>
 
@@ -326,7 +326,7 @@
                                 {/if}
                             </div>
                             <div>
-                                <label class="font-semibold text-lg" for="input-{char}-abbrev">Abbréviation:</label>
+                                <label class="block mb-2" for="input-{char}-abbrev">{$_('modals.add_category.abbreviations')}</label>
                                 <input
                                     type = "text"
                                     id="input-{char}-abbrev"
@@ -338,16 +338,16 @@
                     {/if}
                 {/each}
                 {/if}
-                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">Cette catégorie existe déjà.</span>
+                </div>
+                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.add_category.exists')}</span>
 
                 <div class="flex justify-end gap-4 mb-4">
-                    <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
-                    <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                    <button type="button" onclick={()=>addCategory()} class="mr-2 bg-teal-500 text-white px-4 py-2 mr-4 rounded hover:bg-teal-700">Ajouter</button>
+                    <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_category.erase')}</button>
+                    <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.add_category.cancel')}</button>
+                    <button type="button" onclick={()=>addCategory()} class="mr-2 bg-teal-500 text-white px-4 py-2 mr-4 rounded hover:bg-teal-700">{$_('modals.add_category.add')}</button>
                 </div>
             </div>
         </div>
     </div>
-        </div>
     </div>
 {/if}

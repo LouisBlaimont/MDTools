@@ -3,6 +3,7 @@
     import { apiFetch } from "$lib/utils/fetch";
     import { reload } from "$lib/stores/searches";
     import { goto } from "$app/navigation";
+    import { _ } from "svelte-i18n";
   
     const {
       isOpen, // Indicates if the modal is open
@@ -187,10 +188,11 @@
           class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
           on:mousedown={startDrag}
         >
-          <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter un fournisseur</h2>        
+          <h2 class="text-xl font-bold">{$_('modals.add_supplier.add_supp')}</h2>        
         </div> 
         <form on:submit|preventDefault={handleSubmit} class="bg-gray-100 p-6 rounded-b-lg">
-            <label for="name" class="font-semibold text-lg">Nom:</label>
+            <label for="name" class="font-semibold text-lg">{$_('modals.add_supplier.name')}
+            </label>
               <input
                 type="text"
                 bind:value={name}
@@ -202,7 +204,7 @@
                 on:blur={closeAutocomplete}
                 bind:this={inputSize}
                 class="w-full p-2 mt-1 border rounded mb-4"
-                placeholder="Entrer le nom du fournisseur"
+                placeholder={$_('modals.add_supplier.enter_supp')}
               />
               {#if showAutocompleteDropdown && currentAutocompleteField === "name"}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -222,7 +224,7 @@
               </ul>
               {/if}
 
-            <label for="soldByMd" class="font-semibold text-lg">En vente:</label>
+            <label for="soldByMd" class="font-semibold text-lg">{$_('modals.add_supplier.sold')}</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
@@ -230,7 +232,8 @@
                   bind:group={soldByMd}
                   value={true}
                 />
-                Oui
+                {$_('modals.add_supplier.yes')}
+
               </label>
               <label>
                 <input
@@ -238,11 +241,11 @@
                   bind:group={soldByMd}
                   value={false}
                 />
-                Non
+                {$_('modals.add_supplier.no')}
               </label>
             </div>
 
-            <label for="closed" class="font-semibold text-lg">Statut:</label>
+            <label for="closed" class="font-semibold text-lg">{$_('modals.add_supplier.status')}:</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input
@@ -250,7 +253,7 @@
                   bind:group={closed}
                   value={true}
                 />
-                Fermé
+                {$_('modals.add_supplier.close')}
               </label>
               <label>
                 <input
@@ -258,14 +261,17 @@
                   bind:group={closed}
                   value={false}
                 />
-                Ouvert
+                {$_('modals.add_supplier.open')}
+
               </label>
             </div>
           
           <div class="flex justify-end gap-4 mt-4">
-            <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Effacer</button>
-            <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
+            <button type="button" on:click={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_supplier.erase')}</button>
+            <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.add_supplier.cancel')}
+            </button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.add_supplier.save')}
+            </button>
           </div>
         </form>
       </div>

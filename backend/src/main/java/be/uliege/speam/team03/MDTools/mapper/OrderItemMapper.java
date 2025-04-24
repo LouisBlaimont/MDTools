@@ -25,7 +25,7 @@ public class OrderItemMapper {
         if(instrument!=null && order!=null){
                 Category category = instrument.getCategory();
                 CategoryMapper categoryMapper = new CategoryMapper(categoryRepository, pictureStorageService);
-                CategoryDTO categoryDTO = categoryMapper.mapToCategoryDto(category); 
+                CategoryDTO categoryDTO = categoryMapper.mapToCategoryDto(category, pictureStorageService); 
                 OrderItemDTO orderItemDTO = new OrderItemDTO(order.getId(), order.getUserId(), instrument.getId(),order.getOrderName(), instrument.getReference(), instrument.getSupplier().getSupplierName(), categoryDTO,  orderItem.getQuantity(), instrument.getPrice());
                 orderItemDTO.setTotalPrice();
                 return orderItemDTO;

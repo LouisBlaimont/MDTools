@@ -7,14 +7,15 @@
       "title": "Plus",
       "suppliers": "Fournisseurs",
       "abbreviations": "Abréviations",
-      "webmaster": "Webmestre",
+      "webmaster": "Webmaster",
       "add": "Ajouter",
       "add_instrument": "Ajouter un instrument",
       "add_supplier": "Ajouter un fournisseur",
-      "add_category": "Ajouter une catégorie",
+      "add_category": "Ajouter un type d'instruments",
       "add_group": "Ajouter un groupe",
       "add_subgroup": "Ajouter un sous-groupe"
-    }
+    },
+    "toast": "Vous êtes correctement connecté."
   },
 
   "homepage": {
@@ -46,7 +47,9 @@
         "add_group": "Ajouter un groupe",
         "add_subgroup": "Ajouter un sous-groupe"
       }
-    }
+    },
+    "toast1": "Fin de l'édition des groupes.",
+    "toast2": "Choisissez un groupe pour le modifier."
   },
 
   "profile": "Profil",
@@ -69,8 +72,11 @@
       "search": "Rechercher",
       "clear": "Tout effacer",
       "add": "Ajouter"
-    }
+    },
+    "assign": "Veuillez assigner cet instrument à un type d'instruments!",
+    "no_result":"Aucun résultat trouvé"
   },
+
   "category_component": {
     "title": {
       "instruments_types": "Types d'instruments",
@@ -85,7 +91,7 @@
     },
     "admin": {
       "button": {
-        "add_category": "Ajouter une catégorie"
+        "add_category": "Ajouter un type d'instruments"
       }
     },
     "pictures": {
@@ -106,13 +112,14 @@
     },
     "button": {
       "see_more": "Voir plus"
-    }
+    },
+    "toasts": "Veuillez sélectionner un type d'instruments pour en voir les alternatives.",
+    "add": "Ajouter un instrument"
   },
   "orders_component": {
     "show_orders": "Afficher les commandes",
     "create_order": "Créer une commande",
     "see_previous_orders": "Voir les commandes précédentes",
-    "export": "Exporter",
     "table": {
       "reference": "RÉF",
       "brand": "MARQUE",
@@ -124,7 +131,12 @@
       "quantity": "QTE",
       "unite_price_excl_vat": "PU HTVA",
       "total_price_excl_vat": "PT HTVA"
-    }
+    },
+    "export": {
+      "order": "Commande",
+      "button": "Exporter"
+    },
+    "alert": "Pas de données à exporter"
   },
   "admin": {
     "supplier_page": {
@@ -149,6 +161,66 @@
         "open": "Ouvert",
         "edit": "Modifier"
       }
+    },
+    "abb": {
+      "abbreviation": "Abréviations",
+      "handle": "Gestion des abréviations",
+      "add": "Ajouter une abréviation",
+      "full": "Complet",
+      "enter_abb": "Ajouter une abréviation",
+      "result": "Pas de résultats",
+      "add_button": "Ajouter",
+      "action": "Actions",
+      "abbreviations": "Abréviation",
+      "loading": "Chargement...",
+      "no_abb": "Aucune abréviation trouvée.",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "page": "Page",
+      "sur": "sur"
+    },
+    "add_cat": {
+      "dispatch": "Veuillez sélectionner un groupe et un sous-groupe.",
+      "added_cat": "Type d'instruments ajouté!",
+      "not_poss": "Impossible d'ajouter un type d'instruments.",
+      "op_cancel": "Operation annulée.",
+      "add_type": "Ajouter un type d'instruments",
+      "group": "Groupe:",
+      "subgroup": "Nom du sous-groupe:",
+      "fct": "Fonction:",
+      "type_name": "Nom du type d'instruments",
+      "shape": "Forme:",
+      "abbreviation": "Abréviation:",
+      "source": "Source de l'image:",
+      "add": "Ajouter", 
+      "erase": "Effacer",
+      "cancel": "Annuler",
+      "enter_group": "Entrez un groupe",
+      "enter_subgroup": "Entrez un sous-groupe",
+      "enter_fct": "Entrez une fonction",
+      "enter_type": "Entrez un nom de type d'instruments",
+      "enter_shape": "Entrez une forme",
+      "enter_abb": "Entrez une abréviation",
+      "enter_id": "Entrez l'ID de l'image"
+    },
+    "export": {
+      "export_file": "Exporter un fichier Excel",
+      "question": "Que voulez-vous exporter ?",
+      "select": "Sélectionnez un groupe",
+      "choose": "Choisir un groupe",
+      "select_subgroup": "Sélectionnez un sous-groupe",
+      "choose_subgroup": "Choisir un sous-groupe",
+      "select_supplier": "Sélectionnez un fournisseur",
+      "choose_supp": "Choisir un fournisseur",
+      "include": "Suppliers à inclure",
+      "exported": "Exporter tout les fournisseurs",
+      "language": "Langues disponibles",
+      "french": "Français",
+      "dutch": "Néerlandais", 
+      "english": "Anglais",
+      "export_button": "Exporter",
+      "column": "Sélectionnez les colonnes",
+      "char": "Caractéristiques"
     }
   },
   "pagination": {
@@ -179,7 +251,8 @@
         "save": "Enregistrer",
         "cancel": "Annuler",
         "delete": "Supprimer"
-      }
+      },
+      "confirm": "Êtes-vous sûr de vouloir supprimer ce compte ?"
     },
     "add_picture": {
       "titleCat": "Ajouter des images pour un type d'instrument",
@@ -220,15 +293,224 @@
       "error_already_exists" :"Ce nom de commande existe déjà",
       "cancel" : "Annuler",
       "edit" : "Modifier"
+    },
+    "import": {
+      "loading": "Chargement...",
+      "loading_data": "Chargement des données...",
+      "loading_import": "Importation en cours...",
+      "success": "Importation réussie !",
+      "error": "Erreur d'import :",
+      "error_send": "Erreur lors de l'envoi :",
+      "next": "Suivant"
+    },
+    "add_category": {
+      "add_cat": "Ajouter un type d'instruments au sous groupe",
+      "add_cat2": "Ajouter un type d'instruments",
+      "abbreviations": "Abréviation:",
+      "exists": "Ce type d'instruments existe déjà.",
+      "erase": "Effacer",
+      "cancel": "Annuler",
+      "add": "Ajouter"
+    },
+    "add_char": {
+      "add_char": "Ajouter une nouvelle caractéristique",
+      "name": "Nom de la caractéristique",
+      "no_suggestion": "Aucune suggestion.",
+      "add_button": "Ajouter",
+      "form": "Forme :",
+      "not_included": "Non incluses dans la forme :",
+      "add_to_form": "Ajouter à la forme"
+    },
+    "add_group": {
+      "operation": "Operation annulée.",
+      "success": "Groupe ajouté avec succès!",
+      "fail": "Echec lors de l'ajout du groupe",
+      "add_group": "Ajouter un groupe d'instruments",
+      "name": "Nom du groupe: ",
+      "enter_name": "Entrez le nom du groupe",
+      "subname": "Nom du sous-groupe: ",
+      "enter_subname": "Entrez le nom du sous-groupe",
+      "enter_char": "Entrez une caractéristique",
+      "add_char": "Ajouter une caractéristique",
+      "add_pictures": "Ajouter une image du groupe:",
+      "save": "Enregistrer",
+      "erase": "Effacer",
+      "cancel": "Annuler",
+      "char": "Caractéristiques:"
+    },
+    "add_instrument": {
+      "error_loading": "Erreur lors du téléchargement de l'image.",
+      "error_add": "Erreur lors de l'ajout de l'instrument.",
+      "added": "Instrument ajouté!",
+      "not_possible": "Impossible d'ajouter un instrument.",
+      "add_instr": "Ajouter un instrument",
+      "ref": "Référence:",
+      "enter_ref": "Entrer une référence",
+      "exists": "Cette référence existe déjà.",
+      "supplier": "Fournisseur:",
+      "enter_supplier": "Entrer un fournisseur",
+      "description": "Description du fournisseur:",
+      "enter_description": "Entrer la description du fournisseur",
+      "price": "Prix:",
+      "enter_price": "Entrer le prix",
+      "cat": "Type d'instruments:",
+      "enter_cat": "Sélectionner un type d'instruments",
+      "alt": "Alternatives:",
+      "enter_alt": "Sélectionner des alternatives",
+      "obs": "Obsolescence:",
+      "yes": "Oui",
+      "no": "Non",
+      "picture": "Image:",
+      "erase": "Effacer",
+      "cancel": "Annuler",
+      "add": "Ajouter",
+      "pb": "Problème d'ajout d'image."
+    },
+    "add_to_order": {
+      "order": "Commander référence",
+      "obs": "L'instrument est obsolète, impossible de le commander.",
+      "ref": "REF",
+      "brand": "MARQUE",
+      "descr": "DESCRIPTION",
+      "price": "PRIX",
+      "qtt": "Quantité: ",
+      "order2": "Commande:",
+      "cancel": "Annuler",
+      "ordering": "Commander"
+    },
+    "add_subgroup": {
+      "cancel_op": "Operation annulée.",
+      "success": "Ajout sous-groupe réussi!",
+      "fail": "Impossible d'ajouter un sous-groupe.",
+      "add_subgroup": "Ajouter un sous-groupe d'instruments",
+      "name": "Nom du sous-groupe:",
+      "enter_name": "Entrez le nom du sous-groupe",
+      "char": "Caractéristiques:",
+      "enter_char": "Entrez une caractéristique",
+      "add_char": "Ajouter une caractéristique",
+      "add_picture": "Ajouter une image du sous-groupe:",
+      "save": "Enregistrer",
+      "erase": "Effacer",
+      "cancel": "Annuler"
+    },
+    "add_supplier": {
+      "add_supp": "Ajouter un fournisseur",
+      "name": "Nom:",
+      "enter_supp": "Entrer le nom du fournisseur",
+      "sold": "En vente:",
+      "status": "Statut:",
+      "open": "Ouvert",
+      "close": "Fermé",
+      "save": "Enregistrer",
+      "erase": "Effacer",
+      "cancel": "Annuler",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "edit_abb": {
+      "toast1": "Erreur lors de la modification de l'abbreviation",
+      "toast2": "Abréviation modifiée avec succès",
+      "edit": "Modifier l'abréviation",
+      "complete": "Complet",
+      "abb": "Abréviation",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "edit_cat": {
+      "delete": "Êtes-vous sûr de vouloir supprimer ce type d'instruments?",
+      "edit": "Éditer le type d'instruments :",
+      "abb": "Abréviation:",
+      "exists": "Ce type d'instruments existe déjà.",
+      "modif": "Aucune modification n'a été faite.",
+      "not_deleted": "Le type d'instruments contient encore des instruments, il ne peut pas être supprimé.",
+      "supp": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "edit_group": {
+      "modif": "Modifier le groupe",
+      "name": "Nom",
+      "picture": "Image",
+      "warning": "Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,l'image actuelle sera supprimée.",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "edit_instrument": {
+      "warning": "Êtes-vous sûr de vouloir supprimer cette alternative ?",
+      "modif": "Modifier l'instrument ",
+      "loading": "Chargement...",
+      "supplier": "Fournisseur:",
+      "cat": "Catégorie:",
+      "ref": "Référence:",
+      "descr": "Description du fournisseur:",
+      "price": "Prix:",
+      "obs": "Obsolescence:",
+      "picture": "Image",
+      "confirm": "Une image existe déjà pour cet instrument, en indiquant une image ci-dessus, l'image actuelle sera supprimée.",
+      "alt": "Alternatives:",
+      "diff_supp": "Les alternatives doivent avoir des fournisseurs differents.",
+      "group": "Les alternatives doivent faire partie du même groupe.",
+      "exists": "Cette alternative existe déjà.",
+      "ref2": "Référence",
+      "brand": "Marque",
+      "description": "Description",
+      "price2": "Prix",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "edit_subgroup": {
+      "modif": "Modifier le sous-groupe",
+      "name": "Nom",
+      "picture": "Image",
+      "delete": "Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,l'image actuelle sera supprimée.",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "edit_supplier": {
+      "modif": "Modifier le fournisseur ",
+      "loading": "Chargement...",
+      "name": "Nom:",
+      "sold": "En vente:",
+      "yes": "Oui",
+      "no": "Non",
+      "status": "Statut:",
+      "open": "Ouvert",
+      "closed": "Fermé",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "edituser": {
+      "confirm": "Êtes-vous sûr de vouloir supprimer ce compte ?",
+      "modif": "Modifier l'utilisateur ",
+      "loading": "Chargement...",
+      "username": "Nom d'utilisateur",
+      "enter_name": "Nom d'utilisateur",
+      "email": "Adresse email",
+      "role": "Rôles",
+      "empty": "vide",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
     }
+
   },
   "profile_page": {
     "title": "Profil utilisateur",
     "name": "Nom",
     "email": "Email",
+    "role": "Rôle",
+    "job_position": "Statut professionel",
+    "workplace": "Lieu de travail",
+    "creation_date": "Date de création",
     "button": {
       "edit_profile": "Modifier le profil",
-      "back": "Retour"
+      "back": "Retour",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
     }
   },
   "order_pages" : {
@@ -247,5 +529,105 @@
       "complete" : "Compléter commande", 
       "create" : "Créer une commande"
     }
+  },
+  "import_pages": {
+    "loading": {
+      "chargement": "Chargement..."
+    },
+    "main": {
+      "group": "Groupe et sous-groupe d'instruments",
+      "instrument": "Instruments non typés",
+      "catalog": "Catalogue",
+      "alternative": "Alternatives",
+      "crossref": "Crossref",
+      "option": "Options d'Importation"
+    },
+    "subgroup": {
+      "select": "Sélectionnez le groupe et sous-groupe",
+      "group": "Groupe :",
+      "enter_group": "Entrez un groupe",
+      "enter_subgroup": "Entrez un sous-groupe",
+      "subgroup": "Sous-groupe :",
+      "add_group": "Ajouter un groupe",
+      "add_subgroup": "Ajouter un sous-groupe"
+    },
+    "supplier": {
+      "select": "Sélectionnez le fournisseur",
+      "supplier": "Fournisseur :",
+      "enter_supp": "Entrez un fournisseur"
+    },
+    "verification": {
+      "verif": "Vérification des Colonnes",
+      "overview": "Voici un aperçu du fichier Excel importé :",
+      "no_data": "Aucune donnée disponible.",
+      "import": "Importer"
+    },
+    "svelte": {
+      "error": "Erreur : Le fichier sélectionné n'est pas un fichier Excel valide.",
+      "import": "Importation de fichiers Excel",
+      "import2": "Importation de fichiers",
+      "drag": "Glissez et déposez un fichier Excel ici pour l'importer",
+      "choose": "Choisir un fichier",
+      "import_button": "Importer",
+      "success": "Fichiers importés avec succès",
+      "import_error": "Erreur lors de l'importation des fichiers",
+      "zip_import": "Importation de fichiers ZIP",
+      "delete": "Fichier supprimé",
+      "click": "Glissez et déposez un fichier zip ici ou cliquez pour en sélectionner un",
+      "continue": "Continuer",
+      "response": "Réponse du serveur"
+    }
+  },
+  "login": {
+    "connection": "Connexion",
+    "welcome": "Bienvenue sur MDTools",
+    "ways": "Connectez-vous avec les différents moyens de connexion présents.",
+    "dex": "Se connecter avec DEX"
+  },
+  "alt": {
+    "type": "Type d'instruments",
+    "alternatives": "Alternatives :",
+    "ref": "Référence",
+    "brand": "Marque",
+    "descr": "Description",
+    "price": "Prix",
+    "delete": "Supprimer",
+    "picture": "Images"
+  },
+  "add_user": {
+    "add": "Ajouter un utilisateur",
+    "name": "Nom d'utilisateur:",
+    "email": "Email:",
+    "button_add": "Ajouter",
+    "erase": "Effacer",
+    "cancel": "Annuler",
+    "toast1": "Utilisateur ajouté!",
+    "toast2": "Impossible d'ajouter un utilisateur.",
+    "toast3":  "Operation annulée."
+  },
+  "logs": {
+    "gestion": "Gestion du site",
+    "admin": "Administration du site",
+    "consult": "Consulter les logs",
+    "access": "Accéder aux logs",
+    "user": "Utilisateurs",
+    "username": "Nom d'utilisateur",
+    "email": "Adresse email",
+    "role": "Rôles",
+    "actions": "Actions",
+    "activ": "Actif",
+    "inactiv": "Désactivé",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "modif": "Modifier l'utilisateur",
+    "activer": "Activer",
+    "deactiver": "Désactiver",
+    "compte": "Le compte de",
+    "activé": "a été activé.",
+    "désactivé": "a été désactivé.",
+    "error": "An error occurred while fetching users. Please try again.<br> Erreur:",
+    "enter_user": "Rechercher un utilisateur",
+    "page": "Page",
+    "sur": "sur"
   }
 }

@@ -4,6 +4,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
   import UserButton from "./UserButton.svelte";
 
   import Icon from "@iconify/svelte";
@@ -88,7 +89,7 @@
         throw new Error("Failed to fetch users.");
       }
     } catch (error) {
-      toast.push("An error occurred while fetching users. Please try again.<br> Erreur:" + error);
+      toast.push($_('logs.error') + error);
     }
   }
 
@@ -103,36 +104,36 @@
 </script>
 
 <svelte:head>
-  <title>Gestion du site</title>
+  <title>{$_('logs.gestion')}</title>
 </svelte:head>
 
 <div class="p-8 space-y-10">
   <section class="bg-white shadow-lg rounded-xl p-6">
-    <h2 class="text-2xl font-semibold mb-8">Administration du site</h2>
+    <h2 class="text-2xl font-semibold mb-8">{$_('logs.admin')}</h2>
 
     <div class="flex flex-col lg:flex-row items-start lg:space-x-6 space-y-6 lg:space-y-0 mb-8">
       <!-- Consult Logs Section -->
       <div class="flex-1 max-w-md bg-gray-50 border border-gray-300 rounded-lg p-6">
-        <h3 class="text-lg font-medium mb-4">Consulter les logs</h3>
+        <h3 class="text-lg font-medium mb-4">{$_('logs.consult')}</h3>
         <button
           onclick={viewLogs}
           class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-lg hover:scale-105 transform transition"
         >
-          Accéder aux logs
+          {$_('logs.access')}
         </button>
       </div>
     </div>
 
     <!-- Users List Section -->
     <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
-      <h3 class="text-lg font-medium mb-6">Utilisateurs</h3>
+      <h3 class="text-lg font-medium mb-6">{$_('logs.user')}</h3>
 
       <!-- Search Bar -->
       <div class="mb-6 max-w-xs">
         <input
           type="text"
           bind:value={searchQuery}
-          placeholder="Rechercher un utilisateur"
+          placeholder={$_('logs.enter_user')}
           class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
@@ -142,10 +143,10 @@
         <table class="min-w-full table-auto border-collapse">
           <thead>
             <tr class="bg-gray-100 text-left text-sm font-semibold">
-              <th class="px-6 py-4 w-96">Nom d'utilisateur</th>
-              <th class="px-6 py-4 w-96">Adresse email</th>
-              <th class="px-6 py-4 w-64">Rôles</th>
-              <th class="px-6 py-4 w-36">Actions</th>
+              <th class="px-6 py-4 w-96">{$_('logs.username')}</th>
+              <th class="px-6 py-4 w-96">{$_('logs.email')}</th>
+              <th class="px-6 py-4 w-64">{$_('logs.role')}</th>
+              <th class="px-6 py-4 w-36">{$_('logs.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -156,12 +157,12 @@
                   {#if user.enabled}
                     <span
                       class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
-                      >Actif</span
+                      >{$_('logs.activ')}</span
                     >
                   {:else}
                     <span
                       class="rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10"
-                      >Désactivé</span
+                      >{$_('logs.inactiv')}</span
                     >
                   {/if}
                 </td>
@@ -191,7 +192,7 @@
         <button
           onclick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
-          aria-label="Précédent"
+          aria-label={$_('logs.previous')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -208,11 +209,11 @@
             />
           </svg>
         </button>
-        <span>Page {currentPage} sur {totalPages}</span>
+        <span>{$_('logs.page')} {currentPage} {$_('logs.sur')} {totalPages}</span>
         <button
           onclick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          aria-label="Suivant"
+          aria-label={$_('logs.next')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

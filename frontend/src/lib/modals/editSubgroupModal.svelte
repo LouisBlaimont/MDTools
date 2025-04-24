@@ -1,6 +1,7 @@
 <script>
   import { apiFetch } from "$lib/utils/fetch";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   const {
     // provided by <Modals />
@@ -125,7 +126,7 @@
               class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
               onmousedown={startDrag}
           >
-                  <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier le sous-groupe {name}</h2>
+                  <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_subgroup.modif')} {name}</h2>
                   <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="teal-500"
@@ -149,7 +150,7 @@
           <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-lg">
               <div class="mt-2">
                 <label class="font-semibold text-lg" for="user_avatar"
-                  >Nom</label
+                  >{$_('modals.edit_subgroup.name')}</label
                 >
                 <input
                   type="text"
@@ -157,29 +158,35 @@
                   class="w-full p-2 mt-1 mb-3 border rounded"
                 />
 
-                <label class="font-semibold text-lg" for="user_avatar"
-                  >Image</label
-                >
-                <input
-                  class="w-full p-2 mt-1 mb-3 border rounded"
-                  type="file"
-                  onchange={(e) => (file = e.target.files[0])}
-                />
-                {#if subgroup.pictureId}
-                  <div class="mt-1 text-sm text-red-500">
-                    Une image existe déjà pour ce sous-groupe, en indiquant une image ci-dessus,
-                    l'image actuelle sera supprimée.
-                  </div>
-                {/if}
+                    <label class="block my-2 text-sm font-medium text-gray-900" for="user_avatar"
+                      >{$_('modals.edit_subgroup.picture')}</label
+                    >
+                    <input
+                      class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5"
+                      type="file"
+                      onchange={(e) => (file = e.target.files[0])}
+                    />
+                    {#if subgroup.pictureId}
+                      <div class="mt-1 text-sm text-red-500">
+                        {$_('modals.edit_subgroup.delete')}
+                      </div>
+                    {/if}
               </div>
-              <div class="flex justify-end gap-4 mt-4">
-                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
-                <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
+            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+              <button
+                type="submit"
+                class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                >{$_('modals.edit_subgroup.save')}</button
+              >
+              <button
+                type="button"
+                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                onclick={() => close()}>{$_('modals.edit_subgroup.cancel')}</button
+              >
             </div>
           </form>
       </div>
-    </div>
   </div>
+</div>
 {/if}
 

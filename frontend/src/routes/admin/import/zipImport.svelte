@@ -3,6 +3,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { apiFetch } from "$lib/utils/fetch";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
   import { preventDefault } from "svelte/legacy";
 
   let files = $state([]);
@@ -49,7 +50,7 @@
         responses = await response.json();
         console.log(responses);
 
-        toast.push("Fichiers importés avec succès", {
+        toast.push($_('import_pages.svelte.success'), {
           theme: {
             "--toastBackground": "#4ade80",
             "--toastColor": "#fff",
@@ -58,7 +59,7 @@
         });
         files = [];
       } else {
-        toast.push("Erreur lors de l'importation des fichiers", {
+        toast.push($_('import_pages.svelte.import_error'), {
           theme: {
             "--toastBackground": "#f87171",
             "--toastColor": "#fff",
@@ -68,7 +69,7 @@
       }
     } catch (error) {
       console.error(error);
-      toast.push("Erreur lors de l'importation des fichiers", {
+      toast.push($_('import_pages.svelte.import_error'), {
         theme: {
           "--toastBackground": "#f87171",
           "--toastColor": "#fff",
@@ -80,7 +81,7 @@
 </script>
 
 <main class="w-full flex flex-col items-center">
-  <h1 class="text-2xl font-bold mt-6">Importation de fichiers ZIP</h1>
+  <h1 class="text-2xl font-bold mt-6">{$_('import_pages.svelte.zip_import')}</h1>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="w-3/4 min-h-64 border-4 border-dashed border-gray-500 rounded-lg flex items-center justify-center mt-6 bg-gray-100"
@@ -117,7 +118,7 @@
                 event.stopPropagation();
                 event.preventDefault();
                 files.splice(index, 1);
-                toast.push("Fichier supprimé", {
+                toast.push($_('import_pages.svelte.delete'), {
                   theme: {
                     "--toastBackground": "#f87171",
                     "--toastColor": "#fff",
@@ -133,7 +134,7 @@
       </div>
     {:else}
       <p class="text-gray-600">
-        Glissez et déposez un fichier zip ici ou cliquez pour en sélectionner un
+        {$_('import_pages.svelte.click')}
       </p>
     {/if}
   </div>
@@ -141,14 +142,14 @@
   {#if files.length > 0}
     <form class="w-3/4 mt-4" onsubmit={handleSubmit}>
       <button class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2 ml-2" type="submit">
-        Continuer</button
+        {$_('import_pages.svelte.continue')}</button
       >
     </form>
   {/if}
 
   {#if responses}
     <div class="w-3/4 mt-4 h-64 overflow-y-auto border rounded-lg p-4 bg-gray-50">
-      <h2 class="text-xl font-bold">Réponse du serveur</h2>
+      <h2 class="text-xl font-bold">{$_('import_pages.svelte.response')}</h2>
         {#each responses as response}
           <div class="my-2 py-2 flex items-center">
             {#if response.success}

@@ -3,6 +3,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { invalidateAll, invalidate } from "$app/navigation";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   const {
     // provided by <Modals />
@@ -62,14 +63,14 @@
         }
       } catch (error) {
         console.error(error);
-        toast.push("Erreur lors de la modification de l'abbreviation", {
+        toast.push($_('modals.edit_abb.toast1'), {
           theme: {
             "--toastBackground": "#f44336",
             "--toastColor": "#fff",
           },
         });
       }
-      toast.push("Abbreviation modifiée avec succès", {
+      toast.push($_('modals.edit_abb.toast2'), {
         theme: {
           "--toastBackground": "#4caf50",
           "--toastColor": "#fff",
@@ -138,7 +139,7 @@
               class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
               onmousedown={startDrag}
           >
-                  <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier l'abréviation {value}</h2>
+                  <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_abb.edit')} {value}</h2>
                   <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="teal-500"
@@ -163,7 +164,7 @@
             <div class="mt-2">
                 <label
                   class="font-semibold text-lg"
-                  for="user_avatar">Complet</label
+                  for="user_avatar">{$_('modals.edit_abb.complete')}</label
                 >
                 <input
                   type="text"
@@ -175,7 +176,7 @@
               <div class="m-2">
                 <label
                   class="font-semibold text-lg"
-                  for="user_avatar">Abbréviation</label
+                  for="user_avatar">{$_('modals.edit_abb.abb')}</label
                 >
                 <input
                   type="text"
@@ -185,9 +186,9 @@
                 />
                 </div>
                 <div class="flex justify-end gap-4 mt-4">
-                  <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
-                  <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                  <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
+                  <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_abb.delete')}</button>
+                  <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_abb.cancel')}</button>
+                  <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.edit_abb.save')}</button>
               </div>
           </form>
         </div>

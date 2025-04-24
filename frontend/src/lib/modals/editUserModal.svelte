@@ -6,6 +6,8 @@
   import { createListbox } from "svelte-headlessui";
   import { Transition } from "svelte-transition";
   import { reload } from "$lib/stores/searches";
+  import { _ } from "svelte-i18n";
+
   // Destructure the props provided by <Modals />
   const {
     isOpen, // Indicates if the modal is open
@@ -94,7 +96,7 @@
 
   // Function to handle instrument deletion
   async function handleDelete() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer ce compte ?")) {
+      if (confirm($_('modals.edituser.confirm'))) {
           try {
               const response = await apiFetch("/api/user/" + encodeURIComponent(user.username), {
                   method: "DELETE",
@@ -271,7 +273,7 @@
                 class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
                 onmousedown={startDrag}
             >
-                <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier l'utilisateur {user.username}</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edituser.modif')}{user.username}</h2>
                 <!-- Edit Icon -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -314,7 +316,7 @@
                             fill="currentFill"
                         />
                     </svg>
-                    <span class="sr-only">Chargement...</span>
+                    <span class="sr-only">{$_('modals.edituser.loading')}</span>
                 </div>
             {:then}
                 <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
@@ -324,7 +326,7 @@
                           {#if characteristic.name === "username"}
                             <!-- Division for Username -->
                             <div class="space-y-2">
-                              <label for="username" class="font-semibold text-lg">Nom d'utilisateur</label>
+                              <label for="username" class="font-semibold text-lg">{$_('modals.edituser.username')}</label>
                               <input
                                 type="text"
                                 id="username"
@@ -335,7 +337,7 @@
                                 oninput={handleAutocompleteInput}
                                 onblur={() => closeAutocomplete()}
                                 class="w-full p-2 mt-1 mb-3 border rounded"
-                                placeholder="Nom d'utilisateur"
+                                placeholder={$_('modals.edituser.enter_name')}
                               />
                               {#if showAutocompleteDropdown && currentAutocompleteField === "username"}
                                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -359,7 +361,7 @@
 
                           <!-- Division for Email -->
                           <div class="space-y-2 mt-2">
-                            <label for="email" class="font-semibold text-lg">Adresse email</label>
+                            <label for="email" class="font-semibold text-lg">{$_('modals.edituser.email')}</label>
                             <!-- svelte-ignore event_directive_deprecated -->
                             <input
                               type="email"
@@ -371,7 +373,7 @@
                               oninput={handleAutocompleteInput}
                               onblur={() => closeAutocomplete()}
                               class="w-full p-2 mt-1 mb-3 border rounded"
-                              placeholder="Adresse email"
+                              placeholder={$_('modals.edituser.email')}
                             />
                             {#if showAutocompleteDropdown && currentAutocompleteField === "email"}
                               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -392,7 +394,7 @@
                       {:else if characteristic.name === "roles"}
                           <!-- Division for Roles -->
                             <div class="space-y-2 mt-2">
-                              <label for="roles" class="font-semibold text-lg">Rôles</label>
+                              <label for="roles" class="font-semibold text-lg">{$_('modals.edituser.role')}</label>
                               <div class="relative">
                               <span class="inline-block w-full">
                                   <button
@@ -411,7 +413,7 @@
                                           {/if}
                                       </span>
                                       {:else}
-                                      <span class="flex items-center gap-1 rounded-sm px-2 py-0.5">Empty</span>
+                                      <span class="flex items-center gap-1 rounded-sm px-2 py-0.5">{$_('modals.edituser.empty')}</span>
                                       {/each}
                                   </div>
                                   <span
@@ -465,9 +467,9 @@
                       <div>
                     
                     <div class="mt-4 space-x-4 flex justify-end">
-                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
-                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                        <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
+                        <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edituser.delete')}</button>
+                        <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edituser.cancel')}</button>
+                        <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.edituser.save')}</button>
                     </div>
                 </form>
             {/await}

@@ -2,6 +2,7 @@
   import { modals } from "svelte-modals";
   import EditUserModal from "$lib/modals/editUserModal.svelte";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
   import { toast } from "@zerodevx/svelte-toast";
 
   const { user, roles } = $props();
@@ -14,9 +15,9 @@
   const disableAccount = () => {
     user.enabled = !user.enabled;
     if (user.enabled) {
-      toast.push(`Le compte de ${user.email} a été activé.`);
+      toast.push(`${$_('logs.compte')} ${user.email} ${$_('logs.activé')}`);
     } else {
-      toast.push(`Le compte de ${user.email} a été désactivé.`);
+      toast.push(`${$_('logs.compte')} ${user.email} ${$_('logs.désactivé')}`);
     }
   };
 </script>
@@ -36,7 +37,7 @@
       <Icon icon="material-symbols:check-circle" width="24" height="24" />
     {/if}
   </span>
-  <span class="pl-2">{user.enabled ? "Désactiver" : "Activer"}</span>
+  <span class="pl-2">{user.enabled ? $_('logs.deactiver') : $_('logs.activer')}</span>
 </button>
 
 <button
@@ -46,5 +47,5 @@
 <span>
     <Icon icon="material-symbols:edit-rounded" width="24" height="24" />
   </span>
-  <span class="pl-2">Modifier l'utilisateur</span>
+  <span class="pl-2">{$_('logs.modif')}</span>
 </button>

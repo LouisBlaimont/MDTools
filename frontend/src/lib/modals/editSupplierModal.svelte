@@ -3,6 +3,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { reload } from "$lib/stores/searches";
   import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
 
   const {
     isOpen, // Indicates if the modal is open
@@ -197,7 +198,7 @@
           class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
           on:mousedown={startDrag}
       >
-        <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier le fournisseur {name}</h2>
+        <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_supplier.modif')}{name}</h2>
         <!-- Edit Icon -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -237,7 +238,7 @@
                     fill="currentFill"
                 />
             </svg>
-            <span class="sr-only">Chargement...</span>
+            <span class="sr-only">{$_('modals.edit_supplier.loading')}.</span>
         </div>
       {:then} 
       <form on:submit|preventDefault={handleSubmit} class="bg-gray-100 p-6 rounded-b-lg">
@@ -245,7 +246,7 @@
             {#if detail.name !== "id"}
                 <div>
                 {#if detail.name === "name"}
-                    <label for="name" class="font-semibold text-lg">Nom:</label>
+                    <label for="name" class="font-semibold text-lg">{$_('modals.edit_supplier.name')}</label>
                     <input
                       type="text"
                       bind:value={detail.value}
@@ -278,7 +279,7 @@
                     </ul>
                     {/if}
                 {:else if detail.name === "soldByMd"}
-                    <label for="soldByMd" class="font-semibold text-lg">En vente:</label>
+                    <label for="soldByMd" class="font-semibold text-lg">{$_('modals.edit_supplier.sold')}</label>
                     <div class="flex gap-4 mb-4">
                     <label>
                         <input
@@ -287,7 +288,7 @@
                             value={true}
                             on:change={() => (detailsEdited = true)}
                         />
-                        Oui
+                        {$_('modals.edit_supplier.yes')}
                     </label>
                     <label>
                         <input
@@ -296,11 +297,11 @@
                         value={false}
                         on:change={() => (detailsEdited = true)}
                         />
-                        Non
+                        {$_('modals.edit_supplier.no')}
                     </label>
                     </div>
                 {:else if detail.name === "closed"}
-                    <label for="closed" class="font-semibold text-lg">Statut:</label>
+                    <label for="closed" class="font-semibold text-lg">{$_('modals.edit_supplier.status')}</label>
                     <div class="flex gap-4 mb-4">
                     <label>
                         <input
@@ -309,7 +310,7 @@
                         value={true}
                         on:change={() => (detailsEdited = true)}
                         />
-                        Fermé
+                        {$_('modals.edit_supplier.closed')}
                     </label>
                     <label>
                         <input
@@ -318,7 +319,7 @@
                         value={false}
                         on:change={() => (detailsEdited = true)}
                         />
-                        Ouvert
+                        {$_('modals.edit_supplier.open')}
                     </label>
                     </div>
                 {:else}
@@ -335,9 +336,9 @@
           {/each}
         
         <div class="flex justify-end gap-4 mt-4">
-          <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
-          <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-          <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
+          <button type="button" on:click={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_supplier.delete')}</button>
+          <button type="button" on:click={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_supplier.cancel')}</button>
+          <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.edit_supplier.save')}</button>
         </div>
       </form>
       {/await}
