@@ -2,11 +2,12 @@
     import { getContext } from "svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { modals } from "svelte-modals";
-    import { selectedGroup } from "$lib/stores/searches";
+    import { selectedGroup, reload } from "$lib/stores/searches";
     import { userId } from "$lib/stores/user_stores";
     import { apiFetch } from "$lib/utils/fetch";
     import { _ } from "svelte-i18n";
     import { createEventDispatcher } from "svelte";
+    import { goto } from "$app/navigation";
 
     export let isOpen = false;
     export let close;
@@ -63,13 +64,16 @@
             body: JSON.stringify({ 
                 groupName, 
                 subGroupName, 
-                characteristics: characteristics.join(", "),
+                characteristics,
                 picture 
             })
         });
-        close();
+
         if (response.ok) {
             dispatch("success", { message: $_('modals.add_group.success') });
+            close();
+            goto(`/searches?group=${encodeURIComponent(groupName)}&subgroup=${encodeURIComponent(subGroupName)}&category=&instrument=`);
+            reload.set(true);
         } else {
             dispatch("error", { message: $_('modals.add_group.fail') });
         }
