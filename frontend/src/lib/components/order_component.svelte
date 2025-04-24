@@ -66,7 +66,7 @@
                     >{$_('orders_component.show_orders')}
                 </label>
                 <select id="commandes"
-                class="w-1/3 border border-gray-400 rounded p-0.5 border-solid border-[black]"
+                class="w-1/4 ml-2 p-1 bg-transparent text-slate-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 bind:value={$selectedOrderId}
                 on:change={(e) => {
                     if($selectedOrderId === "create"){
