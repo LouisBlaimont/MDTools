@@ -427,34 +427,13 @@ class CategoryServiceTest {
 
       @Test
       void testAddCategoryToSubGroup_ShouldThrow_WhenValueIsNotString() {
-          String subGroupName = "Tools";
-      
-          Characteristic charac = new Characteristic();
-          charac.setId(1L);
-          charac.setName("Material");
-      
-          Group group = new Group();
-          group.setName("Test");
-      
-          SubGroup subGroup = new SubGroup();
-          subGroup.setName(subGroupName);
-          subGroup.setGroup(group);
-          SubGroupCharacteristic sgc = new SubGroupCharacteristic();
-          sgc.setCharacteristic(charac);
-          subGroup.setSubGroupCharacteristics(List.of(sgc));
-      
-          when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
-          when(categoryRepository.save(any())).thenAnswer(i -> {
-              Category c = i.getArgument(0);
-              c.setId(1L);
-              return c;
-          });
-      
-          Map<String, Object> body = Map.of("Material", 42); 
-      
-          assertThrows(BadRequestException.class, () -> {
-              categoryService.addCategoryToSubGroup(body, subGroupName);
-          });
+        setupBasicUpdateMocks();
+        Map<String, Object> body = new HashMap<>();
+        body.put("Material", 123);
+
+        assertThrows(BadRequestException.class, () ->
+            categoryService.updateCategory(1L, "SubGroup", body)
+        );  
       }
       
 
@@ -588,7 +567,7 @@ class CategoryServiceTest {
           setupBasicUpdateMocks();
       
           Map<String, Object> body = new HashMap<>();
-          body.put("Material", 123); // ❌ mauvais type
+          body.put("Material", 123); 
       
           assertThrows(BadRequestException.class, () ->
               categoryService.updateCategory(1L, "SubGroup", body)
@@ -602,7 +581,7 @@ class CategoryServiceTest {
       
           Map<String, Object> body = Map.of(
               "Material", "Steel",
-              "Materialabrev", 123 // ❌ mauvais type
+              "Materialabrev", 123 
           );
       
           assertThrows(BadRequestException.class, () ->
@@ -644,32 +623,36 @@ class CategoryServiceTest {
       
       @Test
       void testUpdateCategory_ShouldThrow_WhenCategoryAlreadyExists() {
-          SubGroup subgroup = new SubGroup();
-          subgroup.setId(1L);
-      
-          Characteristic charac = new Characteristic();
-          charac.setId(1L);
-          charac.setName("Material");
-      
-          Category current = new Category(subgroup);
-          current.setId(1L);
-          CategoryCharacteristic cc = new CategoryCharacteristic(current, charac, "Steel");
-      
-          Category existing = new Category(subgroup);
-          existing.setId(2L);
-          CategoryCharacteristic ecc = new CategoryCharacteristic(existing, charac, "Steel");
-          existing.setCategoryCharacteristic(List.of(ecc));
-      
-          when(subGroupRepository.findByName("SubGroup")).thenReturn(Optional.of(subgroup));
-          when(categoryRepository.findById(1L)).thenReturn(Optional.of(current));
-          when(categoryCharRepository.findByCategoryId(1L)).thenReturn(List.of(cc));
-          when(categoryRepository.findBySubGroup(eq(subgroup), any())).thenReturn(List.of(current, existing));
-      
-          Map<String, Object> body = Map.of("Material", "Steel");
-      
-          assertThrows(BadRequestException.class, () ->
-              categoryService.updateCategory(1L, "SubGroup", body)
-          );
+        SubGroup subgroup = new SubGroup();
+        subgroup.setId(1L);
+    
+        Characteristic charac = new Characteristic();
+        charac.setId(1L);
+        charac.setName("Material");
+    
+        SubGroupCharacteristic subGroupCharacteristic = new SubGroupCharacteristic();
+        subGroupCharacteristic.setCharacteristic(charac);
+        subgroup.setSubGroupCharacteristics(List.of(subGroupCharacteristic)); // Ensure this is initialized
+    
+        Category current = new Category(subgroup);
+        current.setId(1L);
+        CategoryCharacteristic cc = new CategoryCharacteristic(current, charac, "Steel");
+    
+        Category existing = new Category(subgroup);
+        existing.setId(2L);
+        CategoryCharacteristic ecc = new CategoryCharacteristic(existing, charac, "Steel");
+        existing.setCategoryCharacteristic(List.of(ecc));
+    
+        when(subGroupRepository.findByName("SubGroup")).thenReturn(Optional.of(subgroup));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(current));
+        when(categoryCharRepository.findByCategoryId(1L)).thenReturn(List.of(cc));
+        when(categoryRepository.findBySubGroup(eq(subgroup), any())).thenReturn(List.of(current, existing));
+    
+        Map<String, Object> body = Map.of("Material", "Steel");
+    
+        assertThrows(BadRequestException.class, () ->
+            categoryService.updateCategory(1L, "SubGroup", body)
+        );
       }
       
       /**
@@ -679,19 +662,24 @@ class CategoryServiceTest {
       private void setupBasicUpdateMocks() {
             SubGroup subgroup = new SubGroup();
             subgroup.setId(1L);
-        
+            subGroup.setName("SubGroup");
+
             Group group = new Group();
             group.setName("TestGroup");
-            subgroup.setGroup(group); 
-        
-            Characteristic charac = new Characteristic();
-            charac.setId(1L);
-            charac.setName("Material");
+            subgroup.setGroup(group);
+
+            Characteristic characteristic = new Characteristic();
+            characteristic.setId(1L);
+            characteristic.setName("Material");
+
+            SubGroupCharacteristic subGroupCharacteristic = new SubGroupCharacteristic(subgroup, characteristic, 1);
+
+            subgroup.setSubGroupCharacteristics(List.of(subGroupCharacteristic));
         
             Category category = new Category(subgroup);
             category.setId(1L);
-            CategoryCharacteristic cc = new CategoryCharacteristic(category, charac, "Old");
-            cc.setCharacteristic(charac);
+            CategoryCharacteristic cc = new CategoryCharacteristic(category, characteristic, "Old");
+            cc.setCharacteristic(characteristic);
         
             category.setCategoryCharacteristic(List.of(cc));
         

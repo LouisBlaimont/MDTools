@@ -1,6 +1,6 @@
 <script>
     import { apiFetch } from "$lib/utils/fetch";
-    import { instrumentCharacteristics, reload, selectedGroup, selectedSubGroup } from "$lib/stores/searches";
+    import { instrumentCharacteristics, reload, selectedGroup, selectedSubGroup, currentSuppliers } from "$lib/stores/searches";
     import { _ } from "svelte-i18n";
     import { modals } from "svelte-modals";
     import { goto } from "$app/navigation";
@@ -11,7 +11,7 @@
         initCategory, 
     } = $props();
 
-    let file = null;
+    let files = $state([]);
     let reference = $state("");
     let supplier = $state("");
     let supplierDescription = $state("");
@@ -20,7 +20,7 @@
     let id = $state("");
     let categoryId = $state(initCategory ? initCategory.id : ""); // Set default category ID
 
-    let inputSize;
+    let inputSize = $state();
 
     let posX =$state(0), posY = $state(0), offsetX = 0, offsetY = 0, isDragging = false;
 
@@ -77,21 +77,45 @@
             }
             const instr = await response.json();
 
-            if(file){
+            if(files.length>0){
                 const formData = new FormData();
-                formData.append("file", file);
-                const img = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instr.id), {
-                    method: "POST",
-                    body: formData,
+                files.forEach((file)=> {
+                    formData.append("files", file);
                 });
-                if (!img.ok) {
-                    const response = await apiFetch("/api/instrument/" + encodeURIComponent(instr.id), {
-                        method : "DELETE"
+                formData.append("referenceId", instr.id);
+                formData.append("type", "instrument");
+                try {
+                    const response = await apiFetch("/api/pictures/multiple", {
+                        method: "POST",
+                        body: formData,
                     });
+                    if (!response.ok) {
+                        const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id), {
+                            method: "DELETE",
+                            });
+                        if (!response.ok) {
+                            throw new Error("Failed to delete the instrument");
+                        }
+                        const pbPicture= document.getElementById("error-picture");
+                        pbPicture.classList.remove("hidden");
+                        throw new Error("Failed to update the image");
+                    }
                     const pbPicture= document.getElementById("error-picture");
                     pbPicture.classList.add("hidden");
-                    throw new Error("Failed to add picture");
+                    const responseData = await response.json();
+                    responseData.forEach((picture) => {
+                    currentSuppliers.update((suppliers) => {
+                        suppliers.forEach((supplier) => {
+                        if (supplier.id === instr.id) {
+                            supplier.picturesId.push(picture.id);
+                        }
+                        });
+                        return suppliers;
+                    }); });
+                } catch (error) {
+                    console.error("Error:", error);
                 }
+
             }
             close();
             goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(instr.categoryId)}&instrument=${encodeURIComponent(instr.id)}`);
@@ -366,7 +390,7 @@
                     class="w-full p-2 mt-1 mb-3 border rounded" 
                     placeholder={$_('modals.add_instrument.enter_ref')}
                 />
-                <span id="error-same-ref" class="mb-5 text-red-600 hidden">{$_('modals.add_instrument.exists')}</span>
+                <span id="error-same-ref" class="block w-full mb-2 text-red-600 hidden">{$_('modals.add_instrument.exists')}</span>
 
                 <label for="supplier" class="font-semibold text-lg">{$_('modals.add_instrument.supplier')}</label>
                 <input 
@@ -401,7 +425,7 @@
                         {/each}
                     </ul>
                 {/if}
-                <span id="error-no-supplier" class="mb-5 text-red-600 hidden">{$_('modals.add_instrument.enter_supplier')} </span>
+                <span id="error-no-supplier" class="block w-full mb-2 text-red-600 hidden">{$_('modals.add_instrument.enter_supplier')} </span>
 
                 <label for="supplierDescription" class="font-semibold text-lg">{$_('modals.add_instrument.description')} </label>
                 <input 
@@ -447,44 +471,46 @@
                     class="w-full p-2 mt-1 mb-3 border rounded" 
                     placeholder={$_('modals.add_instrument.enter_price')} 
                 />
-
-                <label for="categoryId" class="font-semibold text-lg">{$_('modals.add_instrument.cat')} </label>
-                <input 
-                    id="categoryId"
-                    type="text" 
-                    data-field="categoryId"
-                    bind:value={categoryId}
-                    bind:this={inputSize}
-                    onfocus={() => triggerAutocomplete("categoryId")}
-                    oninput={handleAutocompleteInput}
-                    onblur={closeAutocomplete}
-                    class="w-full p-2 mt-1 mb-3 border rounded" 
-                    placeholder={$_('modals.add_instrument.enter_cat')} 
-                />
-                {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <ul 
-                        class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
-                        style="width: {inputSize?.offsetWidth || 'auto'}px;"
-                        onmousedown={event => event.preventDefault()}
-                    >
-                        {#each filteredAutocompleteOptions as option}
-                            <!-- svelte-ignore a11y_role_has_required_aria_props -->
-                            <button
-                                type="button"
-                                class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw] {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
-                                role="option"
-                                onclick={() => selectAutocompleteOption(option)}
-                            >
-                                {option}
-                                {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
-                                    <span class="text-xs text-gray-500 ml-2">
-                                        ({categorizedOptions[option].length} items)
-                                    </span>
-                                {/if}
-                            </button>
-                        {/each}
-                    </ul>
+                
+                {#if !initCategory}
+                    <label for="categoryId" class="font-semibold text-lg">{$_('modals.add_instrument.cat')} </label>
+                    <input 
+                        id="categoryId"
+                        type="text" 
+                        data-field="categoryId"
+                        bind:value={categoryId}
+                        bind:this={inputSize}
+                        onfocus={() => triggerAutocomplete("categoryId")}
+                        oninput={handleAutocompleteInput}
+                        onblur={closeAutocomplete}
+                        class="w-full p-2 mt-1 mb-3 border rounded" 
+                        placeholder={$_('modals.add_instrument.enter_cat')} 
+                    />
+                    {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
+                        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                        <ul 
+                            class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto max-w-[80vw]"
+                            style="width: {inputSize?.offsetWidth || 'auto'}px;"
+                            onmousedown={event => event.preventDefault()}
+                        >
+                            {#each filteredAutocompleteOptions as option}
+                                <!-- svelte-ignore a11y_role_has_required_aria_props -->
+                                <button
+                                    type="button"
+                                    class="dropdown-option px-4 py-2 text-left hover:bg-gray-200 cursor-pointer w-full max-w-[80vw] {currentAutocompleteField === 'categoryId' && currentCategory === option ? 'bg-blue-100' : ''}"
+                                    role="option"
+                                    onclick={() => selectAutocompleteOption(option)}
+                                >
+                                    {option}
+                                    {#if currentAutocompleteField === 'categoryId' && currentCategory === null && categorizedOptions[option]}
+                                        <span class="text-xs text-gray-500 ml-2">
+                                            ({categorizedOptions[option].length} items)
+                                        </span>
+                                    {/if}
+                                </button>
+                            {/each}
+                        </ul>
+                    {/if}
                 {/if}
 
                 <label for="obsolete" class="font-semibold text-lg">{$_('modals.add_instrument.obs')} </label>
@@ -498,9 +524,11 @@
                     id="img"
                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mt-1 mb-3"
                     type="file"
-                    onchange={(e) => (file = e.target.files[0])}
+                    accept="image/*"
+                    multiple
+                    onchange={(e) => (files = Array.from(e.target.files))}
                 />
-                <span id="error-picture" class="mb-5 text-red-600 hidden">{$_('modals.add_instrument.pb')}</span>
+                <span id="error-picture" class="block w-full mb-2 text-red-600 hidden">{$_('modals.add_instrument.pb')}</span>
 
                 <div class="flex justify-end gap-4">
                     <button type="button" onclick={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_instrument.erase')}</button>

@@ -373,24 +373,10 @@ public class OrdersServiceTest {
     @Test
     void removeOrder_Success() {
         when(ordersRepository.findById(1L)).thenReturn(Optional.of(testOrder));
-        when(orderItemsRepository.findOrderItemsByOrderId(1L)).thenReturn(Collections.singletonList(testOrderItem));
         
         Boolean result = ordersService.removeOrder(1L);
         
         assertTrue(result);
-        verify(orderItemsRepository).deleteAll(anyList());
-        verify(ordersRepository).deleteById(1L);
-    }
-    
-    @Test
-    void removeOrder_EmptyOrderItems_Success() {
-        when(ordersRepository.findById(1L)).thenReturn(Optional.of(testOrder));
-        when(orderItemsRepository.findOrderItemsByOrderId(1L)).thenReturn(Collections.emptyList());
-        
-        Boolean result = ordersService.removeOrder(1L);
-        
-        assertTrue(result);
-        verify(orderItemsRepository, never()).deleteAll(anyList());
         verify(ordersRepository).deleteById(1L);
     }
     

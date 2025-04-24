@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
@@ -23,8 +22,6 @@ import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
 import be.uliege.speam.team03.MDTools.models.Group;
-import be.uliege.speam.team03.MDTools.models.Picture;
-import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
 import be.uliege.speam.team03.MDTools.models.CharacteristicValueAbbreviation;
@@ -382,28 +379,56 @@ public class CategoryService {
 
         List<CategoryCharacteristic> existingCharacteristics = categoryCharRepository.findByCategoryId(catId);
 
+        List<SubGroupCharacteristic> characteristicsOfSubGroup = subgroup.getSubGroupCharacteristics();
+
         List<CategoryCharacteristic> updatedCharacteristics = new ArrayList<>();
         List<CharacteristicValueAbbreviation> newAbbreviations = new ArrayList<>();
         List<CharacteristicValueAbbreviation> updatedAbbreviations = new ArrayList<>();
         
         List<CategoryCharacteristic> allCharacteristics = new ArrayList<>();
 
-        for (CategoryCharacteristic cc : existingCharacteristics){
-            String charName = cc.getCharacteristic().getName();
+        for (SubGroupCharacteristic sbc : characteristicsOfSubGroup){
+            Characteristic characteristic = sbc.getCharacteristic();
+            String charName = characteristic.getName();
 
-            // Update value
+            // Check if a category characteristic existed for this value
+            Optional<CategoryCharacteristic> found = existingCharacteristics.stream()
+                .filter(cc -> cc.getCharacteristic().equals(characteristic))
+                .findFirst();
+    
+
+            // Caracteristic value to be updated
             Object value = body.get(charName);
-            if(value == null){
-                allCharacteristics.add(cc);
+            if(value == null && found.isPresent()){
+                allCharacteristics.add(found.get()); 
+                continue;
+            }
+            else if(value == null && found.isEmpty()){
                 continue;
             }
             if (!(value instanceof String)){
                 throw new BadRequestException("Invalid value type for characteristic "+ charName);
             }
             String stringVal = (String) value;
+
+            CategoryCharacteristic cc;
+            // If yes, nothing to do
+            if(found.isPresent()){
+                cc = found.get();
+            }
+            // If no, create a new categoryCharacteristic;
+            else{
+                cc = new CategoryCharacteristic();
+                cc.setCategory(category);
+                cc.setCharacteristic(characteristic);
+                CategoryCharacteristicKey key = new CategoryCharacteristicKey(catId, characteristic.getId());
+                cc.setId(key);
+            }
+
+            // Update value 
             cc.setVal(stringVal);
-            updatedCharacteristics.add(cc);
-            allCharacteristics.add(cc);
+            updatedCharacteristics.add(cc); // To save new characteristic
+            allCharacteristics.add(cc); // To update correctly the category
 
             // Update abbrev, if abbrev didn't exist before create a new one
             Object abbrev = body.get(charName+"abrev");
@@ -414,6 +439,7 @@ public class CategoryService {
                 throw new BadRequestException("Invalid abbrev type for characteristic "+ charName);
             }
             String stringAbbrev = (String) abbrev;
+
             Optional<String> charAbrevMaybe = charValAbbrevService.getAbbreviation(stringVal);
             
             if (charAbrevMaybe.isPresent()){
@@ -427,7 +453,7 @@ public class CategoryService {
         // Verify that same category is not existing
         List<Category> existingCats = categoryRepository.findBySubGroup(subgroup, Sort.by("subGroupName", "id"));
         for(Category existingCat : existingCats){
-            if(existingCat.getId() == category.getId()){
+            if(existingCat.getId().equals(category.getId())){
                 continue;
             }
             List<CategoryCharacteristic> existingChars = existingCat.getCategoryCharacteristic();
@@ -461,36 +487,9 @@ public class CategoryService {
         category.setCategoryCharacteristic(allCharacteristics);
         categoryRepository.save(category);
 
-    
+
         return catMapper.mapToCategoryDto(category, pictureStorageService) ;
     }
-
-    // // not used i think
-    // /**
-    //  * Set the picture of the category
-    //  * 
-    //  * @param categoryId the id of the category
-    //  * @param picture    the picture to set
-    //  * @return the categoryDTO
-    //  */
-    // public CategoryDTO setCategoryPicture(Long categoryId, MultipartFile picture) throws ResourceNotFoundException {
-    //     Optional<Category> categoryMaybe = categoryRepository.findById(categoryId);
-    //     if (categoryMaybe.isEmpty()) {
-    //         throw new ResourceNotFoundException("Group not found.");
-    //     }
-    //     Category category = categoryMaybe.get();
-
-    //     if (category.getPicturesId() != null) {
-    //         pictureStorageService.deletePicture(category.getPicturesId());
-    //     }
-
-    //     Picture metadata = pictureStorageService.storePicture(picture, PictureType.GROUP, categoryId);
-
-    //     category.setPicturesId(metadata.getId());
-    //     Category savedCategory = categoryRepository.save(category);
-    //     return catMapper.mapToCategoryDto(savedCategory);
-    // }
-    
 
     public CategoryDTO searchCategory(Long categoryId) {
         Optional<Category> cat = categoryRepository.findById((long) categoryId);

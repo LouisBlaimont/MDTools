@@ -42,6 +42,9 @@
         isDragging = false;
     }
 
+    //Pictures
+    let files = $state([]);
+
     // New values
     let newCharValues = $state({});
     let newCharAbbrev = $state({});
@@ -154,6 +157,38 @@
         categories.update(currentCat => {
             return [...currentCat, result];
         });
+
+        if(files.length>0){
+            const formData = new FormData();
+            files.forEach((file) => {formData.append("files", file); });
+            formData.append("referenceId", result.id);
+            formData.append("type", "category");
+            const response = await apiFetch(`/api/pictures/multiple`, {
+                method: "POST",
+                body: formData,
+            });
+            if(!response.ok){
+                const response = await apiFetch(`/api/category/delete/${result.id}`, {
+                    method: "DELETE",
+                });
+                const pbPicture= document.getElementById("error-picture");
+                pbPicture.classList.remove("hidden");
+                const errorResponse = await response.json();
+                throw new Error(errorResponse.error);    
+            }
+            const pbPicture= document.getElementById("error-picture");
+            pbPicture.classList.add("hidden");
+            const responseData = await response.json();
+            responseData.forEach((picture) => {
+                categories.update((cats) => {
+                cats.forEach((cat) => {
+                    if (cat.id === result.id) {
+                    cat.picturesId.push(picture.id);
+                    }
+                });
+                return cats;
+            }); }); 
+        }
         close();
         goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(result.id)}&instrument=`);
         reload.set(true);
@@ -190,12 +225,6 @@
 
 {#if isOpen}
     <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div
-            class="relative z-10"
-            aria-labelledby="modal-title"
-            role="dialog"
-            aria-modal="true"
-        >
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             class="fixed inset-0 z-10 flex items-center justify-center"
@@ -219,7 +248,7 @@
 
                 <div class="bg-gray-100 p-6 rounded-b-lg">
                 {#if !fromSearches}
-                    <label class="w-2/5 mt-2 mb-2" for="groupOptions">{$_('search_page.label.group')}</label>
+                    <label class="w-2/5 mt-2 mb-5 font-semibold text-lg" for="groupOptions">{$_('search_page.label.group')} : </label>
                     <select
                     id="groupOptions"
                     bind:value={$selectedGroup}
@@ -235,7 +264,7 @@
                     </select>
 
                     {#if $showSubGroups}
-                    <label class="w-2/5 mt-2 mb-2 ml-4" for="subGroupOptions">{$_('search_page.label.subgroup')}</label>
+                    <label class="w-2/5 mt-2 mb-5 ml-7 font-semibold text-lg" for="subGroupOptions">{$_('search_page.label.subgroup')} : </label>
                     <select
                         id="subGroupOptions"
                         bind:value={$selectedSubGroup}
@@ -337,9 +366,18 @@
                         </div>
                     {/if}
                 {/each}
+                <label class="block font-semibold text-lg" for="category-img">{$_('modals.add_category.picture')}</label>
+                <input
+                    class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    id = "category-img"
+                    onchange={(e) => (files = Array.from(e.target.files))}
+                />
+                <span id="error-picture" class="block w-full mb-2 text-red-600 hidden">{$_('modals.add_category.pb')}</span> 
                 {/if}
-                </div>
-                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.add_category.exists')}</span>
+                <span id="error-same-category" class="block w-full ml-5 mb-2 text-red-600 hidden">{$_('modals.add_category.exists')}</span>
 
                 <div class="flex justify-end gap-4 mb-4">
                     <button type="button" onclick={()=>eraseInputs()} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_category.erase')}</button>
@@ -348,6 +386,6 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div>
     </div>
 {/if}

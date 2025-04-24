@@ -42,7 +42,7 @@
     const clickDelay = 200;
     function clickOnAlt(row, index){
         timeout = setTimeout(() => {
-            modals.open(BigPicturesModal, {instrument:row, index:index});
+            modals.open(BigPicturesModal, {instrument:row, index:index, isInstrument: true});
         }, clickDelay);
     }
     function doubleClickOnAlt(row, index){
@@ -221,6 +221,7 @@
                 <tr
                     class="cursor-pointer {index === 1 ? 'opacity-50' : ''} {row.obsolete ? 'bg-red-500' : ''}"
                     class:bg-[lightgray]={$hoveredAlternativeIndex === index}
+                    onclick={() => clickOnAlt(row, index)}
                     ondblclick={() => doubleClickOnAlt(row, index)}
                     onmouseover={() => (hoveredAlternativeIndex.set(index))}
                     onmouseout={() => (hoveredAlternativeIndex.set(null))}
