@@ -14,7 +14,8 @@
       "add_category": "Ajouter un type d'instruments",
       "add_group": "Ajouter un groupe",
       "add_subgroup": "Ajouter un sous-groupe"
-    }
+    },
+    "toast": "Vous êtes correctement connecté."
   },
 
   "homepage": {
@@ -218,7 +219,8 @@
       "dutch": "Néerlandais", 
       "english": "Anglais",
       "export_button": "Exporter",
-      "column": "Sélectionnez les colonnes"
+      "column": "Sélectionnez les colonnes",
+      "char": "Caractéristiques"
     }
   },
   "pagination": {
@@ -325,6 +327,7 @@
       "add_group": "Ajouter un groupe d'instruments",
       "name": "Nom du groupe: ",
       "enter_name": "Entrez le nom du groupe",
+      "subname": "Nom du sous-groupe: ",
       "enter_subname": "Entrez le nom du sous-groupe",
       "enter_char": "Entrez une caractéristique",
       "add_char": "Ajouter une caractéristique",
@@ -494,9 +497,15 @@
     "title": "Profil utilisateur",
     "name": "Nom",
     "email": "Email",
+    "role": "Rôle",
+    "job_position": "Statut professionel",
+    "workplace": "Lieu de travail",
+    "creation_date": "Date de création",
     "button": {
       "edit_profile": "Modifier le profil",
-      "back": "Retour"
+      "back": "Retour",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
     }
   },
   "order_pages" : {
@@ -611,7 +620,9 @@
     "compte": "Le compte de",
     "activé": "a été activé.",
     "désactivé": "a été désactivé.",
-    "error": "An error occurred while fetching users. Please try again.<br> Erreur:"
+    "error": "An error occurred while fetching users. Please try again.<br> Erreur:",
+    "enter_user": "Rechercher un utilisateur",
+    "page": "Page",
+    "sur": "sur"
   }
 }
-

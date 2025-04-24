@@ -159,7 +159,7 @@
   
       {#if selectedOption === "SubGroup"}
         <div class="w-1/4 border p-4">
-          <h2 class="text-lg font-semibold">{$_('admin.add_cat.export')}</h2>
+          <h2 class="text-lg font-semibold">{$_('admin.export.select')}</h2>
           <select bind:value={selectedGroup} on:change={handleGroupChange} class="w-full p-2 mt-2 border">
             <option value="">-- {$_('admin.export.choose')} --</option>
             {#each groups as group}
@@ -169,7 +169,7 @@
   
           <h2 class="text-lg font-semibold mt-4">{$_('admin.export.select_subgroup')}</h2>
           <select bind:value={selectedSubGroup} on:change={handleSubGroupChange} class="w-full p-2 mt-2 border" disabled={!selectedGroup}>
-            <option value="">-- {$_('admin.add_cat.choose_subgroup')} --</option>
+            <option value="">-- {$_('admin.export.choose_subgroup')} --</option>
             {#each (subGroups[selectedGroup] || []) as subGroup}
               <option value={subGroup}>{subGroup}</option>
             {/each}
@@ -262,7 +262,7 @@
           {/each}
   
           {#if characteristics.length > 0 && selectedOption === "SubGroup"}
-            <h2 class="text-lg font-semibold mt-4">Caractéristiques</h2>
+            <h2 class="text-lg font-semibold mt-4">{$_('admin.export.char')}</h2>
             {#each characteristics as characteristic}
               <label class="block">
                 <input type="checkbox" checked={selectedCharacteristics.includes(characteristic)} on:change={() => toggleCharacteristic(characteristic)} />

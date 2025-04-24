@@ -107,7 +107,7 @@
     }
 
     if (browser && $page.url.searchParams.get("login") === "success") {
-      toast.push("You have successfully log in !");
+      toast.push($_('header.toast'));
     }
   }
 )

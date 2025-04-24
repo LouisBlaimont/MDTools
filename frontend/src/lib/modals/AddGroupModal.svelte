@@ -74,11 +74,11 @@
             <form onsubmit={submitForm} preventDefault class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="text-2xl font-bold text-teal-500 text-center mb-2">{$_('modals.add_group.add_group')}</h2>
                 
-                <label for="group_name" class="font-semibold text-lg">{$_('modals.add_group.add_group')}</label>
+                <label for="group_name" class="font-semibold text-lg">{$_('modals.add_group.name')}</label>
                 <input type="text" bind:value={groupName} placeholder={$_('modals.add_group.enter_name')}
                     class="w-full p-2 mt-1 mb-3 border rounded">
 
-                <label for="subgroup_name" class="font-semibold text-lg">{$_('modals.add_group.name')}</label>
+                <label for="subgroup_name" class="font-semibold text-lg">{$_('modals.add_group.subname')}</label>
                 <input type="text" bind:value={subGroupName} placeholder={$_('modals.add_group.enter_subname')}
                     class="w-full p-2 mt-1 mb-3 border rounded">
                 

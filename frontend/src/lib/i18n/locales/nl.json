@@ -1,615 +1,628 @@
 {
-    "header": {
-      "home": "Home",
-      "search": "Zoek op",
-      "data": "Gegevens",
-      "more": {
-        "title": "Meer",
-        "suppliers": "Leveranciers",
-        "abbreviations": "Afkortingen",
-        "webmaster": "Webmaster",
-        "add": "Voeg  toe",
-        "add_instrument": "Een instrument toevoegen",
-        "add_supplier": "Een leverancier toevoegen",
-        "add_category": "Een categorie toevoegen",
+  "header": {
+    "home": "Home",
+    "search": "Zoek op",
+    "data": "Gegevens",
+    "more": {
+      "title": "Meer",
+      "suppliers": "Leveranciers",
+      "abbreviations": "Afkortingen",
+      "webmaster": "Webmaster",
+      "add": "Voeg  toe",
+      "add_instrument": "Een instrument toevoegen",
+      "add_supplier": "Een leverancier toevoegen",
+      "add_category": "Een categorie toevoegen",
+      "add_group": "Een groep toevoegen",
+      "add_subgroup": "Een subgroep toevoegen"
+    },
+    "toast": "U bent succesvol ingelogd!"
+  },
+
+  "homepage": {
+    "button": {
+      "search": "Zoek op"
+    },
+    "keyword_search": {
+      "label": "Zoeken op trefwoord(en)",
+      "placeholder": "Voer een trefwoord in"
+    },
+    "group_search": {
+      "label": "Zoeken op groep of subgroep",
+      "placeholder": "Voer een groep of subgroep in"
+    },
+    "search_by_reference": {
+      "label": "Zoeken op referentie",
+      "placeholder": "Een referentie invoeren"
+    },
+    "search_order": {
+      "label": "Een bestelling zoeken",
+      "error" : "Selecteer een bestelling"
+    },
+    "previous_orders": {
+      "label": "Alle vorige bestellingen bekijken",
+      "button": "Zie"
+    },
+    "admin": {
+      "button": {
         "add_group": "Een groep toevoegen",
         "add_subgroup": "Een subgroep toevoegen"
       }
     },
-  
-    "homepage": {
-      "button": {
-        "search": "Zoek op"
-      },
-      "keyword_search": {
-        "label": "Zoeken op trefwoord(en)",
-        "placeholder": "Voer een trefwoord in"
-      },
-      "group_search": {
-        "label": "Zoeken op groep of subgroep",
-        "placeholder": "Voer een groep of subgroep in"
-      },
-      "search_by_reference": {
-        "label": "Zoeken op referentie",
-        "placeholder": "Een referentie invoeren"
-      },
-      "search_order": {
-        "label": "Een bestelling zoeken",
-        "error" : "Selecteer een bestelling"
-      },
-      "previous_orders": {
-        "label": "Alle vorige bestellingen bekijken",
-        "button": "Zie"
-      },
-      "admin": {
-        "button": {
-          "add_group": "Een groep toevoegen",
-          "add_subgroup": "Een subgroep toevoegen"
-        }
-      },
-      "toast1": "Einde groepsbewerking.",
-      "toast2": "Selecteer een groep om deze te wijzigen."
+    "toast1": "Einde groepsbewerking.",
+    "toast2": "Selecteer een groep om deze te wijzigen."
+  },
+
+  "profile": "Profiel",
+  "sign_in": "Aanmelden",
+  "log_out": "Ontkoppelen",
+
+  "search_page": {
+    "label": {
+      "keyword": "Zoeken op trefwoord(en)",
+      "characteristics": "RZoeken op kenmerken :",
+      "group": "Groep",
+      "subgroup": "Subgroep"
     },
-  
-    "profile": "Profiel",
-    "sign_in": "Aanmelden",
-    "log_out": "Ontkoppelen",
-  
-    "search_page": {
-      "label": {
-        "keyword": "Zoeken op trefwoord(en)",
-        "characteristics": "RZoeken op kenmerken :",
-        "group": "Groep",
-        "subgroup": "Subgroep"
-      },
-      "placeholder": {
-        "keyword": "Voer een trefwoord in",
-        "min": "min",
-        "max": "max"
-      },
-      "button": {
-        "search": "Zoek op",
-        "clear": "Alles verwijderen",
-        "add": "Voeg  toe"
-      },
-      "assign": "Wijs dit instrument toe aan een type!",
-      "no_result":"Geen resultaten gevonden"
+    "placeholder": {
+      "keyword": "Voer een trefwoord in",
+      "min": "min",
+      "max": "max"
     },
-  
-    "category_component": {
-      "title": {
-        "instruments_types": "Soorten instrumenten",
-        "table": {
-          "group": "GROEP",
-          "subgroup": "SUB-GROEP",
-          "function": "FUNCTIE",
-          "name": "NAAM",
-          "shape": "FORM",
-          "dimension": "MAAT"
-        }
-      },
-      "admin": {
-        "button": {
-          "add_category": "Een instrumenttype toevoegen"
-        }
-      },
-      "pictures": {
-        "title": "Afbeeldingen"
-      }
+    "button": {
+      "search": "Zoek op",
+      "clear": "Alles verwijderen",
+      "add": "Voeg  toe"
     },
-    "instruments_component": {
-      "title": {
-        "instruments": "Instrumenten",
-        "suppliers": "Leveranciers",
-        "alternatives": "Alternatieven"
-      },
+    "assign": "Wijs dit instrument toe aan een type!",
+    "no_result":"Geen resultaten gevonden"
+  },
+
+  "category_component": {
+    "title": {
+      "instruments_types": "Soorten instrumenten",
       "table": {
-        "reference": "REF",
-        "brand": "MERK",
-        "description": "BESCHRIJVING",
-        "price": "PRIJS"
-      },
-      "button": {
-        "see_more": "Meer zien"
-      },
-      "toasts": "Selecteer een categorie om de alternatieven te bekijken.",
-      "add": "Een instrument toevoegen"
-    },
-    "orders_component": {
-      "show_orders": "Bestellingen weergeven",
-      "create_order": "Een bestelling maken",
-      "see_previous_orders": "Bekijk eerdere bestellingen",
-      "table": {
-        "reference": "REF",
-        "brand": "MERK",
         "group": "GROEP",
+        "subgroup": "SUB-GROEP",
         "function": "FUNCTIE",
         "name": "NAAM",
         "shape": "FORM",
-        "dimension": "MAAT",
-        "quantity": "HOEV",
-        "unite_price_excl_vat": "PU HTVA",
-        "total_price_excl_vat": "PT HTVA"
-      },
-      "export": {
-        "order": "Bestellen",
-        "button": "Exporteer"
-      },
-      "alert": "Geen gegevens om te exporteren"
+        "dimension": "MAAT"
+      }
     },
     "admin": {
-      "supplier_page": {
-        "title": "Beheer van leveranciers",
-        "button": {
-          "add_supplier": "Een leverancier toevoegen",
-          "edit_supplier": "De leverancier wijzigen",
-          "delete_supplier": "Leverancier verwijderen"
-        },
-        "placeholder": {
-          "search": "Een leverancier zoeken"
-        },
-        "table": {
-          "title": "Lijst van leveranciers",
-          "name": "Naam",
-          "sold": "Verkocht",
-          "status": "Status",
-          "actions": "Acties",
-          "yes": "Ja",
-          "no": "Geen",
-          "closed": "Gesloten",
-          "open": "Open",
-          "edit": "Aanpassen"
-        }
-      },
-      "abb": {
-        "abbreviation": "Afkortingen",
-        "handle": "Beheer van afkortingen",
-        "add": "Een afkorting toevoegen",
-        "full": "Volledig",
-        "enter_abb": "Een afkorting toevoegen",
-        "result": "Geen resultaten",
-        "add_button": "Voeg toe",
-        "action": "Acties",
-        "abbreviations": "Afkorting",
-        "loading": "Laden...",
-        "no_abb": "Geen afkorting gevonden",
-        "next": "Volgende",
-        "previous": "Vorige",
-        "page": "Pagina",
-        "sur": "van"
-      },
-      "add_cat": {
-        "dispatch": "Selecteer een groep en een subgroep",
-        "added_cat": "Type instrumenten toegevoegd!",
-        "not_poss": "Onmogelijk om een type instrument toe te voegen",
-        "op_cancel": "Operatie geannuleerd.",
-        "add_type": "Een type instrument toevoegen",
-        "group": "Groep:",
-        "subgroup": "Naam van subgroep:",
-        "fct": "Actie:",
-        "type_name": "Naam van het type instrument:",
-        "shape": "Vorm:",
-        "abbreviation": "Afkorting:",
-        "source": "Bron",
-        "add": "Voeg toe", 
-        "erase": "Wis",
-        "cancel": "Annuleren",
-        "enter_group": "Een groep invoeren",
-        "enter_subgroup": "Een subgroep invoeren",
-        "enter_fct": "Een functie invoeren",
-        "enter_type": "Voer een naam of type instrument in",
-        "enter_shape": "Een vorm invoeren",
-        "enter_abb": "Voer een afkorting in",
-        "enter_id": "ID van de foto invoeren"
-      },
-      "export": {
-        "export_file": "Een Excel-bestand exporteren",
-        "question": "Wat wil je exporteren?",
-        "select": "Selecteer een groep",
-        "choose": "Kies een groep",
-        "select_subgroup": "Selecteer een subgroep",
-        "choose_subgroup": "Kies een subgroep",
-        "select_supplier": "Selecteer een leverancier",
-        "choose_supp": "Kies een leverancier",
-        "include": "Leveranciers",
-        "exported": "Alle leveranciers exporteren",
-        "language": "Beschikbare talen",
-        "french": "Frans",
-        "dutch": "Nederlands", 
-        "english": "Engels",
-        "export_button": "Exporteer",
-        "column": "Selecteer de kolommen"
-      }
-    },
-    "pagination": {
-      "on": "op",
-      "page": "Pagina"
-    },
-  
-    "modals": {
-      "big_picture": {
-        "titleInstrument": "Foto's van het instrument",
-        "titleCategory": "Foto's van het type instrumenten",
-        "no_picturesInstrument": "Geen foto's beschikbaar voor dit instrument",
-        "no_picturesCategory": "Geen foto's beschikbaar voor dit type instrument",
-        "close": "Sluit",
-        "add_picture": "Een foto toevoegen",
-        "deletion_error": "Fout bij het verwijderen van foto. Fout: ",
-        "deletion_success": "Foto succesvol verwijderd",
-        "deletion_confirmation": "<strong>Wil je deze foto echt verwijderen?</strong><br>Druk nogmaals om te bevestigen"
-      },
-      "edit_user": {
-        "title": "Je profiel aanpassen",
-        "name": "Naam",
-        "email": "E-mail",
-        "active": "Activa",
-        "yes": "Ja",
-        "no": "Geen",
-        "button": {
-          "save": "Registreer",
-          "cancel": "Annuleren",
-          "delete": "Verwijder"
-        }
-      },
-      "add_picture": {
-        "titleCat": "Afbeeldingen toevoegen voor een type instrument",
-        "titleInstr": "Afbeeldingen voor het instrument toevoegen ",
-        "select": "Afbeeldingen selecteren",
-        "add": "Afbeeldingen toevoegen",
-        "button": {
-          "save": "Registreer",
-          "cancel": "Annuleren",
-          "delete": "Verwijder"
-        },
-        "need_select": "Selecteer afbeeldingen.",
-        "ok": "Afbeeldingen succesvol toegevoegd!",
-        "fail": "Mislukt bij het verzenden van afbeeldingen. <br> Fout : ",
-        "fail2": "Fout bij het verzenden van afbeeldingen.",
-        "error": "Fout",
-        "file": "Bestanden selecteren"
-      },
-      "delete_order" : {
-        "delete_title" : "Opdracht verwijderen",
-        "deletion_success" : "Bestelling succesvol verwijderd",
-        "irreversible_action" : "Houd er rekening mee dat deze actie onomkeerbaar is.",
-        "cancel" : "Annuleren",
-        "delete" : "Verwijder"
-      },
-      "create_order" : {
-        "create_title" : "Een nieuwe bestelling maken",
-        "name" : "Naam van nieuwe bestelling",
-        "error_no_name" : "Voer een opdrachtnaam in",
-        "error_already_exists" : "Deze opdrachtnaam bestaat al",
-        "cancel" : "Annuleren",
-        "create" : "Maak"
-      },
-      "edit_order" : {
-        "edit_title" : "De bestelnaam wijzigen",
-        "name" : "Nieuwe bestelnaam",
-        "error_no_name" : "Voer een opdrachtnaam in",
-        "error_already_exists" :"Deze opdrachtnaam bestaat al",
-        "cancel" : "Annuleren",
-        "edit" : "Aanpassen"
-      },
-      "import": {
-        "loading": "Laden...",
-        "loading_data": "Gegevens laden...",
-        "loading_import": "Importeren bezig...",
-        "success": "Een geslaagde import!",
-        "error": "Fout bij importeren :",
-        "error_send": "Fout bij verzenden :",
-        "next": "Volgende"
-      },
-      "add_category": {
-        "add_cat": "Een isntrumenttype toevoegen aan de subgroep",
-        "abbreviations": "Afkorting:",
-        "exists": "Dit soort instrumenten bestaat al",
-        "erase": "Wis",
-        "cancel": "Annuleren",
-        "add": "Voeg  toe"
-      },
-      "add_char": {
-        "add_char": "Een nieuw kenmerk toevoegen",
-        "name": "Naam van het kenmerk",
-        "no_suggestion": "Geen suggestie.",
-        "add_button": "Voeg  toe",
-        "form": "Form :",
-        "not_included": "Niet opgenomen in het form :",
-        "add_to_form": "Toevoegen aan het formulier"
-      },
-      "add_group": {
-        "operation": "Operatie geannuleerd",
-        "success": "Groep toegevoegd met succes!",
-        "fail": "Mislukt bij het toevoegen van groep",
-        "add_group": "Een groep instrumenten toevoegen",
-        "name": "Naam van de groep: ",
-        "enter_name": "Voer de groepsnaam in",
-        "enter_subname": "Voer de naam van de subgroep in",
-        "enter_char": "Een kenmerk invoeren",
-        "add_char": "Een nieuw kenmerk toevoegen",
-        "add_pictures": "Een foto van de groep toevoegen",
-        "save": "Sla",
-        "erase": "Wis",
-        "cancel": "Annuleren",
-        "char": "Kenmerken:"
-      },
-      "add_instrument": {
-        "error_loading": "Fout bij het downloaden van de afbeelding.",
-        "error_add": "Fout bij het toevoegen van het instrument.",
-        "added": "Instrument toegevoegd!",
-        "not_possible": "Onmogelijk om een instrument toe te voegen.",
-        "add_instr": "Een instrument toevoegen",
-        "ref": "Referentie:",
-        "enter_ref": "Een referentie invoeren",
-        "supplier": "Leverancier:",
-        "enter_supplier": "Voer een leverancier in",
-        "description": "Beschrijving leverancier:",
-        "enter_description": "Beschrijving leverancier invoeren",
-        "price": "Prijs:",
-        "enter_price": "Prijs invoeren",
-        "cat": "Categorie:",
-        "enter_cat": "Selecteer een categorie",
-        "alt": "Alternatieven:",
-        "enter_alt": "Alternatieven selecteren",
-        "obs": "Veroudering:",
-        "yes": "Ja",
-        "no": "Geen",
-        "picture": "Veroudering::",
-        "erase": "Wis",
-        "cancel": "Annuleren",
-        "add": "Voeg toe"
-      },
-      "add_to_order": {
-        "order": "OBestelreferentie",
-        "obs": "Het instrument is verouderd en kan niet worden besteld.",
-        "ref": "REF",
-        "brand": "MERK",
-        "descr": "BESCHRIJVING",
-        "price": "PRIJS",
-        "qtt": "Hoeveelheid: ",
-        "order2": "Bestel:",
-        "cancel": "Annuleren",
-        "ordering": "Bestel"
-      },
-      "add_subgroup": {
-        "cancel_op": "Operatie geannuleerd.",
-        "success": "Subgroep met succes toegevoegd",
-        "fail": "Onmogelijk om een subgroep toe te voegen",
-        "add_subgroup": "Een subgroep van instrumenten toevoegen",
-        "name": "Naam van subgroep:",
-        "enter_name": "Voer de naam van de subgroep in",
-        "char": "Kenmerken:",
-        "enter_char": "Een kenmerk invoeren",
-        "add_char": "Een kenmerk toevoegen",
-        "add_picture": "Een foto van de subgroep toevoegen",
-        "save": "Sla",
-        "erase": "Wis",
-        "cancel": "Annuleren"
-      },
-      "add_supplier": {
-        "add_supp": "Een leverancier toevoegen",
-        "name": "Naam:",
-        "enter_supp": "Naam leverancier invoeren",
-        "sold": "Te koop:",
-        "status": "Status:",
-        "open": "Open",
-        "close": "Gesloten",
-        "save": "Sla",
-        "erase": "Wis",
-        "cancel": "Annuleren",
-        "yes": "Ja",
-        "no": "Geen"
-      },
-      "edit_abb": {
-        "toast1": "Fout bij het wijzigen van de afkorting",
-        "toast2": "Afkorting met succes gewijzigd",
-        "edit": "Een afkorting wijzigen",
-        "complete": "Compleet",
-        "abb": "Afkorting",
-        "save": "Sla",
-        "cancel": "Annuleren"
-      },
-      "edit_cat": {
-        "delete": "Weet je zeker dat je deze categorie wilt verwijderen?",
-        "edit": "Bewerk categorie :",
-        "abb": "Afkorting:",
-        "exists": "Deze categorie bestaat al. ",
-        "modif": "Er zijn geen wijzigingen aangebracht.",
-        "not_deleted": "De categorie bevat nog steeds instrumenten en kan niet worden verwijderd.",
-        "supp": "Verwijder",
-        "cancel": "Annuleren",
-        "modified": "Aanpassen"
-      },
-      "edit_group": {
-        "modif": "Een groep wijzigen",
-        "name": "Naam",
-        "picture": "Afbeelding",
-        "warning": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
-        "save": "Registreer",
-        "cancel": "Annuleren"
-      },
-      "edit_instrument": {
-        "warning": "Weet je zeker dat je dit alternatief wilt afschaffen?",
-        "modif": "Het instrument aanpassen ",
-        "loading": "Laden...",
-        "supplier": "Leverancier:",
-        "cat": "Categorie:",
-        "ref": "Referentie:",
-        "descr": "Beschrijving leverancier:",
-        "price": "Price:",
-        "obs": "Veroudering:",
-        "picture": "Afbeelding",
-        "confirm": "Er bestaat al een afbeelding voor dit instrument. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
-        "alt": "Alternatieven:",
-        "diff_supp": "De alternatieven moeten verschillende leveranciers hebben.",
-        "group": "De alternatieven moeten deel uitmaken van dezelfde groep.",
-        "exists": "Dit alternatief bestaat al.",
-        "ref2": "Referentie",
-        "brand": "Merk",
-        "description": "Beschrijving",
-        "price2": "Prijzen",
-        "delete": "Verwijder",
-        "cancel": "Annuleren",
-        "save": "Registreer"
-      },
-      "edit_subgroup": {
-        "modif": "Een subgroep wijzigen",
-        "name": "Naam",
-        "picture": "Afbeelding",
-        "delete": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
-        "cancel": "Annuleren",
-        "save": "Registreer"
-      },
-      "edit_supplier": {
-        "modif": "De leverancier wijzigen ",
-        "loading": "Laden...",
-        "name": "Naam:",
-        "sold": "In de uitverkoop:",
-        "yes": "Ja",
-        "no": "Geen",
-        "status": "Status:",
-        "open": "Open",
-        "closed": "Gesloten",
-        "delete": "Verwijder",
-        "cancel": "Annuleren",
-        "save": "Registreer"
-      },
-      "edituser": {
-        "confirm": "Weet je zeker dat je deze account wilt verwijderen?",
-        "modif": "Gebruiker wijzigen ",
-        "loading": "Laden...",
-        "username": "Gebruikersnaam",
-        "enter_name": "Gebruikersnaam",
-        "email": "E-mailadres",
-        "role": "Rollen",
-        "empty": "vacuüm",
-        "delete": "Verwijder",
-        "cancel": "Annuleren",
-        "save": "Registreer"
-      }
-    },
-    "profile_page": {
-      "title": "Gebruikersprofiel",
-      "name": "Naam",
-      "email": "E-mail",
       "button": {
-        "edit_profile": "Profiel wijzigen",
-        "back": "Terug naar"
+        "add_category": "Een instrumenttype toevoegen"
       }
     },
-    "order_pages" : {
-      "dates" : {
-        "creationDate" : "gemaakt op ",
-        "exportDate" : "geëxporteerd op"
+    "pictures": {
+      "title": "Afbeeldingen"
+    }
+  },
+  "instruments_component": {
+    "title": {
+      "instruments": "Instrumenten",
+      "suppliers": "Leveranciers",
+      "alternatives": "Alternatieven"
+    },
+    "table": {
+      "reference": "REF",
+      "brand": "MERK",
+      "description": "BESCHRIJVING",
+      "price": "PRIJS"
+    },
+    "button": {
+      "see_more": "Meer zien"
+    },
+    "toasts": "Selecteer een categorie om de alternatieven te bekijken.",
+    "add": "Een instrument toevoegen"
+  },
+  "orders_component": {
+    "show_orders": "Bestellingen weergeven",
+    "create_order": "Een bestelling maken",
+    "see_previous_orders": "Bekijk eerdere bestellingen",
+    "table": {
+      "reference": "REF",
+      "brand": "MERK",
+      "group": "GROEP",
+      "function": "FUNCTIE",
+      "name": "NAAM",
+      "shape": "FORM",
+      "dimension": "MAAT",
+      "quantity": "HOEV",
+      "unite_price_excl_vat": "PU HTVA",
+      "total_price_excl_vat": "PT HTVA"
+    },
+    "export": {
+      "order": "Bestellen",
+      "button": "Exporteer"
+    },
+    "alert": "Geen gegevens om te exporteren"
+  },
+  "admin": {
+    "supplier_page": {
+      "title": "Beheer van leveranciers",
+      "button": {
+        "add_supplier": "Een leverancier toevoegen",
+        "edit_supplier": "De leverancier wijzigen",
+        "delete_supplier": "Leverancier verwijderen"
       },
-      "single" : {
-        "export" :  "Exporteer",
-        "edit" : "Naam wijzigen",
-        "complete" : "Compleet",
-        "delete" : "Verwijder"
+      "placeholder": {
+        "search": "Een leverancier zoeken"
       },
-      "all": {
-        "view_edit" : "Bestelling bekijken/wijzigen",
-        "complete" : "Volledige bestelling", 
-        "create" : "Een bestelling maken"
+      "table": {
+        "title": "Lijst van leveranciers",
+        "name": "Naam",
+        "sold": "Verkocht",
+        "status": "Status",
+        "actions": "Acties",
+        "yes": "Ja",
+        "no": "Geen",
+        "closed": "Gesloten",
+        "open": "Open",
+        "edit": "Aanpassen"
       }
     },
-    "import_pages": {
-      "loading": {
-        "chargement": "Laden..."
-      },
-      "main": {
-        "group": "Instrumentengroep en subgroep",
-        "instrument": "Niet-gecategoriseerde instrumenten",
-        "catalog": "Catalogus",
-        "alternative": "Alternatieven",
-        "crossref": "Kruisreferentie",
-        "option": "Importopties"
-      },
-      "subgroup": {
-        "select": "Selecteer de groep en subgroep",
-        "group": "Groep :",
-        "enter_group": "Een groep invoeren",
-        "enter_subgroup": "Een subgroep invoeren",
-        "subgroup": "Subgroep :",
-        "add_group": "Een groep toevoegen",
-        "add_subgroup": "Een subgroep toevoegen"
-      },
-      "supplier": {
-        "select": "Selecteer de leverancier",
-        "supplier": "Leverancier :",
-        "enter_supp": "Voer een leverancier in"
-      },
-      "verification": {
-        "verif": "Kolommen controleren",
-        "overview": "Hier is een voorbeeld van het geïmporteerde Excel-bestand:",
-        "no_data": "Geen gegevens beschikbaar.",
-        "import": "Importeren"
-      },
-      "svelte": {
-        "error": "Fout: Het geselecteerde bestand is geen geldig Excel-bestand.",
-        "import": "Excel-bestanden importeren",
-        "import2": "Bestanden importeren",
-        "drag": "Sleep een Excel-bestand hierheen om het te importeren",
-        "choose": "Kies een bestand",
-        "import_button": "Importeren",
-        "success": "Succesvol geïmporteerde bestanden",
-        "import_error": "Fout bij het importeren van bestanden",
-        "zip_import": "ZIP-bestanden importeren",
-        "delete": "Bestand verwijderd",
-        "click": "Sleep een zipbestand hierheen of klik om er een te selecteren",
-        "continue": "Ga verder",
-        "response": "Reactie server"
-      }
+    "abb": {
+      "abbreviation": "Afkortingen",
+      "handle": "Beheer van afkortingen",
+      "add": "Een afkorting toevoegen",
+      "full": "Volledig",
+      "enter_abb": "Een afkorting toevoegen",
+      "result": "Geen resultaten",
+      "add_button": "Voeg toe",
+      "action": "Acties",
+      "abbreviations": "Afkorting",
+      "loading": "Laden...",
+      "no_abb": "Geen afkorting gevonden",
+      "next": "Volgende",
+      "previous": "Vorige",
+      "page": "Pagina",
+      "sur": "op"
     },
-    "login": {
-      "connection": "Aansluiting",
-      "welcome": "Welkom op MDTools",
-      "ways": "Maak verbinding via de verschillende beschikbare verbindingsmethoden.",
-      "dex": "Maak verbinding met DEX"
-    },
-    "alt": {
-      "type": "Type instrumenten",
-      "alternatives": "Alternatieven :",
-      "ref": "Referentie",
-      "brand": "Merk",
-      "descr": "Beschrijving",
-      "price": "Prijs",
-      "delete": "Verwijder",
-      "picture": "Foto's"
-    },
-    "add_user": {
-      "add": "Een gebruiker toevoegen",
-      "name": "Gebruikersnaam:",
-      "email": "E-mail:",
-      "button_add": "Voeg toe",
+    "add_cat": {
+      "dispatch": "Selecteer een groep en een subgroep",
+      "added_cat": "Type instrumenten toegevoegd!",
+      "not_poss": "Onmogelijk om een type instrument toe te voegen",
+      "op_cancel": "Operatie geannuleerd.",
+      "add_type": "Een type instrument toevoegen",
+      "group": "Groep:",
+      "subgroup": "Naam van subgroep:",
+      "fct": "Actie:",
+      "type_name": "Naam van het type instrument:",
+      "shape": "Vorm:",
+      "abbreviation": "Afkorting:",
+      "source": "Bron",
+      "add": "Voeg toe", 
       "erase": "Wis",
       "cancel": "Annuleren",
-      "toast1": "Utilisateur ajouté!",
-      "toast2": "Impossible d'ajouter un utilisateur.",
-      "toast3":  "Operation annulée."
+      "enter_group": "Een groep invoeren",
+      "enter_subgroup": "Een subgroep invoeren",
+      "enter_fct": "Een functie invoeren",
+      "enter_type": "Voer een naam of type instrument in",
+      "enter_shape": "Een vorm invoeren",
+      "enter_abb": "Voer een afkorting in",
+      "enter_id": "ID van de foto invoeren"
     },
-    "logs": {
-      "gestion": "Beheer van de site",
-      "admin": "Beheer van de site",
-      "consult": "Logboeken raadplegen",
-      "access": "Toegangslogboeken",
-      "user": "Gebruikers",
-      "username": "Gebruikersnaam",
-      "email": "E-mail",
-      "role": "Rollen",
-      "actions": "Acties",
-      "activ": "Activ",
-      "inactiv": "Uitgeschakeld",
-      "previous": "Vorige",
-      "next": "Volgende",
-      "modif": "Modifier l'utilisateur",
-      "activer": "Activer",
-      "deactiver": "Désactiver",
-      "compte": "Le compte de",
-      "activé": "a été activé.",
-      "désactivé": "a été désactivé.",
-      "error": "An error occurred while fetching users. Please try again.<br> Erreur:"
+    "export": {
+      "export_file": "Een Excel-bestand exporteren",
+      "question": "Wat wil je exporteren?",
+      "select": "Selecteer een groep",
+      "choose": "Kies een groep",
+      "select_subgroup": "Selecteer een subgroep",
+      "choose_subgroup": "Kies een subgroep",
+      "select_supplier": "Selecteer een leverancier",
+      "choose_supp": "Kies een leverancier",
+      "include": "Leveranciers",
+      "exported": "Alle leveranciers exporteren",
+      "language": "Beschikbare talen",
+      "french": "Frans",
+      "dutch": "Nederlands", 
+      "english": "Engels",
+      "export_button": "Exporteer",
+      "column": "Selecteer de kolommen",
+      "char": "Kenmerken"
     }
+  },
+  "pagination": {
+    "on": "op",
+    "page": "Pagina"
+  },
+
+  "modals": {
+    "big_picture": {
+      "titleInstrument": "Foto's van het instrument",
+      "titleCategory": "Foto's van het type instrumenten",
+      "no_picturesInstrument": "Geen foto's beschikbaar voor dit instrument",
+      "no_picturesCategory": "Geen foto's beschikbaar voor dit type instrument",
+      "close": "Sluit",
+      "add_picture": "Een foto toevoegen",
+      "deletion_error": "Fout bij het verwijderen van foto. Fout: ",
+      "deletion_success": "Foto succesvol verwijderd",
+      "deletion_confirmation": "<strong>Wil je deze foto echt verwijderen?</strong><br>Druk nogmaals om te bevestigen"
+    },
+    "edit_user": {
+      "title": "Je profiel aanpassen",
+      "name": "Naam",
+      "email": "E-mail",
+      "active": "Activa",
+      "yes": "Ja",
+      "no": "Geen",
+      "button": {
+        "save": "Registreer",
+        "cancel": "Annuleren",
+        "delete": "Verwijder"
+      },
+      "confirm": "Weet je zeker dat je deze account wilt verwijderen?"
+    },
+    "add_picture": {
+      "titleCat": "Afbeeldingen toevoegen voor een type instrument",
+      "titleInstr": "Afbeeldingen voor het instrument toevoegen ",
+      "select": "Afbeeldingen selecteren",
+      "add": "Afbeeldingen toevoegen",
+      "button": {
+        "save": "Registreer",
+        "cancel": "Annuleren",
+        "delete": "Verwijder"
+      },
+      "need_select": "Selecteer afbeeldingen.",
+      "ok": "Afbeeldingen succesvol toegevoegd!",
+      "fail": "Mislukt bij het verzenden van afbeeldingen. <br> Fout : ",
+      "fail2": "Fout bij het verzenden van afbeeldingen.",
+      "error": "Fout",
+      "file": "Bestanden selecteren"
+    },
+    "delete_order" : {
+      "delete_title" : "Opdracht verwijderen",
+      "deletion_success" : "Bestelling succesvol verwijderd",
+      "irreversible_action" : "Houd er rekening mee dat deze actie onomkeerbaar is.",
+      "cancel" : "Annuleren",
+      "delete" : "Verwijder"
+    },
+    "create_order" : {
+      "create_title" : "Een nieuwe bestelling maken",
+      "name" : "Naam van nieuwe bestelling",
+      "error_no_name" : "Voer een opdrachtnaam in",
+      "error_already_exists" : "Deze opdrachtnaam bestaat al",
+      "cancel" : "Annuleren",
+      "create" : "Maak"
+    },
+    "edit_order" : {
+      "edit_title" : "De bestelnaam wijzigen",
+      "name" : "Nieuwe bestelnaam",
+      "error_no_name" : "Voer een opdrachtnaam in",
+      "error_already_exists" :"Deze opdrachtnaam bestaat al",
+      "cancel" : "Annuleren",
+      "edit" : "Aanpassen"
+    },
+    "import": {
+      "loading": "Laden...",
+      "loading_data": "Gegevens laden...",
+      "loading_import": "Importeren bezig...",
+      "success": "Een geslaagde import!",
+      "error": "Fout bij importeren :",
+      "error_send": "Fout bij verzenden :",
+      "next": "Volgende"
+    },
+    "add_category": {
+      "add_cat": "Een isntrumenttype toevoegen aan de subgroep",
+      "abbreviations": "Afkorting:",
+      "exists": "Dit soort instrumenten bestaat al",
+      "erase": "Wis",
+      "cancel": "Annuleren",
+      "add": "Voeg  toe"
+    },
+    "add_char": {
+      "add_char": "Een nieuw kenmerk toevoegen",
+      "name": "Naam van het kenmerk",
+      "no_suggestion": "Geen suggestie.",
+      "add_button": "Voeg  toe",
+      "form": "Form :",
+      "not_included": "Niet opgenomen in het form :",
+      "add_to_form": "Toevoegen aan het formulier"
+    },
+    "add_group": {
+      "operation": "Operatie geannuleerd",
+      "success": "Groep toegevoegd met succes!",
+      "fail": "Mislukt bij het toevoegen van groep",
+      "add_group": "Een groep instrumenten toevoegen",
+      "name": "Naam van de groep: ",
+      "enter_name": "Voer de groepsnaam in",
+      "subname": "Naam subgroep: ",
+      "enter_subname": "Voer de naam van de subgroep in",
+      "enter_char": "Een kenmerk invoeren",
+      "add_char": "Een nieuw kenmerk toevoegen",
+      "add_pictures": "Een foto van de groep toevoegen",
+      "save": "Sla",
+      "erase": "Wis",
+      "cancel": "Annuleren",
+      "char": "Kenmerken:"
+    },
+    "add_instrument": {
+      "error_loading": "Fout bij het downloaden van de afbeelding.",
+      "error_add": "Fout bij het toevoegen van het instrument.",
+      "added": "Instrument toegevoegd!",
+      "not_possible": "Onmogelijk om een instrument toe te voegen.",
+      "add_instr": "Een instrument toevoegen",
+      "ref": "Referentie:",
+      "enter_ref": "Een referentie invoeren",
+      "supplier": "Leverancier:",
+      "enter_supplier": "Voer een leverancier in",
+      "description": "Beschrijving leverancier:",
+      "enter_description": "Beschrijving leverancier invoeren",
+      "price": "Prijs:",
+      "enter_price": "Prijs invoeren",
+      "cat": "Soort instrument:",
+      "enter_cat": "Selecteer een type instrument",
+      "alt": "Alternatieven:",
+      "enter_alt": "Alternatieven selecteren",
+      "obs": "Veroudering:",
+      "yes": "Ja",
+      "no": "Geen",
+      "picture": "Veroudering::",
+      "erase": "Wis",
+      "cancel": "Annuleren",
+      "add": "Voeg toe"
+    },
+    "add_to_order": {
+      "order": "OBestelreferentie",
+      "obs": "Het instrument is verouderd en kan niet worden besteld.",
+      "ref": "REF",
+      "brand": "MERK",
+      "descr": "BESCHRIJVING",
+      "price": "PRIJS",
+      "qtt": "Hoeveelheid: ",
+      "order2": "Bestel:",
+      "cancel": "Annuleren",
+      "ordering": "Bestel"
+    },
+    "add_subgroup": {
+      "cancel_op": "Operatie geannuleerd.",
+      "success": "Subgroep met succes toegevoegd",
+      "fail": "Onmogelijk om een subgroep toe te voegen",
+      "add_subgroup": "Een subgroep van instrumenten toevoegen",
+      "name": "Naam van subgroep:",
+      "enter_name": "Voer de naam van de subgroep in",
+      "char": "Kenmerken:",
+      "enter_char": "Een kenmerk invoeren",
+      "add_char": "Een kenmerk toevoegen",
+      "add_picture": "Een foto van de subgroep toevoegen",
+      "save": "Sla",
+      "erase": "Wis",
+      "cancel": "Annuleren"
+    },
+    "add_supplier": {
+      "add_supp": "Een leverancier toevoegen",
+      "name": "Naam:",
+      "enter_supp": "Naam leverancier invoeren",
+      "sold": "Te koop:",
+      "status": "Status:",
+      "open": "Open",
+      "close": "Gesloten",
+      "save": "Sla",
+      "erase": "Wis",
+      "cancel": "Annuleren",
+      "yes": "Ja",
+      "no": "Geen"
+    },
+    "edit_abb": {
+      "toast1": "Fout bij het wijzigen van de afkorting",
+      "toast2": "Afkorting met succes gewijzigd",
+      "edit": "Een afkorting wijzigen",
+      "complete": "Compleet",
+      "abb": "Afkorting",
+      "save": "Sla",
+      "cancel": "Annuleren"
+    },
+    "edit_cat": {
+      "delete": "Weet je zeker dat je deze categorie wilt verwijderen?",
+      "edit": "Bewerk categorie :",
+      "abb": "Afkorting:",
+      "exists": "Deze categorie bestaat al. ",
+      "modif": "Er zijn geen wijzigingen aangebracht.",
+      "not_deleted": "De categorie bevat nog steeds instrumenten en kan niet worden verwijderd.",
+      "supp": "Verwijder",
+      "cancel": "Annuleren",
+      "modified": "Aanpassen"
+    },
+    "edit_group": {
+      "modif": "Een groep wijzigen",
+      "name": "Naam",
+      "picture": "Afbeelding",
+      "warning": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+      "save": "Registreer",
+      "cancel": "Annuleren"
+    },
+    "edit_instrument": {
+      "warning": "Weet je zeker dat je dit alternatief wilt afschaffen?",
+      "modif": "Het instrument aanpassen ",
+      "loading": "Laden...",
+      "supplier": "Leverancier:",
+      "cat": "Categorie:",
+      "ref": "Referentie:",
+      "descr": "Beschrijving leverancier:",
+      "price": "Price:",
+      "obs": "Veroudering:",
+      "picture": "Afbeelding",
+      "confirm": "Er bestaat al een afbeelding voor dit instrument. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+      "alt": "Alternatieven:",
+      "diff_supp": "De alternatieven moeten verschillende leveranciers hebben.",
+      "group": "De alternatieven moeten deel uitmaken van dezelfde groep.",
+      "exists": "Dit alternatief bestaat al.",
+      "ref2": "Referentie",
+      "brand": "Merk",
+      "description": "Beschrijving",
+      "price2": "Prijzen",
+      "delete": "Verwijder",
+      "cancel": "Annuleren",
+      "save": "Registreer"
+    },
+    "edit_subgroup": {
+      "modif": "Een subgroep wijzigen",
+      "name": "Naam",
+      "picture": "Afbeelding",
+      "delete": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
+      "cancel": "Annuleren",
+      "save": "Registreer"
+    },
+    "edit_supplier": {
+      "modif": "De leverancier wijzigen ",
+      "loading": "Laden...",
+      "name": "Naam:",
+      "sold": "In de uitverkoop:",
+      "yes": "Ja",
+      "no": "Geen",
+      "status": "Status:",
+      "open": "Open",
+      "closed": "Gesloten",
+      "delete": "Verwijder",
+      "cancel": "Annuleren",
+      "save": "Registreer"
+    },
+    "edituser": {
+      "confirm": "Weet je zeker dat je deze account wilt verwijderen?",
+      "modif": "Gebruiker wijzigen ",
+      "loading": "Laden...",
+      "username": "Gebruikersnaam",
+      "enter_name": "Gebruikersnaam",
+      "email": "E-mailadres",
+      "role": "Rollen",
+      "empty": "vacuüm",
+      "delete": "Verwijder",
+      "cancel": "Annuleren",
+      "save": "Registreer"
+    }
+
+  },
+  "profile_page": {
+    "title": "Gebruikersprofiel",
+    "name": "Naam",
+    "email": "E-mail",
+    "role": "Rol",
+    "job_position": "Professionele status",
+    "workplace": "Plaats van het werk",
+    "creation_date": "Datum oprichting",
+    "button": {
+      "edit_profile": "Profiel wijzigen",
+      "back": "Terug naar",
+      "save": "Registreer",
+      "cancel": "Annuleren"
+    }
+  },
+  "order_pages" : {
+    "dates" : {
+      "creationDate" : "gemaakt op ",
+      "exportDate" : "geëxporteerd op"
+    },
+    "single" : {
+      "export" :  "Exporteer",
+      "edit" : "Naam wijzigen",
+      "complete" : "Compleet",
+      "delete" : "Verwijder"
+    },
+    "all": {
+      "view_edit" : "Bestelling bekijken/wijzigen",
+      "complete" : "Volledige bestelling", 
+      "create" : "Een bestelling maken"
+    }
+  },
+  "import_pages": {
+    "loading": {
+      "chargement": "Laden..."
+    },
+    "main": {
+      "group": "Instrumentengroep en subgroep",
+      "instrument": "Niet-gecategoriseerde instrumenten",
+      "catalog": "Catalogus",
+      "alternative": "Alternatieven",
+      "crossref": "Kruisreferentie",
+      "option": "Importopties"
+    },
+    "subgroup": {
+      "select": "Selecteer de groep en subgroep",
+      "group": "Groep :",
+      "enter_group": "Een groep invoeren",
+      "enter_subgroup": "Een subgroep invoeren",
+      "subgroup": "Subgroep :",
+      "add_group": "Een groep toevoegen",
+      "add_subgroup": "Een subgroep toevoegen"
+    },
+    "supplier": {
+      "select": "Selecteer de leverancier",
+      "supplier": "Leverancier :",
+      "enter_supp": "Voer een leverancier in"
+    },
+    "verification": {
+      "verif": "Kolommen controleren",
+      "overview": "Hier is een voorbeeld van het geïmporteerde Excel-bestand:",
+      "no_data": "Geen gegevens beschikbaar.",
+      "import": "Importeren"
+    },
+    "svelte": {
+      "error": "Fout: Het geselecteerde bestand is geen geldig Excel-bestand.",
+      "import": "Excel-bestanden importeren",
+      "import2": "Bestanden importeren",
+      "drag": "Sleep een Excel-bestand hierheen om het te importeren",
+      "choose": "Kies een bestand",
+      "import_button": "Importeren",
+      "success": "Succesvol geïmporteerde bestanden",
+      "import_error": "Fout bij het importeren van bestanden",
+      "zip_import": "ZIP-bestanden importeren",
+      "delete": "Bestand verwijderd",
+      "click": "Sleep een zipbestand hierheen of klik om er een te selecteren",
+      "continue": "Ga verder",
+      "response": "Reactie server"
+    }
+  },
+  "login": {
+    "connection": "Aansluiting",
+    "welcome": "Welkom op MDTools",
+    "ways": "Maak verbinding via de verschillende beschikbare verbindingsmethoden.",
+    "dex": "Maak verbinding met DEX"
+  },
+  "alt": {
+    "type": "Type instrumenten",
+    "alternatives": "Alternatieven :",
+    "ref": "Referentie",
+    "brand": "Merk",
+    "descr": "Beschrijving",
+    "price": "Prijs",
+    "delete": "Verwijder",
+    "picture": "Foto's"
+  },
+  "add_user": {
+    "add": "Een gebruiker toevoegen",
+    "name": "Gebruikersnaam:",
+    "email": "E-mail:",
+    "button_add": "Voeg toe",
+    "erase": "Wis",
+    "cancel": "Annuleren",
+    "toast1": "Utilisateur ajouté!",
+    "toast2": "Impossible d'ajouter un utilisateur.",
+    "toast3":  "Operation annulée."
+  },
+  "logs": {
+    "gestion": "Beheer van de site",
+    "admin": "Beheer van de site",
+    "consult": "Logboeken raadplegen",
+    "access": "Toegangslogboeken",
+    "user": "Gebruikers",
+    "username": "Gebruikersnaam",
+    "email": "E-mail",
+    "role": "Rollen",
+    "actions": "Acties",
+    "activ": "Activ",
+    "inactiv": "Uitgeschakeld",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "modif": "Gebruiker wijzigen",
+    "activer": "Activering",
+    "deactiver": "Deactiveer",
+    "compte": "Het profiel van",
+    "activé": "is geactiveerd.",
+    "désactivé": "is gedeactiveerd.",
+    "error": "Er is een fout opgetreden tijdens het ophalen van gebruikers. Probeer het opnieuw.<br> Fout:",
+    "enter_user": "Een gebruiker zoeken",
+    "page": "Pagina",
+    "sur": "op"
   }
-  
+}  

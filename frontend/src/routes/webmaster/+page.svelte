@@ -133,7 +133,7 @@
         <input
           type="text"
           bind:value={searchQuery}
-          placeholder="Rechercher un utilisateur"
+          placeholder={$_('logs.enter_user')}
           class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
@@ -209,7 +209,7 @@
             />
           </svg>
         </button>
-        <span>Page {currentPage} sur {totalPages}</span>
+        <span>{$_('logs.page')} {currentPage} {$_('logs.sur')} {totalPages}</span>
         <button
           onclick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
