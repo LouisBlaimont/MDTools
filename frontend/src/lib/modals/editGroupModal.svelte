@@ -128,7 +128,7 @@
               class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
               onmousedown={startDrag}
           >
-                  <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier le groupe {name}</h2>
+                  <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_group.modif')} {name}</h2>
                   <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="teal-500"
@@ -170,15 +170,14 @@
                 />
                 {#if group.pictureId}
                   <div class="mt-1 text-sm text-red-500">
-                    Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,
-                    l'image actuelle sera supprimée.
+                    {$_('modals.edit_group.warning')}
                   </div>
                 {/if}
               </div>
               <div class="flex justify-end gap-4 mt-4">
-                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Supprimer</button>
-                <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Annuler</button>
-                <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">Enregistrer</button>
+                <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_group.delete')}</button>
+                <button type="button" onclick={canceling} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_group.cancel')}</button>
+                <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700">{$_('modals.edit_group.save')}</button>
             </div>
           </form>
       </div>

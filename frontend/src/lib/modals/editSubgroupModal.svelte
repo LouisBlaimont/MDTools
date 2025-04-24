@@ -126,7 +126,7 @@
               class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
               onmousedown={startDrag}
           >
-                  <h2 class="text-2xl font-bold text-teal-500 text-center">Modifier le sous-groupe {name}</h2>
+                  <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_subgroup.modif')} {name}</h2>
                   <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="teal-500"
@@ -150,7 +150,7 @@
           <form onsubmit={handleSubmit} preventDefault class="bg-gray-100 p-6 rounded-lg">
               <div class="mt-2">
                 <label class="font-semibold text-lg" for="user_avatar"
-                  >Nom</label
+                  >{$_('modals.edit_subgroup.name')}</label
                 >
                 <input
                   type="text"
@@ -171,10 +171,7 @@
                         {$_('modals.edit_subgroup.delete')}
                       </div>
                     {/if}
-                  </div>
-                </div>
               </div>
-            </div>
             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="submit"
@@ -189,7 +186,7 @@
             </div>
           </form>
       </div>
-    </div>
   </div>
+</div>
 {/if}
 

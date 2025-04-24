@@ -304,6 +304,7 @@
       "next": "Next"
     },
     "add_category": {
+      "add_cat2": "Add a type of instruments",
       "add_cat": "Add a type of isntrument to the subgroup",
       "abbreviations": "Abbreviation:",
       "exists": "This type of instruments already exists",
@@ -345,6 +346,7 @@
       "add_instr": "Add an instrument",
       "ref": "Reference:",
       "enter_ref": "Enter a reference",
+      "exists": "This reference already exists.",
       "supplier": "Supplier:",
       "enter_supplier": "Enter a supplier",
       "description": "Supplier description:",
@@ -361,7 +363,8 @@
       "picture": "Picture:",
       "erase": "Erase",
       "cancel": "Cancel",
-      "add": "Add"
+      "add": "Add",
+      "pb": "Problem when adding a picture."
     },
     "add_to_order": {
       "order": "Order reference",
@@ -411,7 +414,8 @@
       "complete": "Complete",
       "abb": "Abbreviation",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "delete": "Delete"
     },
     "edit_cat": {
       "delete": "Are you sure that you want to delete this type of instruments?",
@@ -422,15 +426,16 @@
       "not_deleted": "This type of instruments still contains instrument, it can not be deleted.",
       "supp": "Delete",
       "cancel": "Cancel",
-      "modified": "Modify"
+      "save": "Save"
     },
     "edit_group": {
-      "modif": "Modify a group",
+      "modif": "Modify the group",
       "name": "Name",
       "picture": "Picture",
       "warning": "A picture already exists for this group, the new picture will erase the current one.",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "delete": "Delete"
     },
     "edit_instrument": {
       "warning": "Are you sure that you want to delete this alternative?",
@@ -457,7 +462,7 @@
       "save": "Save"
     },
     "edit_subgroup": {
-      "modif": "Modify a subgroup",
+      "modif": "Modify the subgroup",
       "name": "Name",
       "picture": "Picture",
       "delete": "A picture already exists for this subgroup, the new picture will erase the current one.",

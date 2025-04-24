@@ -305,6 +305,7 @@
     },
     "add_category": {
       "add_cat": "Ajouter un type d'instruments au sous groupe",
+      "add_cat2": "Ajouter un type d'instruments",
       "abbreviations": "Abréviation:",
       "exists": "Ce type d'instruments existe déjà.",
       "erase": "Effacer",
@@ -345,13 +346,14 @@
       "add_instr": "Ajouter un instrument",
       "ref": "Référence:",
       "enter_ref": "Entrer une référence",
+      "exists": "Cette référence existe déjà.",
       "supplier": "Fournisseur:",
       "enter_supplier": "Entrer un fournisseur",
       "description": "Description du fournisseur:",
       "enter_description": "Entrer la description du fournisseur",
       "price": "Prix:",
       "enter_price": "Entrer le prix",
-      "cat": "Catégorie:",
+      "cat": "Type d'instruments:",
       "enter_cat": "Sélectionner un type d'instruments",
       "alt": "Alternatives:",
       "enter_alt": "Sélectionner des alternatives",
@@ -361,7 +363,8 @@
       "picture": "Image:",
       "erase": "Effacer",
       "cancel": "Annuler",
-      "add": "Ajouter"
+      "add": "Ajouter",
+      "pb": "Problème d'ajout d'image."
     },
     "add_to_order": {
       "order": "Commander référence",
@@ -407,11 +410,12 @@
     "edit_abb": {
       "toast1": "Erreur lors de la modification de l'abbreviation",
       "toast2": "Abréviation modifiée avec succès",
-      "edit": "Modifier une abbreviation",
+      "edit": "Modifier l'abréviation",
       "complete": "Complet",
       "abb": "Abréviation",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "delete": "Supprimer"
     },
     "edit_cat": {
       "delete": "Êtes-vous sûr de vouloir supprimer ce type d'instruments?",
@@ -422,15 +426,16 @@
       "not_deleted": "Le type d'instruments contient encore des instruments, il ne peut pas être supprimé.",
       "supp": "Supprimer",
       "cancel": "Annuler",
-      "modified": "Modifier"
+      "save": "Enregistrer"
     },
     "edit_group": {
-      "modif": "Modifier un groupe",
+      "modif": "Modifier le groupe",
       "name": "Nom",
       "picture": "Image",
       "warning": "Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,l'image actuelle sera supprimée.",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "delete": "Supprimer"
     },
     "edit_instrument": {
       "warning": "Êtes-vous sûr de vouloir supprimer cette alternative ?",
@@ -457,7 +462,7 @@
       "save": "Enregistrer"
     },
     "edit_subgroup": {
-      "modif": "Modifier un sous-groupe",
+      "modif": "Modifier le sous-groupe",
       "name": "Nom",
       "picture": "Image",
       "delete": "Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,l'image actuelle sera supprimée.",

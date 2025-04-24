@@ -6,7 +6,6 @@
     import { preventDefault } from "svelte/legacy";
     import { findSubGroups, findCharacteristics } from "$lib/components/search";
     import { fetchGroups } from "../../api";
-    import { _ } from "svelte-i18n";
     import { onMount } from "svelte";
 
     const {
@@ -214,7 +213,7 @@
                     {#if fromSearches}
                     <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_category.add_cat')} {$selectedSubGroup}</h2>
                     {:else}
-                    <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter une catégorie</h2>  
+                    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_category.add_cat2')} </h2>  
                     {/if}
                 </div>
 
@@ -350,6 +349,5 @@
             </div>
         </div>
     </div>
-        </div>
     </div>
 {/if}

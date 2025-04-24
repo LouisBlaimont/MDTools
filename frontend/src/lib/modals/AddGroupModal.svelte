@@ -99,10 +99,10 @@
         style="cursor: move;"
         on:mousedown={startDrag}
     >
-        <h2 class="text-2xl font-bold text-teal-500 text-center">Ajouter un group d'instruments</h2>
+        <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_group.add_group')}</h2>
     </div>
         <form on:submit|preventDefault={submitForm} class="bg-gray-100 p-6 rounded-lg">
-            <label for="group_name" class="font-semibold text-lg">Nom du groupe:</label>
+            <label for="group_name" class="font-semibold text-lg">{$_('modals.add_group.name')}</label>
             <input type="text" bind:value={groupName} placeholder="Entrez le nom du groupe"
                 class="w-full p-2 mt-1 mb-3 border rounded">
 

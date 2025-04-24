@@ -366,7 +366,7 @@
                     class="w-full p-2 mt-1 mb-3 border rounded" 
                     placeholder={$_('modals.add_instrument.enter_ref')}
                 />
-                <span id="error-same-ref" class="mb-5 text-red-600 hidden">Cette référence existe déjà.</span>
+                <span id="error-same-ref" class="mb-5 text-red-600 hidden">{$_('modals.add_instrument.exists')}</span>
 
                 <label for="supplier" class="font-semibold text-lg">{$_('modals.add_instrument.supplier')}</label>
                 <input 
@@ -401,9 +401,9 @@
                         {/each}
                     </ul>
                 {/if}
-                <span id="error-no-supplier" class="mb-5 text-red-600 hidden">Veuillez entrer un fournisseur.</span>
+                <span id="error-no-supplier" class="mb-5 text-red-600 hidden">{$_('modals.add_instrument.enter_supplier')} </span>
 
-                <label for="supplierDescription" class="font-semibold text-lg">Description du fournisseur:</label>
+                <label for="supplierDescription" class="font-semibold text-lg">{$_('modals.add_instrument.description')} </label>
                 <input 
                     id="supplierDescription"
                     type="text" 
@@ -414,7 +414,7 @@
                     oninput={handleAutocompleteInput}
                     onblur={closeAutocomplete}
                     class="w-full p-2 mt-1 mb-3 border rounded"
-                    placeholder="Entrer la description du fournisseur" 
+                    placeholder={$_('modals.add_instrument.enter_description')} 
                 />
                 {#if showAutocompleteDropdown && currentAutocompleteField === "supplierDescription"}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -437,7 +437,7 @@
                     </ul>
                 {/if}
 
-                <label for="price" class="font-semibold text-lg">Prix:</label>
+                <label for="price" class="font-semibold text-lg">{$_('modals.add_instrument.price')} </label>
                 <input 
                     id="price"
                     type="number" 
@@ -445,10 +445,10 @@
                     min="0" 
                     step="0.01" 
                     class="w-full p-2 mt-1 mb-3 border rounded" 
-                    placeholder="Entrer le prix"
+                    placeholder={$_('modals.add_instrument.enter_price')} 
                 />
 
-                <label for="categoryId" class="font-semibold text-lg">Catégorie:</label>
+                <label for="categoryId" class="font-semibold text-lg">{$_('modals.add_instrument.cat')} </label>
                 <input 
                     id="categoryId"
                     type="text" 
@@ -459,7 +459,7 @@
                     oninput={handleAutocompleteInput}
                     onblur={closeAutocomplete}
                     class="w-full p-2 mt-1 mb-3 border rounded" 
-                    placeholder="Sélectionner une catégorie"
+                    placeholder={$_('modals.add_instrument.enter_cat')} 
                 />
                 {#if showAutocompleteDropdown && currentAutocompleteField === "categoryId"}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -487,10 +487,10 @@
                     </ul>
                 {/if}
 
-                <label for="obsolete" class="font-semibold text-lg">Obsolescence:</label>
+                <label for="obsolete" class="font-semibold text-lg">{$_('modals.add_instrument.obs')} </label>
                 <div class="flex gap-4 mt-1 mb-3">
-                    <label><input type="radio" bind:group={obsolete} value={true} /> Oui</label>
-                    <label><input type="radio" bind:group={obsolete} value={false} /> Non</label>
+                    <label><input type="radio" bind:group={obsolete} value={true} /> {$_('modals.add_instrument.yes')} </label>
+                    <label><input type="radio" bind:group={obsolete} value={false} /> {$_('modals.add_instrument.no')}</label>
                 </div>
 
                 <label for="img" class="font-semibold text-lg">{$_('modals.add_instrument.picture')}</label>
@@ -500,7 +500,7 @@
                     type="file"
                     onchange={(e) => (file = e.target.files[0])}
                 />
-                <span id="error-picture" class="mb-5 text-red-600 hidden">Problème d'ajout d'image</span>
+                <span id="error-picture" class="mb-5 text-red-600 hidden">{$_('modals.add_instrument.pb')}</span>
 
                 <div class="flex justify-end gap-4">
                     <button type="button" onclick={erase} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.add_instrument.erase')}</button>

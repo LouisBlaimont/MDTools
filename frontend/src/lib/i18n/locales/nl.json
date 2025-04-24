@@ -305,6 +305,7 @@
     },
     "add_category": {
       "add_cat": "Een isntrumenttype toevoegen aan de subgroep",
+      "add_cat2": "Een instrumenttype toevoegen",
       "abbreviations": "Afkorting:",
       "exists": "Dit soort instrumenten bestaat al",
       "erase": "Wis",
@@ -345,6 +346,7 @@
       "add_instr": "Een instrument toevoegen",
       "ref": "Referentie:",
       "enter_ref": "Een referentie invoeren",
+      "exists": "Deze referentie bestaat al.",
       "supplier": "Leverancier:",
       "enter_supplier": "Voer een leverancier in",
       "description": "Beschrijving leverancier:",
@@ -361,7 +363,8 @@
       "picture": "Veroudering::",
       "erase": "Wis",
       "cancel": "Annuleren",
-      "add": "Voeg toe"
+      "add": "Voeg toe",
+      "pb": "Probleem met het toevoegen van een afbeelding."
     },
     "add_to_order": {
       "order": "OBestelreferentie",
@@ -411,7 +414,8 @@
       "complete": "Compleet",
       "abb": "Afkorting",
       "save": "Sla",
-      "cancel": "Annuleren"
+      "cancel": "Annuleren",
+      "delete": "Wis"
     },
     "edit_cat": {
       "delete": "Weet je zeker dat je deze categorie wilt verwijderen?",
@@ -422,15 +426,16 @@
       "not_deleted": "De categorie bevat nog steeds instrumenten en kan niet worden verwijderd.",
       "supp": "Verwijder",
       "cancel": "Annuleren",
-      "modified": "Aanpassen"
+      "save": "Registreer"
     },
     "edit_group": {
-      "modif": "Een groep wijzigen",
+      "modif": "Het groep wijzigen",
       "name": "Naam",
       "picture": "Afbeelding",
       "warning": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
       "save": "Registreer",
-      "cancel": "Annuleren"
+      "cancel": "Annuleren",
+      "delete": "Verwijder"
     },
     "edit_instrument": {
       "warning": "Weet je zeker dat je dit alternatief wilt afschaffen?",
@@ -457,7 +462,7 @@
       "save": "Registreer"
     },
     "edit_subgroup": {
-      "modif": "Een subgroep wijzigen",
+      "modif": "Het subgroep wijzigen",
       "name": "Naam",
       "picture": "Afbeelding",
       "delete": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
