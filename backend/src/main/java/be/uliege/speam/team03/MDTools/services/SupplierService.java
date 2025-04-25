@@ -103,7 +103,10 @@ public class SupplierService {
     public List<SupplierDTO> findAllSuppliers() {
         List<Supplier> suppliers = new ArrayList<>();
         supplierRepository.findAll().forEach(suppliers::add);
-        return suppliers.isEmpty() ? null : supplierMapper.convertToDTOList(suppliers);
+        if (suppliers.isEmpty()) {
+            throw new ResourceNotFoundException("No suppliers found in the database");
+        }
+        return supplierMapper.convertToDTOList(suppliers);
     }
 
     /**

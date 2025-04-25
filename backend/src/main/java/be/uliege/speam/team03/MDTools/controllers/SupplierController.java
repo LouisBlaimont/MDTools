@@ -50,6 +50,9 @@ public class SupplierController {
     @GetMapping("/{supplierId}/instruments")
     public ResponseEntity<List<InstrumentDTO>> getInstrumentsOfSupplier(@PathVariable Long supplierId) {
         List<InstrumentDTO> products = instrumentService.findInstrumentsBySupplierId(supplierId);
+        if (products.isEmpty()) {
+            throw new ResourceNotFoundException("No instruments found for supplier with id: " + supplierId);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
