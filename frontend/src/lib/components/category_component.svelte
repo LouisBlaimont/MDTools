@@ -24,7 +24,7 @@
      * @param index
      */
     async function selectCategoryWithChar(index) {
-        selectCategory(index);
+        await selectCategory(index);
         selectedCategoryIndex.set(index);
         let cat = $categories[$selectedCategoryIndex];
         let catId = $categories[$selectedCategoryIndex].id;
@@ -85,20 +85,20 @@
       const cat = $categories[$selectedCategoryIndex];
       const categoryId = $categories[$selectedCategoryIndex].id;
 
-        try{
+        try{;
             const response = await apiFetch(`/api/category/instruments/${categoryId}`);
             let response2;
             if($isAdmin){
                 response2 = await apiFetch(`/api/alternatives/admin/category/${categoryId}`);
-        }
-        else{
-            response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
-        }
-        if (!response.ok){
-            throw new Error("Failed to fetch instruments of category");
-        }
-        const answer = await response.json();
-        let supplierArray = Array.isArray(answer) ? answer : [answer];
+            }
+            else{
+              response2 = await apiFetch(`/api/alternatives/user/category/${categoryId}`);
+            }
+            if (!response.ok){
+                throw new Error("Failed to fetch instruments of category");
+            }
+            const answer = await response.json();
+            let supplierArray = Array.isArray(answer) ? answer : [answer];
 
         // filtering on the suppliers sold by md
         if (!$isAdmin && !isWebmaster) {
@@ -119,6 +119,7 @@
           }
         }
         currentSuppliers.set(supplierArray);
+
         if (!response2.ok){
             return;
         }
@@ -252,7 +253,7 @@
               alt="tool{row.id}"
               src={row.picturesId && row.picturesId[0]
                     ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`: "/default/no_picture.png"}
-              onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: false })}
+              onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: false, isAlternative : false })}
               onmouseover={() => (hoveredCategoryImageIndex.set(index))}
               onmouseout={() => (hoveredCategoryImageIndex.set(null))}
               class="{$selectedCategoryIndex === index
