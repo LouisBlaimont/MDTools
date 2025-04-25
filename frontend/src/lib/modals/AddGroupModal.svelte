@@ -15,7 +15,7 @@
     
     let groupName = "";
     let subGroupName = "";
-    let picture = "";
+    let file;
     let characteristics = [""];
     const dispatch = createEventDispatcher();
 
@@ -83,7 +83,7 @@
     function erase() {
         groupName = "";
         subGroupName = "";
-        picture = "";
+        file = null;
         characteristics = [""];
     }
 
@@ -118,19 +118,36 @@
             body: JSON.stringify({ 
                 groupName, 
                 subGroupName, 
-                characteristics,
-                picture 
+                characteristics 
             })
         });
 
         if (response.ok) {
             dispatch("success", { message: $_('modals.add_group.success') });
-            close();
             goto(`/searches?group=${encodeURIComponent(groupName)}&subgroup=${encodeURIComponent(subGroupName)}&category=&instrument=`);
             reload.set(true);
         } else {
             dispatch("error", { message: $_('modals.add_group.fail') });
         }
+        // Update group picture if a new file is provided
+        if (file) {
+        try {
+            const fileData = new FormData();
+            fileData.append("file", file);
+            const response = await apiFetch("/api/groups/" + encodeURIComponent(groupName) + "/picture",
+            {
+                method: "POST",
+                body: fileData,
+            }
+            );
+            if (!response.ok) {
+            throw new Error("Échec de la mise à jour de l'image");
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+        }
+        }
+        close();
     }
 
 </script>
@@ -201,9 +218,11 @@
             
             <div class="mt-3">
                 <label for="picture" class="font-semibold text-lg">{$_('modals.add_group.add_pictures')}</label>
-                <input type="file" bind:value={picture} class="w-full p-2 mt-1 border rounded">
-            </div>
-
+                <input
+                    class="w-full p-2 mt-1 mb-3 border rounded"
+                    type="file"
+                    on:change={(e) => (file = e.target.files[0])}
+                />
             <div class="flex justify-end gap-4 mt-4">
                 <button type="button" on:click={erase} class="px-4 py-2 bg-red-500 text-white rounded">{$_('modals.add_group.erase')}</button>
                 <button type="button" on:click={cancel} class="px-4 py-2 bg-gray-500 text-white rounded">{$_('modals.add_group.cancel')}</button>

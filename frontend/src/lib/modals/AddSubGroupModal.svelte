@@ -15,9 +15,11 @@
     export let close;
 
     
-    let groupName = $selectedGroup;
+    export let group = null;
+    let groupName;
+    $: groupName = group?.name ?? $selectedGroup;
     let name = "";
-    let picture = "";
+    let file;
     let characteristics = [""];
     const dispatch = createEventDispatcher();
 
@@ -127,11 +129,9 @@
             body: JSON.stringify({ 
                 name, 
                 groupName,
-                characteristics,
-                picture 
+                characteristics
             })
         });
-        close();
         if (response.ok) {
             dispatch("success", { message: $_('modals.add_subgroup.success') });
             close();
@@ -140,6 +140,25 @@
         } else {
             dispatch("error", { message: $_('modals.add_subgroup.fail') });
         }
+        // Update group picture if a new file is provided
+        if (file) {
+        try {
+            const fileData = new FormData();
+            fileData.append("file", file);
+            const response = await apiFetch("/api/subgroups/" + encodeURIComponent(name) + "/picture",
+            {
+                method: "POST",
+                body: fileData,
+            }
+            );
+            if (!response.ok) {
+            throw new Error("Échec de la mise à jour de l'image");
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+        }
+        }
+        close();
     }
 </script>
 
@@ -210,7 +229,11 @@
             
             <div class="mt-3">
             <label for="picture" class="font-semibold text-lg">{$_('modals.add_subgroup.add_picture')}</label>
-            <input type="file" bind:value={picture} class="w-full p-2 mt-1 border rounded">
+            <input
+                class="w-full p-2 mt-1 mb-3 border rounded"
+                type="file"
+                on:change={(e) => (file = e.target.files[0])}
+            />
             </div>
             
             <div class="flex justify-end gap-4 mt-4">
