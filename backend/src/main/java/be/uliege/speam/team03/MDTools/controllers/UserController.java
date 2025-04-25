@@ -31,11 +31,11 @@ public class UserController {
    private final UserService userService;
 
    /**
-    * Retrieves a user from the database.
+    * Retrieves a user from the database by ID or email.
     *
-    * @param user_id The ID of the user to retrieve.
-    * @param email The email of the user to retrieve.
-    * @return The user with the given ID or email.
+    * @param user_id The ID of the user to retrieve (optional).
+    * @param email The email of the user to retrieve (optional).
+    * @return The user with the given ID or email, or a BadRequestException if neither is provided.
     */
    @GetMapping
    @PreAuthorize("@securityService.canAccessUser(#user_id, #email)")
@@ -58,8 +58,8 @@ public class UserController {
    /**
     * Registers a new user in the database.
     *
-    * @param dto The user to register.
-    * @return The registered user.
+    * @param dto The user data to register.
+    * @return The registered user, or a BAD_REQUEST response if the user already exists.
     */
    @PostMapping
    @ResponseStatus(HttpStatus.CREATED)
@@ -72,11 +72,11 @@ public class UserController {
    }
 
    /**
-    * Updates a user in the database.
-
+    * Updates a user in the database by username.
+    *
     * @param username The username of the user to update.
-    * @param body The new user data.
-    * @return
+    * @param userDto The new user data.
+    * @return The updated user, or a BAD_REQUEST response if the user does not exist.
     */
    @PatchMapping("username/{username}")
    @ResponseStatus(HttpStatus.OK)
@@ -89,11 +89,11 @@ public class UserController {
    }
 
    /**
-    * Updates a user in the database.
+    * Updates a user in the database by ID.
     *
     * @param id The ID of the user to update.
-    * @param body The new user data.
-    * @return
+    * @param userDto The new user data.
+    * @return The updated user, or a BAD_REQUEST response if the user does not exist.
     */
    @PatchMapping("{id}")
    @ResponseStatus(HttpStatus.OK)
@@ -106,9 +106,9 @@ public class UserController {
    }
 
    /**
-    * Deletes a user from the database.
+    * Deletes a user from the database by username.
     *
-    * @param id The ID of the user to delete.
+    * @param name The username of the user to delete.
     */
    @DeleteMapping("{name}")
    @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -117,11 +117,11 @@ public class UserController {
    }
 
    /**
-    * Updates the roles of a user.
+    * Updates the roles of a user in the database.
     *
     * @param id The ID of the user to update.
-    * @param roles The new roles of the user.
-    * @return The updated user.
+    * @param roles The new roles to assign to the user.
+    * @return The updated user with the new roles.
     */
    @PreAuthorize("hasRole('WEBMASTER')")
    @PatchMapping("{id}/roles")
@@ -133,8 +133,7 @@ public class UserController {
    /**
     * Retrieves a list of all users from the database.
     *
-    * @return A list of {@link UserDto} objects representing all users in the
-    *         database. This list can be empty.
+    * @return A list of all users, or an empty list if no users exist.
     */
    @PreAuthorize("hasRole('WEBMASTER')")
    @GetMapping("/list")

@@ -26,10 +26,10 @@ public class SupplierService {
     private final SupplierMapper supplierMapper;
 
     /**
-     * Find a supplier by his name.
+     * Find a supplier by their name. Throws an exception if no supplier is found.
      * 
      * @param supplierName the name of the supplier to find
-     * @return a SupplierDTO matching the supplier name, or null if no supplier is found
+     * @return a SupplierDTO matching the supplier name
      */
     public SupplierDTO findSupplierByName(String supplierName) {
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
@@ -41,7 +41,7 @@ public class SupplierService {
     }
 
     /**
-     * Find suppliers by their name.
+     * Find suppliers by their name. Returns null if no suppliers are found.
      * 
      * @param supplierName the name of the supplier to find
      * @return a list of SupplierDTOs matching the supplier name, or null if no suppliers are found
@@ -58,7 +58,7 @@ public class SupplierService {
     }
 
     /**
-     * Save a supplier.
+     * Save a supplier. Throws an exception if the supplier name is null or empty.
      * 
      * @param supplier the SupplierDTO to save
      * @return the saved SupplierDTO
@@ -73,10 +73,10 @@ public class SupplierService {
     }
 
     /**
-     * Find a supplier by its ID.
+     * Find a supplier by their ID. Throws an exception if no supplier is found.
      * 
      * @param supplierId the ID of the supplier to find
-     * @return the SupplierDTO with the specified ID, or null if no supplier is found
+     * @return the SupplierDTO with the specified ID
      */
     public SupplierDTO findSupplierById(Long supplierId) throws ResourceNotFoundException {
         Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
@@ -87,7 +87,7 @@ public class SupplierService {
     }
 
     /**
-     * Find the maximum supplier ID, which is the one of the last element in the database.
+     * Find the maximum supplier ID in the database.
      * 
      * @return the maximum supplier ID
      */
@@ -96,7 +96,7 @@ public class SupplierService {
     }
 
     /**
-     * Find all suppliers.
+     * Find all suppliers. Returns null if no suppliers are found.
      * 
      * @return a list of all SupplierDTOs, or null if no suppliers are found
      */
@@ -107,7 +107,7 @@ public class SupplierService {
     }
 
     /**
-     * Find paginated suppliers.
+     * Find paginated suppliers based on the provided pagination information.
      * 
      * @param pageable the pagination information
      * @return a paginated list of SupplierDTOs
@@ -117,7 +117,7 @@ public class SupplierService {
     }
 
     /**
-     * Delete a supplier by its ID.
+     * Delete a supplier by their ID. Throws an exception if the supplier ID is invalid or does not exist.
      * 
      * @param supplierId the ID of the supplier to delete
      * @throws IllegalArgumentException if the supplier ID is null or empty
