@@ -352,8 +352,10 @@ public class InstrumentService {
         if(newInstrument.getCategoryId() == null) {
             throw new BadRequestException("Category ID is required to identify an instrument");
         }
-        if(newInstrument.getPrice() == null) {
+        if (newInstrument.getPrice() == null) {
             newInstrument.setPrice(0F);
+        } else if (newInstrument.getPrice() < 0) {
+            throw new BadRequestException("Price cannot be negative.");
         }
 
         // Check if the supplier exists
