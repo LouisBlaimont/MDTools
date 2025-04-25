@@ -257,11 +257,16 @@ public class SubGroupService {
 
         SubGroup subGroup = subGroupMaybe.get();
 
+        if (subGroup.getCategories() != null && !subGroup.getCategories().isEmpty()) {
+            throw new BadRequestException("Cannot delete subgroup with existing categories.");
+        }
+
         Group group = subGroup.getGroup();
         List<SubGroup> subGroups = group.getSubGroups();
         subGroups.remove(subGroup);
         group.setSubGroups(subGroups);
         groupRepository.save(group);
+        subGroupRepository.delete(subGroup);
         return "Successfully deleted group.";
     }
 

@@ -435,7 +435,11 @@
       "warning": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
       "save": "Registreer",
       "cancel": "Annuleren",
-      "delete": "Verwijder"
+      "delete": "Verwijder",
+      "confirm_delete": "Ben je zeker dat je deze groep wilt verwijderen?",
+      "delete_failed": "Verwijderen van de groep is mislukt",
+      "deleted_successfully": "De groep is succesvol verwijderd",
+      "delete_not_allowed": "Kan de groep niet verwijderen als er nog subgroepen zijn."
     },
     "edit_instrument": {
       "warning": "Weet je zeker dat je dit alternatief wilt afschaffen?",
@@ -467,7 +471,13 @@
       "picture": "Afbeelding",
       "delete": "Er bestaat al een afbeelding voor deze groep. Door hierboven een afbeelding op te geven, wordt de huidige afbeelding verwijderd.",
       "cancel": "Annuleren",
-      "save": "Registreer"
+      "save": "Registreer",
+      "confirm_delete": "Ben je zeker dat je deze subgroep wilt verwijderen?",
+      "delete_failed": "Verwijderen van de subgroep is mislukt",
+      "delete_button": "Verwijder",
+      "deleted_successfully": "De subgroep is succesvol verwijderd",
+      "delete_not_allowed": "Kan de subgroep niet verwijderen als er nog categorieën zijn."
+
     },
     "edit_supplier": {
       "modif": "De leverancier wijzigen ",

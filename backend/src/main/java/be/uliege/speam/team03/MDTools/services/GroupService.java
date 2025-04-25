@@ -214,6 +214,9 @@ public class GroupService {
         Group group = groupMaybe.get();
 
         List<SubGroup> subGroups = group.getSubGroups();
+        if (subGroups!= null && !subGroups.isEmpty()) {
+            throw new BadRequestException("Cannot delete group with existing subgroups.");
+        }
         
         for (SubGroup subGroup : subGroups){
             List<SubGroupCharacteristic> subGroupDetails = subGroup.getSubGroupCharacteristics();

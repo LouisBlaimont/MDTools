@@ -3,6 +3,7 @@
     import { apiFetch } from "$lib/utils/fetch";
     import { _ } from "svelte-i18n";
     import { selectedSubGroup, characteristics, showChars, autocompleteOptions, categories, reload, selectedGroup } from "$lib/stores/searches";
+    import { toast } from "@zerodevx/svelte-toast";
 
   const {
       isOpen,

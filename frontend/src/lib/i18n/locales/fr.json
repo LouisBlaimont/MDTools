@@ -435,7 +435,11 @@
       "warning": "Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,l'image actuelle sera supprimée.",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
+      "delete_failed": "Erreur lors de la suppression du groupe",
+      "deleted_successfully": "Le groupe a bien été supprimé",
+      "delete_not_allowed": "Impossible de supprimer un groupe contenant des sous-groupes."
     },
     "edit_instrument": {
       "warning": "Êtes-vous sûr de vouloir supprimer cette alternative ?",
@@ -467,7 +471,12 @@
       "picture": "Image",
       "delete": "Une image existe déjà pour ce groupe, en indiquant une image ci-dessus,l'image actuelle sera supprimée.",
       "cancel": "Annuler",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce sous-groupe ?",
+      "delete_failed": "Erreur lors de la suppression du sous-groupe",
+      "delete_button": "Supprimer",
+      "deleted_successfully": "Le sous-groupe a bien été supprimé",
+      "delete_not_allowed": "Impossible de supprimer un sous-groupe contenant des catégories."
     },
     "edit_supplier": {
       "modif": "Modifier le fournisseur ",
