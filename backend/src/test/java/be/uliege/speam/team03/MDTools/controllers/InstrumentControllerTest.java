@@ -17,11 +17,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Collections;
 
 import org.springframework.http.MediaType;
@@ -168,61 +170,56 @@ public class InstrumentControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // @Test
-    // public void testUpdateInstrument() throws Exception {
-    //     InstrumentDTO existingInstrument = new InstrumentDTO();
-    //     existingInstrument.setId(1L);
-    //     existingInstrument.setReference("REF001");
+    @Test
+    public void testUpdateInstrumentSuccessfully() throws Exception {
+        Long instrumentId = 1L;
+        Map<String, Object> updates = Map.of("reference", "NEW_REF001");
 
-    //     InstrumentDTO updatedInstrument = new InstrumentDTO();
-    //     updatedInstrument.setId(1L);
-    //     updatedInstrument.setReference("REF002");
+        InstrumentDTO updatedInstrument = new InstrumentDTO();
+        updatedInstrument.setId(instrumentId);
+        updatedInstrument.setReference("NEW_REF001");
 
-    //     when(instrumentService.updateInstrument(any(Map.class), any(Long.class))).thenReturn(updatedInstrument);
+        when(instrumentService.updateInstrument(any(Map.class), eq(instrumentId))).thenReturn(updatedInstrument);
 
-    //     mockMvc.perform(patch("/api/instrument/1")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"reference\":\"REF002\"}"))
-    //             .andExpect(status().isOk())
-    //             .andExpect(jsonPath("$.id").value(1L))
-    //             .andExpect(jsonPath("$.reference").value("REF002"));
+        mockMvc.perform(patch("/api/instrument/" + instrumentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reference\":\"NEW_REF001\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.reference").value("NEW_REF001"));
 
-    //     verify(instrumentService, times(1)).updateInstrument(any(Map.class), any(Long.class));
-    // }
+        verify(instrumentService, times(1)).updateInstrument(any(Map.class), eq(instrumentId));
+    }
 
-    //     mockMvc.perform(post("/api/instrument")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"reference\":\"REF001\",\"supplier\":\"Supplier1\",\"categoryId\":1,\"price\":100.0}"))
-    //             .andExpect(status().isCreated())
-    //             .andExpect(jsonPath("$.id").value(1L))
-    //             .andExpect(jsonPath("$.reference").value("REF001"));
+    @Test
+    public void testUpdateInstrumentNotFound() throws Exception {
+        Long instrumentId = 99L;
 
-    //     verify(instrumentService, times(1)).save(any(InstrumentDTO.class));
-    // }
+        when(instrumentService.updateInstrument(any(Map.class), eq(instrumentId)))
+                .thenThrow(new ResourceNotFoundException("Instrument not found"));
 
-    // @Test
-    // public void testUpdateInstrument() throws Exception {
-    //     InstrumentDTO existingInstrument = new InstrumentDTO();
-    //     existingInstrument.setId(1);
-    //     existingInstrument.setReference("REF001");
+        mockMvc.perform(patch("/api/instrument/" + instrumentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reference\":\"NEW_REF001\"}"))
+                .andExpect(status().isNotFound());
 
-    //     InstrumentDTO updatedInstrument = new InstrumentDTO();
-    //     updatedInstrument.setId(1);
-    //     updatedInstrument.setReference("REF002");
+        verify(instrumentService, times(1)).updateInstrument(any(Map.class), eq(instrumentId));
+    }
 
-    //     when(instrumentService.findById(1)).thenReturn(existingInstrument);
-    //     when(instrumentService.save(any(InstrumentDTO.class))).thenReturn(updatedInstrument);
+    @Test
+    public void testUpdateInstrumentWithBadRequest() throws Exception {
+        Long instrumentId = 1L;
 
-    //     mockMvc.perform(patch("/api/instrument/1")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"reference\":\"REF002\"}"))
-    //             .andExpect(status().isOk())
-    //             .andExpect(jsonPath("$.id").value(1))
-    //             .andExpect(jsonPath("$.reference").value("REF002"));
+        when(instrumentService.updateInstrument(any(Map.class), eq(instrumentId)))
+                .thenThrow(new BadRequestException("Invalid update data"));
 
-    //     verify(instrumentService, times(1)).findById(1);
-    //     verify(instrumentService, times(1)).save(any(InstrumentDTO.class));
-    // }
+        mockMvc.perform(patch("/api/instrument/" + instrumentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"price\":-100.0}")) // Example of invalid input
+                .andExpect(status().isBadRequest());
+
+        verify(instrumentService, times(1)).updateInstrument(any(Map.class), eq(instrumentId));
+    }
 
     @Test
     public void testDeleteInstrument() throws Exception {
