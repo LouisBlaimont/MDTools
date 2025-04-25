@@ -42,7 +42,7 @@
     const clickDelay = 200;
     function clickOnAlt(row, index){
         timeout = setTimeout(() => {
-            modals.open(BigPicturesModal, {instrument:row, index:index, isInstrument: true});
+            modals.open(BigPicturesModal, {instrument:row, index:index, isInstrument: true, isAlternative : true});
         }, clickDelay);
     }
     function doubleClickOnAlt(row, index){
@@ -70,7 +70,7 @@
                     alt="supplier{row.id}"
                     src={row.picturesId && row.picturesId[0]
                     ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`: "/default/no_picture.png"}
-                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: true })}
+                    onclick= {() => modals.open(BigPicturesModal, { instrument: row, index: index , isInstrument: true, isAlternative : false })}
                     onmouseover={() => (hoveredSupplierImageIndex.set(index))}
                     onmouseout={() => (hoveredSupplierImageIndex.set(null))}
                     class="h-4/5 {$selectedSupplierIndex === index

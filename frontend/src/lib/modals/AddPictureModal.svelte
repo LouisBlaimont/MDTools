@@ -3,13 +3,13 @@
   import { getContext } from "svelte";
   import { toast } from "@zerodevx/svelte-toast";
   import { apiFetch } from "$lib/utils/fetch";
-  import { currentSuppliers, categories } from "$lib/stores/searches";
+  import { currentSuppliers, categories, alternatives } from "$lib/stores/searches";
   import Icon from "@iconify/svelte";
   import { _ } from "svelte-i18n";
   import { modals } from "svelte-modals";
   import BigPicturesModal from "./BigPicturesModal.svelte";
 
-  const { isOpen, close, instrument, index , isInstrument } = $props();
+  const { isOpen, close, instrument, index , isInstrument, isAlternative } = $props();
 
   let files = $state([]);
 
@@ -44,18 +44,27 @@
         toast.push($_('modals.add_picture.ok'));
         if (isInstrument) {
           const responseData = await response.json();
-          responseData.forEach((picture) => {
-            currentSuppliers.update((suppliers) => {
-              suppliers.forEach((supplier) => {
-                if (supplier.id === instrument.id) {
-                  supplier.picturesId.push(picture.id);
+          const newPictureIds = responseData.map((picture)=> picture.id);
+          currentSuppliers.update((suppliers) => {
+            suppliers.forEach((supplier) => {
+              if(supplier.id === instrument.id){
+                supplier.picturesId.push(...newPictureIds);
+              }
+            });
+            return suppliers;
+          });
+          if(isAlternative){
+            alternatives.update((alts) => {
+              alts.forEach((alt)=>{
+                if(alt.id === instrument.id){
+                  alt.picturesId.push(...newPictureIds);
                 }
               });
-              return suppliers;
+              return alts;
             });
+          }
           close();
-          modals.open(BigPicturesModal, { instrument, index, isInstrument });
-          });
+          modals.open(BigPicturesModal, { instrument, index, isInstrument, isAlternative });
         }
         else {
           const responseData = await response.json();
@@ -69,11 +78,10 @@
               return cats;
             });
           close();
-          modals.open(BigPicturesModal, { instrument, index, isInstrument });
+          modals.open(BigPicturesModal, { instrument, index, isInstrument, isAlternative });
           });
         }
       }
-    
       else {
         toast.push($_('modals.add_picture.fail') + response.statusText);
       }
@@ -156,7 +164,7 @@
                 <button
                   type="button"
                   class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                  onclick={() => ( modals.open(BigPicturesModal, { instrument, index, isInstrument }),
+                  onclick={() => ( modals.open(BigPicturesModal, { instrument, index, isInstrument, isAlternative }),
                 close())}
                 >
                   {$_('modals.add_picture.button.cancel')}

@@ -62,7 +62,7 @@
                   {/if}
                   <td 
                   class="text-center p-2"
-                  onclick= {() => modals.open(BigPicturesModal, { instrument: row, index : index, isInstrument: true})}
+                  onclick= {() => modals.open(BigPicturesModal, { instrument: row, index : index, isInstrument: true, isAlternative : true})}
                   >
                     <div class="flex justify-center items-center">
                       <svg

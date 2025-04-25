@@ -165,7 +165,6 @@
         ...updatedCharVals, 
         ...updatedCharAbbrev
     };
-    console.log(data);
     try {
         const response = await apiFetch(`/api/category/${categoryToEdit.id}/subgroup/${$selectedSubGroup}`, {
         method: "PATCH", 
@@ -182,7 +181,6 @@
         }
 
         const result = await response.json();
-        console.log(result);
         categories.update(currentCat => {
             return [...currentCat, result];
         });
