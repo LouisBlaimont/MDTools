@@ -13,15 +13,16 @@
   let new_abbreviation = $state("");
   let searchQuery = "";
   let currentPage = $state(1);
-  let pageSize = 4;
+  let pageSize = $state(5);
   let totalPages = $state(0);
   let loading = $state(true); // Track loading state
 
-  $effect(() => {
-    if (currentPage != null) {
-      fetchAbbreviations();
-    }
-  });
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    fetchAbbreviations();
+  };
 
   async function fetchAbbreviations() {
     try {
@@ -109,12 +110,12 @@
   <meta name="description" content="Abbreviations management page" />
 </svelte:head>
 
-<div class="p-8 space-y-10">
-  <section class="p-6">
-    <h2 class="text-2xl font-semibold mb-8 bg-white">{$_('admin.abb.handle')}</h2>
+<div class="p-8 container mx-auto w-screen">
+  <section class="p-6 w-full">
+    <h2 class="text-2xl font-semibold mb-8">{$_('admin.abb.handle')}</h2>
 
     <!-- Abbreviations List Section -->
-    <div class="bg-gray-50 border border-gray-300 rounded-lg p-6 size-fit">
+    <div class="bg-gray-50 border border-gray-300 rounded-lg p-6 w-full">
       <h3 class="text-lg font-medium">{$_('admin.abb.abbreviation')}</h3>
 
       <div class=" my-6 flex flex-row items-end">
@@ -246,23 +247,78 @@
       </div>
 
       <!-- Pagination Controls -->
-      <div class="flex justify-center items-center space-x-4 mt-4">
-        <button
-          onclick={() => (currentPage -= 1)}
-          disabled={currentPage === 1}
-          aria-label={$_('admin.abb.previous')}
-        >
-          <Icon icon="material-symbols:arrow-back-ios-rounded" width="24" height="24" />
-        </button>
-        <span>{$_('admin.abb.page')} {currentPage} {$_('admin.abb.sur')} {totalPages}</span>
-        <button
-          onclick={() => (currentPage += 1)}
-          disabled={currentPage === totalPages}
-          aria-label={$_('admin.abb.next')}
-        >
-          <Icon icon="material-symbols:arrow-forward-ios-rounded" width="24" height="24" />
-        </button>
-      </div>
+      <div class="flex justify-between items-center mt-4">
+        <!-- Items per page selector -->
+        <div class="flex items-center gap-2">
+          <span>{$_('logs.show')}</span>
+          <select 
+            bind:value={pageSize} 
+            onchange={() => {goToPage(1)}}
+            class="bg-white border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {#each [1, 5, 10, 25, 50] as size}
+              <option value={size}>{size}</option>
+            {/each}
+          </select>
+          <span>{$_('logs.items')}</span>
+        </div>
+
+        <!-- Pagination controls -->
+        <div class="flex justify-center items-center space-x-4 absolute left-1/2 transform -translate-x-1/2">
+          <button
+            onclick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label={$_('logs.previous')}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+              />
+            </svg>
+          </button>
+          <div class="flex items-center gap-2">
+            <span>{$_('logs.page')}</span>
+            <select 
+              bind:value={currentPage} 
+              onchange={() => goToPage(currentPage)}
+              class="bg-white border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {#each Array(totalPages) as _, i}
+                <option value={i + 1}>{i + 1}</option>
+              {/each}
+            </select>
+            <span>{$_('logs.sur')} {totalPages}</span>
+          </div>
+          <button
+            onclick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            aria-label={$_('logs.next')}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+              />
+            </svg>
+          </button>
+        </div>
     </div>
   </section>
 </div>

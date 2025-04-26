@@ -1,5 +1,6 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -10,13 +11,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,12 +30,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
+import be.uliege.speam.team03.MDTools.config.TestSecurityConfig;
 import be.uliege.speam.team03.MDTools.services.UserService;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(UserController.class)
+@Import(TestSecurityConfig.class)
 public class UserControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private UserService userService;
 
     @InjectMocks
@@ -66,6 +75,21 @@ public class UserControllerTest {
         verify(userService, times(1)).getUserById(1L);
     }
 
+    @WithMockUser(roles = "WEBMASTER")
+    @Test
+    // Test to verify behavior when a user is not found by ID.
+    public void testGetUserById_NotFound() throws Exception {
+        // Arrange
+        when(userService.getUserById(999L)).thenThrow(new ResourceNotFoundException("User does not exist. Received ID: 999"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user")
+                .param("user_id", "999"))
+                .andExpect(status().isNotFound());
+
+        verify(userService, times(1)).getUserById(999L);
+    }
+
     @Test
     // Test to verify behavior when a user is not found by ID.
     public void testGetUserById_NotFound() throws Exception {
@@ -96,6 +120,22 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username").value("testUser"));
 
         verify(userService, times(1)).getUserByEmail("test@example.com");
+    }
+
+    @WithMockUser(roles = "WEBMASTER")
+    @Test
+    // Test to verify behavior when a user is not found by email.
+    public void testGetUserByEmail_NotFound() throws Exception {
+        // Arrange
+        when(userService.getUserByEmail("nonexistent@example.com"))
+            .thenThrow(new ResourceNotFoundException("User does not exist. Received email: nonexistent@example.com"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user")
+                .param("email", "nonexistent@example.com"))
+                .andExpect(status().isNotFound());
+
+        verify(userService, times(1)).getUserByEmail("nonexistent@example.com");
     }
 
     @Test

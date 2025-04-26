@@ -22,7 +22,9 @@ public class UserMapper {
       userDto.setId(user.getUserId());
       userDto.setUsername(user.getUsername());
       userDto.setEmail(user.getEmail());
-      userDto.setRoles(user.getRoles());
+      // sort roles alphabetically
+      List<String> roles = user.getRoles().stream().sorted().toList();
+      userDto.setRoles(roles);
       userDto.setJobPosition(user.getJobPosition());
       userDto.setWorkplace(user.getWorkplace());
       userDto.setRoleName(user.getRoleName());
