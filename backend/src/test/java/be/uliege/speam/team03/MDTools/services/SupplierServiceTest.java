@@ -53,6 +53,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that a supplier is successfully retrieved by ID when it exists.
     void findSupplierById_ShouldReturnSupplierDTO_WhenSupplierExists() {
         when(supplierRepository.findById((long) 1)).thenReturn(Optional.of(supplier));
         when(supplierMapper.convertToDTO(supplier)).thenReturn(supplierDTO);
@@ -65,6 +66,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when a supplier is not found by ID.
     void findSupplierById_ShouldReturnNull_WhenSupplierDoesNotExist() {
         when(supplierRepository.findById((long) 1)).thenReturn(Optional.empty());
 
@@ -73,6 +75,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that a supplier is successfully saved and returned when valid data is provided.
     void saveSupplier_ShouldSaveAndReturnSupplierDTO_WhenValidDataProvided() {
         when(supplierMapper.convertToEntity(supplierDTO)).thenReturn(supplier);
         when(supplierRepository.save(supplier)).thenReturn(supplier);
@@ -86,6 +89,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when trying to save a supplier with a null name.
     void saveSupplier_ShouldThrowException_WhenSupplierNameIsNull() {
         supplierDTO.setName(null);
 
@@ -94,6 +98,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that a list of suppliers is successfully retrieved when suppliers exist.
     void findAllSuppliers_ShouldReturnListOfSupplierDTOs_WhenSuppliersExist() {
         List<Supplier> suppliers = List.of(supplier);
         when(supplierRepository.findAll()).thenReturn(suppliers);
@@ -108,6 +113,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that null is returned when no suppliers exist.
     void findAllSuppliers_ShouldReturnNull_WhenNoSuppliersExist() {
         when(supplierRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -118,6 +124,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that a supplier is successfully deleted when it exists.
     void deleteSupplierById_ShouldDeleteSupplier_WhenSupplierExists() {
         when(supplierRepository.findById((long) 1)).thenReturn(Optional.of(supplier));
 
@@ -127,6 +134,7 @@ public class SupplierServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when trying to delete a non-existent supplier.
     void deleteSupplierById_ShouldThrowException_WhenSupplierDoesNotExist() {
         when(supplierRepository.findById((long) 1)).thenReturn(Optional.empty());
 

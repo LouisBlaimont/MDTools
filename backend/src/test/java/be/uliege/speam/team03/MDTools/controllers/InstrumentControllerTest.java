@@ -70,6 +70,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify successful retrieval of an instrument by ID.
     public void testFindInstrumentById() throws Exception {
         InstrumentDTO instrument = new InstrumentDTO();
         instrument.setId((long) 1);
@@ -85,6 +86,7 @@ public class InstrumentControllerTest {
         verify(instrumentService, times(1)).findById((long) 1);
     }
     @Test
+    // Test to verify behavior when adding an instrument with a missing reference.
     public void testAddInstrumentWithMissingReference() throws Exception {
         // Simulate the service throwing a BadRequestException for missing reference
         when(instrumentService.addInstrument(any(InstrumentDTO.class)))
@@ -99,6 +101,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when adding an instrument with an invalid category.
     public void testAddInstrumentWithInvalidCategory() throws Exception {
         // Simulate the service throwing a BadRequestException for invalid category
         when(instrumentService.addInstrument(any(InstrumentDTO.class)))
@@ -113,6 +116,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when adding an instrument with an invalid price.
     public void testAddInstrumentWithInvalidPrice() throws Exception {
         // Simulate the service throwing a BadRequestException for invalid price
         when(instrumentService.addInstrument(any(InstrumentDTO.class)))
@@ -127,6 +131,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when adding an instrument with an invalid supplier.
     public void testAddInstrumentWithInvalidSupplier() throws Exception {
         // Simulate the service throwing a BadRequestException for invalid supplier
         when(instrumentService.addInstrument(any(InstrumentDTO.class)))
@@ -141,6 +146,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify successful addition of a new instrument.
     public void testAddInstrument() throws Exception {
         InstrumentDTO newInstrument = new InstrumentDTO();
         newInstrument.setId((long) 1);
@@ -162,6 +168,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when an instrument is not found by ID.
     public void testFindInstrumentByIdNotFound() throws Exception {
         // Simulate the service throwing a ResourceNotFoundException
         when(instrumentService.findById(99L)).thenThrow(new ResourceNotFoundException("Instrument not found"));
@@ -171,6 +178,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify successful update of an instrument.
     public void testUpdateInstrumentSuccessfully() throws Exception {
         Long instrumentId = 1L;
         Map<String, Object> updates = Map.of("reference", "NEW_REF001");
@@ -192,6 +200,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when updating a non-existent instrument.
     public void testUpdateInstrumentNotFound() throws Exception {
         Long instrumentId = 99L;
 
@@ -207,6 +216,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when updating an instrument with invalid data.
     public void testUpdateInstrumentWithBadRequest() throws Exception {
         Long instrumentId = 1L;
 
@@ -222,6 +232,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify successful deletion of an instrument.
     public void testDeleteInstrument() throws Exception {
         doNothing().when(instrumentService).delete((long) 1);
 
@@ -232,6 +243,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when deleting a non-existent instrument.
     public void testDeleteInstrumentNotFound() throws Exception {
         // Simulate the service throwing a ResourceNotFoundException
         doNothing().when(instrumentService).delete(99L);
@@ -242,6 +254,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify successful retrieval of picture IDs for an instrument.
     public void testGetInstrumentPictureIds() throws Exception {
         // Create test data
         Long instrumentId = 1L;
@@ -274,6 +287,7 @@ public class InstrumentControllerTest {
     }
 
     @Test
+    // Test to verify behavior when no pictures are found for an instrument.
     public void testGetInstrumentPictureIdsWithNoPictures() throws Exception {
         Long instrumentId = 2L;
         
@@ -292,33 +306,35 @@ public class InstrumentControllerTest {
     }
 
     @Test
-public void testAddInstrumentPicture() throws Exception {
-    Long instrumentId = 1L;
-    MockMultipartFile file = new MockMultipartFile(
-        "file", 
-        "test-image.jpg", 
-        "image/jpeg", 
-        "test image content".getBytes()
-    );
-    
-    // Create a Picture object to be returned by the mocked method
-    Picture savedPicture = new Picture();
-    savedPicture.setId(1L);
-    savedPicture.setFileName("uuid-test-image.jpg");
-    savedPicture.setPictureType(PictureType.INSTRUMENT);
-    savedPicture.setReferenceId(instrumentId);
-    
-    when(pictureStorageService.storePicture(any(MultipartFile.class), eq(PictureType.INSTRUMENT), eq(instrumentId)))
-        .thenReturn(savedPicture);
-    
-    mockMvc.perform(multipart("/api/instrument/pictures/" + instrumentId)
-        .file(file))
-        .andExpect(status().isNoContent());
-    
-    verify(pictureStorageService, times(1)).storePicture(any(MultipartFile.class), eq(PictureType.INSTRUMENT), eq(instrumentId));
-}
+    // Test to verify successful addition of a picture to an instrument.
+    public void testAddInstrumentPicture() throws Exception {
+        Long instrumentId = 1L;
+        MockMultipartFile file = new MockMultipartFile(
+            "file", 
+            "test-image.jpg", 
+            "image/jpeg", 
+            "test image content".getBytes()
+        );
+        
+        // Create a Picture object to be returned by the mocked method
+        Picture savedPicture = new Picture();
+        savedPicture.setId(1L);
+        savedPicture.setFileName("uuid-test-image.jpg");
+        savedPicture.setPictureType(PictureType.INSTRUMENT);
+        savedPicture.setReferenceId(instrumentId);
+        
+        when(pictureStorageService.storePicture(any(MultipartFile.class), eq(PictureType.INSTRUMENT), eq(instrumentId)))
+            .thenReturn(savedPicture);
+        
+        mockMvc.perform(multipart("/api/instrument/pictures/" + instrumentId)
+            .file(file))
+            .andExpect(status().isNoContent());
+        
+        verify(pictureStorageService, times(1)).storePicture(any(MultipartFile.class), eq(PictureType.INSTRUMENT), eq(instrumentId));
+    }
     
     @Test
+    // Test to verify successful retrieval of instruments by subgroup.
     public void testFindInstrumentsBySubGroup() throws Exception {
         String subGroupName = "TestSubGroup";
         
@@ -345,6 +361,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
     
     @Test
+    // Test to verify behavior when no instruments are found for a subgroup.
     public void testFindInstrumentsBySubGroupWithNoResults() throws Exception {
         String subGroupName = "NonExistentSubGroup";
         
@@ -359,6 +376,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
 
     @Test
+    // Test to verify successful retrieval of instruments by supplier name.
     public void testFindInstrumentsBySupplierName() throws Exception {
         String supplierName = "TestSupplier";
         
@@ -389,6 +407,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
     
     @Test
+    // Test to verify behavior when no instruments are found for a supplier name.
     public void testFindInstrumentsBySupplierNameWithNoResults() throws Exception {
         String supplierName = "NonExistentSupplier";
         
@@ -403,6 +422,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
 
     @Test
+    // Test to verify successful search for instruments using keywords.
     public void testSearchInstrument() throws Exception {
         List<String> keywords = Arrays.asList("test", "search");
         
@@ -431,6 +451,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
     
     @Test
+    // Test to verify behavior when searching for instruments with empty keywords.
     public void testSearchInstrumentWithEmptyKeywords() throws Exception {
         mockMvc.perform(get("/api/instrument/search"))
             .andExpect(status().isOk())
@@ -439,6 +460,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
     
     @Test
+    // Test to verify behavior when searching for instruments with blank keywords.
     public void testSearchInstrumentWithBlankKeywords() throws Exception {
         mockMvc.perform(get("/api/instrument/search")
                 .param("keywords", "")
@@ -449,6 +471,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
     
     @Test
+    // Test to verify successful retrieval of a category by ID.
     public void testSearchCategory() throws Exception {
         Long categoryId = 1L;
         
@@ -467,6 +490,7 @@ public void testAddInstrumentPicture() throws Exception {
     }
     
     @Test
+    // Test to verify behavior when a category is not found by ID.
     public void testSearchCategoryNotFound() throws Exception {
         Long categoryId = 99L;
         
