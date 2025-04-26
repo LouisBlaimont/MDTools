@@ -188,13 +188,20 @@ public class UserService {
       userToUpdate.setRoleName(roleName);
 
       Boolean enabled = (Boolean) userDto.isEnabled();
-      if (enabled && userToUpdate.getAuthorities().isEmpty()) {
-         throw new BadRequestException("User must have at least one role to be enabled.");
+      if (enabled == null || !enabled) {
+         enabled = false;
+      } else {
+         enabled = true;
       }
+      userToUpdate.setEnabled(enabled);
 
       List<String> roles = (List<String>) userDto.getRoles();
       if (roles != null) {
          userToUpdate.setAuthorities(UserMapper.toAuthorities(roles));
+      }
+
+      if (enabled && userToUpdate.getAuthorities().isEmpty()) {
+         throw new BadRequestException("User must have at least one role to be enabled.");
       }
 
       userToUpdate.setUpdatedAt(Timestamp.from(Instant.now()));
@@ -221,8 +228,16 @@ public class UserService {
     * @return True if the email is valid, false otherwise.
     */
    protected boolean isValidEmail(String email) {
+      if (email == null || email.isEmpty()) {
+         return false;
+      }
+
+      if (email != email.trim()) {
+         return false;
+      }
+
       // Define the regex for a valid email
-      String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+      String emailRegex = "^[a-zA-Z0-9](?!.*\\.\\.)[a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
   
       // Compile the regex
       Pattern pattern = Pattern.compile(emailRegex);

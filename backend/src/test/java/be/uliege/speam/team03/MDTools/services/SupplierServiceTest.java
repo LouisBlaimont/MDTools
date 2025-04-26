@@ -113,13 +113,12 @@ public class SupplierServiceTest {
     }
 
     @Test
-    // Test to verify that null is returned when no suppliers exist.
-    void findAllSuppliers_ShouldReturnNull_WhenNoSuppliersExist() {
+    // Test to verify that an exception is thrown when no suppliers exist.
+    void findAllSuppliers_ShouldThrowException_WhenNoSuppliersExist() {
         when(supplierRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<SupplierDTO> result = supplierService.findAllSuppliers();
+        assertThrows(ResourceNotFoundException.class, () -> supplierService.findAllSuppliers());
 
-        assertNull(result);
         verify(supplierRepository, times(1)).findAll();
     }
 
