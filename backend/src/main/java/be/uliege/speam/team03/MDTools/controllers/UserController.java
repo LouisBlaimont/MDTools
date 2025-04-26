@@ -2,6 +2,11 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,12 +68,13 @@ public class UserController {
     */
    @PostMapping
    @ResponseStatus(HttpStatus.CREATED)
-   public ResponseEntity<?> registerUser(@RequestBody UserDto dto) {
-      UserDto newUser = userService.registerUser(dto);
-      if (newUser == null) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
-      }
-      return ResponseEntity.ok(newUser);
+   public ResponseEntity<Void> registerUser(@RequestBody UserDto dto) {
+      // UserDto newUser = userService.registerUser(dto);
+      // if (newUser == null) {
+      //    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
+      // }
+      // return ResponseEntity.ok(newUser);
+      throw new BadRequestException("Users should be registered through the authentication service");
    }
 
    /**
@@ -80,11 +86,8 @@ public class UserController {
     */
    @PatchMapping("username/{username}")
    @ResponseStatus(HttpStatus.OK)
-   public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody UserDto userDto) {
+   public ResponseEntity<UserDto> updateUser(@PathVariable String username, @RequestBody UserDto userDto) {
       UserDto updatedUser = userService.updateUser(username, userDto);
-      if (updatedUser == null) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
-      }
       return ResponseEntity.ok(updatedUser);
    }
 
@@ -97,11 +100,8 @@ public class UserController {
     */
    @PatchMapping("{id}")
    @ResponseStatus(HttpStatus.OK)
-   public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+   public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
       UserDto updatedUser = userService.updateUser(id, userDto);
-      if (updatedUser == null) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
-      }
       return ResponseEntity.ok(updatedUser);
    }
 
@@ -138,11 +138,8 @@ public class UserController {
     */
    @PreAuthorize("hasRole('WEBMASTER')")
    @GetMapping("/list")
-   public ResponseEntity<List<UserDto>> getAllUser() {
-      List<UserDto> users = userService.getAllUsers();
-      if (users.isEmpty()) {
-         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(users);
-      }
-      return new ResponseEntity<>(users, HttpStatus.OK);
+   public ResponseEntity<Page<UserDto>> getAllUser(@SortDefault(sort = "username", 
+  direction = Direction.ASC) @PageableDefault(page = 0) Pageable pageable) {
+      return ResponseEntity.ok(userService.getAllUsers(pageable));
    }
 }

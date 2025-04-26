@@ -164,7 +164,7 @@
     },
     "abb": {
       "abbreviation": "Abbreviations",
-      "handle": "Gestion of abbrviations",
+      "handle": "Abbreviations management",
       "add": "Add an abbreviation",
       "full": "Full",
       "enter_abb": "Add an abbreviation",
@@ -611,8 +611,8 @@
     "toast3":  "Operation annulée."
   },
   "logs": {
-    "gestion": "Gestion of the site",
-    "admin": "Administration of the site",
+    "gestion": "Website management",
+    "admin": "Website administration",
     "consult": "Consult logs",
     "access": "Access logs",
     "user": "Users",
@@ -633,6 +633,8 @@
     "error": "An error occurred while fetching users. Please try again.<br> Erreur:",
     "enter_user": "Search for a user",
     "page": "Page",
-    "sur": "of"
+    "sur": "of",
+    "show": "Show",
+    "items": "items"
   }
 }
