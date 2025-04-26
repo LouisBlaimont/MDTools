@@ -17,7 +17,8 @@
     // your props
     instrument,
     index, // index of the instrument in the list
-    isInstrument, // to use the modal with instruments and categories 
+    isInstrument, // to use the modal with instruments and categories
+    isAlternative, 
   } = $props();
 
   let instrument_reactive = $state(instrument);
@@ -178,7 +179,7 @@
                 onclick={() => close()}>{$_('modals.big_picture.close')}</button>
               <button
                 class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold border shadow shadow-xs hover:bg-gray-100 sm:ml-3 sm:w-auto"
-                onclick={() => ( modals.open(AddPictureModal, { instrument, index, isInstrument }),
+                onclick={() => ( modals.open(AddPictureModal, { instrument, index, isInstrument, isAlternative }),
                 close())}
                 >
                 {$_('modals.big_picture.add_picture')}
