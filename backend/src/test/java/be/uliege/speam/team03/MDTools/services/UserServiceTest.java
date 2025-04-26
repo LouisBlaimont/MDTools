@@ -28,6 +28,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -94,15 +97,15 @@ public class UserServiceTest {
 
     @Test
     void getAllUsers_ShouldReturnListOfUserDtos() {
-        List<User> users = Arrays.asList(user);
-        when(userRepository.findAll()).thenReturn(users);
+        Page<User> users = new PageImpl<>(Arrays.asList(user));
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(users);
 
-        List<UserDto> result = userService.getAllUsers();
+        Page<UserDto> result = userService.getAllUsers(Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(user.getEmail(), result.get(0).getEmail());
-        verify(userRepository, times(1)).findAll();
+        assertEquals(1, result.getTotalElements());
+        assertEquals(user.getEmail(), result.getContent().get(0).getEmail());
+        verify(userRepository, times(1)).findAll(Pageable.unpaged());
     }
 
     @Test

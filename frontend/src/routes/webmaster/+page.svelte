@@ -21,10 +21,9 @@
   let searchQuery = "";
   let roles = [];
 
-  const itemsPerPage = 3; // Number of items per page
-  let currentPage = 1; // Current page number
-
-  const totalPages = 0
+  let currentPage = $state(1); // Current page number
+  let pageSize = $state(1); // Number of items per page
+  let totalPages = $state(0);
 
   const viewLogs = () => {
     goto("/webmaster/logs");
@@ -80,11 +79,20 @@
     }    
   }
 
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    fetchUsers();
+  };
+
   async function fetchUsers() {
     try {
-      const response = await apiFetch("/api/user/list");
+      const response = await apiFetch("/api/user/list?page=" + (currentPage - 1) + "&size=" + pageSize);
       if (response.ok) {
-        users = await response.json();
+        const response_json = await response.json();
+        users = response_json.content;
+        totalPages = response_json.totalPages;
+        currentPage = response_json.number + 1; // Adjust for 0-based index
       } else {
         throw new Error("Failed to fetch users.");
       }
@@ -188,48 +196,78 @@
       </div>
 
       <!-- Pagination Controls -->
-      <div class="flex justify-center items-center space-x-4 mt-4">
-        <button
-          onclick={() => goToPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          aria-label={$_('logs.previous')}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
+      <div class="flex justify-between items-center mt-4">
+        <!-- Items per page selector -->
+        <div class="flex items-center gap-2">
+          <span>{$_('logs.show')}</span>
+          <select 
+            bind:value={pageSize} 
+            onchange={() => {goToPage(1)}}
+            class="bg-white border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
-            />
-          </svg>
-        </button>
-        <span>{$_('logs.page')} {currentPage} {$_('logs.sur')} {totalPages}</span>
-        <button
-          onclick={() => goToPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          aria-label={$_('logs.next')}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
+            {#each [1, 5, 10, 25, 50] as size}
+              <option value={size}>{size}</option>
+            {/each}
+          </select>
+          <span>{$_('logs.items')}</span>
+        </div>
+
+        <!-- Pagination controls -->
+        <div class="flex justify-center items-center space-x-4 absolute left-1/2 transform -translate-x-1/2">
+          <button
+            onclick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label={$_('logs.previous')}
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
-            />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+              />
+            </svg>
+          </button>
+          <div class="flex items-center gap-2">
+            <span>{$_('logs.page')}</span>
+            <select 
+              bind:value={currentPage} 
+              onchange={() => goToPage(currentPage)}
+              class="bg-white border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {#each Array(totalPages) as _, i}
+                <option value={i + 1}>{i + 1}</option>
+              {/each}
+            </select>
+            <span>{$_('logs.sur')} {totalPages}</span>
+          </div>
+          <button
+            onclick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            aria-label={$_('logs.next')}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </section>

@@ -70,7 +70,6 @@ public class CategoryController {
      *
      * @param subGroupName the name of the subgroup for which categories are to be
      *                     retrieved
-     * @param pageable     the pagination and sorting parameters
      * @return a ResponseEntity containing a Page of CategoryDTO objects and an HTTP
      *         status of OK
      * @throws ResourceNotFoundException If the given subgroup doesn't exist.
