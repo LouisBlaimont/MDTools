@@ -220,7 +220,10 @@
       "english": "English",
       "export_button": "Export",
       "column": "Select the columns",
-      "char": "Characteristics"
+      "char": "Characteristics",
+      "no_column": "Please select at least one column to export.",
+      "no_reference": "The 'reference' column must be selected.",
+      "no_crossref_supplier": "Please select at least two suppliers for Crossref export."
     }
   },
   "pagination": {

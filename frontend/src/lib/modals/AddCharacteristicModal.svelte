@@ -110,7 +110,7 @@
     async function deleteCharacteristic(name) {
     try {
       await removeCharacteristicFromSubGroup(selectedSubGroup, name);
-      dispatch('deleted', { name });
+      dispatch('added');
       await loadCharacteristics(selectedSubGroup);
     } catch (err) {
       console.error('Error deleting characteristic:', err);
@@ -281,7 +281,7 @@
         class="bg-gray-500 text-white px-4 py-2 rounded"
         on:click={onClose}
       >
-        Annuler
+      {$_('modals.add_char.close')}
       </button>
     </div>
   </div>

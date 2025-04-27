@@ -7,6 +7,8 @@ import {
   fetchInstrumentsBySupplier,
   fetchCharacteristicValuesByCategory
 } from "../../api.js";
+import { toast } from "@zerodevx/svelte-toast";
+
 
 /**
  * Handles Excel export based on the selected mode.
@@ -21,12 +23,15 @@ export async function handleExport({
   mode,
   contextName,
   selectedColumns,
-  selectedCharacteristics
+  selectedCharacteristics,
+  exportAllSuppliers = true,
+  selectedCrossrefSuppliers = []
 }) {
   try {
     // --------- Crossref Export ----------
     if (mode === "Crossref") {
       const instruments = await fetchTools();
+    
       const suppliersSet = new Set();
       const categoriesMap = new Map();
 
@@ -49,17 +54,26 @@ export async function handleExport({
       // Only keep categories with at least 2 suppliers
       const rows = [];
       for (const [categoryId, supplierMap] of categoriesMap.entries()) {
-        if (supplierMap.size < 2) continue;
-
+        const relevantSuppliers = exportAllSuppliers
+          ? [...supplierMap.keys()]
+          : [...supplierMap.keys()].filter(s => selectedCrossrefSuppliers.includes(s));
+    
+        if (relevantSuppliers.length < 2) continue;
+    
         const row = { Category: categoryId };
-        for (const supplier of suppliersSet) {
+        for (const supplier of (exportAllSuppliers ? suppliersSet : selectedCrossrefSuppliers)) {
           row[supplier] = supplierMap.get(supplier)?.join(", ") || "";
         }
         rows.push(row);
       }
-
+    
       if (rows.length === 0) {
-        alert("No categories found with instruments from at least two suppliers.");
+        toast.push($_('admin.export.no_crossref_supplier'), {
+          theme: {
+            '--toastBackground': 'red',
+            '--toastColor': 'white'
+          }
+        });
         return;
       }
 
@@ -68,7 +82,7 @@ export async function handleExport({
       XLSX.utils.book_append_sheet(wb, ws, "Crossref");
       XLSX.writeFile(wb, "export_crossref.xlsx");
       return;
-    }
+    }    
 
     // --------- Alternatives Export ----------
     if (mode === "Alternatives") {
@@ -141,7 +155,6 @@ export async function handleExport({
       // Add characteristic values if applicable
       if (!isCatalogue && selectedCharacteristics?.length && instrument.categoryId) {
         const values = await fetchCharacteristicValuesByCategory(instrument.categoryId);
-        console.log("value of characteristics", values);
       
         const valueMap = Object.fromEntries(
           values.map(v => [v.name, v.value])

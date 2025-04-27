@@ -220,7 +220,10 @@
       "english": "Engels",
       "export_button": "Exporteer",
       "column": "Selecteer de kolommen",
-      "char": "Kenmerken"
+      "char": "Kenmerken",
+      "no_column": "Selecteer minstens één kolom om te exporteren.",
+      "no_reference": "De kolom 'reference' moet geselecteerd zijn.",
+      "no_crossref_supplier": "Selecteer minstens twee leveranciers voor Crossref-export."
     }
   },
   "pagination": {
