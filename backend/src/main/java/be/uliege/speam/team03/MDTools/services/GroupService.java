@@ -116,6 +116,7 @@ public class GroupService {
         GroupDTO groupDTO = GroupMapper.toDto(group);
         return groupDTO;
     }
+
     
     /**
      * Adds a new group.

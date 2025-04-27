@@ -1,5 +1,5 @@
 <script>
-  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3, groups_summary} from "$lib/stores/searches";
+  import { alternatives, reload, selectedGroup, selectedSubGroup, keywords3, keywordsResult3, groups_summary, currentSuppliers} from "$lib/stores/searches";
   import { goto } from "$app/navigation";
   import { apiFetch } from "$lib/utils/fetch";
   import { addingAlt, altToAdd, removingAlt, altToRemove } from "$lib/stores/searches";
@@ -37,12 +37,13 @@
     getAlternativesOfInstr();
   });
 
-  let file; // Variable to store the selected file
+  //Pictures
+  let files = $state([]);
 
   let reference = $state(instrument.reference); // State for the instrument reference
   let characteristics = $state([]); // State for the instrument characteristics
 
-  let inputSize;
+  let inputSize = $state();
 
   // Function to handle form submission
   async function handleSubmit(event) {
@@ -50,19 +51,36 @@
     event.preventDefault(); // Prevent the default form submission behavior
 
     // If a file is selected, upload it
-    if (file) {
+    if (files.length>0) {
+      const formData = new FormData();
+      files.forEach((file)=> {
+        formData.append("files", file);
+      });
+      formData.append("referenceId", instrument.id);
+      formData.append("type", "instrument");
       try {
-        const fileData = new FormData();
-        fileData.append("file", file);
-        const response = await apiFetch("/api/instrument/pictures/" + encodeURIComponent(instrument.id),
-          {
+        const response = await apiFetch("/api/pictures/multiple", {
             method: "POST",
-            body: fileData,
-          }
-        );
+            body: formData,
+          });
         if (!response.ok) {
+          const pbPicture= document.getElementById("error-picture");
+          pbPicture.classList.remove("hidden");
           throw new Error("Failed to update the image");
         }
+        const pbPicture= document.getElementById("error-picture");
+        pbPicture.classList.add("hidden");
+        const responseData = await response.json();
+        responseData.forEach((picture) => {
+          currentSuppliers.update((suppliers) => {
+            suppliers.forEach((supplier) => {
+              if (supplier.id === instrument.id) {
+                supplier.picturesId.push(picture.id);
+              }
+            });
+            return suppliers;
+          }); });
+
       } catch (error) {
         console.error("Error:", error);
       }
@@ -185,7 +203,7 @@
 
   // Function to handle instrument deletion
   async function handleDelete() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer cet instrument ?")) {
+      if (confirm($_('modals.edit_instrument.warning_delete'))) {
           try {
               const response = await apiFetch("/api/instrument/" + encodeURIComponent(instrument.id), {
                   method: "DELETE",
@@ -702,18 +720,18 @@
                         {/each}
                     </div>
                     
-                    <label class="font-semibold text-lg">{$_('modals.edit_instrument.picture')}</label>
+                    <label class="font-semibold text-lg" for="pictures">{$_('modals.edit_instrument.picture')}</label>
                     <input
                         class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
                         type="file"
-                        onchange={(e) => (file = e.target.files[0])}
+                        accept="image/*"
+                        multiple
+                        id="pictures"
+                        onchange={(e) => (files = Array.from(e.target.files))}
                     />
-                    {#if instrument.pictureId}
-                        <div class="mt-1 text-sm text-red-500 mb-4">
-                            {$_('modals.edit_instrument.confirm')}
-                        </div>
-                    {/if}
-                    <label class="font-semibold text-lg">{$_('modals.edit_instrument.alt')}</label>
+                    <span id="error-picture" class="block w-full mb-2 text-red-600 hidden">{$_('modals.edit_instrument.pb')}</span>
+                    
+                    <label class="font-semibold text-lg" for="alt">{$_('modals.edit_instrument.alt')} </label>
                     <!-- <label class="block mb-2 flex items-center" for="id_add_alternatives"> -->
                     <div class="flex justify-content">
                       <input type="text" for="id_add_alternatives" class="w-1/2 text-sm text-gray-900 border border-gray-200 rounded cursor-pointer focus:outline-none p-2.5 mr-4" name="id_add_alternatives" autocomplete="off" bind:value={$keywords3}

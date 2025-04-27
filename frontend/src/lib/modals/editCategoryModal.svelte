@@ -19,6 +19,9 @@
   let newCharValues = $state({});
   let newCharAbbrev = $state({});
 
+  // Pictures
+  let files = $state([]);
+
   // Loading category characterstics when opening the modal
   $effect(() => {
     if (isOpen) {
@@ -153,33 +156,63 @@
 
   // Edit the category using the modified input fields
   async function editCategory() {
-    if(Object.keys(updatedCharVals).length === 0 && Object.keys(updatedCharAbbrev).length === 0){
+    if(Object.keys(updatedCharVals).length === 0 && Object.keys(updatedCharAbbrev).length === 0 && files.length === 0){
         const errorNoModif = document.getElementById("error-no-modif");
         errorNoModif.classList.remove("hidden");
         return;
     }
-      let data = {
+    let data = {
         ...updatedCharVals, 
         ...updatedCharAbbrev
-      };
-      try {
-          const response = await apiFetch(`/api/category/${categoryToEdit.id}/subgroup/${$selectedSubGroup}`, {
-          method: "PATCH", 
-          headers : { "Content-type" : "application/json"},
-          body : JSON.stringify(data),
-      });
-      if(!response.ok){
-          if(response.status === 400){
-              const errorSameCat = document.getElementById("error-same-category");
-              errorSameCat.classList.remove("hidden");
-          }
-          const errorResponse = await response.json();
-          throw new Error(errorResponse.error || "failed to update cat");
-      }
-      const result = await response.json();
-      categories.update(currentCat => {
-          return [...currentCat, result];
-      });
+    };
+    try {
+        const response = await apiFetch(`/api/category/${categoryToEdit.id}/subgroup/${$selectedSubGroup}`, {
+        method: "PATCH", 
+        headers : { "Content-type" : "application/json"},
+        body : JSON.stringify(data),
+        });
+        if(!response.ok){
+            if(response.status === 400){
+                const errorSameCat = document.getElementById("error-same-category");
+                errorSameCat.classList.remove("hidden");
+            }
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.error || "failed to update cat");
+        }
+
+        const result = await response.json();
+        categories.update(currentCat => {
+            return [...currentCat, result];
+        });
+
+        if(files.length > 0){
+            const formData = new FormData();
+            files.forEach((file) => {formData.append("files", file); });
+            formData.append("referenceId", result.id);
+            formData.append("type", "category");
+            const response = await apiFetch(`/api/pictures/multiple`, {
+                method: "POST",
+                body: formData,
+            });
+            if(!response.ok){
+                const pbPicture= document.getElementById("error-picture");
+                pbPicture.classList.remove("hidden");
+                const errorResponse = await response.json();
+                throw new Error(errorResponse.error);
+            }
+            const pbPicture= document.getElementById("error-picture");
+            pbPicture.classList.add("hidden");
+            const responseData = await response.json();
+            responseData.forEach((picture) => {
+                categories.update((cats) => {
+                cats.forEach((cat) => {
+                    if (cat.id === result.id) {
+                    cat.picturesId.push(picture.id);
+                    }
+                });
+                return cats;
+            }); });   
+        }
       close();
       goto(`/searches?group=${encodeURIComponent($selectedGroup)}&subgroup=${encodeURIComponent($selectedSubGroup)}&category=${encodeURIComponent(result.id)}&instrument=`);
       reload.set(true);
@@ -347,9 +380,19 @@
                   {/if}
               {/each}
               {/if}
-              <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.edit_cat.exists')}</span>
-              <span id="error-no-modif" class="ml-5 mb-5 text-red-600 hidden">A{$_('modals.edit_cat.modif')}.</span>
-              <span id="error-category-not-empty" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.edit_cat.not_deleted')}</span>
+                <label class="block font-semibold text-lg" for="category-img">{$_('modals.edit_cat.picture')}</label>
+                <input
+                    class="block w-1/2 text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    id = "category-img"
+                    onchange={(e) => (files = Array.from(e.target.files))}
+                />
+                <span id="error-picture" class="mb-5 text-red-600 hidden">{$_('modals.edit_cat.pb')}</span> 
+                <span id="error-same-category" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.edit_cat.exists')}</span>
+                <span id="error-no-modif" class="ml-5 mb-5 text-red-600 hidden">A{$_('modals.edit_cat.modif')}.</span>
+                <span id="error-category-not-empty" class="ml-5 mb-5 text-red-600 hidden">{$_('modals.edit_cat.not_deleted')}</span>
               <div class="flex justify-end gap-4 mb-4 mr-4">
                 <button type="button" onclick={handleDelete} class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">{$_('modals.edit_cat.supp')}</button>
                 <button type="button" onclick={close} class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">{$_('modals.edit_cat.cancel')}</button>

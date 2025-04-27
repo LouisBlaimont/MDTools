@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
@@ -64,9 +66,8 @@ public class UserService {
     * @return A list of {@link UserDto} objects representing all users in the
     *         database. This list can be empty.
     */
-   public List<UserDto> getAllUsers() {
-      List<User> users = userRepository.findAll();
-      return users.stream().map(UserMapper::toDto).toList();
+   public Page<UserDto> getAllUsers(Pageable pageable) {
+      return userRepository.findAll(pageable).map(UserMapper::toDto);
    }
 
    public UserDto updateUserRoles(Long userId, List<String> roles) {

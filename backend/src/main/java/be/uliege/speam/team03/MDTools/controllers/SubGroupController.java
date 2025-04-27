@@ -33,8 +33,6 @@ import lombok.AllArgsConstructor;
 public class SubGroupController {
     private final SubGroupService subGroupService;
 
-    //TODO move "body" logic to controller by using DTOs as RequestParameters instead of Map<String, Object>
-
     /**
      * Get all subgroups of a group.
      * 
@@ -110,7 +108,7 @@ public class SubGroupController {
      * @throws BadRequestException If the deletion cannot be performed (e.g., the subgroup is in use)
      */
     @DeleteMapping("/{subGroupName}")
-    public ResponseEntity<String> deleteSubGroup(@PathVariable String subGroupName) throws ResourceNotFoundException, BadRequestException {
+    public ResponseEntity<Boolean> deleteSubGroup(@PathVariable String subGroupName) throws ResourceNotFoundException, BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(subGroupService.deleteSubGroup(subGroupName));
     }
 

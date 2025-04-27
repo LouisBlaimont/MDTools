@@ -4,6 +4,8 @@ import  SearchPage  from '../routes/searches/+page.svelte';
 import { page } from '$app/stores';
 import { apiFetch } from '$lib/utils/fetch';
 import { register, init, getLocaleFromNavigator, waitLocale } from 'svelte-i18n';
+import { isAdmin, user } from '$lib/stores/user_stores';
+import { ordersNames } from '$lib/stores/searches';
 
 register('en', () => import('$lib/i18n/locales/en.json'));
 // Add other locales as needed
@@ -32,6 +34,11 @@ describe('search page functions', () => {
                 },
             },
         }));
+        user.set({
+            id: 42,
+            roles: ['ROLE_ADMIN', 'ROLE_WEBMASTER'], // this makes isAdmin become `true`
+          });
+        ordersNames.set([]);
         
     });
 
@@ -80,6 +87,7 @@ describe('search page functions', () => {
         const mockGroupsResponse = {json : vi.fn().mockResolvedValue(mockGroups), ok:true};
         const mockSubGroupsResponse = {json : vi.fn().mockResolvedValue(mockSubGroups), ok:true};
         const mockCategoriesResponse = {json : vi.fn().mockResolvedValue(mockCategories), ok:true};
+        const mockUnusedResponse = { json: vi.fn().mockResolvedValue({}), ok: true };
 
         fetch.mockImplementation((url) => {
             if(url.includes("/api/subgroups/group/")){
@@ -91,7 +99,7 @@ describe('search page functions', () => {
             if(url.includes("/api/groups/summary")){
                 return Promise.resolve(mockGroupsResponse);
             }
-            return Promise.reject(new Error('Wrong API call'));
+            return Promise.resolve(mockUnusedResponse);
         })
 
         render(SearchPage);
@@ -141,6 +149,7 @@ describe('search page functions', () => {
         const mockGroupsResponse = {json : vi.fn().mockResolvedValue(mockGroups), ok:true};
         const mockSubGroupsResponse = {json : vi.fn().mockResolvedValue(mockSubGroups), ok:true};
         const mockCategoriesResponse = {json : vi.fn().mockResolvedValue(mockCategories), ok:true};
+        const mockUnusedResponse = { json: vi.fn().mockResolvedValue({}), ok: true };
 
         fetch.mockImplementation((url) => {
             if(url.includes("/api/subgroups/")){
@@ -152,7 +161,7 @@ describe('search page functions', () => {
             if(url.includes("/api/groups/summary")){
                 return Promise.resolve(mockGroupsResponse);
             }
-            return Promise.reject(new Error('Wrong API call'));
+            return Promise.resolve(mockUnusedResponse);
         });
 
         render(SearchPage , {props: {subGroups , showSubGroups : true, showCategories : true }});
@@ -179,20 +188,23 @@ describe('search page functions', () => {
     it('should fetch the instruments of the selected category and display the characteristic values of the category', async() => {
         const subGroups = ['SubGroup3'];
         const categories = [
-            { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : null}, 
+            { id : 1, groupName : 'Group1', subGroupName : 'SubGroup3', function : 'Fct1', name : 'Name1', shape : 'FN1', lenAbrv :'L1CM', pictureId : []}, 
         ];
         const characteristics = ["Length","Char1", "Char2", "Char3"];
         
-        const mockGroups = [{name : 'Group1'}];
+        const mockGroups = [{id : 1, name : 'Group1', instrCount : 1, pictureId : null}];
         const mockInstruments = [
             {
                 "supplier": "Supplier1",
+                "groupId" : 1,
+                "subGroupd" : 1,
                 "categoryId": 1,
                 "reference": "SP1-INSTR1",
                 "supplierDescription": "Instrument1",
                 "price": 10,
                 "obsolete": false,
                 "picturesId": null,
+                "priceDate" : "2025-04-25T09:01:39.738+00:00",
                 "id": 1
              }
         ];
@@ -206,6 +218,8 @@ describe('search page functions', () => {
         const mockGroupsResponse = {json: vi.fn().mockResolvedValue(mockGroups), ok:true};
         const mockInstrumentsResponse = {json: vi.fn().mockResolvedValue(mockInstruments), ok:true};
         const mockCategoryCharsResponse = {json: vi.fn().mockResolvedValue(mockCategoryChars), ok:true};
+        const mockEmptyAdminAlternatives = { json: vi.fn().mockResolvedValue([]), ok: true };
+        const mockUnusedResponse = { json: vi.fn().mockResolvedValue({}), ok: true };
 
         fetch.mockImplementation((url) => {
             if(url.includes("/api/category/instruments/")){
@@ -217,22 +231,26 @@ describe('search page functions', () => {
             else if(url.includes("/api/groups/summary")){
                 return Promise.resolve(mockGroupsResponse);
             }
-            return Promise.reject(new Error('Wrong API call'));
+            else if (url.includes("/api/alternatives/admin/category/")) {
+                return Promise.resolve(mockEmptyAdminAlternatives);
+            }
+            return Promise.resolve(mockUnusedResponse);
         });
 
         const { getByTestId } = render(SearchPage, {props: {subGroups , categories, characteristics, showSubGroups : true, showCategories : true, showChars : true }});
 
         const categoriesTable = getByTestId("categories-table");
+        
         const rows = within(categoriesTable).getAllByRole('row');
-        fireEvent.dblClick(rows[1]); //row 0 is the titles of the colomns
-
-        //await waitFor(() => expect(screen.getByText('Supplier1')).toBeTruthy());
-        //await waitFor(() => expect(screen.getAllByText('SP1-INSTR1')).toBeTruthy());
-        //await waitFor(() => expect(screen.getByText('Instrument1')).toBeTruthy());
-        //await waitFor(() => expect(screen.getByText('10')).toBeTruthy());
-        //await waitFor(() => expect(screen.getByTestId('Char1').value).toBe("Value1"));
-        //await waitFor(() => expect(screen.getByTestId('Char2').value).toBe("Value2"));
-        //await waitFor(() => expect(screen.getByTestId('Char3').value).toBe("Value3"));
+        fireEvent.dblClick(rows[3]); //row 0,1,2 are the titles of the colomns/table
+        
+        await waitFor(() => expect(screen.getByText('Supplier1')).toBeTruthy());
+        await waitFor(() => expect(screen.getAllByText('SP1-INSTR1')).toBeTruthy());
+        await waitFor(() => expect(screen.getByText('Instrument1')).toBeTruthy());
+        await waitFor(() => expect(screen.getByText('10')).toBeTruthy());
+        await waitFor(() => expect(screen.getByTestId('Char1').value).toBe("Value1"));
+        await waitFor(() => expect(screen.getByTestId('Char2').value).toBe("Value2"));
+        await waitFor(() => expect(screen.getByTestId('Char3').value).toBe("Value3"));
     });
 
 });
