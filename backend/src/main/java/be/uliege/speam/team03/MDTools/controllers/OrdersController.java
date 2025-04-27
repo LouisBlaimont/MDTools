@@ -117,7 +117,7 @@ public class OrdersController {
      * @param body A map containing the fields to update and their new values
      * @return ResponseEntity containing a list of OrderItemDTO representing the updated orders
      * @throws ResourceNotFoundException if the order with the specified ID is not found
-     * @throws InvalidRequestException if the update operation fails due to invalid data
+     * @throws BadRequestException if the update operation fails due to invalid data
      */
     @PatchMapping("/{orderId}")
     public ResponseEntity<List<OrderItemDTO>> updateOrder(@PathVariable Long orderId, @RequestBody Map<String, Object> body){
