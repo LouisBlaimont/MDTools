@@ -35,7 +35,6 @@ export let showCategories = writable(false);
 export let showChars = writable(false);
 export let errorMessage = writable(null);
 export let toolToAddRef = writable(null);
-export let quantity = writable(1);
 export let orderItems = writable(null);
 export let ordersNames = writable(null);
 export let findSubGroupsStore = writable(null);

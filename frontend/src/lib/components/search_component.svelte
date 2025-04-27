@@ -11,7 +11,6 @@
     reload,
     selectedCategoryIndex,
     selectedSupplierIndex,
-    quantity,
     selectedGroup,
     selectedSubGroup,
     showChars,
