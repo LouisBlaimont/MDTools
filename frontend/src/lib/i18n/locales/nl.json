@@ -319,7 +319,8 @@
       "add_button": "Voeg  toe",
       "form": "Form :",
       "not_included": "Niet opgenomen in het form :",
-      "add_to_form": "Toevoegen aan het formulier"
+      "add_to_form": "Toevoegen aan het formulier",
+      "close": "Sluiten"
     },
     "add_group": {
       "operation": "Operatie geannuleerd",

@@ -32,6 +32,9 @@
     let selectedSupplier = "";
     let isNextEnabled = false;
     let showAddCharacteristicModal = false;
+    let showAddGroupModal = false;
+    let showAddSubGroupModal = false;
+
   
     let isLoading = false;
   
@@ -314,6 +317,8 @@
           {subGroups}
           bind:selectedGroup
           bind:selectedSubGroup
+          bind:showAddGroupModal
+          bind:showAddSubGroupModal
           on:groupChange={(e) => { selectedGroup = e.detail; selectedSubGroup = ""; isNextEnabled = false; }}
           on:subGroupChange={(e) => {
             selectedSubGroup = e.detail;
@@ -375,6 +380,17 @@
           });
         }
       }}
+    />
+
+    <AddGroupModal
+    isOpen={showAddGroupModal}
+    close={() => showAddGroupModal = false}
+    />
+
+    <AddSubGroupModal
+    isOpen={showAddSubGroupModal}
+    close={() => showAddSubGroupModal = false}
+    group={{ name: selectedGroup }}
     />
   </div>
   

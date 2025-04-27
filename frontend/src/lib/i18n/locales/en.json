@@ -319,7 +319,9 @@
       "add_button": "Add",
       "form": "Form :",
       "not_included": "Not included in the form :",
-      "add_to_form": "Add to the form"
+      "add_to_form": "Add to the form",
+      "close": "Fermer"
+
     },
     "add_group": {
       "operation": "Operation cancelled",
