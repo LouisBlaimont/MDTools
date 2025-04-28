@@ -270,7 +270,7 @@
             style="transform: translate({posX}px, {posY}px); max-width: 40vw;"
         >
             <div 
-                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+                class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg select-none"
                 onmousedown={startDrag}
             >
                 <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edituser.modif')}{user.username}</h2>

@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
+
 /**
  * REST controller for managing pictures.
  * Provides endpoints for uploading, retrieving, and deleting pictures.
@@ -192,6 +193,18 @@ public class PictureController {
       } finally {
          cleanupTempDirectory(tempDir);
       }
+   }
+
+   @PostMapping("/instruments/{reference}/upload-with-reference")
+   public ResponseEntity<Void> uploadInstrumentsPictureBulkFormData (
+         @NonNull @RequestParam MultipartFile picture, @PathVariable String reference ) throws BadRequestException {
+            // Search for the instrument by reference
+      InstrumentDTO instrument = instrumentService.findByReference(reference);
+      
+      // Add picture to the instrument
+      uploadSinglePicture(picture, "INSTRUMENT", instrument.getId());
+
+      return ResponseEntity.ok().build();
    }
 
    /**

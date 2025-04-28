@@ -185,7 +185,7 @@
         style="cursor: move;"
         on:mousedown={startDrag}
     >
-        <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_subgroup.add_subgroup')}</h2>
+        <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_subgroup.add_subgroup')}</h2>
     </div>
         <form on:submit|preventDefault={submitForm}  class="bg-gray-100 p-6 rounded-lg shadow-lg">        
             <label for="subgroup_name" class="font-semibold text-lg">{$_('modals.add_subgroup.name')}</label>

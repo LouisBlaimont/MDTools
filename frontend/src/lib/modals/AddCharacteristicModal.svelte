@@ -174,7 +174,7 @@
   <div class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg" 
        on:mousedown={startDrag}
   >
-    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_char.add_char')}</h2>
+    <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_char.add_char')}</h2>
   </div>
   <div class="p-4">
     <input type="text" placeholder={$_('modals.add_char.name')} class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
