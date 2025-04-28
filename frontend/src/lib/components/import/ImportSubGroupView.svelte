@@ -11,6 +11,9 @@
     export let subGroups = {};
     export let selectedGroup = "";
     export let selectedSubGroup = "";
+    export let showAddGroupModal = false;
+    export let showAddSubGroupModal = false;
+
   
     const dispatch = createEventDispatcher();
   
@@ -87,16 +90,16 @@
     <div class="flex justify-start gap-3 mt-3">
       <button
         class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
-        onclick={() => modals.open(AddGroupModal)}
-      >
+        onclick={() => showAddGroupModal = true}
+        >
       {$_('import_pages.subgroup.add_group')}
       </button>
   
       {#if selectedGroup !== ""}
         <button
           class="px-3 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-500 transition"
-          onclick={() => modals.open(AddSubGroupModal)}
-        >
+          onclick={() => showAddSubGroupModal = true}
+          >
           {$_('import_pages.subgroup.add_subgroup')}
         </button>
       {/if}

@@ -2,7 +2,6 @@ package be.uliege.speam.team03.MDTools.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -34,7 +33,6 @@ import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
 import be.uliege.speam.team03.MDTools.repositories.OrderItemsRepository;
 import be.uliege.speam.team03.MDTools.repositories.OrdersRepository;
 import be.uliege.speam.team03.MDTools.repositories.UserRepository;
-import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 
 
 @ExtendWith(MockitoExtension.class)

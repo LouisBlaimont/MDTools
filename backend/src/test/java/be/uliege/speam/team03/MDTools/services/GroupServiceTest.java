@@ -17,7 +17,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -161,14 +160,28 @@ class GroupServiceTest {
    }
 
    @Test
-   void testDeleteGroup_Success() {
+   void testDeleteGroup_ThrowsBadRequest_WhenSubGroupsExist() {
       // Arrange
       Group group = new Group("Group1");
       SubGroup subGroup = new SubGroup("SubGroup1", group);
-      Characteristic characteristic = new Characteristic("Char1");
-      SubGroupCharacteristic subGroupChar = new SubGroupCharacteristic(subGroup, characteristic, 1);
-      subGroup.setSubGroupCharacteristics(Collections.singletonList(subGroupChar));
       group.setSubGroups(Collections.singletonList(subGroup));
+
+      when(groupRepository.findByName("Group1")).thenReturn(Optional.of(group));
+
+      // Act & Assert
+      BadRequestException ex = assertThrows(BadRequestException.class, () -> {
+         groupService.deleteGroup("Group1");
+      });
+
+      assertTrue(ex.getMessage().contains("Cannot delete group with existing subgroups."));
+   }
+
+   @Test
+   void testDeleteGroup_Success_WhenNoSubGroups() {
+      // Arrange
+      Group group = new Group("Group1");
+      group.setSubGroups(Collections.emptyList());
+
       when(groupRepository.findByName("Group1")).thenReturn(Optional.of(group));
 
       // Act

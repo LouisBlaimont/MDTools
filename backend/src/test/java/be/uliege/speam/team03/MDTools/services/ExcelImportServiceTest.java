@@ -111,10 +111,10 @@ class ExcelImportServiceTest {
         dto.setData(List.of(row));
 
         Instruments existingInstrument = new Instruments();
-        existingInstrument.setReference("ref123");
+        existingInstrument.setReference("REF123");
         existingInstrument.setSupplierDescription("Old Desc");
 
-        when(instrumentRepository.findByReferenceIgnoreCase("ref123")).thenReturn(Optional.of(existingInstrument));
+        when(instrumentRepository.findByReferenceIgnoreCase("REF123")).thenReturn(Optional.of(existingInstrument));
 
         // Act
         excelImportService.processImport(dto);
@@ -188,13 +188,13 @@ class ExcelImportServiceTest {
         supplier.setSupplierName("MySupplier");
 
         Instruments existing = new Instruments();
-        existing.setReference("ref001");
+        existing.setReference("REF001");
         existing.setObsolete(true);
         existing.setSupplier(supplier);
 
         when(supplierRepository.findAll()).thenReturn(List.of(supplier));
         when(instrumentRepository.findAllBySupplier(supplier)).thenReturn(List.of(existing));
-        when(instrumentRepository.findByReferenceIgnoreCase("ref001")).thenReturn(Optional.of(existing));
+        when(instrumentRepository.findByReferenceIgnoreCase("REF001")).thenReturn(Optional.of(existing));
 
         // Act
         excelImportService.processImport(dto);
@@ -219,7 +219,7 @@ class ExcelImportServiceTest {
         supplier.setSupplierName("MySupplier");
 
         when(supplierRepository.findAll()).thenReturn(List.of(supplier));
-        when(instrumentRepository.findByReferenceIgnoreCase("ref003")).thenReturn(Optional.empty());
+        when(instrumentRepository.findByReferenceIgnoreCase("REF003")).thenReturn(Optional.empty());
 
         // Act
         excelImportService.processImport(dto);
@@ -282,11 +282,11 @@ class ExcelImportServiceTest {
         Map<String, Object> row = Map.of("ref_1", "REF_X", "ref_2", "REF_Y");
         dto.setData(List.of(row));
 
-        Instruments a = new Instruments(); a.setId(10L); a.setReference("ref_x");
-        Instruments b = new Instruments(); b.setId(20L); b.setReference("ref_y");
+        Instruments a = new Instruments(); a.setId(10L); a.setReference("REF_X");
+        Instruments b = new Instruments(); b.setId(20L); b.setReference("REF_Y");
 
-        when(instrumentRepository.findByReferenceIgnoreCase("ref_x")).thenReturn(Optional.of(a));
-        when(instrumentRepository.findByReferenceIgnoreCase("ref_y")).thenReturn(Optional.of(b));
+        when(instrumentRepository.findByReferenceIgnoreCase("REF_X")).thenReturn(Optional.of(a));
+        when(instrumentRepository.findByReferenceIgnoreCase("REF_Y")).thenReturn(Optional.of(b));
         when(alternativesRepository.existsById(any())).thenReturn(true); // simulate AB or BA exists
 
         // Act
@@ -304,11 +304,11 @@ class ExcelImportServiceTest {
         Map<String, Object> row = Map.of("ref_1", "REF_M", "ref_2", "REF_N");
         dto.setData(List.of(row));
 
-        Instruments m = new Instruments(); m.setId(100L); m.setReference("ref_m");
-        Instruments n = new Instruments(); n.setId(200L); n.setReference("ref_n");
+        Instruments m = new Instruments(); m.setId(100L); m.setReference("REF_M");
+        Instruments n = new Instruments(); n.setId(200L); n.setReference("REF_N");
 
-        when(instrumentRepository.findByReferenceIgnoreCase("ref_m")).thenReturn(Optional.of(m));
-        when(instrumentRepository.findByReferenceIgnoreCase("ref_n")).thenReturn(Optional.of(n));
+        when(instrumentRepository.findByReferenceIgnoreCase("REF_M")).thenReturn(Optional.of(m));
+        when(instrumentRepository.findByReferenceIgnoreCase("REF_N")).thenReturn(Optional.of(n));
         when(alternativesRepository.existsById(any())).thenReturn(false);
 
         // Act
@@ -524,10 +524,10 @@ class ExcelImportServiceTest {
         String raw = "\" Éléphant \"";
 
         // Appel indirect via méthode privée : utilise la reflection
-        var method = ExcelImportService.class.getDeclaredMethod("cleanString", Object.class);
+        var method = ExcelImportService.class.getDeclaredMethod("cleanString", Object.class, boolean.class);
         method.setAccessible(true);
 
-        String result = (String) method.invoke(excelImportService, raw);
+        String result = (String) method.invoke(excelImportService, raw, false);
 
         assertEquals("elephant", result);
     }

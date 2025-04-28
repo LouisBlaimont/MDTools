@@ -214,6 +214,7 @@
                   on:mousedown={event => event.preventDefault()}
               >
                   {#each filteredAutocompleteOptions as option}
+                  <!-- svelte-ignore a11y_click_events_have_key_events -->
                   <li
                       class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
                       on:click={() => selectAutocompleteOption(option)}
