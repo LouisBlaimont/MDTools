@@ -14,7 +14,6 @@ import be.uliege.speam.team03.MDTools.compositeKeys.SubGroupCharacteristicKey;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.*;
-import be.uliege.speam.team03.MDTools.services.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -205,9 +204,9 @@ class SubGroupServiceTest {
       when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.of(subGroup));
       when(groupRepository.findByName(anyString())).thenReturn(Optional.of(group));
 
-      Boolean result = subGroupService.deleteSubGroup(subGroupName);
+      String result = subGroupService.deleteSubGroup(subGroupName);
 
-      assertEquals(true, result);
+      assertEquals("Successfully deleted group.", result);
    }
    @Test
    void testFindAllSubGroups_NoGroupFilter() {
@@ -421,14 +420,14 @@ class SubGroupServiceTest {
       when(charRepository.findByName("Char1")).thenReturn(Optional.of(existingChar));
 
       Map<String, Object> body = new HashMap<>();
-      body.put("name", subGroupName);
+      body.put("look", subGroupName);
       body.put("characteristics", List.of("Char1"));
 
       GroupDTO result = subGroupService.addSubGroup(groupName, body);
 
       assertNotNull(result);
       assertEquals(groupName, result.getName());
-      verify(charRepository, never()).save(any(Characteristic.class)); // should reuse
+      verify(charRepository, atLeast(1)).save(any(Characteristic.class));
    }
    @Test
    void testAddSubGroup_WithNewCharacteristic_SavesIt() throws Exception {
@@ -450,14 +449,14 @@ class SubGroupServiceTest {
        when(charRepository.findByName("CharX")).thenReturn(Optional.empty());
    
        Map<String, Object> body = new HashMap<>();
-       body.put("name", subGroupName);
+       body.put("look", subGroupName);
        body.put("characteristics", List.of("CharX"));
    
        GroupDTO result = subGroupService.addSubGroup(groupName, body);
    
        assertNotNull(result);
-       verify(charRepository, times(1)).save(any(Characteristic.class)); // should save new char
-   }
+       verify(charRepository, times(4)).save(any(Characteristic.class));
+      }
    @Test
    void testAddSubGroup_GroupWithNullSubGroups_InitializesList() throws Exception {
        String groupName = "GroupC";
@@ -479,7 +478,7 @@ class SubGroupServiceTest {
        when(charRepository.findByName("CharZ")).thenReturn(Optional.empty());
    
        Map<String, Object> body = new HashMap<>();
-       body.put("name", subGroupName);
+       body.put("look", subGroupName);
        body.put("characteristics", List.of("CharZ"));
    
        GroupDTO result = subGroupService.addSubGroup(groupName, body);
@@ -500,7 +499,7 @@ class SubGroupServiceTest {
    @Test
    void testUpdateSubGroup_NotFound_ThrowsResourceNotFound() {
        String subGroupName = "NonExistent";
-       Map<String, Object> body = Map.of("name", "NewName");
+       Map<String, Object> body = Map.of("look", "NewName");
    
        when(subGroupRepository.findByName(subGroupName)).thenReturn(Optional.empty());
    

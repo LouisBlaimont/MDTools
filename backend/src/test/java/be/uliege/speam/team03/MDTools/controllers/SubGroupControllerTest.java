@@ -216,14 +216,14 @@ class SubGroupControllerTest {
    void testDeleteSubGroup() throws Exception {
       // Arrange
       String subGroupName = "subgroup1";
-      when(subGroupService.deleteSubGroup(subGroupName)).thenReturn(true);
+      when(subGroupService.deleteSubGroup(subGroupName)).thenReturn(subGroupName);
 
       // Act
-      ResponseEntity<Boolean> response = subGroupController.deleteSubGroup(subGroupName);
+      ResponseEntity<String> response = subGroupController.deleteSubGroup(subGroupName);
 
       // Assert
       assertEquals(HttpStatus.OK, response.getStatusCode());
-      assertEquals(true, response.getBody());
+      assertEquals("subgroup1", response.getBody());
       verify(subGroupService, times(1)).deleteSubGroup(subGroupName);
    }
 

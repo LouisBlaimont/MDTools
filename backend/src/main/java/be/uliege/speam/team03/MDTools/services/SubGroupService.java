@@ -138,9 +138,7 @@ public class SubGroupService {
             }
 
             Long newSubGroupId = newSubGroup.getId();
-
-            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId,
-                    newChar.getId());
+            SubGroupCharacteristicKey key = new SubGroupCharacteristicKey(newSubGroupId, newChar.getId());
 
             Integer orderPosition = (!charName.equals("Name") && !charName.equals("Function") && !charName.equals("Length"))
                 ? orderPositionCounter++

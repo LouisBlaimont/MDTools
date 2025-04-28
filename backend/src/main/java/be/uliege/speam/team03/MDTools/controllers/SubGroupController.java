@@ -108,7 +108,7 @@ public class SubGroupController {
      * @throws BadRequestException If the deletion cannot be performed (e.g., the subgroup is in use)
      */
     @DeleteMapping("/{subGroupName}")
-    public ResponseEntity<Boolean> deleteSubGroup(@PathVariable String subGroupName) throws ResourceNotFoundException, BadRequestException {
+    public ResponseEntity<String> deleteSubGroup(@PathVariable String subGroupName) throws ResourceNotFoundException, BadRequestException {
         return ResponseEntity.status(HttpStatus.OK).body(subGroupService.deleteSubGroup(subGroupName));
     }
 
