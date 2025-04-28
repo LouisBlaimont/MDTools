@@ -378,7 +378,7 @@
                 class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
                 onmousedown={startDrag}
             >
-                <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_instrument.add_instr')}</h2>
+                <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_instrument.add_instr')}</h2>
             </div>
             <form onsubmit={submitForm} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
                 <label for="ref" class="font-semibold text-lg">{$_('modals.add_instrument.ref')}</label>

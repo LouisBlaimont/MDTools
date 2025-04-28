@@ -7,6 +7,7 @@
   import Icon from '@iconify/svelte';
   import { _ } from "svelte-i18n";
   import { modals } from "svelte-modals";
+  import PicturesImport from "./picturesImport.svelte";
 
 
   let file;
@@ -178,5 +179,6 @@
   {/if}
 
 
-  <ZipImport />
+  <!-- <ZipImport /> -->
+  <PicturesImport />
 </main>

@@ -1,15 +1,36 @@
 {
   auto_https off  # Disable HTTPS globally
+
+  debug
 }
 
 http://dex.localhost.direct {
+  request_body {
+		max_size 10MB
+	}
+
   reverse_proxy dex:5556
 }
 
 http://frontend.localhost.direct {
+  request_body {
+		max_size 10MB
+	}
+
   reverse_proxy svelte:3000
 }
 
 http://api.localhost.direct {
-  reverse_proxy springboot:8080
+	request_body {
+		max_size 10MB
+	}
+
+  handle_errors {
+    @tooLarge expression `{http.error.message} == "http: request body too large"`
+    handle @tooLarge {
+      respond "Payload too large" 413
+    }
+  }
+
+  reverse_proxy springboot:8080 
 }

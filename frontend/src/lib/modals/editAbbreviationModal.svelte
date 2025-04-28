@@ -139,7 +139,7 @@
               class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
               onmousedown={startDrag}
           >
-                  <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_abb.edit')} {value}</h2>
+                  <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.edit_abb.edit')} {value}</h2>
                   <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="teal-500"
