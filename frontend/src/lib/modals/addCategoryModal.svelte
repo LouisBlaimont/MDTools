@@ -16,6 +16,9 @@
 
     onMount(async () => {
         if(!fromSearches){
+            selectedGroup.set("");
+            selectedSubGroup.set("");
+            showChars.set(false);
             const data = await fetchGroups();
             groups.set(data.map(group => group.name));
             subGroups.set(Object.fromEntries(

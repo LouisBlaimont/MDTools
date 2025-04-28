@@ -3,7 +3,7 @@
     import { page } from "$app/stores";
     import { onMount } from "svelte";
     import { get } from "svelte/store";
-    import { isEditing, orderItems, ordersNames, reload, selectedCategoryIndex, selectedSupplierIndex, quantity, selectedOrderId, errorMessage, findOrdersNamesStore } from "$lib/stores/searches";  
+    import { isEditing, orderItems, ordersNames, reload, selectedCategoryIndex, selectedSupplierIndex, selectedOrderId, errorMessage, findOrdersNamesStore } from "$lib/stores/searches";  
     import { findOrderItems, addInstrument, getOrders, exportOrderToExcel, findOrdersNames } from "./order_component.js";
     import createOrderModal from "$lib/modals/createOrderModal.svelte";
     import { modals } from "svelte-modals";
