@@ -10,6 +10,13 @@
   import Icon from "@iconify/svelte";
   import { reload } from "$lib/stores/searches";
 
+  $effect(() => {
+    if ($reload) {
+      fetchUsers();
+      reload.set(false);
+    }
+  });
+
   onMount(() => {
     if (!$isWebmaster || !$isAdmin) {
       goto("/unauthorized");

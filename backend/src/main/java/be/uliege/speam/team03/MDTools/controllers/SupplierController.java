@@ -80,6 +80,24 @@ public class SupplierController {
     }
 
     /**
+     * Searches for suppliers by name with pagination.
+     * 
+     * @param query the search query to filter suppliers by name
+     * @param page the page number (default is 0)
+     * @param size the number of suppliers per page (default is 10)
+     * @return a paginated list of suppliers matching the search query
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Page<SupplierDTO>> searchSuppliers(
+        @RequestParam(required = false) String query,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<SupplierDTO> suppliers = supplierService.searchPaginatedSuppliers(query, PageRequest.of(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(suppliers);
+    }
+
+    /**
      * Retrieves a paginated list of suppliers.
      * 
      * @param page the page number (default is 0)

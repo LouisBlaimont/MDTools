@@ -119,6 +119,22 @@ public class SupplierService {
     }
 
     /**
+     * Find paginated suppliers based on search query and pagination information.
+     * 
+     * @param searchQuery the search query to filter suppliers by name
+     * @param pageable the pagination information
+     * @return a paginated list of SupplierDTOs matching the search query
+     */
+    public Page<SupplierDTO> searchPaginatedSuppliers(String searchQuery, Pageable pageable) {
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            return findPaginatedSuppliers(pageable);
+        }
+        
+        return supplierPageRepository.findBySupplierNameContainingIgnoreCase(searchQuery.trim(), pageable)
+                .map(supplierMapper::convertToDTO);
+    }
+
+    /**
      * Delete a supplier by their ID. Throws an exception if the supplier ID is invalid or does not exist.
      * 
      * @param supplierId the ID of the supplier to delete

@@ -526,6 +526,8 @@
     "job_position": "Job position",
     "workplace": "Workplace",
     "creation_date": "Creation date",
+    "success": "Profile updated successfully",
+    "error": "Error while updating the profile",
     "button": {
       "edit_profile": "Edit profile",
       "back": "Back",
