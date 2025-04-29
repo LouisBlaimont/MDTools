@@ -22,7 +22,7 @@
   let roles = [];
 
   let currentPage = $state(1); // Current page number
-  let pageSize = $state(1); // Number of items per page
+  let pageSize = $state(10); // Number of items per page
   let totalPages = $state(0);
 
   const viewLogs = () => {
