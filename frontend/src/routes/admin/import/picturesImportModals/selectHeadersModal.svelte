@@ -23,16 +23,13 @@
     mappingColumnName = "MAPPING";
   }
 
-  const dispatch = createEventDispatcher();
-
   function erase() {
     referenceColumnName = "";
     mappingColumnName = "";
   }
 
   function cancel() {
-    dispatch("cancel", { message: $_("modals.add_group.operation") });
-    close();
+    close("cancel");
   }
 
   let posX = 0,
@@ -81,16 +78,17 @@
           onmousedown={startDrag}
         >
           <h2 class="text-2xl font-bold text-teal-500 text-center">
-            Select the columns for the importation of pictures
+            {$_("import_pages.svelte.select_columns")}
           </h2>
         </div>
         <form onsubmit={submitForm} class="bg-gray-100 p-6 rounded-lg">
           <div class="flex flex-col mb-4 gap-4">
-            <label for="group_name" class="font-semibold text-lg">References column</label>
+            <label for="group_name" class="font-semibold text-lg">{$_("import_pages.svelte.references_column")}</label>
             <select
               id="referenceColumnName"
               bind:value={referenceColumnName}
               class="w-3/5 p-1 py-1.5 bg-transparent text-slate-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              required
             >
               <option value="none">---</option>
               {#each headers as header}
@@ -98,11 +96,12 @@
               {/each}
             </select>
 
-            <label for="group_name" class="font-semibold text-lg">Mapping column</label>
+            <label for="group_name" class="font-semibold text-lg">{$_("import_pages.svelte.filename_column")}</label>
             <select
               id="mappingColumnName"
               bind:value={mappingColumnName}
               class="w-3/5 p-1 py-1.5 bg-transparent text-slate-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              required
             >
               <option value="none">---</option>
               {#each headers as header}
@@ -119,7 +118,7 @@
               >{$_("modals.add_group.cancel")}</button
             >
             <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded"
-              >{$_("modals.add_group.save")}</button
+              >{$_("import_pages.svelte.continue")}</button
             >
           </div>
         </form>

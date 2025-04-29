@@ -97,7 +97,7 @@
     const [reference, filename, file, filepath] = references[index];
 
     // Update status to uploading
-    uploadStatus[index] = { status: "uploading", message: "Uploading..." };
+    uploadStatus[index] = { status: "uploading", message: $_('import_pages.svelte.uploading') };
     uploadStatus = [...uploadStatus]; // Trigger reactivity
 
     // Scroll to the current file
@@ -117,10 +117,15 @@
         }
       );
 
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        throw new Error(errorMessage.message || response.statusText);
+      }
+
       // Update status to success
       uploadStatus[index] = {
         status: "success",
-        message: `Successfully uploaded ${filename} for ${reference}`,
+        message: $_('import_pages.svelte.success') + ` ${filename} for ${reference}`,
       };
       uploadStatus = [...uploadStatus]; // Trigger reactivity
 
@@ -130,9 +135,9 @@
       // Update status to error
       uploadStatus[index] = {
         status: "error",
-        message: `Failed to upload: ${error.message || "Unknown error"}`,
+        message: $_('import_pages.svelte.upload_fail') + `: ${error.message || 'Unknown error'}`,
       };
-      uploadStatus = [...uploadStatus]; // Trigger reactivity
+      // uploadStatus = [...uploadStatus]; // Trigger reactivity
 
       return { success: false, size: 0 };
     }
@@ -145,14 +150,14 @@
     const result = await uploadFile(index);
 
     if (result.success) {
-      toast.push(`Retry successful!`, {
+      toast.push($_('import_pages.svelte.retry_sucess'), {
         theme: {
           "--toastBackground": "#10B981",
           "--toastBarBackground": "#ffffff",
         },
       });
     } else {
-      toast.push("Retry failed. Please try again.", {
+      toast.push($_('import_pages.svelte.fail'), {
         theme: {
           "--toastBackground": "#EF4444",
           "--toastBarBackground": "#ffffff",
@@ -195,7 +200,7 @@
       // If we've uploaded more than 10MB, wait a bit to avoid overwhelming the server
       if (cumulativeSize > 10000000) {
         cumulativeSize = 0;
-      //   await wait(15000);
+        //   await wait(15000);
       }
     }
 
@@ -203,8 +208,7 @@
     currentUploadIndex = -1;
 
     // Show toast notification with summary
-    toast.push({
-      message: `Upload complete: ${successCount} successful, ${failCount} failed`,
+    toast.push(`Upload complete: ${successCount} successful, ${failCount} failed`, {
       theme: {
         "--toastBackground": successCount > 0 ? "#10B981" : "#EF4444",
         "--toastBarBackground": "#ffffff",
@@ -247,7 +251,7 @@
           style="cursor: move;"
           onmousedown={startDrag}
         >
-          <h2 class="text-2xl font-bold text-teal-500 text-center">Bulk import of pictures</h2>
+          <h2 class="text-2xl font-bold text-teal-500 text-center">{$_("import_pages.svelte.pictures_import")}</h2>
         </div>
         <form onsubmit={submitForm} class="bg-gray-100 p-6 rounded-lg">
           <div class="w-full mx-auto space-y-2">
@@ -258,7 +262,7 @@
                 class="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
                 onclick={toggleReferences}
               >
-                <h3 class="font-medium">Found files ({references.length})</h3>
+                <h3 class="font-medium">{$_("import_pages.svelte.found_files")} ({references.length})</h3>
                 <svg
                   class="w-5 h-5 transition-transform duration-200 {isReferencesOpen
                     ? 'rotate-180'
@@ -278,14 +282,16 @@
               </div>
 
               {#if isReferencesOpen}
-                <div class="flex flex-row flex-wrap max-w-full mx-auto mb-4 p-4">
+                <div
+                  class="flex flex-row flex-wrap max-w-full mx-auto mb-4 p-4 bg-green-100 overflow-y-auto max-h-60"
+                >
                   <!-- Preview all the pictures and display errors -->
                   {#each references as [reference, filename], index}
                     <div
-                      class="w-1/3 flex items-center justify-between p-4 bg-white border rounded-md flex-row"
+                      class="size-1/3 flex items-center justify-between p-3 bg-white border rounded-md flex-row"
                     >
                       <div class="flex items-center text-sm">
-                        <p class="text-gray-700">{reference} linked to {filename}</p>
+                        <p class="text-gray-700">{reference + " " + $_("import_pages.svelte.linked_to") + " " + filename}</p>
                       </div>
                     </div>
                   {/each}
@@ -300,7 +306,7 @@
                 class="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
                 onclick={toggleErrors}
               >
-                <h3 class="font-medium">Missing Files ({missingFiles.length})</h3>
+                <h3 class="font-medium">{$_("import_pages.svelte.missing_files")} ({missingFiles.length})</h3>
                 <svg
                   class="w-5 h-5 transition-transform duration-200 {isErrorsOpen
                     ? 'rotate-180'
@@ -320,12 +326,20 @@
               </div>
 
               {#if isErrorsOpen}
-                <div class="flex flex-col p-4 gap-4 bg-red-100">
+                <div class="flex flex-col p-4 gap-4 bg-red-100 overflow-y-auto max-h-60">
                   <!-- Preview all the pictures and display errors -->
                   <ul class="list-disc list-inside">
                     {#each missingFiles as [reference, filename]}
                       <li class="text-red-700 text-sm">
-                        File {filename} for {reference} not found!
+                        {$_("import_pages.svelte.file") +
+                          " " +
+                          filename +
+                          " " +
+                          $_("import_pages.svelte.for") +
+                          " " +
+                          reference +
+                          " " +
+                          $_("import_pages.svelte.not_found")}
                       </li>
                     {/each}
                   </ul>
@@ -341,7 +355,7 @@
                   class="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
                   onclick={toggleFeedback}
                 >
-                  <h3 class="font-medium">Upload Status</h3>
+                  <h3 class="font-medium">{$_("import_pages.svelte.upload_status")}</h3>
                   <svg
                     class="w-5 h-5 transition-transform duration-200 {isFeedbackOpen
                       ? 'rotate-180'
@@ -364,12 +378,14 @@
                   <div class="p-4">
                     <!-- Overall progress bar -->
                     {#if isUploading}
-                      <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                      <div class="w-full bg-gray-200 rounded-full h-4 mb-10">
                         <div
                           class="bg-teal-500 h-4 rounded-full"
                           style="width: {overallProgress}%"
                         ></div>
-                        <p class="text-xs text-center my-1">Progress: {overallProgress}%</p>
+                        <p class="text-xs text-center mt-2">
+                          {$_("import_pages.svelte.progress") + ":" + overallProgress}%
+                        </p>
                       </div>
                     {/if}
 
@@ -500,7 +516,7 @@
                                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                                 ></path>
                               </svg>
-                              Retry
+                              {$_("import_pages.svelte.retry")}
                             </button>
                           {/if}
                         </div>
@@ -513,14 +529,6 @@
           </div>
 
           <div class="flex justify-end gap-4 mt-4">
-            <button
-              type="button"
-              onclick={erase}
-              class="px-4 py-2 bg-red-500 text-white rounded"
-              disabled={isUploading}
-            >
-              {$_("modals.add_group.erase")}
-            </button>
             <button
               type="button"
               onclick={cancel}
@@ -555,9 +563,9 @@
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Uploading...
+                {$_("import_pages.svelte.uploading")}
               {:else}
-                {$_("modals.add_group.save")}
+                {$_("import_pages.svelte.upload")}
               {/if}
             </button>
           </div>
