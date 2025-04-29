@@ -202,7 +202,7 @@
     
       <!-- CATEGORIES -->
       <div
-        class="relative overflow-auto border border-gray-300 flex-grow min-w-[200px] w-[500px]">
+        class="relative overflow-auto border border-gray-300 flex-grow min-w-[200px] w-[500px] overflow-hidden">
         <CategoryComponent />
       </div>
     

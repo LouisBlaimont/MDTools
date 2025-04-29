@@ -108,9 +108,10 @@
       const fileExtracted = await file.async("blob");
       const size = fileExtracted.size;
       formData.append("picture", fileExtracted);
+      formData.append("reference", reference);
 
       const response = await apiFetch(
-        "/api/pictures/instruments/" + encodeURIComponent(reference) + "/upload-with-reference",
+        "/api/pictures/instruments/upload-with-reference",
         {
           method: "POST",
           body: formData,
