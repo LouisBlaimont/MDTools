@@ -37,9 +37,9 @@ public class InstrumentController {
 
 
     /**
-     * Get all instruments.
+     * Retrieves all instruments.
      * 
-     * @return a list of all instruments, or a 404 status if no instruments are found
+     * @return a ResponseEntity containing a list of all instruments with HTTP status 200 (OK)
      */
     @GetMapping("/all")
     public ResponseEntity<List<InstrumentDTO>> findallInstruments(){
@@ -48,10 +48,11 @@ public class InstrumentController {
     }
 
     /**
-     * Get an instrument by its ID.
+     * Retrieves an instrument by its ID.
      * 
      * @param id the ID of the instrument
-     * @return the instrument with the specified ID, or a 404 status if no instrument is found
+     * @return a ResponseEntity containing the instrument with the specified ID and HTTP status 200 (OK)
+     * @throws ResourceNotFoundException if no instrument is found with the given ID
      */
     @GetMapping("/{id}")
     public ResponseEntity<InstrumentDTO> findInstrumentById(@PathVariable Long id) throws ResourceNotFoundException {
@@ -60,10 +61,11 @@ public class InstrumentController {
     }
 
     /**
-     * Add a new instrument.
+     * Creates a new instrument.
      * 
-     * @param newInstrument the instrument to add
-     * @return the added instrument
+     * @param newInstrument the instrument to create
+     * @return a ResponseEntity containing the created instrument with HTTP status 201 (Created)
+     * @throws BadRequestException if the provided instrument data is invalid
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -73,10 +75,13 @@ public class InstrumentController {
     }
 
     /**
-     * Update an instrument.
+     * Updates an existing instrument.
      * 
-     * @param updatedInstrument the instrument to update
-     * @return the updated instrument
+     * @param id the ID of the instrument to update
+     * @param body a map containing the fields to update
+     * @return a ResponseEntity containing the updated instrument with HTTP status 200 (OK)
+     * @throws BadRequestException if the update data is invalid
+     * @throws ResourceNotFoundException if no instrument is found with the given ID
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -86,9 +91,10 @@ public class InstrumentController {
     }
     
     /**
-     * Delete an instrument by its ID.
+     * Deletes an instrument by its ID.
      * 
-     * @param id the ID of the instrument
+     * @param id the ID of the instrument to delete
+     * @throws ResourceNotFoundException if no instrument is found with the given ID
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -97,10 +103,10 @@ public class InstrumentController {
     }
 
     /**
-     * Get picture IDs for a specific instrument.
+     * Retrieves picture IDs associated with a specific instrument.
      * 
      * @param instrumentId the ID of the instrument
-     * @return a list of picture IDs for the specified instrument
+     * @return a ResponseEntity containing a list of picture IDs with HTTP status 200 (OK)
      */
     @GetMapping("/pictures/{instrumentId}")
     public ResponseEntity<List<Long>> getInstrumentPictureIds(@PathVariable(required = true) Long instrumentId){
@@ -113,11 +119,11 @@ public class InstrumentController {
     }
 
     /**
-     * Add a picture to a specific instrument.
+     * Adds a picture to a specific instrument.
      * 
      * @param instrumentId the ID of the instrument
      * @param file the picture file to add
-     * @return a no-content response
+     * @return a ResponseEntity with HTTP status 204 (No Content)
      */
     @PostMapping("/pictures/{instrumentId}")
     public ResponseEntity<Void> addInstrumentPicture(@PathVariable(required = true) Long instrumentId,@RequestParam("file") MultipartFile file){
@@ -130,8 +136,8 @@ public class InstrumentController {
     /**
      * Retrieves all instruments belonging to a specific subgroup.
      *
-     * @param subGroupName the name of the subgroup to find instruments for
-     * @return a ResponseEntity containing a list of InstrumentDTO objects and HTTP status 200 (OK)
+     * @param subGroupName the name of the subgroup
+     * @return a ResponseEntity containing a list of instruments with HTTP status 200 (OK)
      */
     @GetMapping("/subgroup/{subGroupName}")
     public ResponseEntity<List<InstrumentDTO>> findInstrumentsBySubGroup(@PathVariable String subGroupName) {
@@ -140,10 +146,10 @@ public class InstrumentController {
     }
 
     /**
-     * Get all instruments by supplier name.
+     * Retrieves all instruments associated with a specific supplier.
      *
      * @param supplierName the name of the supplier
-     * @return a list of instruments associated with the specified supplier
+     * @return a ResponseEntity containing a list of instruments with HTTP status 200 (OK)
      */
     @GetMapping("/supplier/{supplierName}")
     public ResponseEntity<List<InstrumentDTO>> findInstrumentsBySupplierName(@PathVariable String supplierName) {
@@ -154,13 +160,8 @@ public class InstrumentController {
     /**
      * Searches for instruments based on provided keywords.
      * 
-     * This endpoint allows searching for instruments that match the given keywords.
-     * The search is performed using the instrumentService.
-     *
-     * @param keywords a list of search terms to filter instruments
-     * @return a ResponseEntity containing a list of matching InstrumentDTO objects
-     *         - If keywords are null or empty, returns an empty list
-     *         - Otherwise, returns all instruments matching the search criteria
+     * @param keywords a list of search terms
+     * @return a ResponseEntity containing a list of matching instruments with HTTP status 200 (OK)
      */
     @GetMapping("/search")
     public ResponseEntity<List<InstrumentDTO>> searchInstrument(
@@ -176,11 +177,10 @@ public class InstrumentController {
 
 
     /**
-     * Retrieves a category based on its unique identifier.
+     * Retrieves a category by its ID.
      *
-     * @param categoryId The unique identifier of the category to retrieve
-     * @return ResponseEntity containing the CategoryDTO with HTTP status 200 (OK) if found
-     * @throws ResourceNotFoundException If no category with the given ID exists
+     * @param categoryId the ID of the category
+     * @return a ResponseEntity containing the category with HTTP status 200 (OK)
      */
     @GetMapping("/getCategory/{categoryId}")
     public ResponseEntity<CategoryDTO> searchCategory(@PathVariable Long categoryId) {

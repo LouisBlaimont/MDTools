@@ -38,7 +38,6 @@ public class CategoryMapper {
         if (nameMaybe.isPresent()) {
             name = nameMaybe.get();
         } else {
-            System.out.println("Name is not present");
             name = null;
         }
 

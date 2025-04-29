@@ -246,7 +246,7 @@
               </label>
             </div>
 
-            <label for="closed" class="font-semibold text-lg">{$_('modals.add_supplier.status')}:</label>
+            <label for="closed" class="font-semibold text-lg">{$_('modals.add_supplier.status')}</label>
             <div class="flex gap-4 mb-4">
               <label>
                 <input

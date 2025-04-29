@@ -37,11 +37,10 @@ public class InstrumentService {
     private final SupplierService supplierService;
 
     /**
-     * Find all instruments of a specific supplier.
+     * Find instruments by their reference.
      * 
-     * @param supplierName the name of the supplier
-     * @return a list of instruments for the specified supplier, or null if no instruments are found
-     * @throws IllegalArgumentException if the supplier name is null or empty
+     * @param reference the reference of the instrument
+     * @return a list of instruments matching the reference, or null if no instruments are found
      */
     public List<InstrumentDTO> findInstrumentsByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReferenceIgnoreCase(reference);
@@ -70,7 +69,7 @@ public class InstrumentService {
      * Find an instrument by its reference.
      * 
      * @param reference the reference of the instrument
-     * @return the instrument with the specified reference, or null if no instrument is found
+     * @return the instrument DTO with the specified reference, or null if no instrument is found
      */
     public InstrumentDTO findByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReferenceIgnoreCase(reference);
@@ -98,7 +97,8 @@ public class InstrumentService {
      * Find an instrument by its ID.
      * 
      * @param id the ID of the instrument
-     * @return the instrument with the specified ID, or null if no instrument is found
+     * @return the instrument DTO with the specified ID
+     * @throws ResourceNotFoundException if no instrument is found with the given ID
      */
     public InstrumentDTO findById(Long id) throws ResourceNotFoundException {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findById(id);
@@ -111,7 +111,7 @@ public class InstrumentService {
     /**
      * Find all instruments.
      * 
-     * @return a list of all instruments, or null if no instruments are found
+     * @return a list of all instrument DTOs
      */
     public List<InstrumentDTO> findAll() {
         List<Instruments> instruments = (List<Instruments>) instrumentRepository.findAll();
@@ -119,11 +119,11 @@ public class InstrumentService {
     }
 
     /**
-     * Find all instruments of a specific supplier.
+     * Find all instruments of a specific supplier by their name.
      * 
      * @param supplierName the name of the supplier
-     * @return a list of instruments for the specified supplier, or null if no instruments are found
-     * @throws IllegalArgumentException if the supplier name is null or empty
+     * @return a list of instrument DTOs for the specified supplier
+     * @throws ResourceNotFoundException if the supplier is not found
      */
     public List<InstrumentDTO> findInstrumentsBySupplierName(String supplierName) {
         Optional<Supplier> supplierMaybe = supplierRepository.findBySupplierName(supplierName);
@@ -136,11 +136,12 @@ public class InstrumentService {
     }
 
     /**
-     * Find all instruments of a specific supplier.
+     * Find all instruments of a specific supplier by their ID.
      * 
      * @param supplierId the ID of the supplier
-     * @return a list of instruments for the specified supplier, or null if no instruments are found
-     * @throws IllegalArgumentException if the supplier ID is null
+     * @return a list of instrument DTOs for the specified supplier, or null if no instruments are found
+     * @throws ResourceNotFoundException if the supplier is not found
+     * @throws BadRequestException if the supplier ID is invalid
      */
     public List<InstrumentDTO> findInstrumentsBySupplierId(Long supplierId) throws ResourceNotFoundException, BadRequestException {
         Optional<Supplier> supplierMaybe = supplierRepository.findById(supplierId);
@@ -152,6 +153,15 @@ public class InstrumentService {
         return instrumentMapper.convertToDTO(instruments);
     }
 
+    /**
+     * Update an instrument with the given data.
+     * 
+     * @param body the data to update the instrument
+     * @param id the ID of the instrument to update
+     * @return the updated instrument DTO
+     * @throws BadRequestException if the data is invalid
+     * @throws ResourceNotFoundException if the instrument is not found
+     */
     public InstrumentDTO updateInstrument(Map<String, Object> body, Long id) {
         if (body == null || body.isEmpty()) {
             throw new BadRequestException("No data provided to update the instrument.");
@@ -196,8 +206,8 @@ public class InstrumentService {
      * Find all instruments of a specific category.
      * 
      * @param categoryId the ID of the category
-     * @return a list of instruments for the specified category, or null if no instruments are found
-     * @throws IllegalArgumentException If the category ID is null
+     * @return a list of instrument DTOs for the specified category
+     * @throws ResourceNotFoundException if the category is not found
      */
     public List<InstrumentDTO> findInstrumentsOfCatergory(Long categoryId) {
 
@@ -240,11 +250,11 @@ public class InstrumentService {
     }
 
     /**
-     * Save an instrument.
+     * Save a new instrument.
      * 
-     * @param instrumentDTO the instrument to save
-     * @return the saved instrument
-     * @throws IllegalArgumentException if the supplier name is null or empty
+     * @param instrumentDTO the instrument DTO to save
+     * @return the saved instrument DTO
+     * @throws IllegalArgumentException if required fields are missing
      */
     public InstrumentDTO save(InstrumentDTO instrumentDTO) {
         if (instrumentDTO.getReference() == null || instrumentDTO.getReference().isEmpty()) {
@@ -264,6 +274,7 @@ public class InstrumentService {
      * Delete an instrument by its ID.
      * 
      * @param id the ID of the instrument to delete
+     * @throws ResourceNotFoundException if the instrument is not found
      */
     public void delete(Long id) {
         Instruments instrument = instrumentRepository.findById(id)
@@ -273,11 +284,11 @@ public class InstrumentService {
 
 
     /**
-     * Finds all instruments linked to the given sub-group name.
-     * Returns their DTOs or null if the sub-group or categories are not found.
-     *
+     * Find all instruments linked to a specific sub-group by its name.
+     * 
      * @param subGroupName the name of the sub-group
-     * @return list of InstrumentDTOs or null
+     * @return a list of instrument DTOs for the specified sub-group
+     * @throws ResourceNotFoundException if the sub-group is not found
      */
     public List<InstrumentDTO> findInstrumentsBySubGroup(String subGroupName) {
         // Fetch the subgroup by name
@@ -305,9 +316,10 @@ public class InstrumentService {
     }
 
     /**
-     * Retrieves a list of instruments that matches the given keywords
-     * @param keywords list of keywords
-     * @return list of instrument dto or null object
+     * Search for instruments matching the given keywords.
+     * 
+     * @param keywords a list of keywords to search for
+     * @return a list of instrument DTOs matching the keywords, or null if no matches are found
      */
     public List<InstrumentDTO> searchInstrument(List<String> keywords) {
         if (keywords.isEmpty()) {
@@ -318,10 +330,11 @@ public class InstrumentService {
     }
 
     /**
-     * Add an instrument
-     * @param newInstrument the instrument to add
-     * @return  the saved instrument dto
-     * @throws BadRequestException
+     * Add a new instrument.
+     * 
+     * @param newInstrument the instrument DTO to add
+     * @return the saved instrument DTO
+     * @throws BadRequestException if required fields are missing or invalid
      */
     public InstrumentDTO addInstrument(InstrumentDTO newInstrument) throws BadRequestException {
         if (newInstrument.getReference() == null || newInstrument.getReference().isEmpty()) {
@@ -339,8 +352,10 @@ public class InstrumentService {
         if(newInstrument.getCategoryId() == null) {
             throw new BadRequestException("Category ID is required to identify an instrument");
         }
-        if(newInstrument.getPrice() == null) {
+        if (newInstrument.getPrice() == null) {
             newInstrument.setPrice(0F);
+        } else if (newInstrument.getPrice() < 0) {
+            throw new BadRequestException("Price cannot be negative.");
         }
 
         // Check if the supplier exists

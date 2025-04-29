@@ -42,24 +42,25 @@ public class SupplierController {
     }
 
     /**
-     * Get all instruments of a specific supplier.
+     * Retrieves all instruments associated with a specific supplier by their ID.
      * 
      * @param supplierId the ID of the supplier
-     * @return a list of instruments for the specified supplier, or a 404 status if
-     *         no instruments are found
+     * @return a list of instruments for the specified supplier
      */
     @GetMapping("/{supplierId}/instruments")
     public ResponseEntity<List<InstrumentDTO>> getInstrumentsOfSupplier(@PathVariable Long supplierId) {
         List<InstrumentDTO> products = instrumentService.findInstrumentsBySupplierId(supplierId);
+        if (products.isEmpty()) {
+            throw new ResourceNotFoundException("No instruments found for supplier with id: " + supplierId);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
     /**
-     * Get a supplier by its ID.
+     * Retrieves a supplier by its ID.
      * 
      * @param supplierId the ID of the supplier
-     * @return the supplier with the specified ID, or a 404 status if no supplier is
-     *         found
+     * @return the supplier details for the specified ID
      */
     @GetMapping("/{supplierId}")
     public ResponseEntity<SupplierDTO> getSupplierById(@PathVariable Long supplierId) {
@@ -68,9 +69,9 @@ public class SupplierController {
     }
 
     /**
-     * Get all suppliers.
+     * Retrieves all suppliers.
      * 
-     * @return a list of all suppliers, or a 404 status if no suppliers are found
+     * @return a list of all suppliers
      */
     @GetMapping("/all")
     public ResponseEntity<List<SupplierDTO>> getAllSuppliers() {
@@ -79,7 +80,7 @@ public class SupplierController {
     }
 
     /**
-     * Get paginated suppliers.
+     * Retrieves a paginated list of suppliers.
      * 
      * @param page the page number (default is 0)
      * @param size the number of suppliers per page (default is 10)
@@ -95,11 +96,10 @@ public class SupplierController {
     }
 
     /**
-     * Add a new supplier.
+     * Adds a new supplier to the system.
      * 
      * @param newSupplier the supplier to add
-     * @return the added supplier, or a 409 status if a supplier with the same ID
-     *         already exists
+     * @return the added supplier
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -109,12 +109,11 @@ public class SupplierController {
     }
 
     /**
-     * Update a supplier.
+     * Updates an existing supplier's details.
      * 
      * @param id              the ID of the supplier to update
-     * @param updatedSupplier the supplier data to update
-     * @return the updated supplier, or a 404 status if no supplier is found with
-     *         the specified ID
+     * @param updatedSupplier the updated supplier data
+     * @return the updated supplier details
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -136,11 +135,9 @@ public class SupplierController {
     }
 
     /**
-     * Delete a supplier by its ID.
+     * Deletes a supplier by its ID.
      * 
      * @param id the ID of the supplier to delete
-     * @return a 204 status if the supplier is deleted successfully, or a 404 status
-     *         if no supplier is found with the specified ID
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -152,9 +149,8 @@ public class SupplierController {
     /**
      * Retrieves a supplier by its name.
      *
-     * @param name The name of the supplier.
-     * @return The supplier details including flags such as 'closed' and 'soldByMD',
-     *         or a 404 status if the supplier does not exist.
+     * @param name the name of the supplier
+     * @return the supplier details for the specified name
      */
     @GetMapping("name/{name}")
     public ResponseEntity<SupplierDTO> findSupplierByName(@PathVariable String name) {

@@ -5,8 +5,6 @@
     import { apiFetch } from "$lib/utils/fetch";
 
     let isEditing = false;
-    let updatedName = $user.name;
-    let updatedEmail = $user.email;
     let updatedJobPosition = $user.jobPosition;
     let updatedWorkplace = $user.workplace;
     let updatedRoleName = $user.roleName;
@@ -22,8 +20,6 @@
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
-                    name: updatedName, 
-                    email: updatedEmail, 
                     jobPosition: updatedJobPosition, 
                     workplace: updatedWorkplace, 
                     roleName: updatedRoleName, 
@@ -32,8 +28,6 @@
             });
             if (!response.ok) throw new Error("Failed to update user");
             else {
-                $user.name = updatedName;
-                $user.email = updatedEmail;
                 $user.jobPosition = updatedJobPosition;
                 $user.workplace = updatedWorkplace;
                 $user.roleName = updatedRoleName;
@@ -46,8 +40,6 @@
     }
 
     function cancelEdit() {
-        updatedName = $user.name;
-        updatedEmail = $user.email;
         updatedJobPosition = $user.jobPosition;
         updatedWorkplace = $user.workplace;
         updatedRoleName = $user.roleName;
@@ -70,11 +62,11 @@
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4 text-left items-center">
                     <label class="text-lg font-medium">{$_('profile_page.name')}</label>
-                    <input type="text" bind:value={updatedName} class="w-full p-2 border rounded" />
+                    <input type="text" value={$user.name} class="w-full p-2 border rounded bg-gray-200" readonly />
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-left items-center">
                     <label class="text-lg font-medium">{$_('profile_page.email')}</label>
-                    <input type="email" bind:value={updatedEmail} class="w-full p-2 border rounded" />
+                    <input type="text" value={$user.email} class="w-full p-2 border rounded bg-gray-200" readonly />
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-left items-center">
                     <label class="text-lg font-medium">{$_('profile_page.job_position')}</label>

@@ -98,6 +98,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an instrument is successfully retrieved by reference when it exists.
     void findByReference_WhenInstrumentExists_ReturnsInstrumentDTO() {
         // Arrange
         when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.of(instrument));
@@ -113,6 +114,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that null is returned when an instrument does not exist by reference.
     void findByReference_WhenInstrumentDoesNotExist_ReturnsNull() {
         // Arrange
         when(instrumentRepository.findByReferenceIgnoreCase("Nonexistent Reference")).thenReturn(Optional.empty());
@@ -124,6 +126,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an instrument is successfully retrieved by ID when it exists.
     void findById_WhenInstrumentExists_ReturnsInstrumentDTO() {
         // Arrange
         when(instrumentRepository.findById(1L)).thenReturn(Optional.of(instrument));
@@ -138,6 +141,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when an instrument does not exist by ID.
     void findById_WhenInstrumentDoesNotExist_ThrowsResourceNotFoundException() {
         // Arrange
         when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
@@ -151,6 +155,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that a list of instruments is successfully retrieved when instruments exist.
     void findAll_WhenInstrumentsExist_ReturnsListOfInstrumentDTOs() {
         // Arrange
         when(instrumentRepository.findAll()).thenReturn(instruments);
@@ -166,6 +171,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an empty list is returned when no instruments exist.
     void findAll_WhenNoInstrumentsExist_ReturnsEmptyList() {
         // Arrange
         when(instrumentRepository.findAll()).thenReturn(new ArrayList<>());
@@ -179,6 +185,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an instrument is successfully saved and returned when valid data is provided.
     void saveInstrument_WithValidInstrument_ReturnsSavedInstrumentDTO() {
         // Arrange
         when(instrumentMapper.convertToEntity(instrumentDTO)).thenReturn(instrument);
@@ -195,6 +202,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when trying to save an instrument with a null reference.
     void saveInstrument_WithNullReference_ThrowsIllegalArgumentException() {
         // Arrange
         InstrumentDTO invalidInstrument = new InstrumentDTO();
@@ -209,6 +217,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an instrument is successfully deleted when it exists.
     void deleteInstrument_CallsRepositoryDeleteById() {
         // Arrange
         when(instrumentRepository.findById(1L)).thenReturn(Optional.of(instrument));
@@ -222,6 +231,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when trying to delete a non-existent instrument.
     void deleteInstrument_WithNonexistentId_ThrowsResourceNotFoundException() {
         // Arrange
         when(instrumentRepository.findById(999)).thenReturn(Optional.empty());
@@ -235,6 +245,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that a list of instruments is successfully retrieved by reference when they exist.
     void findInstrumentsByReference_WhenInstrumentExists_ReturnsListOfInstrumentDTO() {
         Category category = new Category();
         category.setId((long) 1);
@@ -258,6 +269,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that null is returned when no instruments exist by reference.
     void findInstrumentsByReference_WhenInstrumentDoesNotExist_ReturnsNull() {
         // Arrange
         when(instrumentRepository.findByReferenceIgnoreCase("Nonexistent Reference")).thenReturn(Optional.empty());
@@ -270,6 +282,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an instrument is successfully updated with valid data.
     void updateInstrument_WithValidData_ReturnsUpdatedInstrumentDTO() {
         // Arrange
         when(instrumentRepository.findById(1L)).thenReturn(Optional.of(instrument));
@@ -307,6 +320,7 @@ public class InstrumentServiceTest {
     }
 
     @Test
+    // Test to verify that an exception is thrown when trying to update a non-existent instrument.
     void updateInstrument_WithNonexistentId_ReturnsNull() {
         // Arrange
         when(instrumentRepository.findById(999L)).thenReturn(Optional.empty());

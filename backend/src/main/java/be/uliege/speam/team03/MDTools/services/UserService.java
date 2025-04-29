@@ -26,10 +26,11 @@ public class UserService {
    private final UserRepository userRepository;
 
    /**
-    * Retrieves a user based on its email
+    * Retrieves a user based on their email.
     *
-    * @param email email of user
-    * @return useer dto
+    * @param email The email of the user to retrieve.
+    * @return A {@link UserDto} representing the user with the given email.
+    * @throws ResourceNotFoundException if the user does not exist.
     */
    public UserDto getUserByEmail(String email) {
       User user = userRepository.findByEmail(email)
@@ -38,9 +39,11 @@ public class UserService {
    }
 
    /**
-    * Retrieves user based on an id
-    * @param userId id of a user
-    * @return user dto
+    * Retrieves a user based on their ID.
+    *
+    * @param userId The ID of the user to retrieve.
+    * @return A {@link UserDto} representing the user with the given ID.
+    * @throws ResourceNotFoundException if the user does not exist.
     */
    public UserDto getUserById(Long userId) {
       User user = userRepository.findById(userId)
@@ -49,9 +52,11 @@ public class UserService {
    }
 
    /**
-    * Retrieves directly id of user based on it email
-    * @param email email of the user
-    * @return id of the user
+    * Retrieves the ID of a user based on their email.
+    *
+    * @param email The email of the user.
+    * @return The ID of the user with the given email.
+    * @throws ResourceNotFoundException if the user does not exist.
     */
    public Long getUserIdByEmail(String email){
       User user = userRepository.findByEmail(email)
@@ -63,13 +68,20 @@ public class UserService {
    /**
     * Retrieves a list of all users from the database.
     *
-    * @return A list of {@link UserDto} objects representing all users in the
-    *         database. This list can be empty.
+    * @return A list of {@link UserDto} objects representing all users in the database.
     */
    public Page<UserDto> getAllUsers(Pageable pageable) {
       return userRepository.findAll(pageable).map(UserMapper::toDto);
    }
 
+   /**
+    * Updates the roles of a user in the database.
+    *
+    * @param userId The ID of the user to update.
+    * @param roles The new roles to assign to the user.
+    * @return A {@link UserDto} representing the updated user.
+    * @throws ResourceNotFoundException if the user does not exist.
+    */
    public UserDto updateUserRoles(Long userId, List<String> roles) {
       User userToUpdate = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + userId));
@@ -81,8 +93,9 @@ public class UserService {
    /**
     * Registers a new user in the database.
     *
-    * @param user The user to register.
-    * @return The registered user.
+    * @param userDto The data of the user to register.
+    * @return A {@link UserDto} representing the registered user.
+    * @throws BadRequestException if the email or username is invalid or already exists.
     */
    public UserDto registerUser(UserDto userDto) {
       String email = userDto.getEmail();
@@ -112,9 +125,11 @@ public class UserService {
    /**
     * Updates a user in the database.
     *
-    * @param identifier The identifier of the user to update (can be an id or a username).
-    * @param body   The new values of the user.
-    * @return The updated user.
+    * @param identifier The identifier of the user to update (can be an ID or a username).
+    * @param userDto The new data for the user.
+    * @return A {@link UserDto} representing the updated user.
+    * @throws BadRequestException if the identifier is invalid or if the email/username already exists.
+    * @throws ResourceNotFoundException if the user does not exist.
     */
    public UserDto updateUser(Object identifier, UserDto userDto) {
       if (identifier == null || (identifier instanceof String && ((String) identifier).isBlank())) {
@@ -124,12 +139,12 @@ public class UserService {
       if (identifier instanceof Long) {
          userToUpdate = userRepository.findById(((Long) identifier))
                  .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received ID: " + identifier));
-     } else if (identifier instanceof String) {
+      } else if (identifier instanceof String) {
          userToUpdate = userRepository.findByUsername((String) identifier)
                  .orElseThrow(() -> new ResourceNotFoundException("User does not exist. Received username: " + identifier));
-     } else {
+      } else {
          throw new BadRequestException("Invalid identifier type. Must be a Long (ID) or String (username).");
-     }
+      }
       String email = userDto.getEmail();
       if (email != null) {
          if (!isValidEmail(email)) {
@@ -143,9 +158,6 @@ public class UserService {
       }
       String newUsername = userDto.getUsername();
       if (newUsername != null) {
-         if (newUsername.length() < 1 || newUsername.length() > 30) {
-            throw new BadRequestException("Username must be between 1 and 30 characters.");
-         }
          if (!newUsername.matches("^[\\p{L}0-9._-]+$")) {
             throw new BadRequestException("Username can only contain letters, numbers, dots, underscores, and hyphens.");
          }
@@ -153,6 +165,7 @@ public class UserService {
          if (user.isPresent() && !Objects.equals(user.get().getUserId(), userToUpdate.getUserId())) {
             throw new BadRequestException("User with username " + newUsername + " already exists.");
          }
+         userToUpdate.setUsername(newUsername);
       } else {
          newUsername = userToUpdate.getUsername();
       }
@@ -167,11 +180,8 @@ public class UserService {
       }
       String roleName = userDto.getRoleName();
       if (roleName != null) {
-         if (roleName.length() < 1 || roleName.length() > 30) {
-            throw new BadRequestException("Role name must be between 1 and 30 characters.");
-         }
-         if (!roleName.matches("^[\\p{L}0-9._-]+$")) {
-            throw new BadRequestException("Role name can only contain letters, numbers, dots, underscores, and hyphens.");
+         if (!roleName.matches("^[\\p{L}0-9._-]+$|^$")) {
+            throw new BadRequestException("Role name can only contain letters, numbers, dots, underscores, and hyphens or be empty.");
          }
       } else {
          roleName = userToUpdate.getRoleName();
@@ -179,13 +189,20 @@ public class UserService {
       userToUpdate.setRoleName(roleName);
 
       Boolean enabled = (Boolean) userDto.isEnabled();
-      if (enabled && userToUpdate.getAuthorities().isEmpty()) {
-         throw new BadRequestException("User must have at least one role to be enabled.");
+      if (enabled == null || !enabled) {
+         enabled = false;
+      } else {
+         enabled = true;
       }
+      userToUpdate.setEnabled(enabled);
 
       List<String> roles = (List<String>) userDto.getRoles();
       if (roles != null) {
          userToUpdate.setAuthorities(UserMapper.toAuthorities(roles));
+      }
+
+      if (enabled && userToUpdate.getAuthorities().isEmpty()) {
+         throw new BadRequestException("User must have at least one role to be enabled.");
       }
 
       userToUpdate.setUpdatedAt(Timestamp.from(Instant.now()));
@@ -196,7 +213,8 @@ public class UserService {
    /**
     * Deletes a user from the database.
     *
-    * @param userName The ID of the user to delete.
+    * @param userName The username of the user to delete.
+    * @throws ResourceNotFoundException if the user does not exist.
     */
    public void deleteUser(String userName) {
       User userToDelete = userRepository.findByUsername(userName)
@@ -207,12 +225,20 @@ public class UserService {
    /**
     * Checks if an email is valid.
     *
-    * @param email The email to check.
+    * @param email The email to validate.
     * @return True if the email is valid, false otherwise.
     */
    protected boolean isValidEmail(String email) {
+      if (email == null || email.isEmpty()) {
+         return false;
+      }
+
+      if (email != email.trim()) {
+         return false;
+      }
+
       // Define the regex for a valid email
-      String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+      String emailRegex = "^[a-zA-Z0-9](?!.*\\.\\.)[a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
   
       // Compile the regex
       Pattern pattern = Pattern.compile(emailRegex);

@@ -32,6 +32,7 @@ public class UserMapper {
       userDto.setCreatedAt(user.getCreatedAt());
       userDto.setUpdatedAt(user.getUpdatedAt());
 
+
       return userDto;
    }
 
