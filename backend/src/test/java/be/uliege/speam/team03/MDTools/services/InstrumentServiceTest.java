@@ -119,11 +119,10 @@ public class InstrumentServiceTest {
         // Arrange
         when(instrumentRepository.findByReferenceIgnoreCase("Nonexistent Reference")).thenReturn(Optional.empty());
 
-        // Act
-        InstrumentDTO result = instrumentService.findByReference("Nonexistent Reference");
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.findByReference("Nonexistent Reference");
+        });
     }
 
     @Test

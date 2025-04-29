@@ -220,7 +220,10 @@
       "english": "English",
       "export_button": "Export",
       "column": "Select the columns",
-      "char": "Characteristics"
+      "char": "Characteristics",
+      "no_column": "Please select at least one column to export.",
+      "no_reference": "The 'reference' column must be selected.",
+      "no_crossref_supplier": "Please select at least two suppliers for Crossref export."
     }
   },
   "pagination": {
@@ -321,7 +324,9 @@
       "add_button": "Add",
       "form": "Form :",
       "not_included": "Not included in the form :",
-      "add_to_form": "Add to the form"
+      "add_to_form": "Add to the form",
+      "close": "Fermer"
+
     },
     "add_group": {
       "operation": "Operation cancelled",
@@ -439,7 +444,11 @@
       "warning": "A picture already exists for this group, the new picture will erase the current one.",
       "save": "Save",
       "cancel": "Cancel",
-      "delete": "Delete"
+      "delete": "Delete",
+      "confirm_delete": "Are you sure you want to delete this group?",
+      "delete_failed": "Failed to delete the group",
+      "deleted_successfully": "The group has been successfully deleted",
+      "delete_not_allowed": "Cannot delete a group with existing Subgroups."
     },
     "edit_instrument": {
       "warning": "Are you sure that you want to delete this alternative?",
@@ -472,7 +481,12 @@
       "picture": "Picture",
       "delete": "A picture already exists for this subgroup, the new picture will erase the current one.",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "confirm_delete": "Are you sure you want to delete this subgroup?",
+      "delete_failed": "Failed to delete the subgroup",
+      "delete_button": "Delete",
+      "deleted_successfully": "The subgroup has been successfully deleted",
+      "delete_not_allowed": "Cannot delete a subgroup with existing categories."
     },
     "edit_supplier": {
       "modif": "Modify the supplier ",
@@ -580,7 +594,28 @@
       "delete": "File deleted",
       "click": "Drag and drop a zip file here or click to select one",
       "continue": "Continue",
-      "response": "Server response"
+      "response": "Server response",
+      "error_columns": "Error : the columns of the Excel file are not valid.",
+      "pictures_import": "Import of pictures",
+      "select_columns": "Select the columns for the importation of pictures",
+      "references_column": "Reference column",
+      "filename_column": "Pictures filenames column",
+      "missing_file": "You need to input an Excel file and a ZIP file.",
+      "missing_files": "Missing files",
+      "found_files": "Found files",
+      "linked_to": "linked to",
+      "file": "File",
+      "for": "for reference",
+      "not_found": "not found",
+      "upload": "Upload",
+      "upload_status": "Upload status",
+      "uploading": "Uploading...",
+      "upload_fail": "Failed to upload",
+      "upload_success": "Successfully uploaded",
+      "progress": "Progress",
+      "retry": "Retry",
+      "retry_sucess": "Retry Successful",
+      "retry_fail": "Retry Failed"
     }
   },
   "login": {

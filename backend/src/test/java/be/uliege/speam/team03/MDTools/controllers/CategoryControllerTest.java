@@ -1,6 +1,5 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -9,11 +8,9 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,9 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
-import be.uliege.speam.team03.MDTools.DTOs.GroupDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
-import be.uliege.speam.team03.MDTools.DTOs.SubGroupDTO;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.GroupService;

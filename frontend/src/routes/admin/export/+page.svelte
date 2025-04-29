@@ -5,6 +5,7 @@
     import { goto } from "$app/navigation";
     import { isAdmin } from "$lib/stores/user_stores";
     import { _ } from "svelte-i18n";
+    import { toast } from "@zerodevx/svelte-toast";
   
     // State variables
     let selectedOption = ""; // Un seul choix possible
@@ -37,11 +38,47 @@
     let selectedCharacteristics = []; 
     
     async function exportToExcel(contextName, selectedColumns) {
+      const requiresColumns = selectedOption === "SubGroup" || selectedOption === "Catalogue" || selectedOption === "Full";
+
+      if (requiresColumns) {
+        if (!selectedColumns.length) {
+          toast.push($_('admin.export.no_column'), {
+            theme: {
+              '--toastBackground': '#dc2626', 
+              '--toastBarBackground': '#991b1b'
+            }
+          });
+          return;
+        }
+
+        if (!selectedColumns.includes("reference")) {
+          toast.push($_('admin.export.no_reference'), {
+            theme: {
+              '--toastBackground': '#dc2626', 
+              '--toastBarBackground': '#991b1b'
+            }
+          });
+          return;
+        }
+      }
+      if (selectedOption === "Crossref" && !exportAllSuppliers && selectedCrossrefSuppliers.length === 0) {
+        toast.push($_('admin.export.no_crossref_supplier'), {
+          theme: {
+            '--toastBackground': '#dc2626', 
+            '--toastBarBackground': '#991b1b'
+          }
+        });
+        return;
+      }
+
+
       await handleExport({
         mode: selectedOption,
         contextName,
         selectedColumns,
-        selectedCharacteristics
+        selectedCharacteristics,
+        exportAllSuppliers,
+        selectedCrossrefSuppliers
       });
     }
 

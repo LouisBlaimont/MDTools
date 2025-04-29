@@ -16,6 +16,9 @@
 
     onMount(async () => {
         if(!fromSearches){
+            selectedGroup.set("");
+            selectedSubGroup.set("");
+            showChars.set(false);
             const data = await fetchGroups();
             groups.set(data.map(group => group.name));
             subGroups.set(Object.fromEntries(
@@ -240,9 +243,9 @@
                     onmousedown={startDrag}
                 >
                     {#if fromSearches}
-                    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_category.add_cat')} {$selectedSubGroup}</h2>
+                    <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_category.add_cat')} {$selectedSubGroup}</h2>
                     {:else}
-                    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_category.add_cat2')} </h2>  
+                    <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_category.add_cat2')} </h2>  
                     {/if}
                 </div>
 

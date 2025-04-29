@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;

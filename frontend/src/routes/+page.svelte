@@ -377,7 +377,7 @@ class="flex flex-row justify-center items-start space-x-8 px-5 py-6 max-w-screen
           {#if selectedGroup}
             <button
               class="flex items-center px-4 py-2 bg-yellow-300 rounded-lg hover:bg-yellow-500 mb-2 text-lg w-15"
-              onclick={()=> modals.open(AddSubGroupModal)}
+              onclick={()=> modals.open(AddSubGroupModal, { group: selectedGroup })}
               >{$_('homepage.admin.button.add_subgroup')}
             </button>
           {/if}

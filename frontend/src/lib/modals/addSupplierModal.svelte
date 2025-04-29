@@ -188,7 +188,7 @@
           class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
           on:mousedown={startDrag}
         >
-          <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_supplier.add_supp')}</h2>        
+          <h2 class="text-xl font-bold select-none">{$_('modals.add_supplier.add_supp')}</h2>        
         </div> 
         <form on:submit|preventDefault={handleSubmit} class="bg-gray-100 p-6 rounded-b-lg">
             <label for="name" class="font-semibold text-lg">{$_('modals.add_supplier.name')}
@@ -214,6 +214,7 @@
                   on:mousedown={event => event.preventDefault()}
               >
                   {#each filteredAutocompleteOptions as option}
+                  <!-- svelte-ignore a11y_click_events_have_key_events -->
                   <li
                       class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
                       on:click={() => selectAutocompleteOption(option)}

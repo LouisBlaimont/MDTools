@@ -2,7 +2,7 @@
     import { getContext } from "svelte";
     import { toast } from "@zerodevx/svelte-toast";
     import { modals } from "svelte-modals";
-    import { orderItems, ordersNames, quantity, selectedOrderId} from "$lib/stores/searches";
+    import { orderItems, ordersNames, selectedOrderId} from "$lib/stores/searches";
     import { userId } from "$lib/stores/user_stores.js";
     import { addInstrument, findOrderItems} from "../components/order_component.js";
     import { _ } from "svelte-i18n";
@@ -13,8 +13,10 @@
         instrument, 
     } = $props();
 
+    let quantity = $state(1);
+
     function handleAddInstrument(){
-        addInstrument(instrument.id, $userId, $selectedOrderId, $quantity);
+        addInstrument(instrument.id, $userId, $selectedOrderId, quantity);
         close();
     }
     const isObsolete = instrument.obsolete;
@@ -71,7 +73,7 @@
                 id="qte"
                 name="qte"
                 class="border border-gray-300 rounded p-2 text-gray-900 bg-white w-1/2"
-                bind:value={$quantity}
+                bind:value={quantity}
                 />
             </div>
 

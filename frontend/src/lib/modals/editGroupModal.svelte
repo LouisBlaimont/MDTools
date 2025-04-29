@@ -2,7 +2,8 @@
   import { apiFetch } from "$lib/utils/fetch";
   import Icon from "@iconify/svelte";
   import { _ } from "svelte-i18n";
-    import { preventDefault } from "svelte/legacy";
+  import { preventDefault } from "svelte/legacy";
+  import { toast } from "@zerodevx/svelte-toast";
 
   const {
     // provided by <Modals />
@@ -91,18 +92,37 @@
   }
 
   async function handleDelete() {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce groupe ?")) {
-      return;
-    }
+    if (!confirm($_('modals.edit_group.confirm_delete'))) return;
     try {
       const response = await apiFetch("/api/groups/" + encodeURIComponent(group.name), {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Échec de la suppression du groupe");
+        if (response.status === 400) {
+          toast.push($_('modals.edit_group.delete_not_allowed'), {
+            theme: {
+              '--toastBackground': '#dc2626', 
+              '--toastBarBackground': '#991b1b'
+            }
+          });
+        }
+        throw new Error($_('modals.edit_group.delete_failed'), {
+          theme: {
+            '--toastBackground': '#dc2626', 
+            '--toastBarBackground': '#991b1b'
+          }
+        });
       }
+      toast.push($_('modals.edit_group.deleted_successfully'));
+      close();
     } catch (error) {
       console.error("Erreur:", error);
+      toast.push($_('modals.edit_group.delete_failed'), {
+        theme: {
+          '--toastBackground': '#dc2626', 
+          '--toastBarBackground': '#991b1b'
+        }
+      });
     }
     close();
   }
@@ -125,7 +145,7 @@
           style="transform: translate({posX}px, {posY}px);"
       >
           <div 
-              class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+              class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg select-none"
               onmousedown={startDrag}
           >
                   <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_group.modif')} {name}</h2>

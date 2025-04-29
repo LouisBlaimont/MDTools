@@ -74,7 +74,7 @@ public class InstrumentService {
     public InstrumentDTO findByReference(String reference) {
         Optional<Instruments> instrumentMaybe = instrumentRepository.findByReferenceIgnoreCase(reference);
         if (!instrumentMaybe.isPresent()) {
-            return null;
+            throw new ResourceNotFoundException("Instrument not found with reference: " + reference);
         }
         Instruments instrument = instrumentMaybe.get();
         InstrumentDTO dto = new InstrumentDTO();
@@ -240,7 +240,7 @@ public class InstrumentService {
             Long instrumentId = instrument.getId();
             
             // get pictures of the instrument
-            List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) instrumentId, PictureType.INSTRUMENT);
+            List<Long> pictures = pictureStorageService.getPicturesIdByReferenceIdAndPictureType(instrumentId, PictureType.INSTRUMENT);
 
             InstrumentDTO instrumentDTO = new InstrumentDTO(supplierName, category.getSubGroup().getGroup().getId(), category.getSubGroup().getId(), category.getId(), reference, supplierDescription, price, obsolete, pictures, instrument.getPriceDate(),instrumentId);
 

@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;

@@ -46,7 +46,8 @@
       const input = newCharacteristicName.trim().toLowerCase();
       filteredSuggestions = allCharacteristics
         .filter(c => c.toLowerCase().includes(input))
-        .filter(c => !requiredColumns.includes(c));
+        .filter(c => !requiredColumns.includes(c))
+        .filter(c => !["name", "function", "length"].includes(c.toLowerCase()));
     }
   });
 
@@ -91,6 +92,7 @@
 
     characteristicsOutOfShape = characteristics
       .filter(c => c.orderPosition === null)
+      .filter(c => !["name", "function", "length"].includes(c.name.toLowerCase()))
       .map((c, i) => ({ id: `${c.name}-out-${i}`, name: c.name, orderPosition: null }));
   }
 
@@ -108,7 +110,7 @@
     async function deleteCharacteristic(name) {
     try {
       await removeCharacteristicFromSubGroup(selectedSubGroup, name);
-      dispatch('deleted', { name });
+      dispatch('added');
       await loadCharacteristics(selectedSubGroup);
     } catch (err) {
       console.error('Error deleting characteristic:', err);
@@ -159,6 +161,7 @@
     >
     <div class="fixed inset-0 bg-black bg-opacity-30"></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore event_directive_deprecated -->
     <div
             class="fixed inset-0 z-10 flex items-center justify-center"
             on:mousemove={drag}
@@ -171,7 +174,7 @@
   <div class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg" 
        on:mousedown={startDrag}
   >
-    <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.add_char.add_char')}</h2>
+    <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_char.add_char')}</h2>
   </div>
   <div class="p-4">
     <input type="text" placeholder={$_('modals.add_char.name')} class="w-full p-2 border rounded mb-4" bind:value={newCharacteristicName} />
@@ -278,7 +281,7 @@
         class="bg-gray-500 text-white px-4 py-2 rounded"
         on:click={onClose}
       >
-        Annuler
+      {$_('modals.add_char.close')}
       </button>
     </div>
   </div>

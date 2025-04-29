@@ -150,64 +150,45 @@
 <div class="flex">
   <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
     <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
-    <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
-      <thead class="bg-teal-400">
-        {#if $showCategories}
-          {#if $selectedSubGroup}
-            <tr class="bg-white text-teal-400">
-              {#if $isEditing}
-                <th colspan="2" class="text-center py-2">
-                  <button
-                    class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                    onclick={()=>modals.open(addCategoryModal, {fromSearches : true})}
-                  >
-                  {$_('category_component.admin.button.add_category')}
-                  </button>
-                </th>
-              {/if}
-            </tr>
-            <tr class="bg-white text-teal-400">
-              {#if $isEditing}
-                <th colspan="1" class="text-center pb-1">{$selectedGroup}</th>
-                <th colspan="1" class="text-center pb-1">{$selectedSubGroup}</th>
-              {:else}
+    {#if $showCategories}
+      <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
+        <thead class="bg-teal-400">
+            {#if $selectedSubGroup}
+              <tr class="bg-white text-teal-400">
+                {#if $isEditing}
+                  <th colspan="5" class="text-center py-2">
+                    <button
+                      class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                      onclick={()=>modals.open(addCategoryModal, {fromSearches : true})}
+                    >
+                    {$_('category_component.admin.button.add_category')}
+                    </button>
+                  </th>
+                {/if}
+              </tr>
+              <tr class="bg-white text-teal-400">
                 <th colspan="2" class="text-center pb-1">{$selectedGroup}</th>
                 <th colspan="2" class="text-center pb-1">{$selectedSubGroup}</th>
-              {/if}
-            </tr>
-          {:else}
-          <tr class="bg-white text-teal-400">
-            {#if $isEditing && $selectedSubGroup}
-              <th colspan="2" class="text-center pb-1">
-                <button
-                  class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                  onclick={()=>modals.open(addCategoryModal)}
-                >
-                {$_('category_component.admin.button.add_category')}
-                </button>
-              </th>
-              <th colspan="3" class="text-center pb-1">{$selectedGroup}</th>
+              </tr>
             {:else}
+            <tr class="bg-white text-teal-400">
               <th colspan="5" class="text-center pb-1">{$selectedGroup}</th>
+            </tr>
             {/if}
-          </tr>
-          {/if}
-        {/if}
-        <tr>
-          {#if $isEditing && $selectedSubGroup}
-            <th class="text-center border border-solid border-[black]"></th>
-          {/if}
-          {#if !$selectedSubGroup}
-          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.subgroup')}</th>
-          {/if}
-          <th class="text-center border border-solid border-[black]">
-            {$_('category_component.title.table.function')}</th>
-          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.name')}</th>
-          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.shape')}</th>
-          <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.dimension')}</th>
-        </tr>
-      </thead>
-      {#if $showCategories}
+
+            <tr>
+              {#if $isEditing && $selectedSubGroup}
+                <th class="text-center border border-solid border-[black]"></th>
+              {/if}
+              {#if !$selectedSubGroup}
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.subgroup')}</th>
+              {/if}
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.function')}</th>
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.name')}</th>
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.shape')}</th>
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.dimension')}</th>
+            </tr>
+        </thead>
         <tbody>
           {#each $categories as row, index}
             <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -233,8 +214,8 @@
             </tr>
           {/each}
         </tbody>
-      {/if}
-    </table>
+      </table>
+    {/if}
   </div>
 
   <!-- PICTURES OF THE CATEGORIES -->

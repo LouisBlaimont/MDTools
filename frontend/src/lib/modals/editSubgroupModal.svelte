@@ -2,6 +2,7 @@
   import { apiFetch } from "$lib/utils/fetch";
   import Icon from "@iconify/svelte";
   import { _ } from "svelte-i18n";
+  import { toast } from "@zerodevx/svelte-toast";
 
   const {
     // provided by <Modals />
@@ -88,19 +89,39 @@
     }
     close();
   }
+
   async function handleDelete() {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce sous-groupe ?")) {
-      return;
-    }
+    if (!confirm($_('modals.edit_subgroup.confirm_delete'))) return;
     try {
       const response = await apiFetch("/api/subgroups/" + encodeURIComponent(subgroup.name), {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Échec de la suppression du sous-groupe");
+        if (response.status === 400) {
+          toast.push($_('modals.edit_subgroup.delete_not_allowed'), {
+            theme: {
+              '--toastBackground': '#dc2626', 
+              '--toastBarBackground': '#991b1b'
+            }
+          });
+        }
+        throw new Error($_('modals.edit_subgroup.delete_failed'), {
+          theme: {
+            '--toastBackground': '#dc2626', 
+            '--toastBarBackground': '#991b1b'
+          }
+        });
       }
+      toast.push($_('modals.edit_subgroup.deleted_successfully'));
+      close();
     } catch (error) {
       console.error("Erreur:", error);
+      toast.push($_('modals.edit_subgroup.delete_failed'), {
+        theme: {
+          '--toastBackground': '#dc2626', 
+          '--toastBarBackground': '#991b1b'
+        }
+      });
     }
     close();
   }
@@ -123,7 +144,7 @@
           style="transform: translate({posX}px, {posY}px);"
       >
           <div 
-              class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg"
+              class="p-4 border-b cursor-move bg-gray-200 text-white flex items-center justify-between rounded-t-lg select-none"
               onmousedown={startDrag}
           >
                   <h2 class="text-2xl font-bold text-teal-500 text-center">{$_('modals.edit_subgroup.modif')} {name}</h2>
@@ -183,10 +204,15 @@
                 class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
                 onclick={() => close()}>{$_('modals.edit_subgroup.cancel')}</button
               >
+              <button
+                type="button"
+                class="mt-3 inline-flex justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:mt-0 sm:w-auto"
+                onclick={handleDelete}>
+                {$_('modals.edit_subgroup.delete_button')}
+              </button>
             </div>
           </form>
       </div>
   </div>
 </div>
 {/if}
-
