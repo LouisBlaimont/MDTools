@@ -379,6 +379,20 @@
                 onmousedown={startDrag}
             >
                 <h2 class="text-2xl font-bold text-teal-500 text-center select-none">{$_('modals.add_instrument.add_instr')}</h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    class="w-6 h-6 text-teal-500"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                </svg>
             </div>
             <form onsubmit={submitForm} preventDefault class="bg-gray-100 p-6 rounded-b-lg">
                 <label for="ref" class="font-semibold text-lg">{$_('modals.add_instrument.ref')}</label>
