@@ -2,6 +2,9 @@ package be.uliege.speam.team03.MDTools.controllers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -35,7 +38,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
-
 /**
  * REST controller for managing pictures.
  * Provides endpoints for uploading, retrieving, and deleting pictures.
@@ -66,7 +68,7 @@ public class PictureController {
    /**
     * Uploads a single picture for an instrument.
     * 
-    * @param file The input stream containing the picture file data
+    * @param file        The input stream containing the picture file data
     * @param referenceId The ID of the instrument that the picture belongs to
     * @return The metadata of the stored picture
     */
@@ -93,7 +95,7 @@ public class PictureController {
       if (file == null || file.isEmpty()) {
          throw new IllegalArgumentException("File cannot be empty");
       }
-           
+
       MultipartFile fileToSend = file;
       Picture metadataList = this.uploadSinglePicture(fileToSend, pictureType, referenceId);
 
@@ -158,7 +160,7 @@ public class PictureController {
     * @return List of processing results for each picture
     */
    @PostMapping("/instruments/bulk-upload")
-   public ResponseEntity<List<PictureProcessResponse>> uploadInstrumentsPictureBulk (
+   public ResponseEntity<List<PictureProcessResponse>> uploadInstrumentsPictureBulk(
          @NonNull @RequestParam List<MultipartFile> zipFiles) throws BadRequestException {
 
       List<PictureProcessResponse> results = new ArrayList<>();
@@ -177,7 +179,7 @@ public class PictureController {
             // Validate the file type
             String contentType = zipFile.getContentType();
             if (contentType == null || !contentType.equals("application/zip")) {
-               results.add(new PictureProcessResponse(zipFile.getOriginalFilename(), 
+               results.add(new PictureProcessResponse(zipFile.getOriginalFilename(),
                      "Invalid file type. Only zip files are allowed.", false));
                continue;
             }
@@ -195,12 +197,13 @@ public class PictureController {
       }
    }
 
-   @PostMapping("/instruments/{reference}/upload-with-reference")
-   public ResponseEntity<Void> uploadInstrumentsPictureBulkFormData (
-         @NonNull @RequestParam MultipartFile picture, @PathVariable String reference ) throws BadRequestException {
-            // Search for the instrument by reference
+   @PostMapping("/instruments/upload-with-reference")
+   public ResponseEntity<Void> uploadInstrumentsPictureBulkFormData(
+         @NonNull @RequestParam MultipartFile picture, @NonNull @RequestParam String reference) throws BadRequestException {
+
+      // Search for the instrument by reference
       InstrumentDTO instrument = instrumentService.findByReference(reference);
-      
+
       // Add picture to the instrument
       uploadSinglePicture(picture, "INSTRUMENT", instrument.getId());
 
@@ -226,7 +229,7 @@ public class PictureController {
 
                // Process the file
                String filename = zipEntry.getName();
-               
+
                processExtractedFile(zipInputStream, filename, tempDir, results);
 
             } finally {
@@ -234,7 +237,7 @@ public class PictureController {
             }
          }
       } catch (IOException e) {
-         results.add(new PictureProcessResponse(zipFile.getOriginalFilename(), 
+         results.add(new PictureProcessResponse(zipFile.getOriginalFilename(),
                "Error processing zip file: " + e.getMessage(), false));
          log.error("Failed to process zip file: {}", zipFile.getOriginalFilename(), e);
       }
@@ -248,7 +251,8 @@ public class PictureController {
       try {
          // Skip hidden files or files without an extension
          if (filename.startsWith(".") || !filename.contains(".")) {
-            results.add(new PictureProcessResponse(filename, "Skipping file: " + filename + " - Invalid filename format", false));
+            results.add(new PictureProcessResponse(filename,
+                  "Skipping file: " + filename + " - Invalid filename format", false));
             return;
          }
 
@@ -263,7 +267,7 @@ public class PictureController {
 
          // Check if the reference is valid
          if (instrumentRef.isEmpty()) {
-            results.add(new PictureProcessResponse(filename, 
+            results.add(new PictureProcessResponse(filename,
                   "Invalid instrument reference extracted from filename", false));
             return;
          }
@@ -271,7 +275,8 @@ public class PictureController {
          // Find the instrument by reference
          InstrumentDTO instrument = instrumentService.findByReference(instrumentRef);
          if (instrument == null) {
-            results.add(new PictureProcessResponse(filename, "Instrument with reference '" + instrumentRef + "' not found", false));
+            results.add(new PictureProcessResponse(filename,
+                  "Instrument with reference '" + instrumentRef + "' not found", false));
             return;
          }
 
