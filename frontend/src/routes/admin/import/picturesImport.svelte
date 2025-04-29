@@ -50,6 +50,17 @@
       (file) => file.name.endsWith(".xlsx") || file.name.endsWith(".xls")
     );
 
+    if (!zipFile || !excelFile) {
+      toast.push($_("import_pages.svelte.missing_file"), {
+        theme: {
+          "--toastBackground": "#f87171",
+          "--toastColor": "#fff",
+        },
+        duration: 2000,
+      });
+      return;
+    }
+
     let columns = [];
 
     await getColumnsNames(excelFile)
@@ -62,13 +73,17 @@
       });
 
     if (!columns) {
-      toast.push($_("import_pages.svelte.cancel"), {
+      toast.push($_("import_pages.svelte.error_columns"), {
         theme: {
           "--toastBackground": "#f87171",
           "--toastColor": "#fff",
         },
         duration: 2000,
       });
+      return;
+    }
+
+    if (columns === "cancel") {
       return;
     }
 
@@ -103,6 +118,13 @@
     const referenceIndex = headers.indexOf(referenceColumnName);
 
     if (filenameIndex === -1 || referenceIndex === -1) {
+      toast.push($_("import_pages.svelte.error_columns"), {
+        theme: {
+          "--toastBackground": "#f87171",
+          "--toastColor": "#fff",
+        },
+        duration: 2000,
+      });
       throw new Error("Chosen column name(s) not found in Excel headers.");
     }
 
@@ -151,7 +173,7 @@
 </script>
 
 <main class="w-full flex flex-col items-center mb-4">
-  <h1 class="text-2xl font-bold mt-6">Import of pictures</h1>
+  <h1 class="text-2xl font-bold mt-6">{$_('import_pages.svelte.pictures_import')}</h1>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="w-3/4 min-h-64 border-4 border-dashed border-gray-500 rounded-lg flex items-center justify-center mt-6 bg-gray-100"
