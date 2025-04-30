@@ -1,9 +1,9 @@
 <script>
-    import { ordersNames, orderItems, orders, selectedOrderId} from "$lib/stores/searches";
+    import { ordersNames, orderItems, orders, selectedOrderId, reload} from "$lib/stores/searches";
     import { locale } from "svelte-i18n";
     import { onMount } from "svelte";
     import ModifyOrderNameModal from "$lib/modals/modifyOrderNameModal.svelte";
-    import DeleteOrderModal from "$lib/modals/deleteOrderModal.svelte";
+    import { apiFetch } from "$lib/utils/fetch";
     import { exportOrderToExcel, getOrders, findOrderItems } from "$lib/components/order_component.js";
     import { modals } from "svelte-modals";
     import { goto } from "$app/navigation";
@@ -38,6 +38,32 @@
     function completeOrder(){
       goto("/searches?group=&subgroup=");
     }
+
+    async function deleteOrder(newOrderName){
+      if(confirm($_('modals.delete_order.confirmation'))){
+        return apiFetch(`/api/orders/${$selectedOrderId}`, {
+            method : "DELETE",
+        })
+        .then((response) => {
+            if (!response.ok){
+                throw new Error(`Failed to delete order : ${response.status}`);
+            }
+            dataLoaded = false;
+            return;
+        })
+        .then((result) => {
+            ordersNames.update(currentOrdersNames => currentOrdersNames.filter(order => order.id !== $selectedOrderId));
+            orders.update(currentOrders => currentOrders.filter(order => order.orderName !== orderName));
+            selectedOrderId.set(null);
+            orderItems.set([]);
+            goto("../previous_orders");
+            toast.push($_('modals.delete_order.deletion_success'));
+        })
+        .catch((error) => {
+            console.log("Error :", error);
+        });
+      }
+    }
   </script>
   
   <div class="flex justify-center items-center p-4">
@@ -67,7 +93,7 @@
               >{$_('order_pages.single.complete')}</button>
               <button 
               class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              onclick={()=> modals.open(DeleteOrderModal, {orderName})}
+              onclick={()=> deleteOrder(orderName)}
               >{$_('order_pages.single.delete')}</button>
             </div>
           {/if}

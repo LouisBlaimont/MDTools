@@ -3,6 +3,7 @@ package be.uliege.speam.team03.MDTools.controllers;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
 import be.uliege.speam.team03.MDTools.DTOs.UserDto;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.services.UserService;
@@ -61,19 +63,32 @@ public class UserController {
    }
 
    /**
+     * Searches for users by name with pagination.
+     * 
+     * @param query the search query to filter user by name
+     * @param page the page number (default is 0)
+     * @param size the number of users per page (default is 10)
+     * @return a paginated list of users matching the search query
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Page<UserDto>> searchUsers(
+        @RequestParam(required = false) String query,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<UserDto> users = userService.searchPaginatedUsers(query, PageRequest.of(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+   /**
     * Registers a new user in the database.
     *
     * @param dto The user data to register.
-    * @return The registered user, or a BAD_REQUEST response if the user already exists.
+    * @return BAD_REQUEST response because users should be registered through the authentication service.
     */
    @PostMapping
-   @ResponseStatus(HttpStatus.CREATED)
+   @ResponseStatus(HttpStatus.BAD_REQUEST)
    public ResponseEntity<Void> registerUser(@RequestBody UserDto dto) {
-      // UserDto newUser = userService.registerUser(dto);
-      // if (newUser == null) {
-      //    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
-      // }
-      // return ResponseEntity.ok(newUser);
       throw new BadRequestException("Users should be registered through the authentication service");
    }
 

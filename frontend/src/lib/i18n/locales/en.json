@@ -141,6 +141,8 @@
   "admin": {
     "supplier_page": {
       "title": "Suppliers management",
+      "success": "Supplier added with success!",
+      "error": "Error when adding the supplier.",
       "button": {
         "add_supplier": "Add supplier",
         "edit_supplier": "Edit supplier",
@@ -279,7 +281,8 @@
       "deletion_success" : "Order successfully deleted",
       "irreversible_action" : "Please note that this action is irreversible.",
       "cancel" : "Cancel",
-      "delete" : "Delete"
+      "delete" : "Delete",
+      "confirmation" : "Are you sure you want to delete this order ?"
     },
     "create_order" : {
       "create_title" : "Create a new empty order",
@@ -525,6 +528,8 @@
     "job_position": "Job position",
     "workplace": "Workplace",
     "creation_date": "Creation date",
+    "success": "Profile updated successfully",
+    "error": "Error while updating the profile",
     "button": {
       "edit_profile": "Edit profile",
       "back": "Back",

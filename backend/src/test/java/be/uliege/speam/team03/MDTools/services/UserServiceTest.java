@@ -2,6 +2,7 @@ package be.uliege.speam.team03.MDTools.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.sql.Timestamp;
@@ -9,6 +10,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -604,5 +607,167 @@ public class UserServiceTest {
             // Then
             assertFalse(result, "Email should be invalid: " + invalidEmail);
         }
+    }
+
+    @Test
+    // Test to verify successful search for users with a non-empty query string
+    void searchPaginatedUsers_WithValidQuery_ShouldReturnMatchingUsers() {
+        // Given
+        String searchQuery = "test";
+        List<User> matchingUsers = List.of(user);
+        Page<User> userPage = new PageImpl<>(matchingUsers);
+        Pageable pageable = PageRequest.of(0, 10);
+        
+        when(userRepository.findByUsernameContainingIgnoreCase(eq(searchQuery), eq(pageable)))
+            .thenReturn(userPage);
+        
+        // When
+        Page<UserDto> result = userService.searchPaginatedUsers(searchQuery, pageable);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
+        verify(userRepository).findByUsernameContainingIgnoreCase(searchQuery, pageable);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    // Test to verify search with a query that yields no results
+    void searchPaginatedUsers_WithNoMatchingResults_ShouldReturnEmptyPage() {
+        // Given
+        String searchQuery = "nonexistent";
+        Page<User> emptyPage = new PageImpl<>(List.of());
+        Pageable pageable = PageRequest.of(0, 10);
+        
+        when(userRepository.findByUsernameContainingIgnoreCase(eq(searchQuery), eq(pageable)))
+            .thenReturn(emptyPage);
+        
+        // When
+        Page<UserDto> result = userService.searchPaginatedUsers(searchQuery, pageable);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+        verify(userRepository).findByUsernameContainingIgnoreCase(searchQuery, pageable);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    // Test to verify search with a null query falls back to getting all users
+    void searchPaginatedUsers_WithNullQuery_ShouldReturnAllUsers() {
+        // Given
+        String searchQuery = null;
+        List<User> allUsers = List.of(user);
+        Page<User> userPage = new PageImpl<>(allUsers);
+        Pageable pageable = PageRequest.of(0, 10);
+        
+        when(userRepository.findAll(eq(pageable))).thenReturn(userPage);
+        
+        // When
+        Page<UserDto> result = userService.searchPaginatedUsers(searchQuery, pageable);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
+        verify(userRepository).findAll(pageable);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    // Test to verify search with an empty query string falls back to getting all users
+    void searchPaginatedUsers_WithEmptyQuery_ShouldReturnAllUsers() {
+        // Given
+        String searchQuery = "";
+        List<User> allUsers = List.of(user);
+        Page<User> userPage = new PageImpl<>(allUsers);
+        Pageable pageable = PageRequest.of(0, 10);
+        
+        when(userRepository.findAll(eq(pageable))).thenReturn(userPage);
+        
+        // When
+        Page<UserDto> result = userService.searchPaginatedUsers(searchQuery, pageable);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
+        verify(userRepository).findAll(pageable);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    // Test to verify search with a query containing only whitespace falls back to getting all users
+    void searchPaginatedUsers_WithWhitespaceQuery_ShouldReturnAllUsers() {
+        // Given
+        String searchQuery = "   ";
+        List<User> allUsers = List.of(user);
+        Page<User> userPage = new PageImpl<>(allUsers);
+        Pageable pageable = PageRequest.of(0, 10);
+        
+        when(userRepository.findAll(eq(pageable))).thenReturn(userPage);
+        
+        // When
+        Page<UserDto> result = userService.searchPaginatedUsers(searchQuery, pageable);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
+        verify(userRepository).findAll(pageable);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    // Test with different pagination parameters
+    void searchPaginatedUsers_WithPagination_ShouldRespectPaginationParams() {
+        // Given
+        String searchQuery = "test";
+        
+        // Create user1 with initialized authorities/roles
+        User user1 = new User();
+        user1.setUserId(1L);
+        user1.setUsername("testuser1");
+        user1.setEmail("test1@example.com");
+        user1.setEnabled(true);
+        // Initialize authorities/roles to prevent NPE
+        Set<Authority> authorities1 = new HashSet<>();
+        authorities1.add(new Authority("ROLE_USER"));
+        user1.setAuthorities(authorities1);
+        
+        // Create user2 with initialized authorities/roles
+        User user2 = new User();
+        user2.setUserId(2L);
+        user2.setUsername("testuser2");
+        user2.setEmail("test2@example.com");
+        user2.setEnabled(true);
+        // Initialize authorities/roles to prevent NPE
+        Set<Authority> authorities2 = new HashSet<>();
+        authorities2.add(new Authority("ROLE_USER"));
+        user2.setAuthorities(authorities2);
+        
+        List<User> users = List.of(user1, user2);
+        // Create a page with 2 total elements but only returning the first one (page 0, size 1)
+        Page<User> userPage = new PageImpl<>(List.of(user1), PageRequest.of(0, 1), 2);
+        Pageable pageable = PageRequest.of(0, 1);
+        
+        when(userRepository.findByUsernameContainingIgnoreCase(eq(searchQuery), eq(pageable)))
+            .thenReturn(userPage);
+        
+        // When
+        Page<UserDto> result = userService.searchPaginatedUsers(searchQuery, pageable);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements()); // Total elements in all pages
+        assertEquals(1, result.getContent().size());  // Content size limited by page size
+        assertEquals(user1.getUsername(), result.getContent().get(0).getUsername());
+        assertEquals(0, result.getNumber());  // Current page number
+        assertEquals(1, result.getSize());    // Page size
+        assertEquals(2, result.getTotalPages()); // Total number of pages
+        verify(userRepository).findByUsernameContainingIgnoreCase(searchQuery, pageable);
+        verifyNoMoreInteractions(userRepository);
     }
 }

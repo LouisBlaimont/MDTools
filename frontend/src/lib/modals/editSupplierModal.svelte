@@ -66,6 +66,7 @@
 
       // Extract values using the provided function
       const extractedOptions = options.map(config.extractValue);
+      console.log("Extracted options:", extractedOptions);
 
       autocompleteOptions[characteristic] = extractedOptions;
       return extractedOptions;

@@ -407,4 +407,165 @@ public class SupplierControllerTest {
 
         verify(supplierService, times(0)).deleteSupplierById(any(Long.class));
     }
+
+    @Test
+    // Test to verify successful search for suppliers with query parameter
+    public void testSearchSuppliersWithQuerySuccess() throws Exception {
+        SupplierDTO supplierDto1 = new SupplierDTO();
+        supplierDto1.setId(1L);
+        supplierDto1.setName("ABC Medical");
+
+        SupplierDTO supplierDto2 = new SupplierDTO();
+        supplierDto2.setId(2L);
+        supplierDto2.setName("ABC Surgical");
+
+        List<SupplierDTO> supplierList = Arrays.asList(supplierDto1, supplierDto2);
+        
+        Page<SupplierDTO> suppliers = new PageImpl<>(
+            supplierList,
+            PageRequest.of(0, 10),
+            supplierList.size()
+        );
+
+        when(supplierService.searchPaginatedSuppliers("ABC", PageRequest.of(0, 10))).thenReturn(suppliers);
+
+        mockMvc.perform(get("/api/supplier/search?query=ABC&page=0&size=10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("ABC Medical"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].name").value("ABC Surgical"))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalPages").value(1));
+
+        verify(supplierService, times(1)).searchPaginatedSuppliers("ABC", PageRequest.of(0, 10));
+    }
+
+    @Test
+    // Test to verify search without providing a query parameter (should return all suppliers)
+    public void testSearchSuppliersWithNoQueryParameter() throws Exception {
+        SupplierDTO supplierDto1 = new SupplierDTO();
+        supplierDto1.setId(1L);
+        supplierDto1.setName("Supplier A");
+
+        SupplierDTO supplierDto2 = new SupplierDTO();
+        supplierDto2.setId(2L);
+        supplierDto2.setName("Supplier B");
+
+        List<SupplierDTO> supplierList = Arrays.asList(supplierDto1, supplierDto2);
+        
+        Page<SupplierDTO> suppliers = new PageImpl<>(
+            supplierList,
+            PageRequest.of(0, 10),
+            supplierList.size()
+        );
+
+        when(supplierService.searchPaginatedSuppliers(null, PageRequest.of(0, 10))).thenReturn(suppliers);
+
+        mockMvc.perform(get("/api/supplier/search?page=0&size=10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Supplier A"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].name").value("Supplier B"))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalPages").value(1));
+
+        verify(supplierService, times(1)).searchPaginatedSuppliers(null, PageRequest.of(0, 10));
+    }
+
+    @Test
+    // Test to verify search with custom pagination parameters
+    public void testSearchSuppliersWithCustomPagination() throws Exception {
+        SupplierDTO supplierDto1 = new SupplierDTO();
+        supplierDto1.setId(1L);
+        supplierDto1.setName("Supplier A");
+
+        List<SupplierDTO> supplierList = Arrays.asList(supplierDto1);
+        
+        // Create a page with custom pagination (page 2, size 5)
+        Page<SupplierDTO> suppliers = new PageImpl<>(
+            supplierList,
+            PageRequest.of(2, 5),
+            11 // Total elements (to have multiple pages)
+        );
+
+        when(supplierService.searchPaginatedSuppliers("Test", PageRequest.of(2, 5))).thenReturn(suppliers);
+
+        mockMvc.perform(get("/api/supplier/search?query=Test&page=2&size=5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Supplier A"))
+                .andExpect(jsonPath("$.totalElements").value(11))
+                .andExpect(jsonPath("$.number").value(2))
+                .andExpect(jsonPath("$.size").value(5))
+                .andExpect(jsonPath("$.totalPages").value(3)); // 11 items with size 5 = 3 pages
+
+        verify(supplierService, times(1)).searchPaginatedSuppliers("Test", PageRequest.of(2, 5));
+    }
+
+    @Test
+    // Test to verify search with no results
+    public void testSearchSuppliersWithNoResults() throws Exception {
+        List<SupplierDTO> emptyList = Arrays.asList();
+        
+        Page<SupplierDTO> emptyPage = new PageImpl<>(
+            emptyList,
+            PageRequest.of(0, 10),
+            0
+        );
+
+        when(supplierService.searchPaginatedSuppliers("NonExistent", PageRequest.of(0, 10))).thenReturn(emptyPage);
+
+        mockMvc.perform(get("/api/supplier/search?query=NonExistent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalPages").value(0));
+
+        verify(supplierService, times(1)).searchPaginatedSuppliers("NonExistent", PageRequest.of(0, 10));
+    }
+
+    @Test
+    // Test to verify search with an empty string query
+    public void testSearchSuppliersWithEmptyQuery() throws Exception {
+        SupplierDTO supplierDto1 = new SupplierDTO();
+        supplierDto1.setId(1L);
+        supplierDto1.setName("Supplier A");
+
+        SupplierDTO supplierDto2 = new SupplierDTO();
+        supplierDto2.setId(2L);
+        supplierDto2.setName("Supplier B");
+
+        List<SupplierDTO> supplierList = Arrays.asList(supplierDto1, supplierDto2);
+        
+        Page<SupplierDTO> suppliers = new PageImpl<>(
+            supplierList,
+            PageRequest.of(0, 10),
+            supplierList.size()
+        );
+
+        when(supplierService.searchPaginatedSuppliers("", PageRequest.of(0, 10))).thenReturn(suppliers);
+
+        mockMvc.perform(get("/api/supplier/search?query="))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Supplier A"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].name").value("Supplier B"))
+                .andExpect(jsonPath("$.totalElements").value(2));
+
+        verify(supplierService, times(1)).searchPaginatedSuppliers("", PageRequest.of(0, 10));
+    }
 }

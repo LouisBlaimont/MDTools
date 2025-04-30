@@ -10,6 +10,13 @@
   import Icon from "@iconify/svelte";
   import { reload } from "$lib/stores/searches";
 
+  $effect(() => {
+    if ($reload) {
+      fetchUsers();
+      reload.set(false);
+    }
+  });
+
   onMount(() => {
     if (!$isWebmaster || !$isAdmin) {
       goto("/unauthorized");
@@ -19,15 +26,25 @@
 
   let users = $state();
   let searchQuery = "";
+  let isSearching = $state(false); // State to track if a search is in progress
+  let searchTimeout = null; // Variable to store the timeout ID
   let roles = [];
 
   let currentPage = $state(1); // Current page number
-  let pageSize = $state(1); // Number of items per page
+  let pageSize = $state(10); // Number of items per page
   let totalPages = $state(0);
 
   const viewLogs = () => {
     goto("/webmaster/logs");
   };
+
+  $effect(() => {
+    clearTimeout(searchTimeout); // Clear the previous timeout
+    searchTimeout = setTimeout(() => {
+      currentPage = 1; // Reset to the first page when searching
+      fetchUsers();
+    }, 300); // Delay of 300ms before executing the search
+  })
 
   const getBadges = (user) => {
     if (user) {
@@ -87,7 +104,13 @@
 
   async function fetchUsers() {
     try {
-      const response = await apiFetch("/api/user/list?page=" + (currentPage - 1) + "&size=" + pageSize);
+      isSearching = true;
+      let url = searchQuery.trim()
+        ? `/api/user/search?query=${encodeURIComponent(searchQuery)}&page=${currentPage - 1}&size=${pageSize}`
+        : `/api/user/list?page=${currentPage - 1}&size=${pageSize}`;
+
+      const response = await apiFetch(url);
+
       if (response.ok) {
         const response_json = await response.json();
         users = response_json.content;
@@ -98,8 +121,15 @@
       }
     } catch (error) {
       toast.push($_('logs.error') + error);
+    } finally {
+      isSearching = false;
     }
   }
+
+  const clearSearch = () => {
+    searchQuery = "";
+    fetchUsers();
+  };
 
   onMount(() => {
     if (!$isWebmaster || !$isAdmin) {
@@ -137,14 +167,33 @@
       <h3 class="text-lg font-medium mb-6">{$_('logs.user')}</h3>
 
       <!-- Search Bar -->
-      <div class="mb-6 max-w-xs">
+      <div class="mb-6 relative max-w-xs">
         <input
           type="text"
           bind:value={searchQuery}
+          oninput={() => {currentPage = 1; fetchUsers();}}
           placeholder={$_('logs.enter_user')}
           class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
+        {#if searchQuery}
+          <button 
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            onclick={clearSearch}
+            aria-label="Clear search"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        {/if}
       </div>
+
+      <!-- Loading indicator -->
+      {#if isSearching}
+        <div class="flex justify-center my-4">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        </div>
+      {/if}
 
       <!-- Users Table -->
       <div class="overflow-x-auto">
@@ -158,39 +207,47 @@
             </tr>
           </thead>
           <tbody>
-            {#each users as user (user.id)}
-              <tr class="border-b hover:bg-gray-50 transition">
-                <td class="px-6 py-4">
-                  {user.username}
-                  {#if user.enabled}
-                    <span
-                      class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
-                      >{$_('logs.activ')}</span
-                    >
-                  {:else}
-                    <span
-                      class="rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10"
-                      >{$_('logs.inactiv')}</span
-                    >
-                  {/if}
-                </td>
-                <td class="px-6 py-4">
-                  {user.email}
-                </td>
-                <td class="px-6 py-4 space-x-1">
-                  {#each getBadges(user) as badge}
-                    <span
-                      class={`px-2 py-1 rounded-md text-xs font-medium ring-1 ring-inset ${badge.bg} ${badge.textColor} ${badge.ringColor}`}
-                    >
-                      {badge.text}
-                    </span>
-                  {/each}
-                </td>
-                <td class="px-6 py-4 inline-flex rounded-md shadow-sm">
-                  <UserButton user={user} roles={roles} />
+            {#if users && users.length > 0}
+              {#each users as user (user.id)}
+                <tr class="border-b hover:bg-gray-50 transition">
+                  <td class="px-6 py-4">
+                    {user.username}
+                    {#if user.enabled}
+                      <span
+                        class="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
+                        >{$_('logs.activ')}</span
+                      >
+                    {:else}
+                      <span
+                        class="rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10"
+                        >{$_('logs.inactiv')}</span
+                      >
+                    {/if}
+                  </td>
+                  <td class="px-6 py-4">
+                    {user.email}
+                  </td>
+                  <td class="px-6 py-4 space-x-1">
+                    {#each getBadges(user) as badge}
+                      <span
+                        class={`px-2 py-1 rounded-md text-xs font-medium ring-1 ring-inset ${badge.bg} ${badge.textColor} ${badge.ringColor}`}
+                      >
+                        {badge.text}
+                      </span>
+                    {/each}
+                  </td>
+                  <td class="px-6 py-4 inline-flex rounded-md shadow-sm">
+                    <UserButton user={user} roles={roles} />
+                  </td>
+                </tr>
+              {/each}
+            {:else}
+              <tr>
+                <td colspan="4" class="px-6 text-center py-4 text-gray-500">
+                  {searchQuery ? `No users found matching "${searchQuery}"` : 'No users available'}
                 </td>
               </tr>
-            {/each}
+            {/if}
           </tbody>
         </table>
       </div>

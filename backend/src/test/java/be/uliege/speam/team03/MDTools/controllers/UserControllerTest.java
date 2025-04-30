@@ -343,4 +343,130 @@ public class UserControllerTest {
         userDto.setUpdatedAt(Timestamp.from(Instant.now()));
         return userDto;
     }
+
+    @WithMockUser
+    @Test
+    // Test to verify successful search for users with a query term
+    public void testSearchUsers_WithQuery() throws Exception {
+        // Arrange
+        UserDto userDto1 = createSampleUserDto(1L, "john.doe@example.com", "johnDoe");
+        UserDto userDto2 = createSampleUserDto(2L, "john.smith@example.com", "johnSmith");
+        List<UserDto> usersList = Arrays.asList(userDto1, userDto2);
+        Page<UserDto> usersPage = new PageImpl<>(usersList);
+
+        when(userService.searchPaginatedUsers(eq("john"), any(Pageable.class))).thenReturn(usersPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user/search")
+                .param("query", "john")
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[0].email").value("john.doe@example.com"))
+                .andExpect(jsonPath("$.content[0].username").value("johnDoe"))
+                .andExpect(jsonPath("$.content[1].id").value(2L))
+                .andExpect(jsonPath("$.content[1].email").value("john.smith@example.com"))
+                .andExpect(jsonPath("$.content[1].username").value("johnSmith"));
+
+        verify(userService, times(1)).searchPaginatedUsers(eq("john"), any(Pageable.class));
+    }
+
+    @WithMockUser
+    @Test
+    // Test to verify search with no query returns all users
+    public void testSearchUsers_WithoutQuery() throws Exception {
+        // Arrange
+        UserDto userDto1 = createSampleUserDto(1L, "test1@example.com", "user1");
+        UserDto userDto2 = createSampleUserDto(2L, "test2@example.com", "user2");
+        List<UserDto> usersList = Arrays.asList(userDto1, userDto2);
+        Page<UserDto> usersPage = new PageImpl<>(usersList);
+
+        when(userService.searchPaginatedUsers(eq(null), any(Pageable.class))).thenReturn(usersPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user/search")
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[0].email").value("test1@example.com"))
+                .andExpect(jsonPath("$.content[0].username").value("user1"))
+                .andExpect(jsonPath("$.content[1].id").value(2L))
+                .andExpect(jsonPath("$.content[1].email").value("test2@example.com"))
+                .andExpect(jsonPath("$.content[1].username").value("user2"));
+
+        verify(userService, times(1)).searchPaginatedUsers(eq(null), any(Pageable.class));
+    }
+
+    @WithMockUser
+    @Test
+    // Test to verify search with custom pagination parameters
+    public void testSearchUsers_WithCustomPagination() throws Exception {
+        // Arrange
+        UserDto userDto = createSampleUserDto(5L, "user5@example.com", "user5");
+        List<UserDto> usersList = Arrays.asList(userDto);
+        Page<UserDto> usersPage = new PageImpl<>(usersList);
+
+        when(userService.searchPaginatedUsers(any(), any(Pageable.class))).thenReturn(usersPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user/search")
+                .param("page", "2")
+                .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(5L))
+                .andExpect(jsonPath("$.content[0].email").value("user5@example.com"))
+                .andExpect(jsonPath("$.content[0].username").value("user5"));
+
+        // Verify the correct page request was passed
+        // We use an ArgumentCaptor to capture the Pageable parameter
+        org.mockito.ArgumentCaptor<Pageable> pageableCaptor = org.mockito.ArgumentCaptor.forClass(Pageable.class);
+        verify(userService, times(1)).searchPaginatedUsers(any(), pageableCaptor.capture());
+        Pageable capturedPageable = pageableCaptor.getValue();
+        org.junit.jupiter.api.Assertions.assertEquals(2, capturedPageable.getPageNumber());
+        org.junit.jupiter.api.Assertions.assertEquals(5, capturedPageable.getPageSize());
+    }
+
+    @WithMockUser
+    @Test
+    // Test to verify search that returns no results
+    public void testSearchUsers_NoResults() throws Exception {
+        // Arrange
+        Page<UserDto> emptyPage = new PageImpl<>(Collections.emptyList());
+        
+        when(userService.searchPaginatedUsers(eq("nonexistent"), any(Pageable.class))).thenReturn(emptyPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user/search")
+                .param("query", "nonexistent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andExpect(jsonPath("$.totalElements").value(0));
+
+        verify(userService, times(1)).searchPaginatedUsers(eq("nonexistent"), any(Pageable.class));
+    }
+
+    @WithMockUser
+    @Test
+    // Test to verify default pagination values are applied when not specified
+    public void testSearchUsers_DefaultPagination() throws Exception {
+        // Arrange
+        UserDto userDto = createSampleUserDto(1L, "user1@example.com", "user1");
+        List<UserDto> usersList = Arrays.asList(userDto);
+        Page<UserDto> usersPage = new PageImpl<>(usersList);
+
+        when(userService.searchPaginatedUsers(any(), any(Pageable.class))).thenReturn(usersPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/user/search"))
+                .andExpect(status().isOk());
+
+        // Verify that default pagination values were used
+        org.mockito.ArgumentCaptor<Pageable> pageableCaptor = org.mockito.ArgumentCaptor.forClass(Pageable.class);
+        verify(userService, times(1)).searchPaginatedUsers(any(), pageableCaptor.capture());
+        Pageable capturedPageable = pageableCaptor.getValue();
+        org.junit.jupiter.api.Assertions.assertEquals(0, capturedPageable.getPageNumber());
+        org.junit.jupiter.api.Assertions.assertEquals(10, capturedPageable.getPageSize());
+    }
 }

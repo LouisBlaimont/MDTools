@@ -211,6 +211,22 @@ public class UserService {
    }
 
    /**
+     * Find paginated users based on search query and pagination information.
+     * 
+     * @param searchQuery the search query to filter users by name
+     * @param pageable the pagination information
+     * @return a paginated list of UserDTOs matching the search query
+     */
+    public Page<UserDto> searchPaginatedUsers(String searchQuery, Pageable pageable) {
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            return getAllUsers(pageable);
+        }
+        
+        return userRepository.findByUsernameContainingIgnoreCase(searchQuery.trim(), pageable)
+                .map(UserMapper::toDto);
+    }
+
+   /**
     * Deletes a user from the database.
     *
     * @param userName The username of the user to delete.

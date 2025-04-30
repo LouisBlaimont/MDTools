@@ -45,9 +45,14 @@
         body: JSON.stringify(requestBody),
       });
 
+      reload.set(true); // Trigger a reload of the users list
       close();
-      goto("/webmaster"); // Redirect to the users page
-      reload.update(value => !value); // Toggle the reload store to trigger reactivity
+      setTimeout(() => {
+        reload.set(true);
+        goto("/webmaster", {
+          replaceState: true,
+        });
+      }, 100);
     } catch (error) {
       console.error("Failed to update user:", error);
     }
@@ -135,125 +140,6 @@
   function stopDrag() {
       isDragging = false;
   }
-
-  // Autocomplete functionality
-  let autocompleteOptions = $state({});
-  let currentAutocompleteField = $state(null);
-  let autocompleteInput = $state("");
-  let filteredAutocompleteOptions = $state([]);
-  let showAutocompleteDropdown = $state(false);
-
-  async function fetchUserOptions(characteristicName) {
-    try {
-      // Map of characteristics to their respective API endpoints
-      const userEndpoints = {
-        'username': {
-          endpoint: 'user',
-          extractValue: (item) => item.username,
-        },
-        'email': {
-          endpoint: 'user',
-          extractValue: (item) => item.email,
-        },
-      };
-
-      const config = userEndpoints[characteristicName];
-      
-      if (!config) {
-        console.warn(`No options endpoint found for ${characteristicName}`);
-        return [];
-      }
-
-      const response = await apiFetch(`/api/${config.endpoint}/list`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch options for ${characteristicName}`);
-      }
-
-      const options = await response.json();
-
-      // Extract values using the provided function
-      const extractedOptions = options.map(config.extractValue);
-      
-      // For other fields, just store the options directly
-      autocompleteOptions[characteristicName] = extractedOptions;
-      console.log("Fetched options for " + characteristicName, extractedOptions);
-      return extractedOptions;
-    } catch (error) {
-      console.error(`Error fetching options for ${characteristicName}:`, error);
-      return [];
-    }
-  }
-
-  // Handle input for autocomplete
-  function handleAutocompleteInput(event) {
-    const inputValue = event.target.value;
-    autocompleteInput = inputValue;
-    showAutocompleteDropdown = true;
-
-    
-    // Standard filtering for other fields
-    const rawOptions = JSON.parse(JSON.stringify(
-        autocompleteOptions[currentAutocompleteField] || []
-    ));
-    filteredAutocompleteOptions = rawOptions.filter(option =>
-        String(option).toLowerCase().includes(inputValue.toLowerCase())
-    );
-
-    console.log("Filtered options:", filteredAutocompleteOptions);
-  }
-
-  // Select an option from autocomplete
-  function selectAutocompleteOption(option) {
-    console.log("Selected option:", option);
-  
-    const characteristicIndex = characteristics.findIndex(
-      c => c.name === currentAutocompleteField
-    );
-    if (characteristicIndex !== -1) {
-      characteristics[characteristicIndex].value = option;
-      userEdited = true;
-    }
-
-    // Reset autocomplete states
-    autocompleteInput = '';
-    showAutocompleteDropdown = false;
-    currentAutocompleteField = null;
-  }
-
-  function closeAutocomplete() {
-    showAutocompleteDropdown = false;
-    currentAutocompleteField = null;
-  }
-
-  // Trigger autocomplete for a specific field
-  async function triggerAutocomplete(characteristicName) {
-    if (currentAutocompleteField === characteristicName && showAutocompleteDropdown) {
-      // If the same field is clicked again while dropdown is open, close it
-      showAutocompleteDropdown = false;
-      currentAutocompleteField = null;
-      return;
-    }
-    
-    // If a different field is clicked, fetch options for the new field
-    currentAutocompleteField = characteristicName;
-    
-    // Fetch options if not already loaded
-    if (!autocompleteOptions[characteristicName]) {
-      await fetchUserOptions(characteristicName);
-    }
-
-    // Reset and show dropdown
-    autocompleteInput = "";
-    filteredAutocompleteOptions = autocompleteOptions[characteristicName] || [];
-    console.log("filtered auto complete options", filteredAutocompleteOptions);
-    showAutocompleteDropdown = true;
-  }
   
 </script>
 
@@ -333,29 +219,9 @@
                                 bind:value={characteristic.value}
                                 bind:this={inputSize}
                                 onchange={() => (userEdited = true)}
-                                onfocus={() => triggerAutocomplete("username")}
-                                oninput={handleAutocompleteInput}
-                                onblur={() => closeAutocomplete()}
                                 class="w-full p-2 mt-1 mb-3 border rounded"
                                 placeholder={$_('modals.edituser.enter_name')}
                               />
-                              {#if showAutocompleteDropdown && currentAutocompleteField === "username"}
-                                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                                <ul 
-                                  class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
-                                  onmousedown={event => event.preventDefault()}
-                                >
-                                  {#each filteredAutocompleteOptions as option}
-                                      <li
-                                          class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                          onclick={() => selectAutocompleteOption(option)}
-                                      >
-                                          {option}
-                                      </li>
-                                  {/each}
-                              </ul>
-                            {/if}
                           </div>
                           {:else if characteristic.name === "email"}
 
@@ -369,27 +235,9 @@
                               bind:value={characteristic.value}
                               bind:this={inputSize}
                               onchange={() => (userEdited = true)}
-                              onfocus={() => triggerAutocomplete("email")}
-                              oninput={handleAutocompleteInput}
-                              onblur={() => closeAutocomplete()}
                               class="w-full p-2 mt-1 mb-3 border rounded"
                               placeholder={$_('modals.edituser.email')}
                             />
-                            {#if showAutocompleteDropdown && currentAutocompleteField === "email"}
-                              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                              <ul class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                                  style="width: {inputSize?.offsetWidth || 'auto'}px;"
-                                  onmousedown={event => event.preventDefault()}>
-                                {#each filteredAutocompleteOptions as option}
-                                    <li
-                                        class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                        onclick={() => selectAutocompleteOption(option)}
-                                    >
-                                        {option}
-                                    </li>
-                                {/each}
-                              </ul>
-                            {/if}
                         </div>
                       {:else if characteristic.name === "roles"}
                           <!-- Division for Roles -->
