@@ -84,16 +84,11 @@ public class UserController {
     * Registers a new user in the database.
     *
     * @param dto The user data to register.
-    * @return The registered user, or a BAD_REQUEST response if the user already exists.
+    * @return BAD_REQUEST response because users should be registered through the authentication service.
     */
    @PostMapping
-   @ResponseStatus(HttpStatus.CREATED)
+   @ResponseStatus(HttpStatus.BAD_REQUEST)
    public ResponseEntity<Void> registerUser(@RequestBody UserDto dto) {
-      // UserDto newUser = userService.registerUser(dto);
-      // if (newUser == null) {
-      //    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
-      // }
-      // return ResponseEntity.ok(newUser);
       throw new BadRequestException("Users should be registered through the authentication service");
    }
 
