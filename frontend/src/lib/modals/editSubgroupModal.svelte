@@ -179,11 +179,11 @@
                   class="w-full p-2 mt-1 mb-3 border rounded"
                 />
 
-                    <label class="block my-2 text-sm font-medium text-gray-900" for="user_avatar"
+                    <label class="font-semibold text-lg" for="user_avatar"
                       >{$_('modals.edit_subgroup.picture')}</label
                     >
                     <input
-                      class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5"
+                      class="w-full p-2 mt-1 mb-3 border rounded"
                       type="file"
                       onchange={(e) => (file = e.target.files[0])}
                     />
@@ -193,23 +193,23 @@
                       </div>
                     {/if}
               </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                type="submit"
-                class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                >{$_('modals.edit_subgroup.save')}</button
-              >
+            <div class="flex justify-end gap-4 mt-4">
               <button
                 type="button"
-                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                onclick={() => close()}>{$_('modals.edit_subgroup.cancel')}</button
-              >
-              <button
-                type="button"
-                class="mt-3 inline-flex justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:mt-0 sm:w-auto"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
                 onclick={handleDelete}>
                 {$_('modals.edit_subgroup.delete_button')}
               </button>
+              <button
+                type="button"
+                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
+                onclick={() => close()}>{$_('modals.edit_subgroup.cancel')}</button
+              >
+              <button
+                type="submit"
+                class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-700"
+                >{$_('modals.edit_subgroup.save')}</button
+              >
             </div>
           </form>
       </div>
