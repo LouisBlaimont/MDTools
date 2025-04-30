@@ -74,9 +74,8 @@
       selectedCategoryIndex.set(index);
       selectedSupplierIndex.set("");
 
-      // Scroll the corresponding image into view
       if (imageRefs[index] instanceof HTMLElement) {
-          imageRefs[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
+          imageRefs[index].scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
         console.warn(`Element at index ${index} is not available or not a valid HTMLElement.`);
       }
