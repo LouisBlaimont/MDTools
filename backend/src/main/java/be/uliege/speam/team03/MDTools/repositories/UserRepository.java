@@ -22,6 +22,7 @@ import be.uliege.speam.team03.MDTools.models.User;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
+   Page<User> findByUsernameContainingIgnoreCase(String name, Pageable pageable);
    public Optional<User> findByUserId(Long id);
 
    /**

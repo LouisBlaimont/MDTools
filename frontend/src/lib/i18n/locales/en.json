@@ -141,6 +141,8 @@
   "admin": {
     "supplier_page": {
       "title": "Suppliers management",
+      "success": "Supplier added with success!",
+      "error": "Error when adding the supplier.",
       "button": {
         "add_supplier": "Add supplier",
         "edit_supplier": "Edit supplier",
