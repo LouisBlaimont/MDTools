@@ -17,17 +17,28 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
+
+import java.io.ByteArrayOutputStream;
+import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipEntry;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
+import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.config.TestSecurityConfig;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.models.Picture;
 import be.uliege.speam.team03.MDTools.models.PictureType;
+import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import be.uliege.speam.team03.MDTools.services.PictureStorageService;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +64,10 @@ public class PictureControllerTest {
 
     @InjectMocks
     private PictureController pictureController;
+
+    @Mock
+    private InstrumentService instrumentService;
+
 
     @BeforeEach
     void setUp() {
@@ -357,4 +372,156 @@ public class PictureControllerTest {
         mockMvc.perform(delete("/api/pictures/{id}", largeId))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+        void uploadInstrumentsPictureBulk_ValidZip_SuccessfullyProcessesEntries() throws Exception {
+        // Mock instrument
+        InstrumentDTO instrument = new InstrumentDTO();
+        instrument.setId(1L);
+        when(instrumentService.findByReference("instrument1")).thenReturn(instrument);
+        when(storageService.storePicture(any(InputStream.class), eq(PictureType.INSTRUMENT), eq(1L)))
+                .thenReturn(new Picture(1L, "instrument1.jpg", PictureType.INSTRUMENT, 1L, null));
+
+        // Create temp zip file with one image
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+        zos.putNextEntry(new ZipEntry("instrument1.jpg"));
+        zos.write("fake image content".getBytes());
+        zos.closeEntry();
+        }
+        byte[] zipContent = baos.toByteArray();
+
+        MockMultipartFile zipFile = new MockMultipartFile("zipFiles", "test.zip", "application/zip", zipContent);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/pictures/instruments/bulk-upload")
+                .file(zipFile))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].fileName").value("instrument1.jpg"))
+                .andExpect(jsonPath("$[0].message").value("Uploaded successfully"))
+                .andExpect(jsonPath("$[0].success").value(true));
+        }
+
+        @Test
+        void uploadInstrumentsPictureBulk_InvalidFileName_Skipped() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                zos.putNextEntry(new ZipEntry(".DS_Store"));
+                zos.write("irrelevant".getBytes());
+                zos.closeEntry();
+        }
+        byte[] zipContent = baos.toByteArray();
+                
+        MockMultipartFile zipFile = new MockMultipartFile("zipFiles", "test.zip", "application/zip", zipContent);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/pictures/instruments/bulk-upload")
+                .file(zipFile))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].fileName").value(".DS_Store"))
+                .andExpect(jsonPath("$[0].message").value("Skipping file: .DS_Store - Invalid filename format"))
+                .andExpect(jsonPath("$[0].success").value(false));
+        }
+
+        @Test
+        void uploadInstrumentsPictureBulk_EmptyList_ThrowsBadRequestException() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/pictures/instruments/bulk-upload"))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void uploadInstrumentsPictureBulk_InvalidMimeType_ReturnsErrorInResults() throws Exception {
+        MockMultipartFile invalidFile = new MockMultipartFile("zipFiles", "notazip.txt", "text/plain", "not zip".getBytes());
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/pictures/instruments/bulk-upload")
+                .file(invalidFile))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].fileName").value("notazip.txt"))
+                .andExpect(jsonPath("$[0].message").value("Invalid file type. Only zip files are allowed."))
+                .andExpect(jsonPath("$[0].success").value(false));
+        }
+        @Test
+        void uploadInstrumentsPictureBulkFormData_ValidRequest_ReturnsOk() throws Exception {
+            // Mock instrument with ID
+            InstrumentDTO mockInstrument = new InstrumentDTO();
+            mockInstrument.setId(42L);
+            when(instrumentService.findByReference("ABC123")).thenReturn(mockInstrument);
+        
+            // Mock storage return
+            Picture mockPicture = new Picture(1L, "pic.jpg", PictureType.INSTRUMENT, 42L, null);
+            when(storageService.storePicture(any(MultipartFile.class), eq(PictureType.INSTRUMENT), eq(42L))).thenReturn(mockPicture);
+        
+            // Build multipart request
+            MockMultipartFile file = new MockMultipartFile("picture", "pic.jpg", "image/jpeg", "test image".getBytes());
+        
+            mockMvc.perform(MockMvcRequestBuilders.multipart("/api/pictures/instruments/upload-with-reference")
+                    .file(file)
+                    .param("reference", "ABC123"))
+                    .andExpect(status().isOk());
+        }
+        @Test
+        void uploadInstrumentsPictureBulkFormData_InvalidReference_ThrowsException() throws Exception {
+            when(instrumentService.findByReference("INVALID")).thenThrow(new ResourceNotFoundException("Not found"));
+        
+            MockMultipartFile file = new MockMultipartFile("picture", "pic.jpg", "image/jpeg", "test image".getBytes());
+        
+            mockMvc.perform(MockMvcRequestBuilders.multipart("/api/pictures/instruments/upload-with-reference")
+                    .file(file)
+                    .param("reference", "INVALID"))
+                    .andExpect(status().isNotFound());
+        }
+        @Test
+        void processExtractedFile_HiddenFile_SkippedWithErrorMessage() throws Exception {
+            // Setup
+            byte[] zipContent = createZipContent(Map.of(".DS_Store", "irrelevant".getBytes()));
+            MockMultipartFile zipFile = new MockMultipartFile("zipFiles", "archive.zip", "application/zip", zipContent);
+        
+            // Run endpoint
+            mockMvc.perform(multipart("/api/pictures/instruments/bulk-upload")
+                    .file(zipFile))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].fileName").value(".DS_Store"))
+                    .andExpect(jsonPath("$[0].message").value("Skipping file: .DS_Store - Invalid filename format"))
+                    .andExpect(jsonPath("$[0].success").value(false));
+        }
+        @Test
+        void processExtractedFile_FileWithoutExtension_Skipped() throws Exception {
+            byte[] zipContent = createZipContent(Map.of("noextension", "content".getBytes()));
+            MockMultipartFile zipFile = new MockMultipartFile("zipFiles", "archive.zip", "application/zip", zipContent);
+        
+            mockMvc.perform(multipart("/api/pictures/instruments/bulk-upload")
+                    .file(zipFile))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].fileName").value("noextension"))
+                    .andExpect(jsonPath("$[0].message").value("Skipping file: noextension - Invalid filename format"))
+                    .andExpect(jsonPath("$[0].success").value(false));
+        }
+
+        @Test
+        void processExtractedFile_ReferenceNotFound_ReturnsError() throws Exception {
+            byte[] zipContent = createZipContent(Map.of("UNKNOWN.jpg", "image".getBytes()));
+            MockMultipartFile zipFile = new MockMultipartFile("zipFiles", "archive.zip", "application/zip", zipContent);
+        
+            when(instrumentService.findByReference("UNKNOWN")).thenReturn(null);
+        
+            mockMvc.perform(multipart("/api/pictures/instruments/bulk-upload")
+                    .file(zipFile))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].fileName").value("UNKNOWN.jpg"))
+                    .andExpect(jsonPath("$[0].message").value("Instrument with reference 'UNKNOWN' not found"))
+                    .andExpect(jsonPath("$[0].success").value(false));
+        }
+        
+        private byte[] createZipContent(Map<String, byte[]> files) throws IOException {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                    for (Map.Entry<String, byte[]> entry : files.entrySet()) {
+                        ZipEntry zipEntry = new ZipEntry(entry.getKey());
+                        zos.putNextEntry(zipEntry);
+                        zos.write(entry.getValue());
+                        zos.closeEntry();
+                    }
+                }
+                return baos.toByteArray();
+            }
+                                                            
+        
 }

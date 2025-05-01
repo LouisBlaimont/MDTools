@@ -119,10 +119,18 @@
       );
 
       if (!response.ok) {
-        const errorMessage = await response.json();
-        throw new Error(errorMessage.message || response.statusText);
-      }
+        const contentType = response.headers.get("Content-Type") || "";
+        let errorMessage;
 
+        if (contentType.includes("application/json")) {
+          const errorJson = await response.json();
+          errorMessage = errorJson.message || response.statusText;
+        } else {
+          errorMessage = response.statusText || `Erreur ${response.status}`;
+        }
+
+        throw new Error(errorMessage);
+      }
       // Update status to success
       uploadStatus[index] = {
         status: "success",

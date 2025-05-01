@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.springframework.data.domain.Sort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,8 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.SupplierDTO;
+import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.mapper.InstrumentMapper;
 import be.uliege.speam.team03.MDTools.models.Category;
@@ -34,6 +38,7 @@ import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.Supplier;
 import be.uliege.speam.team03.MDTools.repositories.CategoryRepository;
 import be.uliege.speam.team03.MDTools.repositories.InstrumentRepository;
+import be.uliege.speam.team03.MDTools.repositories.SubGroupRepository;
 import be.uliege.speam.team03.MDTools.repositories.SupplierRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +58,13 @@ public class InstrumentServiceTest {
 
     @Mock(strictness = Mock.Strictness.LENIENT)
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private SupplierService supplierService;
+
+    @Mock
+    private SubGroupRepository subGroupRepository;
+
 
     @InjectMocks
     private InstrumentService instrumentService;
@@ -334,5 +346,254 @@ public class InstrumentServiceTest {
         });
         
         assertTrue(exception.getMessage().contains("Instrument not found with ID: 999"));
+    }
+
+    @Test
+    void addInstrument_WithValidData_ReturnsSavedInstrumentDTO() {
+        // Arrange
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.empty());
+        when(supplierService.findSupplierByName("Test Supplier")).thenReturn(new SupplierDTO());
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(new Category()));
+        when(instrumentMapper.convertToEntity(instrumentDTO)).thenReturn(instrument);
+        when(instrumentRepository.save(instrument)).thenReturn(instrument);
+        when(instrumentMapper.convertToDTO(instrument)).thenReturn(instrumentDTO);
+
+        // Act
+        InstrumentDTO result = instrumentService.addInstrument(instrumentDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Test Reference", result.getReference());
+    }
+
+
+    @Test
+    void addInstrument_MissingReference_ThrowsBadRequest() {
+        instrumentDTO.setReference(null);
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+        assertTrue(exception.getMessage().contains("Reference is required to identify an instrument"));
+    }
+
+    @Test
+    void addInstrument_MissingSupplier_ThrowsBadRequest() {
+        instrumentDTO.setSupplier(null);
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+        assertTrue(exception.getMessage().contains("Supplier name cannot be null or empty"));
+
+    }
+
+    @Test
+    void addInstrument_MissingCategoryId_ThrowsBadRequest() {
+        instrumentDTO.setCategoryId(null);
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+        assertTrue(exception.getMessage().contains("Category ID is required to identify an instrument"));
+
+    }
+
+    @Test
+    void addInstrument_DuplicateReference_ThrowsBadRequest() {
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.of(instrument));
+
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+
+        assertTrue(exception.getMessage().contains("An instrument with this reference already exists."));
+    }
+
+    @Test
+    void addInstrument_UnknownSupplier_ThrowsBadRequest() {
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.empty());
+        when(supplierRepository.findBySupplierName("Test Supplier")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+
+        assertTrue(exception.getMessage().contains("Supplier not found: Test Supplier"));
+    }
+
+    @Test
+    void addInstrument_UnknownCategory_ThrowsBadRequest() {
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.empty());
+        when(supplierService.findSupplierByName("Test Supplier")).thenReturn(new SupplierDTO());
+        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+
+
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+
+        assertTrue(exception.getMessage().contains("Category not found with ID: 1"));
+
+    }
+
+    @Test
+    void addInstrument_NegativePrice_ThrowsBadRequest() {
+        instrumentDTO.setPrice(-10F);
+        when(instrumentRepository.findByReferenceIgnoreCase("Test Reference")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(BadRequestException.class, () -> {
+            instrumentService.addInstrument(instrumentDTO);
+        });
+
+        assertTrue(exception.getMessage().contains("Price cannot be negative."));
+    }
+
+    @Test
+    void findInstrumentsOfCategory_WhenCategoryExistsAndHasInstruments_ReturnsInstrumentDTOs() {
+        // Arrange
+        Category category = new Category();
+        SubGroup subGroup = new SubGroup();
+        Group group = new Group();
+        group.setId(1L);
+        subGroup.setGroup(group);
+        category.setSubGroup(subGroup);
+
+        Supplier supplier = new Supplier();
+        supplier.setSupplierName("Test Supplier");
+
+        instrument.setCategory(category);
+        instrument.setSupplier(supplier);
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(instrumentRepository.findByCategory(category)).thenReturn(Optional.of(List.of(instrument)));
+        when(pictureStorageService.getPicturesIdByReferenceIdAndPictureType(anyLong(), any()))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        List<InstrumentDTO> result = instrumentService.findInstrumentsOfCatergory(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Reference", result.get(0).getReference());
+        assertEquals("Test Supplier", result.get(0).getSupplier());
+    }
+
+
+    @Test
+    void findInstrumentsOfCategory_WhenCategoryExistsButNoInstruments_ReturnsNull() {
+        // Arrange
+        Category category = new Category();
+        SubGroup subGroup = new SubGroup();
+        Group group = new Group();
+        group.setId(1L);
+        subGroup.setGroup(group);
+        category.setSubGroup(subGroup);
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(instrumentRepository.findByCategory(category)).thenReturn(Optional.empty());
+
+        // Act
+        List<InstrumentDTO> result = instrumentService.findInstrumentsOfCatergory(1L);
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void findInstrumentsOfCategory_WhenCategoryDoesNotExist_ThrowsResourceNotFoundException() {
+        // Arrange
+        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.findInstrumentsOfCatergory(999L);
+        });
+
+        assertTrue(exception.getMessage().contains("Category with the id 999 doesn't exist"));
+    }
+
+    @Test
+    void findInstrumentsBySubGroup_WhenSubGroupExists_ReturnsInstrumentDTOs() {
+        SubGroup subGroup = new SubGroup();
+        subGroup.setName("SubGroup A");
+
+        Category category = new Category();
+        category.setSubGroup(subGroup);
+
+        List<Category> categories = List.of(category);
+
+        when(subGroupRepository.findByName("SubGroup A")).thenReturn(Optional.of(subGroup));
+        when(categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"))).thenReturn(categories);
+        when(instrumentRepository.findByCategory(category)).thenReturn(Optional.of(instruments));
+        when(instrumentMapper.convertToDTO(instruments)).thenReturn(instrumentDTOs);
+
+        List<InstrumentDTO> result = instrumentService.findInstrumentsBySubGroup("SubGroup A");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Reference", result.get(0).getReference());
+    }
+
+    @Test
+    void findInstrumentsBySubGroup_WhenSubGroupNotFound_ThrowsException() {
+        when(subGroupRepository.findByName("Unknown")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.findInstrumentsBySubGroup("Unknown");
+        });
+
+        assertTrue(exception.getMessage().contains("SubGroup not found with name: Unknown"));
+    }
+
+    @Test
+    void findInstrumentsBySupplierName_WhenSupplierExists_ReturnsInstrumentDTOs() {
+        Supplier supplier = new Supplier();
+        supplier.setId(1L);
+        supplier.setSupplierName("Test Supplier");
+
+        when(supplierRepository.findBySupplierName("Test Supplier")).thenReturn(Optional.of(supplier));
+        when(instrumentRepository.findBySupplierId(1L)).thenReturn(Optional.of(instruments));
+        when(instrumentMapper.convertToDTO(instruments)).thenReturn(instrumentDTOs);
+
+        List<InstrumentDTO> result = instrumentService.findInstrumentsBySupplierName("Test Supplier");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Reference", result.get(0).getReference());
+    }
+
+    @Test
+    void findInstrumentsBySupplierName_WhenSupplierNotFound_ThrowsException() {
+        when(supplierRepository.findBySupplierName("Unknown")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            instrumentService.findInstrumentsBySupplierName("Unknown");
+        });
+
+        assertTrue(exception.getMessage().contains("Supplier not found with name: Unknown"));
+    }
+
+    @Test
+    void findInstrumentsBySupplierId_WhenSupplierExists_ReturnsInstrumentDTOs() {
+        Supplier supplier = new Supplier();
+        supplier.setId(1L);
+
+        when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
+        when(instrumentRepository.findBySupplierId(1L)).thenReturn(Optional.of(instruments));
+        when(instrumentMapper.convertToDTO(instruments)).thenReturn(instrumentDTOs);
+
+        List<InstrumentDTO> result = instrumentService.findInstrumentsBySupplierId(1L);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Reference", result.get(0).getReference());
+    }
+
+    @Test
+    void findInstrumentsBySupplierId_WhenSupplierNotFound_ReturnsNull() {
+        when(supplierRepository.findById(999L)).thenReturn(Optional.empty());
+
+        List<InstrumentDTO> result = instrumentService.findInstrumentsBySupplierId(999L);
+
+        assertNull(result);
     }
 }
