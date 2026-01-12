@@ -22,7 +22,7 @@ COPY --from=build /app /app
 CMD ["mvn", "test"]
 
 # Stage 3: Create a minimal image for running the application
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 # Set the UID and GID
 ENV USER_ID=3000
