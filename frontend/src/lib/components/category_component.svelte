@@ -147,7 +147,7 @@
 </script>
 
 <div class="flex">
-  <div class="flex-[3] max-h-[150vh] box-border ml-3 overflow-y-auto">
+  <div class="flex-[3] max-h-[70vh] box-border ml-3 overflow-y-auto">
     <!-- TABLE OF CATEGORIES CORRESPONDING TO RESEARCH  -->
     {#if $showCategories}
       <table id="tools-table" data-testid="categories-table" class="w-full border-collapse">
@@ -218,7 +218,7 @@
   </div>
 
   <!-- PICTURES OF THE CATEGORIES -->
-  <div class="flex-[1] max-h-[150vh] overflow-y-auto ml-3 max-w-[150px]" bind:this={imageContainerRef}>
+  <div class="flex-[1] max-h-[70vh] overflow-y-auto ml-3 max-w-[150px]" bind:this={imageContainerRef}>
       <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
           <span class="p-1">{$_('category_component.pictures.title')}</span>
       </div>
