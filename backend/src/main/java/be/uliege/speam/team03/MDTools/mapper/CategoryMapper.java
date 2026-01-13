@@ -96,7 +96,7 @@ public class CategoryMapper {
         List<Long> pictureIds = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) category.getId(),
                 PictureType.CATEGORY);
 
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, externalCode, function, design, shape, author, dimOrig, lenAbrv, pictureIds);
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, externalCode, function, author, name, design, shape, dimOrig, lenAbrv, pictureIds);
 
         return categoryDTO;
     }
@@ -190,7 +190,7 @@ public class CategoryMapper {
             }
         }
 
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, externalCode, function, design, shape, author, dimOrig, lenAbrv, pictureIds);
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, externalCode, function, author, name, design, shape, dimOrig, lenAbrv, pictureIds);
 
         return categoryDTO;
     }

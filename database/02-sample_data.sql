@@ -181,11 +181,11 @@ INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_pos
 
 -- Carenam Instruments
 (8,1,NULL), -- Length
-(8,7,NULL), -- Name
-(8,6,NULL), -- Function
-(8, 17, NULL), -- Design
 (8, 18, NULL), -- Code Externe
+(8,6,NULL), -- Function
 (8, 19, NULL), -- Auteur
+(8,7,NULL), -- Name
+(8, 17, NULL), -- Design
 (8, 20, NULL); -- Dim orig
 
 
