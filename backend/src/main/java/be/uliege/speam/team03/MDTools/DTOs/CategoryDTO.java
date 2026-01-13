@@ -18,9 +18,15 @@ public class CategoryDTO {
     private Long id;
     private String groupName;
     private String subGroupName;
-    private String name;
+
+    private String externalCode;   // NEW
     private String function;
+    private String author;         // NEW
+    private String name;
+    private String design;         // NEW
     private String shape;
-    private String lenAbrv;
+
+    private String dimOrig;        // NEW
+    private String lenAbrv;            // OLD lenAbrv
     private List<Long> picturesId;
 }

@@ -83,10 +83,13 @@
       "table": {
         "group": "GROEP",
         "subgroup": "SUB-GROEP",
+        "external_code": "CODE EXTERNE",
         "function": "FUNCTIE",
-        "name": "NAAM",
-        "shape": "FORM",
-        "dimension": "MAAT"
+        "author": "AUTEUR",
+        "name": "TYPE",
+        "design": "DESIGN",
+        "dim_orig": "DIM ORIG",
+        "dimension": "DIM"
       }
     },
     "admin": {

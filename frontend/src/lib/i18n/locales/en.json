@@ -83,9 +83,12 @@
       "table": {
         "group": "GROUP",
         "subgroup": "SUBGROUP",
-        "function": "FUNCTION",
-        "name": "NAME",
-        "shape": "SHAPE",
+        "external_code": " EXTERNAL CODE",
+        "function": "GROUP NAME",
+        "author": "AUTHOR",
+        "name": "TYPE",
+        "design": "DESIGN",
+        "dim_orig": "DIM ORIG",
         "dimension": "DIM"
       }
     },

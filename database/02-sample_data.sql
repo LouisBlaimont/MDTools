@@ -14,7 +14,8 @@ INSERT INTO groups (group_name) VALUES
 ('Scalpels'), 
 ('Scissors'), 
 ('Forceps'),
-('Scissors2');
+('Scissors2'),
+('Carename');
 
 
 /* Insert into sub_group table */
@@ -25,7 +26,8 @@ INSERT INTO sub_groups (sub_group_name, group_id) VALUES
 ('Straight Scissors', 2),
 ('Locking Forceps', 3),
 ('Non-Locking Forceps', 3),
-('classic scissors', 4);
+('classic scissors', 4),
+('Carenam Instruments', 5);
 
 -- Insert into users table
 INSERT INTO users (username, email) VALUES 
@@ -117,7 +119,11 @@ INSERT INTO characteristic (characteristic_name) VALUES
 ('epaisseur'),
 ('branche'),
 ('anneaux'),
-('autre');
+('autre'), 
+('Design'),
+('Code Externe'),
+('Auteur'),
+('Dim orig');
 
 -- Link characteristics to sub_group
 INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_position) VALUES
@@ -171,7 +177,16 @@ INSERT INTO sub_group_characteristic (sub_group_id, characteristic_id, order_pos
 (7,13,6), -- epaisseur
 (7,14,7), -- branche
 (7,15, 8), -- anneaux
-(7,16,9); -- autre
+(7,16,9), -- autre
+
+-- Carenam Instruments
+(8,1,NULL), -- Length
+(8,7,NULL), -- Name
+(8,6,NULL), -- Function
+(8, 17, NULL), -- Design
+(8, 18, NULL), -- Code Externe
+(8, 19, NULL), -- Auteur
+(8, 20, NULL); -- Dim orig
 
 
 -- Add value_abreviation to category_characteristic_abbreviations table

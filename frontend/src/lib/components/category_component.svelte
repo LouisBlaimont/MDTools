@@ -182,9 +182,13 @@
               {#if !$selectedSubGroup}
               <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.subgroup')}</th>
               {/if}
+              
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.external_code')}</th>
               <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.function')}</th>
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.author')}</th>
               <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.name')}</th>
-              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.shape')}</th>
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.design')}</th>
+              <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.dim_orig')}</th>
               <th class="text-center border border-solid border-[black]">{$_('category_component.title.table.dimension')}</th>
             </tr>
         </thead>
@@ -206,9 +210,12 @@
               {#if !$selectedSubGroup}
               <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
               {/if}
+              <td class="text-center border border-solid border-[black]">{row.externalCode}</td>
               <td class="text-center border border-solid border-[black]">{row.function}</td>
+              <td class="text-center border border-solid border-[black]">{row.author}</td>
               <td class="text-center border border-solid border-[black]">{row.name}</td>
-              <td class="text-center border border-solid border-[black]">{row.shape}</td>
+              <td class="text-center border border-solid border-[black]">{row.design}</td>
+              <td class="text-center border border-solid border-[black]">{row.dimOrig}</td>
               <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
             </tr>
           {/each}

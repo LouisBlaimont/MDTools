@@ -38,8 +38,19 @@ public class CategoryMapper {
         if (nameMaybe.isPresent()) {
             name = nameMaybe.get();
         } else {
+            System.out.println("Name is not present");
             name = null;
         }
+
+        String externalCode;
+        Optional<String> externalCodeMaybe = categoryRepository.findCharacteristicVal(id, "Code Externe");
+        if (externalCodeMaybe.isPresent()) {
+            externalCode = externalCodeMaybe.get();
+        } else {
+            System.out.println("externalCode is not present");
+            externalCode = null;
+        }
+
 
         String function;
         Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
@@ -49,6 +60,29 @@ public class CategoryMapper {
             function = null;
         }
 
+        String design;
+        Optional<String> designMaybe = categoryRepository.findCharacteristicVal(id, "Design");
+        if (designMaybe.isPresent()) {
+            design = designMaybe.get();
+        } else {
+            design = null;
+        }
+
+        String author;
+        Optional<String> authorMaybe = categoryRepository.findCharacteristicVal(id, "Auteur");
+        if (authorMaybe.isPresent()) {
+            author = authorMaybe.get();
+        } else {
+            author = null;
+        }
+
+        String dimOrig;
+        Optional<String> dimOrigMaybe = categoryRepository.findCharacteristicVal(id, "Dim orig");
+        if (dimOrigMaybe.isPresent()) {
+            dimOrig = dimOrigMaybe.get();
+        } else {
+            dimOrig = null;
+        }
         String shape = category.getShape();
 
         String lenAbrv;
@@ -62,7 +96,7 @@ public class CategoryMapper {
         List<Long> pictureIds = pictureStorageService.getPicturesIdByReferenceIdAndPictureType((long) category.getId(),
                 PictureType.CATEGORY);
 
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, pictureIds);
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, externalCode, function, design, shape, author, dimOrig, lenAbrv, pictureIds);
 
         return categoryDTO;
     }
@@ -88,6 +122,16 @@ public class CategoryMapper {
             name = null;
         }
 
+        String externalCode;
+        Optional<String> externalCodeMaybe = categoryRepository.findCharacteristicVal(id, "Code Externe");
+        if (externalCodeMaybe.isPresent()) {
+            externalCode = externalCodeMaybe.get();
+        } else {
+            System.out.println("externalCode is not present");
+            externalCode = null;
+        }
+
+
         String function;
         Optional<String> functionMaybe = categoryRepository.findCharacteristicVal(id, "Function");
         if (functionMaybe.isPresent()) {
@@ -96,7 +140,29 @@ public class CategoryMapper {
             function = null;
         }
 
-        String shape = category.getShape();
+        String design;
+        Optional<String> designMaybe = categoryRepository.findCharacteristicVal(id, "Design");
+        if (designMaybe.isPresent()) {
+            design = designMaybe.get();
+        } else {
+            design = null;
+        }
+
+        String author;
+        Optional<String> authorMaybe = categoryRepository.findCharacteristicVal(id, "Auteur");
+        if (authorMaybe.isPresent()) {
+            author = authorMaybe.get();
+        } else {
+            author = null;
+        }
+
+        String dimOrig;
+        Optional<String> dimOrigMaybe = categoryRepository.findCharacteristicVal(id, "Dim orig");
+        if (dimOrigMaybe.isPresent()) {
+            dimOrig = dimOrigMaybe.get();
+        } else {
+            dimOrig = null;
+        }
 
         String lenAbrv;
         Optional<String> lenAbrvMaybe = categoryRepository.findCharacteristicVal(id, "Length");
@@ -105,6 +171,8 @@ public class CategoryMapper {
         } else {
             lenAbrv = null;
         }
+
+        String shape = category.getShape();
 
         // Create a mutable ArrayList from the potentially immutable list
         List<Long> pictureIds = new ArrayList<>(pictureStorageService
@@ -122,7 +190,7 @@ public class CategoryMapper {
             }
         }
 
-        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, function, shape, lenAbrv, pictureIds);
+        CategoryDTO categoryDTO = new CategoryDTO(id, gName, subgName, name, externalCode, function, design, shape, author, dimOrig, lenAbrv, pictureIds);
 
         return categoryDTO;
     }
