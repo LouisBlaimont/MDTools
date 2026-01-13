@@ -45,4 +45,61 @@ public interface CategoryCharacteristicRepository
       @Query("SELECT DISTINCT val FROM CategoryCharacteristic cc WHERE cc.val \n" + //
             "NOT IN (SELECT value FROM CharacteristicValueAbbreviation)\n")
       List<String> findAllWithoutAbbreviation(Pageable pageable);
+
+      /**
+       * Search categories based on various criteria using native SQL query.
+       *
+       * @param subGroupId  the ID of the sub-group to filter categories
+       * @param function    the function to search for (nullable)
+       * @param name        the name to search for (nullable)
+       * @param minLength   the minimum length for length range search (nullable)
+       * @param maxLength   the maximum length for length range search (nullable)
+       * @param otherKeys   list of other characteristic keys to consider
+       * @param otherValues list of other characteristic values to consider
+       * @param useOther    flag indicating whether to use other keys/values in search
+       * @param minMatches  minimum number of matching criteria required
+       * @return list of category IDs matching the search criteria
+       */
+      @Query(value = """
+      SELECT c.category_id
+      FROM category c
+      LEFT JOIN category_characteristic cc ON cc.category_id = c.category_id
+      LEFT JOIN characteristic k ON k.characteristic_id = cc.characteristic_id
+      WHERE c.sub_group_id = :subGroupId
+      GROUP BY c.category_id
+      HAVING
+            /* Function */
+            SUM(CASE WHEN (:function IS NOT NULL AND k.characteristic_name = 'Function'
+                        AND cc.characteristic_value ILIKE CONCAT('%', :function, '%')) THEN 1 ELSE 0 END)
+      +
+            /* Name */
+            SUM(CASE WHEN (:name IS NOT NULL AND k.characteristic_name = 'Name'
+                        AND cc.characteristic_value ILIKE CONCAT('%', :name, '%')) THEN 1 ELSE 0 END)
+      +
+            /* Length */
+            SUM(CASE WHEN (:minLength IS NOT NULL AND :maxLength IS NOT NULL
+                        AND k.characteristic_name = 'Length'
+                        AND cc.characteristic_value ~ '^[0-9]+(\\.[0-9]+)?$'
+                        AND (cc.characteristic_value)::float BETWEEN :minLength AND :maxLength)
+                  THEN 1 ELSE 0 END)
+      +
+            /* Other keys / values */
+            SUM(CASE WHEN (:useOther = TRUE
+                        AND k.characteristic_name IN (:otherKeys)
+                        AND cc.characteristic_value IN (:otherValues)) THEN 1 ELSE 0 END)
+      >= :minMatches
+      """, nativeQuery = true)
+      List<Long> searchCategoriesSQL(
+      @Param("subGroupId") Long subGroupId,
+      @Param("function") String function,
+      @Param("name") String name,
+      @Param("minLength") Double minLength,
+      @Param("maxLength") Double maxLength,
+      @Param("otherKeys") List<String> otherKeys,
+      @Param("otherValues") List<String> otherValues,
+      @Param("useOther") Boolean useOther,
+      @Param("minMatches") Integer minMatches
+      );
+
+
 }

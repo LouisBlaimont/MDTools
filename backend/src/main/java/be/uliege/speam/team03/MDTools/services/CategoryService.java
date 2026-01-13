@@ -230,100 +230,98 @@ public class CategoryService {
      * @return List of categoryDTO
      */
     public List<CategoryDTO> findCategoriesByCharacteristics(Map<String, Object> body) {
+
         String groupName = (String) body.get("groupName");
         String subGroupName = (String) body.get("subGroupName");
 
-        if (groupName == null || subGroupName == null){
-            throw new BadRequestException("Missing field for the group and subgroup");    
+        if (groupName == null || subGroupName == null) {
+            throw new BadRequestException("Missing field for the group and subgroup");
         }
+ 
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+                .orElseThrow(() -> new ResourceNotFoundException("SubGroup not found: " + subGroupName));
 
-        Optional<Group> groupMaybe = groupRepository.findByName(groupName);
-        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (groupMaybe.isEmpty() || subGroupMaybe.isEmpty()) {
-            throw new ResourceNotFoundException("No subgroup named " + subGroupName + "or no group named " + groupName + " found");
-        }
-
-        SubGroup subGroup = subGroupMaybe.get();
-
-        Map<String, String> searchBy = new HashMap<>();
         String function = (String) body.get("function");
-        searchBy.put("Function", function);
         String name = (String) body.get("name");
-        searchBy.put("Name", name);
+
+        Double minLength = body.containsKey("minLength") ? ((Number) body.get("minLength")).doubleValue() : null;
+        Double maxLength = body.containsKey("maxLength") ? ((Number) body.get("maxLength")).doubleValue() : null;
+
+        List<String> otherKeys = new ArrayList<>();
+        List<String> otherValues = new ArrayList<>();
+
         Object characteristics = body.get("characteristics");
-
-        if (characteristics instanceof List<?>) {
-            for (Object item : (List<?>) characteristics) {
-                if (item instanceof Map<?, ?> characteristicMap) {
-                    Object nameObj = characteristicMap.get("name");
-                    Object valueObj = characteristicMap.get("value");
-
-                    if (nameObj instanceof String charName && valueObj instanceof String charValue) {
-                        searchBy.put(charName, charValue);
+        if (characteristics instanceof List<?> list) {
+            for (Object o : list) {
+                if (o instanceof Map<?, ?> map) {
+                    Object n = map.get("name");
+                    Object v = map.get("value");
+                    if (n instanceof String && v instanceof String && !((String) v).isBlank()) {
+                        otherKeys.add((String) n);
+                        otherValues.add((String) v);
                     }
                 }
             }
         }
 
-        List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
+        int filterCount = 0;
+        if (function != null && !function.isBlank()) filterCount++;
+        if (name != null && !name.isBlank()) filterCount++;
+        if (minLength != null && maxLength != null) filterCount++;
+        filterCount += otherKeys.size();
 
+        // Aucun filtre => renvoie tout
+        if (filterCount == 0) {
+            List<Category> categories = categoryRepository.findBySubGroup(
+                    subGroup, Sort.by("subGroupName", "id")
+            );
 
-        // remove characteristics without value
-        Map<String, String> filteredSearchBy = searchBy.entrySet().stream()
-                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        
-        Double minLength = body.containsKey("minLength") ? ((Number) body.get("minLength")).doubleValue() : 0.0;
-        Double maxLength = body.containsKey("maxLength") ? ((Number) body.get("maxLength")).doubleValue() : Double.POSITIVE_INFINITY;
-
-        if (filteredSearchBy.isEmpty() && minLength == 0.0 && maxLength == Double.POSITIVE_INFINITY) {
-            List<CategoryDTO> categoriesDTO = new ArrayList<>();
-            for (Category category : categories) {
-                CategoryDTO categoryDTO = catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(category, pictureStorageService, instrumentService);
-                categoriesDTO.add(categoryDTO);
-            }
-            return categoriesDTO;
+            return categories.stream()
+                    .map(c -> catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(
+                            c, pictureStorageService, instrumentService))
+                    .toList();
         }
 
-        List<Long> categoryIds = categories.stream().map(Category::getId).toList();
+        // Empêcher les IN () vides dans SQL
+        boolean useOther = !otherKeys.isEmpty();
+        if (!useOther) {
+            otherKeys = List.of("__NO_MATCH__");
+            otherValues = List.of("__NO_MATCH__");
+        }
 
-        List<CategoryCharacteristic> categoryChars = categoryCharRepository.findByCategoryIds(categoryIds);
+        List<Long> categoryIds = categoryCharRepository.searchCategoriesSQL(
+                subGroup.getId(),
+                function != null && !function.isBlank() ? function : null,
+                name != null && !name.isBlank() ? name : null,
+                minLength,
+                maxLength,
+                otherKeys,
+                otherValues,
+                useOther,
+                filterCount
+        );
 
-        Map<Category, Map<String, String>> categoryToChar = categoryChars.stream()
-                .collect(Collectors.groupingBy(
-                        CategoryCharacteristic::getCategory,
-                        Collectors.toMap(cc -> cc.getCharacteristic().getName(),
-                                CategoryCharacteristic::getVal, (existing, replacement) -> existing)));
+        if (categoryIds.isEmpty()) {
+            return List.of();
+        }
 
-        List<Category> filteredCategories = categoryToChar.entrySet().stream()
-                .filter(entry -> {
-                    Map<String, String> charMap = entry.getValue();
-                    boolean matchesNormalChars = charMap.entrySet().containsAll(filteredSearchBy.entrySet());
-                    boolean matchesLength  = true;
-                    if(charMap.containsKey("Length")){
-                        try{
-                            double length = Double.parseDouble(charMap.get("Length"));
-                            matchesLength = length >= minLength && length <= maxLength;
-                        }catch(NumberFormatException e){
-                            matchesLength = false;
-                        }
-                    }
-                    return matchesNormalChars && matchesLength;
-                })
-                .map(Map.Entry::getKey)
-                .sorted(Comparator.comparing(Category::getSubGroup, Comparator.comparing(SubGroup::getName))
-                        .thenComparing(Category::getId))
+        // FIX Iterable -> List
+        List<Category> categories = new ArrayList<>();
+        categoryRepository.findAllById(categoryIds).forEach(categories::add);
+
+        // Sort identique à l'ancien code
+        categories.sort(
+                Comparator.comparing(Category::getSubGroup, Comparator.comparing(SubGroup::getName))
+                        .thenComparing(Category::getId)
+        );
+
+        return categories.stream()
+                .map(c -> catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(
+                        c, pictureStorageService, instrumentService))
                 .toList();
-
-        List<CategoryDTO> categoriesDTO = new ArrayList<>();
-        for (Category category : filteredCategories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(category, pictureStorageService, instrumentService);
-            categoriesDTO.add(categoryDTO);
-        }
-        return categoriesDTO;
-
     }
+
+
 
     /**
      * Gets the characteristics (with their value) of the category given by catId
