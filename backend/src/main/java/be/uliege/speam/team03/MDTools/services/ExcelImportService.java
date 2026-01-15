@@ -1,11 +1,13 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
+import be.uliege.speam.team03.MDTools.DTOs.ImportProgressDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.AlternativesKey;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.models.*;
 import be.uliege.speam.team03.MDTools.repositories.*;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.text.Normalizer;
 
-@AllArgsConstructor
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.PersistenceContext;
+import java.util.stream.StreamSupport;
+
+@RequiredArgsConstructor
 @Service
 public class ExcelImportService {
 
@@ -31,12 +39,69 @@ public class ExcelImportService {
     private final CharacteristicAbbreviationService abbreviationService;
     private final AlternativesRepository alternativesRepository;
 
+    @PersistenceContext
+    private EntityManager em;
+
+    // PAS final → PAS injectés par Spring
+    private Map<String, Instruments> instrumentCache = new HashMap<>();
+    private Map<String, Supplier> supplierCache = new HashMap<>();
+    private Map<Long, Map<String, Category>> categoryCache = new HashMap<>();
+    private volatile int totalRows = 0;
+    private volatile int currentRow = 0;
+    private volatile long startedAt = 0;
+    private volatile boolean finished = false;
+
+    public ImportProgressDTO getProgress() {
+        double percent = totalRows == 0 ? 0 : (currentRow * 100.0 / totalRows);
+        long elapsed = (System.currentTimeMillis() - startedAt) / 1000;
+        double speed = elapsed > 0 ? (currentRow / (double) elapsed) : 0;
+
+        Integer eta = null;
+        if (speed > 0 && totalRows > currentRow) {
+            eta = (int) ((totalRows - currentRow) / speed);
+        }
+
+        return new ImportProgressDTO(
+            totalRows,
+            currentRow,
+            percent,
+            speed,
+            eta,
+            finished
+        );
+    }
 
     /**
      * Processes an import request based on its type.
      * @param request The import request containing data and type.
      */
+    @Transactional
     public void processImport(ImportRequestDTO request) {
+        em.setFlushMode(FlushModeType.COMMIT);
+        this.startedAt = System.currentTimeMillis();
+        this.currentRow = 0;
+        this.finished = false;
+        this.totalRows = request.getData().size();
+
+        List<Supplier> suppliers = supplierRepository.findAll();
+        supplierCache = suppliers.stream()
+            .collect(Collectors.toMap(
+                s -> normalizeString(s.getSupplierName()),
+                s -> s
+            ));
+
+        List<Instruments> instruments = StreamSupport
+                .stream(instrumentRepository.findAll().spliterator(), false)
+                .toList();        
+        instrumentCache =
+        instruments.stream()
+                .collect(Collectors.toMap(
+                    i -> i.getReference().toLowerCase(),
+                    i -> i,
+                    (first, second) -> first
+                ));
+
+
         switch (request.getImportType()) {
             case "SubGroup":
                 processSubGroupImport(request.getGroupName(), request.getSubGroupName(), request.getData());
@@ -56,6 +121,7 @@ public class ExcelImportService {
             default:
                 throw new IllegalArgumentException("Unknown import type: " + request.getImportType());
         }
+        this.finished = true;
     }
 
     /**
@@ -99,18 +165,19 @@ public class ExcelImportService {
                 .collect(Collectors.toSet());
     
         for (Map<String, Object> row : data) {
+            this.currentRow++;
             String reference = cleanString(row.get("reference"), true);
             if (reference == null || reference.trim().isEmpty()) {
                 logger.warn("Skipping entry due to missing reference.");
                 continue;
             }
     
-            Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReferenceIgnoreCase(reference);
-            if (existingInstrumentOpt.isPresent()) {
-                Instruments existingInstrument = existingInstrumentOpt.get();
+            Instruments existingInstrument = instrumentCache.get(reference.toLowerCase());
+            if (existingInstrument != null) {
                 boolean updated = updateExistingInstrument(existingInstrument, row, null, availableColumns, new ArrayList<>(), false);
                 if (updated) {
                     instrumentRepository.save(existingInstrument);
+                    instrumentCache.put(reference.toLowerCase(), existingInstrument); // optional but safe
                 }
             } else {
                 processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false, null);
@@ -153,18 +220,18 @@ public class ExcelImportService {
                 .collect(Collectors.toSet());
     
         for (Map<String, Object> row : data) {
+            this.currentRow++;
             processInstrumentRow(row, null, availableColumns, new ArrayList<>(), false, supplierName);
     
             // Check if it exists and obsolete = true → make obsolete = false
             String reference = cleanString(row.get("reference"), true);
-            if (reference != null) {
-                Optional<Instruments> existing = instrumentRepository.findByReferenceIgnoreCase(reference.trim());
-                existing.ifPresent(instrument -> {
-                    if (Boolean.TRUE.equals(instrument.getObsolete())) {
-                        instrument.setObsolete(false);
-                        instrumentRepository.save(instrument);
-                    }
-                });
+            Instruments existingInstrument = instrumentCache.get(reference.toLowerCase());
+            if (existingInstrument != null) {
+                if (Boolean.TRUE.equals(existingInstrument.getObsolete())) {
+                    existingInstrument.setObsolete(false);
+                    instrumentRepository.save(existingInstrument);
+                    instrumentCache.put(reference.toLowerCase(), existingInstrument);
+                }
             }
         }
     }
@@ -194,6 +261,7 @@ public class ExcelImportService {
                 .collect(Collectors.toSet());
 
         for (Map<String, Object> row : data) {
+            this.currentRow++;
             processInstrumentRow(row, subGroup, availableColumns, subGroupCharacteristics, true, null);
         }
     }
@@ -214,12 +282,11 @@ public class ExcelImportService {
             return;
         }
     
-        Optional<Instruments> existingInstrumentOpt = instrumentRepository.findByReferenceIgnoreCase(reference);
-        if (existingInstrumentOpt.isPresent()) {
-            Instruments existingInstrument = existingInstrumentOpt.get();
-
+        Instruments existingInstrument = instrumentCache.get(reference.toLowerCase());
+        if (existingInstrument != null) {
             if (updateExistingInstrument(existingInstrument, row, subGroup, availableColumns, subGroupCharacteristics, manageCategories)) {
                 instrumentRepository.save(existingInstrument);
+                instrumentCache.put(reference.toLowerCase(), existingInstrument);
             }
             return;
         }
@@ -236,6 +303,7 @@ public class ExcelImportService {
         }
     
         instrumentRepository.save(newInstrument);
+        instrumentCache.put(reference.toLowerCase(), newInstrument);
     }
     
     /**
@@ -259,14 +327,8 @@ public class ExcelImportService {
         // Normalize supplier name for case-insensitive and accent-free comparison
         String normalizedSupplierName = normalizeString(supplierName);
     
-        // Fetch all existing suppliers from the database
-        List<Supplier> existingSuppliers = supplierRepository.findAll();
-        for (Supplier existingSupplier : existingSuppliers) {
-            // Compare normalized names to check if a similar supplier already exists
-            if (normalizeString(existingSupplier.getSupplierName()).equals(normalizedSupplierName)) {
-                return existingSupplier; // Return the existing supplier to avoid duplicates
-            }
-        }
+        Supplier existing = supplierCache.get(normalizedSupplierName);
+        if (existing != null) return existing;
     
         // If no similar supplier exists, create a new one
         Supplier newSupplier = new Supplier();
@@ -277,6 +339,7 @@ public class ExcelImportService {
     
         // Save the new supplier in the database
         supplierRepository.save(newSupplier);
+        supplierCache.put(normalizedSupplierName, newSupplier);
         
         return newSupplier;
     }
@@ -361,16 +424,77 @@ public class ExcelImportService {
      * @param subGroupCharacteristics The list of subgroup characteristics.
      * @return The category entity.
      */
-    Category getOrCreateCategory(SubGroup subGroup, Map<String, Object> row, List<String> subGroupCharacteristics) {
-        Map<String, String> instrumentCharacteristics = extractCharacteristics(row, subGroupCharacteristics);
-    
-        List<Category> existingCategories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
-    
-        for (Category category : existingCategories) {
-            if (matchCategory(category, instrumentCharacteristics)) return category;
+    Category getOrCreateCategory(SubGroup subGroup, 
+                             Map<String, Object> row, 
+                             List<String> subGroupCharacteristics) {
+
+        Long sgId = subGroup.getId();
+
+        // 1. Préchargement ONCE
+        categoryCache.computeIfAbsent(sgId, id -> preloadCategories(subGroup, subGroupCharacteristics));
+
+        // 2. Extraction caractéristiques row
+        Map<String, String> vals = extractCharacteristics(row, subGroupCharacteristics);
+
+        // 3. Construction clé canonique
+        String key = canonicalKey(vals, subGroupCharacteristics);
+
+        // 4. Lookup RAM O(1)
+        Map<String, Category> map = categoryCache.get(sgId);
+        Category existing = map.get(key);
+        if (existing != null) return existing;
+
+        // 5. Création si absente
+        Category newCat = createNewCategory(subGroup, vals, row.keySet(), row);
+
+        // 6. Ajout au cache pour les prochaines lignes
+        map.put(key, newCat);
+
+        return newCat;
+    }
+
+
+    private Map<String, Category> preloadCategories(SubGroup subGroup, List<String> subGroupCharacteristics) {
+
+        Long sgId = subGroup.getId();
+
+        List<Object[]> raw = categoryCharacteristicRepository.loadAllBySubGroup(sgId);
+
+        // Map temp  category_id → map<name,val>
+        Map<Long, Map<String,String>> buffer = new HashMap<>();
+
+        for (Object[] row : raw) {
+            Long catId = ((Number) row[0]).longValue();
+            String name = (String) row[1];
+            String val = (String) row[2];
+
+            buffer.computeIfAbsent(catId, k -> new HashMap<>()).put(name, val);
         }
-        
-        return createNewCategory(subGroup, instrumentCharacteristics, row.keySet(), row);
+
+        // Charger les Category réel via findAllById
+        List<Category> categories = new ArrayList<>();
+        categoryRepository.findAllById(buffer.keySet()).forEach(categories::add);
+
+
+        // Construction HASH lookup
+        Map<String, Category> map = new HashMap<>();
+
+        for (Category c : categories) {
+            Map<String,String> vals = buffer.get(c.getId());
+            String key = canonicalKey(vals, subGroupCharacteristics);
+            map.put(key, c);
+        }
+
+        return map;
+    }
+
+    private String canonicalKey(Map<String,String> vals, List<String> order) {
+        StringBuilder sb = new StringBuilder(order.size() * 16);
+        for (String k : order) {
+            String v = vals.getOrDefault(k, "");
+            sb.append(normalizeString(v)).append('|');
+        }
+        return sb.toString();
     }
 
     /**
@@ -547,6 +671,7 @@ public class ExcelImportService {
                 .collect(Collectors.toSet());
     
         for (Map<String, Object> row : data) {
+            this.currentRow++;
             processCrossrefRow(row, availableColumns);
         }
     }
@@ -573,9 +698,9 @@ public class ExcelImportService {
         // 1. Find the shared category from the first instrument that has one
         Category sharedCategory = null;
         for (String ref : references) {
-            Optional<Instruments> opt = instrumentRepository.findByReferenceIgnoreCase(ref);
-            if (opt.isPresent() && opt.get().getCategory() != null) {
-                sharedCategory = opt.get().getCategory();
+            Instruments inst = instrumentCache.get(ref.toLowerCase());
+            if (inst != null && inst.getCategory() != null) {
+                sharedCategory = inst.getCategory();
                 break;
             }
         }
@@ -628,6 +753,7 @@ public class ExcelImportService {
      */
     void processAlternativesImport(List<Map<String, Object>> data) {
         for (Map<String, Object> row : data) {
+            this.currentRow++;
             String rawRef1 = cleanString(row.get("ref_1"), true);
             String rawRef2 = cleanString(row.get("ref_2"), true);
 

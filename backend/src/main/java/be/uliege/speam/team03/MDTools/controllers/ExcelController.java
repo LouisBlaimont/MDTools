@@ -1,6 +1,7 @@
 package be.uliege.speam.team03.MDTools.controllers;
 
 import be.uliege.speam.team03.MDTools.DTOs.ImportRequestDTO;
+import be.uliege.speam.team03.MDTools.DTOs.ImportProgressDTO;
 import be.uliege.speam.team03.MDTools.services.ExcelImportService;
 
 import java.util.Map;
@@ -53,5 +54,10 @@ public class ExcelController {
             logger.error("Error while processing data: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", "Internal error during import."));
         }
+    }
+
+    @GetMapping("/progress")
+    public ImportProgressDTO getProgress() {
+        return excelImportService.getProgress();
     }
 }

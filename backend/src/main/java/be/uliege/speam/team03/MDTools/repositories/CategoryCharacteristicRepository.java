@@ -102,4 +102,16 @@ public interface CategoryCharacteristicRepository
       );
 
 
+      @Query(value = """
+      SELECT cc.category_id,
+            ch.characteristic_name,
+            cc.characteristic_value
+      FROM category_characteristic cc
+      JOIN characteristic ch ON ch.characteristic_id = cc.characteristic_id
+      JOIN category cat ON cat.category_id = cc.category_id
+      WHERE cat.sub_group_id = :subGroupId
+      """, nativeQuery = true)
+      List<Object[]> loadAllBySubGroup(@Param("subGroupId") Long subGroupId);
+
+
 }
