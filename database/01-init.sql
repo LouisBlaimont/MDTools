@@ -1,4 +1,5 @@
 -- Table pictures
+
 CREATE TABLE pictures (
     id BIGSERIAL PRIMARY KEY,
     file_name VARCHAR(255) NOT NULL,
@@ -6,25 +7,39 @@ CREATE TABLE pictures (
     reference_id BIGINT NOT NULL,
     upload_date TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP
 );
+
 COMMENT ON TABLE pictures IS 'Stores image files with polymorphic associations to other entities';
 
+-- Index to accelerate polymorphic lookup
+CREATE INDEX idx_pictures_ref ON pictures(reference_type, reference_id);
+
 -- Table groups
+
 CREATE TABLE groups (
     group_id BIGSERIAL PRIMARY KEY,
     group_name VARCHAR(100) UNIQUE NOT NULL,
     picture_id BIGINT REFERENCES pictures(id) ON DELETE SET NULL
 );
 
---Table sub_groups
+-- Index useful for search/autocomplete
+CREATE INDEX idx_groups_name ON groups(group_name);
+
+-- ============================================
+-- Table sub_groups
+-- ============================================
+
 CREATE TABLE sub_groups (
     sub_group_id BIGSERIAL PRIMARY KEY,
     sub_group_name VARCHAR(100) NOT NULL,
     group_id BIGINT REFERENCES groups(group_id) ON DELETE SET NULL,
     picture_id BIGINT REFERENCES pictures(id) ON DELETE SET NULL
 );
+
 CREATE INDEX idx_sub_groups_group_id ON sub_groups(group_id);
+CREATE INDEX idx_sub_groups_name ON sub_groups(sub_group_name);
 
 -- Table users
+
 CREATE TABLE users (
     user_id BIGSERIAL PRIMARY KEY,
     username TEXT UNIQUE,
@@ -40,7 +55,7 @@ CREATE TABLE users (
     CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
--- Add a trigger for updating the updated_at timestamp
+-- Trigger for timestamp
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -54,6 +69,8 @@ BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
 
+-- Authorities & user_authorities
+
 CREATE TABLE authorities (
     authority TEXT PRIMARY KEY
 );
@@ -65,16 +82,19 @@ CREATE TABLE user_authorities (
 );
 
 -- Table logs
+
 CREATE TABLE logs (
     log_id BIGSERIAL PRIMARY KEY,
     user_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
     action TEXT NOT NULL,
     timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE INDEX idx_logs_user_id ON logs(user_id);
-CREATE INDEX idx_logs_timestamp ON logs(timestamp); -- For time-based queries
+CREATE INDEX idx_logs_timestamp ON logs(timestamp);
 
 -- Table supplier
+
 CREATE TABLE supplier (
     supplier_id BIGSERIAL PRIMARY KEY,
     supplier_name VARCHAR(255) NOT NULL,
@@ -83,22 +103,32 @@ CREATE TABLE supplier (
     CONSTRAINT unique_supplier_name UNIQUE (supplier_name)
 );
 
+-- Search / lookup accel
+CREATE INDEX idx_supplier_name ON supplier(supplier_name);
+
 -- Table category
+
 CREATE TABLE category (
     category_id BIGSERIAL PRIMARY KEY,
     sub_group_id BIGINT NOT NULL REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
     shape VARCHAR(255),
     picture_id BIGINT REFERENCES pictures(id) ON DELETE SET NULL
 );
+
 CREATE INDEX idx_categories_sub_group_id ON category(sub_group_id);
 
 -- Table characteristic
+
 CREATE TABLE characteristic (
     characteristic_id BIGSERIAL PRIMARY KEY,
     characteristic_name TEXT NOT NULL
 );
 
+-- Used in HAVING search
+CREATE INDEX idx_characteristic_name ON characteristic(characteristic_name);
+
 -- Table category_characteristic
+
 CREATE TABLE category_characteristic (
     category_id BIGINT REFERENCES category(category_id) ON DELETE CASCADE,
     characteristic_id BIGINT REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
@@ -106,14 +136,32 @@ CREATE TABLE category_characteristic (
     PRIMARY KEY (category_id, characteristic_id)
 );
 
--- Table for characteristic values abbreviations
+-- Strongest search/index optimization:
+CREATE INDEX idx_cat_char_category_id ON category_characteristic(category_id);
+CREATE INDEX idx_cat_char_characteristic_id ON category_characteristic(characteristic_id);
+CREATE INDEX idx_cat_char_value ON category_characteristic(characteristic_value);
+
+-- Multi-key search optimization:
+CREATE INDEX idx_cat_char_charid_val ON category_characteristic(characteristic_id, characteristic_value);
+
+-- Optional: trigram for ILIKE "%text%"
+CREATE INDEX idx_cat_char_trgm ON category_characteristic USING gin(characteristic_value gin_trgm_ops);
+
+-- Table category_characteristic_abbreviations
+
 CREATE TABLE category_characteristic_abbreviations (
     id BIGSERIAL PRIMARY KEY,
     characteristic_value TEXT UNIQUE NOT NULL,
     value_abreviation TEXT NOT NULL
 );
 
+-- Already unique but explicit index helps query planner
+CREATE INDEX idx_abbrev_value ON category_characteristic_abbreviations(characteristic_value);
+
+-- ============================================
 -- Table instruments
+-- ============================================
+
 CREATE TABLE instruments (
     instrument_id BIGSERIAL PRIMARY KEY,
     supplier_id BIGINT REFERENCES supplier(supplier_id) ON DELETE CASCADE,
@@ -129,7 +177,8 @@ CREATE INDEX idx_instruments_supplier_id ON instruments(supplier_id);
 CREATE INDEX idx_instruments_category_id ON instruments(category_id);
 CREATE INDEX idx_instruments_reference ON instruments(reference);
 
--- Table group_characteristic
+-- Table sub_group_characteristic
+
 CREATE TABLE sub_group_characteristic (
     sub_group_id BIGINT REFERENCES sub_groups(sub_group_id) ON DELETE CASCADE,
     characteristic_id BIGINT REFERENCES characteristic(characteristic_id) ON DELETE CASCADE,
@@ -138,13 +187,19 @@ CREATE TABLE sub_group_characteristic (
 );
 
 -- Table alternatives
+
 CREATE TABLE alternatives (
     instruments_id_1 BIGINT NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     instruments_id_2 BIGINT NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     PRIMARY KEY (instruments_id_1, instruments_id_2)
 );
 
--- Table orders
+-- Lookup faster in both directions
+CREATE INDEX idx_alt_inst1 ON alternatives(instruments_id_1);
+CREATE INDEX idx_alt_inst2 ON alternatives(instruments_id_2);
+
+-- Table orders + order_items
+
 CREATE TABLE orders (
     order_id BIGSERIAL PRIMARY KEY,
     user_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
@@ -155,12 +210,14 @@ CREATE TABLE orders (
 );
 
 -- Table order_items
+
 CREATE TABLE order_items (
     order_id BIGINT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
     instrument_id BIGINT NOT NULL REFERENCES instruments(instrument_id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_id, instrument_id)
 );
+
 
 
 -- FUNCTION: public.check_alternative_constraints()
