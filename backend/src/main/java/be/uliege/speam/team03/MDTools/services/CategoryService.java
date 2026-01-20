@@ -1,12 +1,9 @@
 package be.uliege.speam.team03.MDTools.services;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 import org.springframework.data.domain.Sort;
@@ -18,10 +15,10 @@ import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
-import be.uliege.speam.team03.MDTools.mapper.CategoryMapper;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.CategoryCharacteristic;
 import be.uliege.speam.team03.MDTools.models.Group;
+import be.uliege.speam.team03.MDTools.models.PictureType;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 import be.uliege.speam.team03.MDTools.models.SubGroupCharacteristic;
 import be.uliege.speam.team03.MDTools.models.CharacteristicValueAbbreviation;
@@ -38,7 +35,6 @@ public class CategoryService {
     private SubGroupRepository subGroupRepository;
     private CategoryRepository categoryRepository;
     private CategoryCharacteristicRepository categoryCharRepository;
-    private CategoryMapper catMapper;
     private PictureStorageService pictureStorageService;
     private CharacteristicAbbreviationService charValAbbrevService;
     private InstrumentService instrumentService;
@@ -52,7 +48,6 @@ public class CategoryService {
         this.categoryRepository = categoryRepo;
         this.categoryCharRepository = catCharRepo;
         this.charValAbbrevService = charValAbbrevService;
-        this.catMapper = new CategoryMapper(categoryRepo, pictureStorageService);
         this.pictureStorageService = pictureStorageService;
         this.instrumentService = instrumentService;
     }
@@ -63,15 +58,9 @@ public class CategoryService {
      * @return List of categoryDTO
      */
     public List<CategoryDTO> findAll() {
-        List<Category> categories = (List<Category>) categoryRepository.findAll();
-        List<CategoryDTO> categoriesDTO = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDto(category, pictureStorageService);
-            categoriesDTO.add(categoryDTO);
-        }
-        return categoriesDTO;
+        return categoryRepository.findAllCategoriesFlat(null, null, null);
     }
-     
+
     /**
      * Gets the categories of the group given by groupName
      * 
@@ -84,16 +73,9 @@ public class CategoryService {
             throw new ResourceNotFoundException("No group found with the name " + groupName);
         }
         Group group = groupMaybe.get();
-
-        List<SubGroup> subGroups = subGroupRepository.findByGroup(group);
-        List<Category> categories = categoryRepository.findAllBySubGroupIn(subGroups, Sort.by("subGroupName", "id"));
-
-        List<CategoryDTO> categoriesDTO = new ArrayList<>();
-        for (Category category : categories) {
-            CategoryDTO categoryDTO = catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(category, pictureStorageService, instrumentService);
-            categoriesDTO.add(categoryDTO);
-        }
-        return categoriesDTO;
+        List<CategoryDTO> list = categoryRepository.findAllCategoriesFlat(group.getId(), null, null);
+        batchEnrichCategoryPictures(list);
+        return list;
     }
 
     /**
@@ -110,9 +92,10 @@ public class CategoryService {
         }
 
         SubGroup subGroup = subGroupMaybe.get();
-        List<Category> categories = categoryRepository.findBySubGroup(subGroup, Sort.by("subGroupName", "id"));
 
-        return categories.stream().map(category -> catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(category, pictureStorageService, instrumentService)).toList();
+        List<CategoryDTO> list = categoryRepository.findAllCategoriesFlat(null, subGroup.getId(), null);
+        batchEnrichCategoryPictures(list);;
+        return list;
     }
 
 
@@ -214,7 +197,8 @@ public class CategoryService {
 
         newCategory.setCategoryCharacteristic(newCategoryCharacteristics);
         newCategory.setPicturesId(null); // ?
-        return catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(category, pictureStorageService, instrumentService);
+        CategoryDTO dto = searchCategory(category.getId());
+        return dto;
     }
 
 
@@ -270,29 +254,25 @@ public class CategoryService {
         if (minLength != null && maxLength != null) filterCount++;
         filterCount += otherKeys.size();
 
-        // Aucun filtre => renvoie tout
+        // AUCUN filtre → renvoie tout le subgroup (optimisé)
         if (filterCount == 0) {
-            List<Category> categories = categoryRepository.findBySubGroup(
-                    subGroup, Sort.by("subGroupName", "id")
-            );
-
-            return categories.stream()
-                    .map(c -> catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(
-                            c, pictureStorageService, instrumentService))
-                    .toList();
+            List<CategoryDTO> list = categoryRepository.findAllCategoriesFlat(null, subGroup.getId(), null);
+            batchEnrichCategoryPictures(list);;
+            return list;
         }
 
-        // Empêcher les IN () vides dans SQL
+        // Empêcher IN () vide dans SQL
         boolean useOther = !otherKeys.isEmpty();
         if (!useOther) {
             otherKeys = List.of("__NO_MATCH__");
             otherValues = List.of("__NO_MATCH__");
         }
 
+        // On récupère uniquement les IDs filtrés par SQL
         List<Long> categoryIds = categoryCharRepository.searchCategoriesSQL(
                 subGroup.getId(),
-                function != null && !function.isBlank() ? function : null,
-                name != null && !name.isBlank() ? name : null,
+                (function != null && !function.isBlank()) ? function : null,
+                (name != null && !name.isBlank()) ? name : null,
                 minLength,
                 maxLength,
                 otherKeys,
@@ -305,20 +285,10 @@ public class CategoryService {
             return List.of();
         }
 
-        // FIX Iterable -> List
-        List<Category> categories = new ArrayList<>();
-        categoryRepository.findAllById(categoryIds).forEach(categories::add);
-
-        // Sort identique à l'ancien code
-        categories.sort(
-                Comparator.comparing(Category::getSubGroup, Comparator.comparing(SubGroup::getName))
-                        .thenComparing(Category::getId)
-        );
-
-        return categories.stream()
-                .map(c -> catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(
-                        c, pictureStorageService, instrumentService))
-                .toList();
+        // Requête pivotée → renvoie directement des CategoryDTO
+        List<CategoryDTO> list = categoryRepository.findAllCategoriesFlat(null, null, categoryIds);
+        batchEnrichCategoryPictures(list);;
+        return list;
     }
 
 
@@ -485,14 +455,20 @@ public class CategoryService {
         category.setCategoryCharacteristic(allCharacteristics);
         categoryRepository.save(category);
 
-
-        return catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(category, pictureStorageService, instrumentService);
+        CategoryDTO dto = searchCategory(category.getId());
+        return dto;
     }
 
     public CategoryDTO searchCategory(Long categoryId) {
-        Optional<Category> cat = categoryRepository.findById((long) categoryId);
-        return catMapper.mapToCategoryDtoWithDefaultPictureFromInstruments(cat.get(), pictureStorageService, instrumentService);
+        CategoryDTO dto = categoryRepository.findAllCategoriesFlat(null, null, List.of(categoryId))
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        enrichCategoryWithPictures(dto);
+        return dto;
     }
+
 
     /**
      * Deletes a category identified by its ID
@@ -512,4 +488,78 @@ public class CategoryService {
         categoryRepository.deleteById(categoryId);
         return true;
     }
+
+    /**
+     * Enrich the DTO with pictures, but CATEGORY pictures must already be filled by batch.
+     * This fallback only loads INSTRUMENT pictures if no CATEGORY pictures exist.
+     */
+    private void enrichCategoryWithPictures(CategoryDTO dto) {
+
+        // if batch already filled CATEGORY pictures → OK
+        List<Long> pics = dto.getPicturesId();
+        if (pics != null && !pics.isEmpty()) {
+            return;
+        }
+
+        // fallback: instrument pictures
+        List<InstrumentDTO> instruments = instrumentService.findInstrumentsOfCatergory(dto.getId());
+        List<Long> fallback = new ArrayList<>();
+
+        for (InstrumentDTO inst : instruments) {
+            // still per instrument (étape 2 optimisera ça)
+            fallback.addAll(
+                pictureStorageService.getPicturesIdByReferenceIdAndPictureType(
+                    inst.getId(), PictureType.INSTRUMENT
+                )
+            );
+        }
+
+        dto.setPicturesId(fallback);
+    }
+
+    private void batchEnrichCategoryPictures(List<CategoryDTO> dtos) {
+        if (dtos.isEmpty()) return;
+
+        List<Long> categoryIds = dtos.stream().map(CategoryDTO::getId).toList();
+
+        // 1. Category pictures
+        Map<Long, List<Long>> catPics = pictureStorageService.getCategoryPicturesBatch(categoryIds);
+
+        // assign direct if exists
+        dtos.forEach(dto -> dto.setPicturesId(catPics.get(dto.getId())));
+
+        // 2. Fallback only for those missing
+        List<Long> missingIds = dtos.stream()
+            .filter(dto -> dto.getPicturesId() == null || dto.getPicturesId().isEmpty())
+            .map(CategoryDTO::getId)
+            .toList();
+
+        if (missingIds.isEmpty()) return;
+
+        // 3. instruments batch
+        Map<Long, List<Long>> catToInst = instrumentService.findInstrumentsBatch(missingIds);
+
+        List<Long> instIds = catToInst.values().stream().flatMap(List::stream).toList();
+        if (instIds.isEmpty()) return;
+
+        // 4. pictures for instruments batch
+        Map<Long, List<Long>> instPics = pictureStorageService.getInstrumentPicturesBatch(instIds);
+
+        // 5. assign fallback
+        for (CategoryDTO dto : dtos) {
+            if (dto.getPicturesId() != null && !dto.getPicturesId().isEmpty()) continue;
+
+            List<Long> inst = catToInst.get(dto.getId());
+            if (inst == null) continue;
+
+            List<Long> fallback = new ArrayList<>();
+            for (Long instId : inst) {
+                List<Long> pics = instPics.get(instId);
+                if (pics != null) fallback.addAll(pics);
+            }
+            dto.setPicturesId(fallback);
+        }
+    }
+
+
 }

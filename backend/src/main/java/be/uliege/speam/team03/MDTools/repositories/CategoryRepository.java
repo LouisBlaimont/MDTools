@@ -9,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.models.Category;
 import be.uliege.speam.team03.MDTools.models.SubGroup;
 
@@ -60,5 +61,36 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
     @NonNull
     @Override
     Optional<Category> findById(@NonNull Long category_id);
+
+    @Query("""
+    SELECT new be.uliege.speam.team03.MDTools.DTOs.CategoryDTO(
+        c.id,
+        g.name,
+        sg.name,
+        MAX(CASE WHEN ch.name = 'Code Externe' THEN cc.val END),
+        MAX(CASE WHEN ch.name = 'Function' THEN cc.val END),
+        MAX(CASE WHEN ch.name = 'Auteur' THEN cc.val END),
+        MAX(CASE WHEN ch.name = 'Name' THEN cc.val END),
+        MAX(CASE WHEN ch.name = 'Design' THEN cc.val END),
+        c.shape,
+        MAX(CASE WHEN ch.name = 'Dim orig' THEN cc.val END),
+        MAX(CASE WHEN ch.name = 'Length' THEN cc.val END)
+    )
+    FROM Category c
+    JOIN c.subGroup sg
+    JOIN sg.group g
+    LEFT JOIN c.categoryCharacteristic cc
+    LEFT JOIN cc.characteristic ch
+    WHERE (:groupId     IS NULL OR g.id = :groupId)
+    AND (:subGroupId  IS NULL OR sg.id = :subGroupId)
+    AND (:ids         IS NULL OR c.id IN :ids)
+    GROUP BY c.id, g.name, sg.name, c.shape
+    ORDER BY sg.name, c.id
+    """)
+    List<CategoryDTO> findAllCategoriesFlat(
+        Long groupId,
+        Long subGroupId,
+        List<Long> ids
+    );
 
 }

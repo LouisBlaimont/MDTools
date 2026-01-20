@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.sound.midi.Instrument;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -373,5 +376,15 @@ public class InstrumentService {
         newInstrument.setPriceDate(new Timestamp(System.currentTimeMillis()));
 
         return this.save(newInstrument);
+    }
+
+
+    public Map<Long, List<Long>> findInstrumentsBatch(List<Long> categoryIds) {
+        return instrumentRepository.findByCategoryIds(categoryIds)
+            .stream()
+            .collect(Collectors.groupingBy(
+                ins -> ins.getCategory().getId(),
+                Collectors.mapping(Instruments::getId, Collectors.toList())
+            ));
     }
 }

@@ -3,6 +3,7 @@ package be.uliege.speam.team03.MDTools.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -58,4 +59,12 @@ public interface InstrumentRepository extends CrudRepository<Instruments, Intege
      */
     @Override
     List<Instruments> searchByKeywords(List<String> keywords);
+
+
+    @Query("""
+        SELECT i FROM Instruments i
+        WHERE i.category.id IN :catIds
+    """)
+    List<Instruments> findByCategoryIds(List<Long> catIds);
+
 }

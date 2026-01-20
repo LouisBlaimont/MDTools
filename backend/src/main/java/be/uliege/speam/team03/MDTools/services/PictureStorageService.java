@@ -9,7 +9,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -123,6 +125,25 @@ public class PictureStorageService {
         List<Picture> pictures = pictureRepository.findByReferenceIdAndPictureType(referenceId, pictureType);
         return pictures.stream().map(picture -> picture.getId()).toList();
     }
+
+    public Map<Long, List<Long>> getCategoryPicturesBatch(List<Long> categoryIds) {
+        return pictureRepository.findByReferenceIdsAndPictureType(categoryIds, PictureType.CATEGORY)
+                .stream()
+                .collect(Collectors.groupingBy(
+                    Picture::getReferenceId,
+                    Collectors.mapping(Picture::getId, Collectors.toList())
+                ));
+    }
+
+    public Map<Long, List<Long>> getInstrumentPicturesBatch(List<Long> instrumentIds) {
+        return pictureRepository.findByReferenceIdsAndPictureType(instrumentIds, PictureType.INSTRUMENT)
+                .stream()
+                .collect(Collectors.groupingBy(
+                    Picture::getReferenceId,
+                    Collectors.mapping(Picture::getId, Collectors.toList())
+                ));
+    }
+
 
     /**
      * Loads a picture resource by its ID.
