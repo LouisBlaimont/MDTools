@@ -133,6 +133,7 @@ dist
 
 cypress
 .env
+.env.prod
 frontend/.svelte-kit
 .env
 dex/dex-data
