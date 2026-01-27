@@ -22,59 +22,45 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityConfig {
 
     @Value("${app.allowed-origin}")
-    public String frontendUrl;
+    private String frontendUrl;
 
     private final OAuth2UserService oAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health/**").permitAll() // Allow health check
-                        .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight requests
-                        .anyRequest().authenticated() // Require authentication for all requests
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health/**").permitAll()
+                .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oAuth2UserService))
+                .successHandler((request, response, authentication) ->
+                    response.sendRedirect(frontendUrl + "/?login=success")
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oAuth2UserService))
-                        .successHandler((request, response, authentication) -> {
-                            // Redirect to frontend after successful login
-                            response.sendRedirect(frontendUrl + "/?login=success");
-                        })
-                        .failureHandler((request, response, authentication) -> {
-                            // Redirect to frontend after failed login
-                            response.sendRedirect(frontendUrl + "/?login=failed");
-                        })
-                        )
-                .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            // Redirect to frontend after successful logout, seems like it is not using the
-                            // default cors
-                            response.setStatus(204);
-                            response.setHeader("Access-Control-Allow-Origin", frontendUrl);
-                            response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, OPTIONS");
-                            response.setHeader("Access-Control-Allow-Headers", "*");
-                            response.setHeader("Access-Control-Allow-Credentials", "true");
-                        }))
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            log.info(authException.getMessage() + ", " + authException.getCause());
-                            response.setStatus(401);
-                            response.setHeader("Access-Control-Allow-Origin", frontendUrl);
-                            response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, OPTIONS");
-                            response.setHeader("Access-Control-Allow-Headers", "*");
-                            response.setHeader("Access-Control-Allow-Credentials", "true");
-                        })
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            log.info(accessDeniedException.getMessage() + ", " + accessDeniedException.getCause());
-                            response.setStatus(403);
-                            response.setHeader("Access-Control-Allow-Origin", frontendUrl);
-                            response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-                            response.setHeader("Access-Control-Allow-Headers", "*");
-                            response.setHeader("Access-Control-Allow-Credentials", "true");
-                        }));
+                .failureHandler((request, response, exception) -> {
+                    log.info("OAuth2 login failed: {}", exception.getMessage());
+                    response.sendRedirect(frontendUrl + "/?login=failed");
+                })
+            )
+            .logout(logout -> logout
+                // Logout Spring local (apiFetch POST)
+                .logoutUrl("/api/auth/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler((request, response, authentication) -> response.setStatus(204))
+                .permitAll()
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> response.setStatus(401))
+                .accessDeniedHandler((request, response, accessDeniedException) -> response.setStatus(403))
+            );
 
         return http.build();
     }

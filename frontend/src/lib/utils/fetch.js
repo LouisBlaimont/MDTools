@@ -4,22 +4,25 @@ import { isLoggedIn, user } from "../stores/user_stores";
 import { get } from "svelte/store";
 
 export const apiFetch = (url, options = {}) => {
-   return fetch(PUBLIC_API_URL + url, {
-     ...options,
-     credentials: 'include',  // Always include cookies in requests
-   }).then(response => {
-    if(!response.ok) {
-      const isli = get(isLoggedIn);
-      if(response.status == 401 && persistentStoreExists("user") && isli) {
+  return fetch(PUBLIC_API_URL + url, {
+    ...options,
+    credentials: "include",
+  }).then((response) => {
+    if (!response.ok) {
+      if (response.status === 401) {
+        const loggedIn = get(isLoggedIn);
+
         console.log("Unauthorized");
-        user.set(null);
-      } else if (response.status == 401 && !persistentStoreExists("user")) {
-        console.log("Unauthorized");
-      } else if (response.status == 403) {
+
+        // If we thought we were logged in, clear everything
+        if (loggedIn) {
+          user.set(null);
+          clearPersistentStore("user"); // IMPORTANT
+        }
+      } else if (response.status === 403) {
         console.log("Forbidden");
       }
     }
     return response;
   });
 };
- 

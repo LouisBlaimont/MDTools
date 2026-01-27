@@ -604,7 +604,7 @@
     "connection": "Aansluiting",
     "welcome": "Welkom op MDTools",
     "ways": "Maak verbinding via de verschillende beschikbare verbindingsmethoden.",
-    "dex": "Maak verbinding met DEX"
+    "keycloack": "Maak verbinding met Keycloak"
   },
   "alt": {
     "type": "Type instrumenten",

@@ -630,7 +630,7 @@
     "connection": "Connection",
     "welcome": "Welcome on MDTools",
     "ways": "Connect using the various connection methods available.",
-    "dex": "Connect with DEX"
+    "keycloack": "Connect with Keycloak"
   },
   "alt": {
     "type": "Type of instruments",

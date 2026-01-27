@@ -624,7 +624,7 @@
     "connection": "Connexion",
     "welcome": "Bienvenue sur MDTools",
     "ways": "Connectez-vous avec les différents moyens de connexion présents.",
-    "dex": "Se connecter avec DEX"
+    "keycloack": "Se connecter avec Keycloak"
   },
   "alt": {
     "type": "Type d'instruments",

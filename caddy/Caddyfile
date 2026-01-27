@@ -3,24 +3,14 @@
   debug
 }
 
-http://dex.localhost.direct {
-  header {
-    set-cookie "SameSite=None"
-  }
-  reverse_proxy dex:5556
-}
 
 http://frontend.localhost.direct {
-  header {
-    set-cookie "SameSite=None"
-  }
+
   reverse_proxy svelte:3000
 }
 
 http://api.localhost.direct {
-  header {
-    set-cookie "SameSite=None"
-  }
+
   handle_errors {
     @tooLarge expression `{http.error.message} == "http: request body too large"`
     handle @tooLarge {
@@ -28,4 +18,9 @@ http://api.localhost.direct {
     }
   }
   reverse_proxy springboot:8080
+}
+
+http://keycloak.localhost.direct {
+
+  reverse_proxy keycloak:8080
 }

@@ -11,6 +11,9 @@ import confetti from "canvas-confetti";
  */
 export async function findOrdersNames(){
     try{
+        if (!(get(userId))){
+            throw new Error("User ID is not defined");
+        }
         const response = await apiFetch(`/api/orders/user/${get(userId)}`);
         if (!response.ok){
             throw new Error(`Failed to fetch orders: ${response.statusText}`); 

@@ -3,7 +3,7 @@
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import { Modals } from "svelte-modals";
   import { ROLES } from "../constants";
-  import { user, isLoggedIn, isAdmin, isUser, isWebmaster } from "$lib/stores/user_stores";
+  import { user, isLoggedIn, isAdmin, isUser, isWebmaster, authReady, authChecking } from "$lib/stores/user_stores";
   import { login, checkUser, handleLogin, handleLogout } from "../auth";
   import { onMount } from "svelte";
   import { apiFetch } from "$lib/utils/fetch";
@@ -86,12 +86,11 @@
 
   // Handle redirect to login page if not logged in
   $: if (browser) {
-    if (
-      !$isLoggedIn &&
-      !($page.url.searchParams.get("login") === "success") &&
-      window &&
-      window.location.pathname !== "/login"
-    ) {
+    const onLoginPage = $page.url.pathname === "/login";
+    const loginSuccess = $page.url.searchParams.get("login") === "success";
+
+    // IMPORTANT: do not redirect until auth is "ready"
+    if ($authReady && !$isLoggedIn && !loginSuccess && !onLoginPage) {
       goto("/login");
     }
   }

@@ -47,9 +47,9 @@
           <span
             class="w-full h-16 px-5 py-2.5 flex items-center relative transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-transparent text-lg overflow-hidden"
           >
-            <p class="flex=none">{$_('login.dex')}</p>
+            <p class="flex=none">{$_('login.keycloack')}</p>
             <img
-              src="https://raw.githubusercontent.com/cncf/artwork/d926e82ea34c851c75d15536b4994488d49b5db8/projects/dex/icon/color/dex-icon-color.svg"
+              src="logo-keycloack.png"
               alt="DEX Logo"
               class="flex-1 h-10 absolute right-4 transition-all duration-300 md:transform group-hover:-translate-x-full group-hover:rotate-[360deg] group-hover:scale-110 group-hover:bg-white rounded-full p-0.5 group-hover:shadow-lg"
             />
