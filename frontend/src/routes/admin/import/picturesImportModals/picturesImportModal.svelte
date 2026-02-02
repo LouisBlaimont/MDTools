@@ -7,13 +7,15 @@
   import { apiFetch } from "$lib/utils/fetch";
   import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
-  import JSZip from "jszip";
+  import { ZipReader, BlobReader, BlobWriter } from "@zip.js/zip.js";
   import { onMount, tick } from "svelte";
 
   export let isOpen = false;
   export let close;
+  export let zipFile;
   export let references;
   export let missingFiles;
+
 
   const dispatch = createEventDispatcher();
 
@@ -90,34 +92,31 @@
       }
     }
   }
-
-  // Function to upload a single file
   async function uploadFile(index) {
     currentUploadIndex = index;
-    const [reference, filename, file, filepath] = references[index];
 
-    // Update status to uploading
-    uploadStatus[index] = { status: "uploading", message: $_('import_pages.svelte.uploading') };
-    uploadStatus = [...uploadStatus]; // Trigger reactivity
+    // NEW reference format: [reference, filename, filePath]
+    const [reference, filename, filePath] = references[index];
 
-    // Scroll to the current file
+    uploadStatus[index] = { status: "uploading", message: $_("import_pages.svelte.uploading") };
+    uploadStatus = [...uploadStatus];
+
     await scrollToCurrentFile();
 
     const formData = new FormData();
     try {
-      const fileExtracted = await file.async("blob");
+      // Extract the file as a Blob from the zip (zip.js)
+      const fileExtracted = await extractZipEntryBlob(zipFile, filePath);
+
       const size = fileExtracted.size;
-      formData.append("picture", fileExtracted);
+      formData.append("picture", fileExtracted, filePath); // filename is useful
       formData.append("reference", reference);
 
-      const response = await apiFetch(
-        "/api/pictures/instruments/upload-with-reference",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
+      const response = await apiFetch("/api/pictures/instruments/upload-with-reference", {
+        method: "POST",
+        body: formData,
+      });
+      /*
       if (!response.ok) {
         const contentType = response.headers.get("Content-Type") || "";
         let errorMessage;
@@ -128,9 +127,9 @@
         } else {
           errorMessage = response.statusText || `Erreur ${response.status}`;
         }
-
+      
         throw new Error(errorMessage);
-      }
+      }*/
       // Update status to success
       uploadStatus[index] = {
         status: "success",
@@ -186,7 +185,7 @@
     isFeedbackOpen = true;
     await tick();
 
-    for (const [index, [reference, filename, file, filepath]] of references.entries()) {
+    for (const [index, [reference, filename, filepath]] of references.entries()) {
       // Skip files that have already been successfully uploaded
       if (uploadStatus[index].status === "success") {
         successCount++;
@@ -241,6 +240,23 @@
   $: if (references && references.length) {
     fileRefs = Array(references.length).fill(null);
   }
+
+
+  async function extractZipEntryBlob(zipFile, filePath) {
+    const reader = new ZipReader(new BlobReader(zipFile));
+    try {
+      const entries = await reader.getEntries();
+      const entry = entries.find((e) => e.filename === filePath);
+      if (!entry) {
+        throw new Error(`Entry not found in zip: ${filePath}`);
+      }
+      const blob = await entry.getData(new BlobWriter());
+      return blob;
+    } finally {
+      await reader.close();
+    }
+  }
+
 </script>
 
 {#if isOpen}

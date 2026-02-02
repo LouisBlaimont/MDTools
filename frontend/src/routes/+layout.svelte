@@ -191,7 +191,16 @@
                   onclick={closeMoreMenu}
                   >{$_('header.more.abbreviations')}</a
                 >
-
+                <a
+                  href="/admin/backups"
+                  class="block px-4 py-2 hover:bg-teal-400 transition"
+                  onclick={() => {
+                    closeMoreMenu();
+                    closeManageMenu();
+                  }}
+                >
+                  Backups
+                </a>
                 {#if $isWebmaster}
                   <a href="/webmaster" class="block px-4 py-2 hover:bg-teal-400 transition"
                     onclick={closeMoreMenu}
@@ -281,7 +290,9 @@
   <main
     class="h-screen bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]"
   >
-    <slot />
+    {#key $page.url.pathname}
+      <slot />
+    {/key}
   </main>
 
   <SvelteToast />

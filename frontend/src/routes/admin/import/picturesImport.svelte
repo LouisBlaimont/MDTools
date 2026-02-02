@@ -6,7 +6,7 @@
   import { _ } from "svelte-i18n";
   import { preventDefault } from "svelte/legacy";
   import * as XLSX from "xlsx";
-  import JSZip from "jszip";
+  import { ZipReader, BlobReader } from "@zip.js/zip.js";
   import { fromJSON } from "postcss";
   import { modals } from "svelte-modals";
   import SelectHeadersModal from "./picturesImportModals/selectHeadersModal.svelte";
@@ -39,23 +39,17 @@
     }
   }
 
-  async function handleSubmit() {
-    if (files.length === 0) {
-      return;
-    }
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-    // Get the zip file and the excel file
+    if (files.length === 0) return;
+
     const zipFile = files.find((file) => file.name.endsWith(".zip"));
-    const excelFile = files.find(
-      (file) => file.name.endsWith(".xlsx") || file.name.endsWith(".xls")
-    );
+    const excelFile = files.find((file) => file.name.endsWith(".xlsx") || file.name.endsWith(".xls"));
 
     if (!zipFile || !excelFile) {
       toast.push($_("import_pages.svelte.missing_file"), {
-        theme: {
-          "--toastBackground": "#f87171",
-          "--toastColor": "#fff",
-        },
+        theme: { "--toastBackground": "#f87171", "--toastColor": "#fff" },
         duration: 2000,
       });
       return;
@@ -88,7 +82,15 @@
     }
 
     console.log(columns);
-    importPreview(zipFile, excelFile, columns[0], columns[1]);
+    try {
+      await importPreview(zipFile, excelFile, columns[0], columns[1]);
+    } catch (e) {
+      console.error(e);
+      toast.push("Import preview failed (cannot read zip).", {
+        theme: { "--toastBackground": "#f87171", "--toastColor": "#fff" },
+        duration: 2500,
+      });
+    }
   }
 
   async function getColumnsNames(excelFile) {
@@ -106,6 +108,7 @@
     referenceColumnName = "REFERENCE",
     mappingColumnName = "MAPPING"
   ) {
+    references = [];
     // Extract all references from the excel file
     const workbook = XLSX.read(await excelFile.arrayBuffer(), { type: "array" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -140,32 +143,41 @@
       }
     }
 
-    // Extract all files from the zip file
-    const zip = new JSZip();
-    const zipContent = await zip.loadAsync(zipFile);
+    // Extract ONLY filenames from the zip (stream-friendly)
+    async function getZipFilenamesSet(zipFile) {
+      const reader = new ZipReader(new BlobReader(zipFile));
+      const entries = await reader.getEntries();
+      await reader.close();
+      return new Set(entries.map((e) => e.filename));
+    }
+
+    const zipNames = await getZipFilenamesSet(zipFile);
     const supportedExtensions = ["jpg", "jpeg", "png"];
     let missingFiles = [];
     let completeReferences = [];
-    // Add to the references the file linked to the reference
-    for (const [index, [reference, filename]] of references.entries()) {
-      let fileFound = false;
+
+    // We store: [reference, filename, filePath] (no JSZip file object)
+    for (const [reference, filename] of references) {
+      let foundPath = null;
 
       for (const ext of supportedExtensions) {
         const filePath = `${filename}.${ext}`;
-        const file = zipContent.file(filePath);
-
-        if (file) {
-          completeReferences.push([reference, filename, file, filePath]);
-          fileFound = true;
-          break; // Exit inner loop once file is found
+        if (zipNames.has(filePath)) {
+          foundPath = filePath;
+          break;
         }
       }
 
-      if (!fileFound) {
+      if (foundPath) {
+        completeReferences.push([reference, filename, foundPath]);
+      } else {
         missingFiles.push([reference, filename]);
       }
     }
+
+    // Pass zipFile as well, so modal can extract on demand
     modals.open(PicturesImportModal, {
+      zipFile,
       references: completeReferences,
       missingFiles: missingFiles,
     });
@@ -206,15 +218,12 @@
             <button
               class="bg-red-600 text-white rounded-full p-1 ml-4 flex items-center justify-center w-6 h-6"
               type="button"
-              onclick={() => {
+              onclick={(event) => {
                 event.stopPropagation();
                 event.preventDefault();
                 files.splice(index, 1);
                 toast.push($_("import_pages.svelte.delete"), {
-                  theme: {
-                    "--toastBackground": "#f87171",
-                    "--toastColor": "#fff",
-                  },
+                  theme: { "--toastBackground": "#f87171", "--toastColor": "#fff" },
                   duration: 2000,
                 });
               }}
@@ -232,7 +241,7 @@
   </div>
 
   {#if files.length > 0}
-    <form class="w-3/4 mt-4" onsubmit={handleSubmit}>
+    <form class="w-3/4 mt-4" onsubmit={preventDefault(handleSubmit)}>
       <button class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2 ml-2" type="submit">
         {$_("import_pages.svelte.continue")}</button
       >

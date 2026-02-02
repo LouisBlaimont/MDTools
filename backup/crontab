@@ -1,0 +1,4 @@
+# Mon-Sat 00:00
+0 0 * * 1-6 /scripts/backup_daily.sh >> /var/log/backup.log 2>&1
+# Sun 00:00
+0 0 * * 0   /scripts/backup_weekly.sh >> /var/log/backup.log 2>&1

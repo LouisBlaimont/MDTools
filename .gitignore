@@ -137,3 +137,6 @@ cypress
 frontend/.svelte-kit
 .env
 dex/dex-data
+
+_backups/
+

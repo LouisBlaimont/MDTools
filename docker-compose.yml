@@ -56,6 +56,9 @@ services:
     container_name: "springboot"
     env_file:
       - .env
+    environment:
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 5MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 5MB
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,10 +66,10 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app/src  # Mount the backend directory for live reload
-      - ./backend/src/main/resources/pictures:/app/pictures  # Mount the pictures directory
       - pictures:/app/pictures
     ports:
       - "8080:8080"  # Expose the Spring Boot application port
+    restart: unless-stopped
     networks:
       - mdtools
 
@@ -78,12 +81,14 @@ services:
       - "80:80"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    restart: unless-stopped
     networks:
       mdtools:
         aliases:
           - keycloak.localhost.direct
 
-  keycloak-db:  
+  keycloak-db:
+    container_name: keycloak-db
     image: postgres:15
     environment:
       POSTGRES_DB: ${KEYCLOAK_DB_NAME}
@@ -95,6 +100,7 @@ services:
       - mdtools
 
   keycloak:
+    container_name: keycloak
     image: quay.io/keycloak/keycloak:24.0
     command:
       - start-dev
@@ -124,6 +130,34 @@ services:
         aliases:
           - keycloak.localhost.direct
 
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    container_name: backup
+    env_file:
+      - .env
+    environment:
+      TZ: Europe/Brussels
+      RESTIC_REPOSITORY: /backups/restic-repo
+      JOBS_DIR: /backups/jobs
+      LOGS_DIR: /backups/logs
+    volumes:
+      # Same volumes as prod to test restore/backup behavior
+      - pictures:/data/pictures
+      - pgdata:/data/pgdata_dummy:ro
+      - kc_data:/data/kc_data_dummy:ro
+
+      # Store backups on your host machine (dev)
+      - ./_backups:/backups
+
+      # Docker control ONLY for backup
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    networks:
+      - mdtools
 
 volumes:
   pgdata:

@@ -79,6 +79,8 @@ services:
     env_file: [.env.prod]
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 5MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 5MB
       # JAVA_OPTS: "-Xms256m -Xmx512m"
     depends_on:
       postgres:
@@ -138,6 +140,35 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_healthy
+    restart: unless-stopped
+    networks: [mdtools]
+
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    container_name: backup
+    env_file: [.env.prod]
+    environment:
+      TZ: Europe/Brussels
+
+      # Local restic repository stored on host (bind mount below)
+      RESTIC_REPOSITORY: /backups/restic-repo
+
+      # Optional: tune log retention
+      JOBS_DIR: /backups/jobs
+      LOGS_DIR: /backups/logs
+    volumes:
+      # Volumes to backup/restore
+      - pictures:/data/pictures
+      - caddy_data:/data/caddy_data
+      - caddy_config:/data/caddy_config
+
+      # Where backups + logs are stored on the HOST
+      - /srv/mdtools-backups:/backups
+
+      # Docker control is isolated here ONLY
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks: [mdtools]
 
