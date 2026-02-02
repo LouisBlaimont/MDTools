@@ -1,11 +1,18 @@
-# No global auto_https off
+{
+  # laisse Caddy gérer l'auto HTTPS
+  # (ne mets pas auto_https off)
+}
 
-mdtools.md-medical.local {
+http://mdtools.md-medical.local, http://api.mdtools.md-medical.local, http://keycloak.mdtools.md-medical.local {
+  redir https://{host}{uri} permanent
+}
+
+https://mdtools.md-medical.local {
   tls internal
   reverse_proxy frontend:3000
 }
 
-api.mdtools.md-medical.local {
+https://api.mdtools.md-medical.local {
   tls internal
 
   handle_errors {
@@ -15,10 +22,13 @@ api.mdtools.md-medical.local {
     }
   }
 
-  reverse_proxy springboot:8080
+  reverse_proxy springboot:8080 {
+    header_up X-Forwarded-Proto https
+    header_up X-Forwarded-Host {host}
+  }
 }
 
-keycloak.mdtools.md-medical.local {
+https://keycloak.mdtools.md-medical.local {
   tls internal
 
   reverse_proxy keycloak:8080 {
