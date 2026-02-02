@@ -169,6 +169,11 @@ services:
 
       # Docker control is isolated here ONLY
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak-db:
+        condition: service_healthy
     restart: unless-stopped
     networks: [mdtools]
 

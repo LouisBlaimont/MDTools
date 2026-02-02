@@ -10,6 +10,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,14 +28,19 @@ import be.uliege.speam.team03.MDTools.repositories.PictureRepository;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * Service for handling picture storage operations.
+ * Service responsible for storing, loading, and deleting pictures.
+ *
+ * This service saves picture binaries to the filesystem and stores metadata in the database.
+ * The filesystem path is controlled by {@code app.upload.dir}.
  */
 @Log4j2
 @Service
 public class PictureStorageService {
 
     /**
-     * Directory where pictures will be uploaded.
+     * Root directory where pictures are stored on the filesystem.
+     *
+     * Default value: "/app/pictures"
      */
     @Value("${app.upload.dir:/app/pictures}")
     private String uploadDir;
@@ -43,184 +49,286 @@ public class PictureStorageService {
     private PictureRepository pictureRepository;
 
     /**
-     * Stores a picture file and its metadata.
+     * Stores a picture received as a {@link MultipartFile} and saves its metadata in the database.
      *
-     * @param file        the picture file to store
-     * @param pictureType the type of the picture
-     * @param referenceId the reference ID associated with the picture
-     * @return the stored picture metadata
-     * @throws RuntimeException if the file storage fails
+     * @param file        Multipart file containing the picture bytes
+     * @param pictureType Type of the picture (e.g., INSTRUMENT, CATEGORY)
+     * @param referenceId Entity ID associated with this picture (e.g., instrumentId)
+     * @return The persisted {@link Picture} metadata
+     * @throws IllegalArgumentException if file is null/empty or arguments are invalid
+     * @throws RuntimeException if filesystem or database operations fail
      */
     public Picture storePicture(MultipartFile file, PictureType pictureType, Long referenceId) {
-        try {
-            // Create upload directory if it doesn't exist
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+        validateStoreArgs(pictureType, referenceId);
 
-            // Generate unique filename
-            String fileName = UUID.randomUUID().toString() +
-                    getFileExtension(file.getOriginalFilename());
-
-            // Save file to filesystem
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Create and save metadata
-            Picture metadata = new Picture();
-            metadata.setFileName(fileName);
-
-            metadata.setPictureType(pictureType);
-            metadata.setReferenceId(referenceId);
-            metadata.setUploadDate(LocalDateTime.now());
-
-            return pictureRepository.save(metadata);
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to store file", ex);
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File cannot be null or empty");
         }
-    }
 
-    public Picture storePicture(InputStream file, PictureType pictureType, Long referenceId) {
-        try {
-            // Create upload directory if it doesn't exist
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            log.info("Storing " + file.toString());
-            // Generate unique filename
-            String fileName = UUID.randomUUID().toString() +
-                    getFileExtension(file.toString());
-
-            log.info("File name: " + fileName);
-
-            // Save file to filesystem
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file, filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Create and save metadata
-            Picture metadata = new Picture();
-            metadata.setFileName(fileName);
-
-            metadata.setPictureType(pictureType);
-            metadata.setReferenceId(referenceId);
-            metadata.setUploadDate(LocalDateTime.now());
-
-            return pictureRepository.save(metadata);
+        String originalFilename = file.getOriginalFilename();
+        try (InputStream inputStream = file.getInputStream()) {
+            return storePictureInternal(inputStream, originalFilename, pictureType, referenceId);
         } catch (IOException ex) {
             throw new RuntimeException("Failed to store file", ex);
         }
     }
 
     /**
-     * Retrieves a list of picture file names by reference ID and picture type.
+     * Stores a picture received as an {@link InputStream} and saves its metadata in the database.
      *
-     * @param referenceId the ID of the reference to which the pictures belong
-     * @param pictureType the type of pictures to retrieve
-     * @return a list of picture file names that match the given reference ID and picture type
+     * IMPORTANT: an {@link InputStream} does not carry a filename. Therefore this method
+     * cannot reliably infer the file extension. This overload will store the file without extension.
+     *
+     * For bulk import from zip entries, prefer using {@link #storePicture(InputStream, String, PictureType, Long)}
+     * to keep the original extension.
+     *
+     * @param inputStream Picture input stream
+     * @param pictureType Type of the picture (e.g., INSTRUMENT, CATEGORY)
+     * @param referenceId Entity ID associated with this picture (e.g., instrumentId)
+     * @return The persisted {@link Picture} metadata
+     * @throws IllegalArgumentException if arguments are invalid
+     * @throws RuntimeException if filesystem or database operations fail
+     */
+    public Picture storePicture(InputStream inputStream, PictureType pictureType, Long referenceId) {
+        return storePicture(inputStream, null, pictureType, referenceId);
+    }
+
+    /**
+     * Stores a picture received as an {@link InputStream} with a known original filename and
+     * saves its metadata in the database.
+     *
+     * This method is ideal for bulk imports (e.g., zip entries) because it preserves file extensions.
+     *
+     * @param inputStream       Picture input stream
+     * @param originalFilename  Original filename (used only to extract the extension); can be null
+     * @param pictureType       Type of the picture (e.g., INSTRUMENT, CATEGORY)
+     * @param referenceId       Entity ID associated with this picture (e.g., instrumentId)
+     * @return The persisted {@link Picture} metadata
+     * @throws IllegalArgumentException if inputStream is null or arguments are invalid
+     * @throws RuntimeException if filesystem or database operations fail
+     */
+    public Picture storePicture(InputStream inputStream, String originalFilename, PictureType pictureType, Long referenceId) {
+        validateStoreArgs(pictureType, referenceId);
+
+        if (inputStream == null) {
+            throw new IllegalArgumentException("InputStream cannot be null");
+        }
+
+        try {
+            return storePictureInternal(inputStream, originalFilename, pictureType, referenceId);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to store file", ex);
+        }
+    }
+
+    /**
+     * Stores a picture only if the given reference does not already have any picture
+     * of the same {@link PictureType}.
+     *
+     * This is a fast and safe "anti-duplicate" strategy for bulk imports:
+     * - If the instrument already has at least one picture, the new one is skipped.
+     * - This avoids massive duplicates when a zip import is run twice by mistake.
+     *
+     * @param inputStream       Picture input stream
+     * @param originalFilename  Original filename (used only to extract the extension); can be null
+     * @param pictureType       Type of the picture (e.g., INSTRUMENT)
+     * @param referenceId       Entity ID associated with this picture (e.g., instrumentId)
+     * @return The persisted {@link Picture} metadata, or null if skipped due to existing picture(s)
+     * @throws IllegalArgumentException if arguments are invalid
+     * @throws RuntimeException if filesystem or database operations fail
+     */
+    public Picture storePictureIfNotExistsForReference(
+            InputStream inputStream,
+            String originalFilename,
+            PictureType pictureType,
+            Long referenceId
+    ) {
+        validateStoreArgs(pictureType, referenceId);
+
+        List<Picture> existing = pictureRepository.findByReferenceIdAndPictureType(referenceId, pictureType);
+        if (existing != null && !existing.isEmpty()) {
+            log.info("Skipping picture storage: referenceId={} already has picture(s) of type={}", referenceId, pictureType);
+            return null;
+        }
+
+        return storePicture(inputStream, originalFilename, pictureType, referenceId);
+    }
+
+    /**
+     * Returns picture IDs matching a given reference ID and picture type.
+     *
+     * @param referenceId Entity ID associated with the pictures
+     * @param pictureType Type of the pictures to retrieve
+     * @return List of picture IDs (possibly empty)
      */
     public List<Long> getPicturesIdByReferenceIdAndPictureType(Long referenceId, PictureType pictureType) {
         List<Picture> pictures = pictureRepository.findByReferenceIdAndPictureType(referenceId, pictureType);
-        return pictures.stream().map(picture -> picture.getId()).toList();
+        return pictures.stream().map(Picture::getId).toList();
     }
-
-    public Map<Long, List<Long>> getCategoryPicturesBatch(List<Long> categoryIds) {
-        return pictureRepository.findByReferenceIdsAndPictureType(categoryIds, PictureType.CATEGORY)
-                .stream()
-                .collect(Collectors.groupingBy(
-                    Picture::getReferenceId,
-                    Collectors.mapping(Picture::getId, Collectors.toList())
-                ));
-    }
-
-    public Map<Long, List<Long>> getInstrumentPicturesBatch(List<Long> instrumentIds) {
-        return pictureRepository.findByReferenceIdsAndPictureType(instrumentIds, PictureType.INSTRUMENT)
-                .stream()
-                .collect(Collectors.groupingBy(
-                    Picture::getReferenceId,
-                    Collectors.mapping(Picture::getId, Collectors.toList())
-                ));
-    }
-
 
     /**
-     * Loads a picture resource by its ID.
+     * Returns a mapping of categoryId -> list of pictureIds for the given categories.
      *
-     * @param pictureId the ID of the picture to load
-     * @return the picture resource
-     * @throws ResourceNotFoundException if the picture is not found
-     * @throws RuntimeException if the file could not be read or if there is a URL error
+     * @param categoryIds List of category IDs
+     * @return Map where key = categoryId and value = list of picture IDs
+     */
+    public Map<Long, List<Long>> getCategoryPicturesBatch(List<Long> categoryIds) {
+        return getPicturesBatch(categoryIds, PictureType.CATEGORY);
+    }
+
+    /**
+     * Returns a mapping of instrumentId -> list of pictureIds for the given instruments.
+     *
+     * @param instrumentIds List of instrument IDs
+     * @return Map where key = instrumentId and value = list of picture IDs
+     */
+    public Map<Long, List<Long>> getInstrumentPicturesBatch(List<Long> instrumentIds) {
+        return getPicturesBatch(instrumentIds, PictureType.INSTRUMENT);
+    }
+
+    /**
+     * Loads a picture resource (filesystem file) by its database ID.
+     *
+     * @param pictureId Picture database ID
+     * @return A {@link Resource} pointing to the stored file
+     * @throws ResourceNotFoundException if the metadata does not exist
+     * @throws RuntimeException if the file cannot be read
      */
     public Resource loadPicture(Long pictureId) {
         try {
             Picture metadata = pictureRepository.findById(pictureId)
                     .orElseThrow(() -> new ResourceNotFoundException("Picture not found"));
 
-            String fileName = metadata.getFileName();
-            Path filePath = Paths.get(uploadDir).resolve(fileName);
+            Path filePath = Paths.get(uploadDir).resolve(metadata.getFileName());
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {
                 return resource;
-            } else {
-                throw new RuntimeException("Could not read file");
             }
+            throw new RuntimeException("Could not read file");
         } catch (MalformedURLException ex) {
-            throw new RuntimeException("Error: " + ex.getMessage());
+            throw new RuntimeException("Error while loading picture resource", ex);
         }
     }
 
     /**
-     * Retrieves the file extension from the given file name.
+     * Deletes a picture file and its metadata by ID.
      *
-     * @param fileName the name of the file from which to extract the extension
-     * @return the file extension, including the dot (e.g., ".txt"), or an empty string if the file name is null or does not contain a dot
-     */
-    private static String getFileExtension(String fileName) {
-        if (fileName == null)
-            return "";
-        int lastDotIndex = fileName.lastIndexOf('.');
-        return lastDotIndex == -1 ? "" : fileName.substring(lastDotIndex);
-    }
-
-    /**
-     * Deletes a picture with the given ID from the storage and the repository.
-     *
-     * @param pictureId the ID of the picture to be deleted
-     * @throws ResourceNotFoundException if the picture with the given ID is not found
-     * @throws RuntimeException if there is an error deleting the file from the storage
+     * @param pictureId Picture database ID
+     * @throws ResourceNotFoundException if the metadata does not exist
+     * @throws RuntimeException if filesystem deletion fails
      */
     public void deletePicture(Long pictureId) {
         Picture metadata = pictureRepository.findById(pictureId)
                 .orElseThrow(() -> new ResourceNotFoundException("Picture not found"));
 
-        if (metadata == null) {
-            throw new ResourceNotFoundException("Picture not found");
-        }
-
-        String fileName = metadata.getFileName();
-        Path filePath = Paths.get(uploadDir).resolve(fileName);
+        Path filePath = Paths.get(uploadDir).resolve(metadata.getFileName());
 
         try {
-            Files.delete(filePath);
+            Files.deleteIfExists(filePath);
             pictureRepository.delete(metadata);
         } catch (IOException ex) {
             throw new RuntimeException("Failed to delete file", ex);
         }
     }
 
-    // This is just an idea to implement the deletion of all pictures of a certain type
+    /**
+     * Internal shared logic for storing a picture:
+     * - ensures upload directory exists
+     * - generates a unique filename
+     * - copies the stream to disk
+     * - saves metadata
+     *
+     * @param inputStream      Picture data stream
+     * @param originalFilename Original filename used only to extract extension (can be null)
+     * @param pictureType      Picture type
+     * @param referenceId      Reference ID
+     * @return Persisted {@link Picture} metadata
+     * @throws IOException if filesystem write fails
+     */
+    private Picture storePictureInternal(
+            InputStream inputStream,
+            String originalFilename,
+            PictureType pictureType,
+            Long referenceId
+    ) throws IOException {
+        Path uploadPath = ensureUploadDirectory();
 
-    // /**
-    //  * Deletes pictures by reference ID and picture type.
-    //  *
-    //  * @param referenceId the ID of the reference to which the pictures belong
-    //  * @param pictureType the type of pictures to delete
-    //  */
-    // public void deletePicturesByReferenceIdAndPictureType(Long referenceId, PictureType pictureType) {
-    //     List<Picture> pictures = pictureRepository.findByReferenceIdAndPictureType(referenceId, pictureType);
-    //     pictureRepository.deleteAll(pictures);
-    // }
+        String extension = getFileExtension(originalFilename);
+        String fileName = UUID.randomUUID().toString() + extension;
+
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        Picture metadata = new Picture();
+        metadata.setFileName(fileName);
+        metadata.setPictureType(pictureType);
+        metadata.setReferenceId(referenceId);
+        metadata.setUploadDate(LocalDateTime.now());
+
+        return pictureRepository.save(metadata);
+    }
+
+    /**
+     * Ensures the upload directory exists.
+     *
+     * @return The resolved upload directory path
+     * @throws IOException if the directory cannot be created
+     */
+    private Path ensureUploadDirectory() throws IOException {
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+        return uploadPath;
+    }
+
+    /**
+     * Validates common parameters for picture storage.
+     *
+     * @param pictureType Picture type
+     * @param referenceId Reference ID
+     * @throws IllegalArgumentException if parameters are invalid
+     */
+    private void validateStoreArgs(PictureType pictureType, Long referenceId) {
+        Objects.requireNonNull(pictureType, "pictureType cannot be null");
+        Objects.requireNonNull(referenceId, "referenceId cannot be null");
+        if (referenceId <= 0) {
+            throw new IllegalArgumentException("referenceId must be > 0");
+        }
+    }
+
+    /**
+     * Retrieves the file extension from a filename.
+     *
+     * @param fileName Original filename (can be null)
+     * @return Extension including the dot (e.g., ".png"), or empty string if none
+     */
+    private static String getFileExtension(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return "";
+        }
+        int lastDotIndex = fileName.lastIndexOf('.');
+        return lastDotIndex == -1 ? "" : fileName.substring(lastDotIndex);
+    }
+
+    /**
+     * Generic batch helper used by category/instrument batch endpoints.
+     *
+     * @param referenceIds List of reference IDs
+     * @param pictureType  Picture type
+     * @return Map referenceId -> list of picture IDs
+     */
+    private Map<Long, List<Long>> getPicturesBatch(List<Long> referenceIds, PictureType pictureType) {
+        if (referenceIds == null || referenceIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return pictureRepository.findByReferenceIdsAndPictureType(referenceIds, pictureType)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Picture::getReferenceId,
+                        Collectors.mapping(Picture::getId, Collectors.toList())
+                ));
+    }
 }

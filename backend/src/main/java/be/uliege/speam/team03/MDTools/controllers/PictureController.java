@@ -281,11 +281,19 @@ public class PictureController {
          }
 
          // Upload the picture
-         Picture picture = uploadSingleInstrumentPicture(
-               Files.newInputStream(tempFile),
-               instrument.getId().longValue());
+         Picture stored = storageService.storePictureIfNotExistsForReference(
+            Files.newInputStream(tempFile),
+            filename,
+            PictureType.INSTRUMENT,
+            instrument.getId().longValue()
+         );
 
-         // Add success result
+         if (stored == null) {
+            results.add(new PictureProcessResponse(filename,
+                  "Skipped: instrument already has picture(s)", true));
+            return;
+         }
+
          results.add(new PictureProcessResponse(filename, "Uploaded successfully", true));
 
       } catch (IOException e) {
