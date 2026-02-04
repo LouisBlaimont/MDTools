@@ -32,17 +32,20 @@
     keywords2,
     keywordsResult2,
     autocompleteOptions,
+    categoriesIsPaged,
+    categoriesPage,
+    categoriesSize,
   } from "$lib/stores/searches";
   import { apiFetch } from "$lib/utils/fetch";
   import { browser } from "$app/environment";
   import { derived } from "svelte/store";
   import { toast } from "@zerodevx/svelte-toast";
   import AddCharacteristicModal from "$lib/modals/AddCharacteristicModal.svelte";
-  let showAddCharacteristicModal = $state(false);
+  let showAddCharacteristicModal = false;
   import { _ } from "svelte-i18n";
   import AddGroupModal from "$lib/modals/AddGroupModal.svelte";
   import AddSubGroupModal from "$lib/modals/AddSubGroupModal.svelte";
-  import { findCharacteristics, findSubGroups } from "./search.js";
+  import { findCharacteristics, findSubGroups , loadCategoriesPage } from "./search.js";
 
   let page_size = 2;
 
@@ -78,48 +81,72 @@
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  });
+    });
 
-  /**
-   * Filters the categories depending on the input of the user.
-   */
-  let minLength = $state(null);
-  let maxLength = $state(null);
-  function searchByCharacteristics() {
+  let minLength = null;
+  let maxLength = null;
+    
+  function hasAnyFilter() {
+    // Function / Name
+    if (($charValues["Function"] || "").trim()) return true;
+    if (($charValues["Name"] || "").trim()) return true;
+
+    // Length range
+    if (minLength != null || maxLength != null) return true;
+
+    // Other characteristics
+    for (const c of $characteristics) {
+      if (c === "Function" || c === "Name" || c === "Length") continue;
+      if (($charValues[c] || "").trim()) return true;
+    }
+    return false;
+  }
+
+  async function searchByCharacteristics() {
+    const filtered = hasAnyFilter();
+
+    // no filters => paged mode, just reload page 0 from backend
+    if (!filtered) {
+      categoriesIsPaged.set(true);
+      categoriesPage.set(0);
+      await loadCategoriesPage();
+      return;
+    }
+
+  // filters => NON paged mode
+  categoriesIsPaged.set(false);
+
     let char_vals = [];
     for (let i = 0; i < $characteristics.length; i++) {
-      if (
-        $characteristics[i] === "Function" ||
-        $characteristics[i] === "Name" ||
-        $characteristics[i] === "Length"
-      ) {
-        continue;
-      }
-      if ($charValues[$characteristics[i]]) {
-        let char = {
-          name: $characteristics[i],
-          value: $charValues[$characteristics[i]],
-          abrev: "",
-        };
-        char_vals.push(char);
-      } else {
-        let char = {
-          name: $characteristics[i],
-          value: "",
-          abrev: "",
-        };
-        char_vals.push(char);
-      }
+      const ch = $characteristics[i];
+      if (ch === "Function" || ch === "Name" || ch === "Length") continue;
+
+      char_vals.push({
+        name: ch,
+        value: $charValues[ch] || "",
+        abrev: "",
+      });
     }
+
     const data = {
       groupName: $selectedGroup,
       subGroupName: $selectedSubGroup,
       function: $charValues["Function"] || "",
       name: $charValues["Name"] || "",
       characteristics: char_vals,
-      ...(minLength != null && { minLength: minLength }),
-      ...(maxLength != null && { maxLength: maxLength }),
+      ...(minLength != null && { minLength }),
+      ...(maxLength != null && { maxLength }),
     };
+
+    // reset pageable meta (not used in filtered mode)
+    categories_pageable.set({
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 0
+    });
+    categoriesPage.set(0);
 
     return apiFetch("/api/category/search/by-characteristics", {
       method: "POST",
@@ -129,23 +156,20 @@
       .then((response) => {
         if (!response.ok) {
           categories.set([]);
-          toast.push($_('search_page.no_result'));
           throw new Error(`Failed to search by characteristics : ${response.status}`);
         }
         return response.json();
       })
       .then((result) => {
-        categories.set(result);
-        const activeElement = document.activeElement;
-        if (activeElement && activeElement.tagName === "INPUT") {
-          activeElement.blur();
-        }
-      })
-      .catch((error) => {
-        console.log("Error :", error);
-      });
-  }
+        categories.set(Array.isArray(result) ? result : []);
+        if (!result || result.length === 0) toast.push($_("search_page.no_result"));
 
+        // blur input
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.tagName === "INPUT") activeElement.blur();
+      })
+      .catch((error) => console.log("Error :", error));
+  }
   /**
    * Delete the characteristic value given by id.
    * @param id
@@ -175,7 +199,6 @@
       return updatedValues;
     });
 
-    searchByCharacteristics();
   }
 
   /**
@@ -210,14 +233,13 @@
         return updatedValues;
       });
     }
-    searchByCharacteristics();
   }
 
   findSubGroupsStore.set(findSubGroups);
   findCharacteristicsStore.set(findCharacteristics);
 
   /* Dealing with the search by keywords */
-  let showKeywordsResult = $state(false);
+  let showKeywordsResult = false;
   let clickTimeout = 500;
 
   /**
@@ -309,9 +331,10 @@
    * Options for different fields
    */
   let autocompleteInput = "";
-  let showAutocompleteDropDown = $state(false);
-  let filteredAutocompleteOptions = $state([]);
-  let currentAutocompleteField = $state(null);
+  let showAutocompleteDropDown = false;
+  let filteredAutocompleteOptions = [];
+  let currentAutocompleteField = null;
+
 
   /**
    * triggering the autocomplete option

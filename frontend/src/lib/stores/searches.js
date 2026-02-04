@@ -49,7 +49,17 @@ export let findOrdersNamesStore = writable(null);
 export let selectedOrderId = writable(null);
 export let orders = writable(null);
 export let alternatives = writable([]);
-export let categories_pageable = writable(null);
+export let categories_pageable = writable({
+  content: [],
+  totalElements: 0,
+  totalPages: 0,
+  number: 0,
+  size: 50
+});
+export let categoriesIsPaged = writable(true);
+export let categoriesPage = writable(0);
+export let categoriesSize = writable(50);
+export let categoriesSort = writable("name,asc");
 
 export let addingAlt = writable(false);
 export let altToAdd = writable([]);

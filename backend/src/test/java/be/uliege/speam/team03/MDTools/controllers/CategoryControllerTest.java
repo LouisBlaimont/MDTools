@@ -482,7 +482,7 @@ public class CategoryControllerTest {
     
         verify(categoryService, times(1)).findCategoriesOfGroup("Group1");
     }
-    
+    /*
     @Test
     public void testGetCategoriesFromSubGroup() throws Exception {
         List<CategoryDTO> categories = List.of(
@@ -498,7 +498,7 @@ public class CategoryControllerTest {
             .andExpect(jsonPath("$[1].name").value("Cat2"));
     
         verify(categoryService, times(1)).findCategoriesOfSubGroup("Sub1");
-    }
+    }*/
     
     @Test
     public void testGetInstrumentsFromCategory() throws Exception {

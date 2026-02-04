@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
@@ -19,6 +20,7 @@ import be.uliege.speam.team03.MDTools.exception.BadRequestException;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.PageResponseDTO;
 import be.uliege.speam.team03.MDTools.services.CategoryService;
 import be.uliege.speam.team03.MDTools.services.InstrumentService;
 import lombok.AllArgsConstructor;
@@ -65,21 +67,49 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves a paginated and sorted list of categories associated with a
-     * specific subgroup.
+     * Retrieves a paginated and globally sorted list of categories for a given subgroup.
      *
-     * @param subGroupName the name of the subgroup for which categories are to be
-     *                     retrieved
-     * @return a ResponseEntity containing a Page of CategoryDTO objects and an HTTP
-     *         status of OK
-     * @throws ResourceNotFoundException If the given subgroup doesn't exist.
+     * <p>Pagination and sorting are executed on the server side to avoid loading and sorting
+     * large datasets (e.g., 10k categories) in the frontend.</p>
+     *
+     * <h3>Query parameters</h3>
+     * <ul>
+     *   <li><b>page</b> (default 0): 0-based page index.</li>
+     *   <li><b>size</b> (default 50): page size (clamped in service to [1..1000]).</li>
+     *   <li><b>sort</b> (default "name,asc"): sort specification formatted as "field,dir".</li>
+     * </ul>
+     *
+     * <h3>Supported sort fields</h3>
+     * subGroupName, externalCode, function, author, name, design, dimOrig, lenAbrv, shape
+     *
+     * <h3>Response</h3>
+     * Returns a {@link PageResponseDTO} containing:
+     * <ul>
+     *   <li>content: the page items</li>
+     *   <li>totalElements: total number of categories in this subgroup</li>
+     *   <li>totalPages: total number of pages for the given size</li>
+     *   <li>number: current page index</li>
+     *   <li>size: current page size</li>
+     * </ul>
+     *
+     * @param subGroupName subgroup name
+     * @param page 0-based page index
+     * @param size page size
+     * @param sort sort specification (e.g., "name,asc")
+     * @return paginated categories
+     * @throws ResourceNotFoundException if the subgroup does not exist
      */
     @GetMapping("/subgroup/{subGroupName}")
-    public ResponseEntity<List<CategoryDTO>> getCategoriesFromSubGroup(
-            @PathVariable String subGroupName)
-            throws ResourceNotFoundException {
-        List<CategoryDTO> categories = categoryService.findCategoriesOfSubGroup(subGroupName);
-        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    public ResponseEntity<PageResponseDTO<CategoryDTO>> getCategoriesFromSubGroup(
+            @PathVariable String subGroupName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "name,asc") String sort
+    ) {
+        PageResponseDTO<CategoryDTO> result =
+                categoryService.findCategoriesOfSubGroupPaged(subGroupName, page, size, sort);
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**

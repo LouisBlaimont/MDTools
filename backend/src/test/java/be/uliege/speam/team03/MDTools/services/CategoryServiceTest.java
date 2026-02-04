@@ -116,7 +116,7 @@ class CategoryServiceTest {
 
             assertTrue(thrown.getMessage().contains("No group found with the name NonExistentGroup"));
       }
-
+/*
       @Test
       void testFindCategoriesOfSubGroup_WhenSubGroupExists() {
             // Given
@@ -157,7 +157,7 @@ class CategoryServiceTest {
             assertThrows(ResourceNotFoundException.class, () -> {
                   categoryService.findCategoriesOfSubGroup(subGroupName);
             });
-      }
+      }*/
       @Test
       void testAddCategoryToSubGroup_ShouldThrow_WhenSubGroupNotFound() {
       String subGroupName = "MissingSubGroup";

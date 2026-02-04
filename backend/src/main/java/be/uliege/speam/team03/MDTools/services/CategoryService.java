@@ -9,9 +9,11 @@ import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import be.uliege.speam.projections.CategoryFlatProjection;
 import be.uliege.speam.team03.MDTools.DTOs.CategoryDTO;
 import be.uliege.speam.team03.MDTools.DTOs.CharacteristicDTO;
 import be.uliege.speam.team03.MDTools.DTOs.InstrumentDTO;
+import be.uliege.speam.team03.MDTools.DTOs.PageResponseDTO;
 import be.uliege.speam.team03.MDTools.compositeKeys.CategoryCharacteristicKey;
 import be.uliege.speam.team03.MDTools.exception.ResourceNotFoundException;
 import be.uliege.speam.team03.MDTools.exception.BadRequestException;
@@ -79,23 +81,166 @@ public class CategoryService {
     }
 
     /**
-     * Gets the sorted list of categories of the subgroup given by
-     * subGroupName
-     * 
-     * @param subGroupName the name of the subgroup
-     * @return List of CategoryDTO
+     * Sorting specification for paginated category search.
+     *
+     * <p>Accepted format: {@code "field,dir"} where:</p>
+     * <ul>
+     *   <li>{@code field} is one of the allowed keys (see whitelist below)</li>
+     *   <li>{@code dir} is {@code asc} or {@code desc} (anything else defaults to {@code asc})</li>
+     * </ul>
+     *
+     * <p>Security note: this is a strict whitelist to avoid SQL injection since
+     * {@code sortColumn} is used in native queries (CASE WHEN :sortColumn = ...).</p>
      */
-    public List<CategoryDTO> findCategoriesOfSubGroup(String subGroupName) {
-        Optional<SubGroup> subGroupMaybe = subGroupRepository.findByName(subGroupName);
-        if (subGroupMaybe.isEmpty()) {
-            throw new ResourceNotFoundException("No subgroup found with the name " +  subGroupName);
+    public record SortSpec(String key, String dir) {
+
+        private static final String DEFAULT_KEY = "name";
+        private static final String DEFAULT_DIR = "asc";
+
+        /**
+         * Parses a sort parameter in the form {@code "field,dir"}.
+         *
+         * <p>Examples:</p>
+         * <ul>
+         *   <li>{@code "name,asc"}</li>
+         *   <li>{@code "externalCode,desc"}</li>
+         *   <li>{@code null} or {@code ""} -> defaults to {@code "name,asc"}</li>
+         * </ul>
+         *
+         * @param sortParam sort specification string
+         * @return a validated {@link SortSpec} using defaults if invalid
+         */
+        public static SortSpec parse(String sortParam) {
+            if (sortParam == null || sortParam.isBlank()) {
+                return new SortSpec(DEFAULT_KEY, DEFAULT_DIR);
+            }
+
+            String[] parts = sortParam.split(",");
+            String rawKey = parts.length > 0 ? parts[0].trim() : DEFAULT_KEY;
+            String rawDir = parts.length > 1 ? parts[1].trim().toLowerCase() : DEFAULT_DIR;
+
+            String dir = rawDir.equals("desc") ? "desc" : "asc"; // force asc|desc only
+
+            // strict whitelist (prevent unexpected values / SQL injection)
+            String key = switch (rawKey) {
+                case "subGroupName", "externalCode", "function", "author", "name",
+                    "design", "dimOrig", "lenAbrv", "shape" -> rawKey;
+                default -> DEFAULT_KEY;
+            };
+
+            return new SortSpec(key, dir);
         }
 
-        SubGroup subGroup = subGroupMaybe.get();
+        /**
+         * @return true if direction is descending
+         */
+        public boolean isDesc() {
+            return "desc".equals(dir);
+        }
 
-        List<CategoryDTO> list = categoryRepository.findAllCategoriesFlat(null, subGroup.getId(), null);
-        batchEnrichCategoryPictures(list);;
-        return list;
+        /**
+         * Maps frontend sort keys to the SQL tokens expected by the native queries.
+         *
+         * <p>These returned values MUST match exactly the strings used in the repository queries:
+         * {@code CASE WHEN :sortColumn = '...' THEN ...}.</p>
+         *
+         * @return SQL sort token for {@code :sortColumn}
+         */
+        public String sqlSortToken() {
+            return switch (key) {
+                case "subGroupName"  -> "sub_group_name";
+                case "externalCode"  -> "external_code";
+                case "function"      -> "function";
+                case "author"        -> "author";
+                case "name"          -> "name";
+                case "design"        -> "design";
+                case "dimOrig"       -> "dim_orig";
+                case "lenAbrv"       -> "len_abrv";
+                case "shape"         -> "shape";
+                default              -> "name";
+            };
+        }
+    }
+
+    /**
+     * Returns a paginated and globally sorted list of categories for a subgroup.
+     *
+     * <p>This method performs pagination and sorting in SQL (native query) to avoid
+     * loading large datasets into memory.</p>
+     *
+     * <p>Implementation detail:
+     * the repository native query returns a projection (not a DTO), which is then mapped
+     * to {@link CategoryDTO}. Pictures enrichment is applied only for the returned page.</p>
+     *
+     * Constraints:
+     * <ul>
+     *   <li>page is 0-based; negative values become 0</li>
+     *   <li>size is clamped to [1..1000]</li>
+     * </ul>
+     *
+     * @param subGroupName subgroup name
+     * @param page 0-based page index (negative values are treated as 0)
+     * @param size requested page size (clamped to [1..1000])
+     * @param sortParam sort specification "field,dir" (dir in {asc,desc})
+     * @return a page response containing only the requested page content
+     * @throws ResourceNotFoundException if the subgroup does not exist
+     */
+    public PageResponseDTO<CategoryDTO> findCategoriesOfSubGroupPaged(
+            String subGroupName,
+            int page,
+            int size,
+            String sortParam
+    ) {
+        SubGroup subGroup = subGroupRepository.findByName(subGroupName)
+                .orElseThrow(() -> new ResourceNotFoundException("No subgroup found with the name " + subGroupName));
+
+        SortSpec sort = SortSpec.parse(sortParam);
+
+        int safeSize = Math.min(Math.max(size, 1), 1000);
+        int safePage = Math.max(page, 0);
+        int offset = safePage * safeSize;
+
+        // 1) DB query returns PROJECTIONS (native query), not DTOs
+        List<CategoryFlatProjection> rows =
+                sort.isDesc()
+                        ? categoryRepository.findCategoriesFlatBySubGroupPagedDesc(
+                                subGroup.getId(),
+                                safeSize,
+                                offset,
+                                sort.sqlSortToken()
+                        )
+                        : categoryRepository.findCategoriesFlatBySubGroupPagedAsc(
+                                subGroup.getId(),
+                                safeSize,
+                                offset,
+                                sort.sqlSortToken()
+                        );
+
+        // 2) Map projection -> DTO
+        List<CategoryDTO> content = rows.stream()
+                .map(p -> new CategoryDTO(
+                        p.getId(),
+                        p.getGroupName(),
+                        p.getSubGroupName(),
+                        p.getExternalCode(),
+                        p.getFunction(),
+                        p.getAuthor(),
+                        p.getName(),
+                        p.getDesign(),
+                        p.getShape(),
+                        p.getDimOrig(),
+                        p.getLenAbrv(),
+                        null // picturesId enriched later
+                ))
+                .toList();
+
+        long total = categoryRepository.countCategoriesBySubGroup(subGroup.getId());
+        int totalPages = (int) Math.ceil(total / (double) safeSize);
+
+        // 3) Enrich pictures only for this page
+        batchEnrichCategoryPictures(content);
+
+        return new PageResponseDTO<>(content, total, totalPages, safePage, safeSize);
     }
 
 
