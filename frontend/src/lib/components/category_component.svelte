@@ -302,6 +302,55 @@
       errorMessage.set(e2.message);
     });
   }
+
+  let categoryRowRefs = [];
+  let imageClickTimer = null;
+
+  function categoryRowRef(node, index) {
+    categoryRowRefs[index] = node;
+    return {
+      destroy() {
+        categoryRowRefs[index] = null;
+      }
+    };
+  }
+
+  function scrollCategoryIntoView(index) {
+    const node = categoryRowRefs[index];
+    if (node instanceof HTMLElement) {
+      node.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function onImageClick(index) {
+    // If a double click happens, it will cancel this timer.
+    if (imageClickTimer) clearTimeout(imageClickTimer);
+
+    imageClickTimer = setTimeout(async () => {
+      imageClickTimer = null;
+
+      // Single click behavior: select + scroll category row to top
+      await selectCategory(index);
+      scrollCategoryIntoView(index);
+    }, 220); // 200-250ms is usually good
+  }
+
+  function onImageDoubleClick(row, index) {
+    // Cancel pending single-click action
+    if (imageClickTimer) {
+      clearTimeout(imageClickTimer);
+      imageClickTimer = null;
+    }
+
+    // Double click behavior: open modal like before
+    modals.open(BigPicturesModal, {
+      instrument: row,
+      index,
+      isInstrument: false,
+      isAlternative: false
+    });
+  }
+
 </script>
 
 <div class="flex">
@@ -416,6 +465,7 @@
           {#each displayedCategories as row, index}
             <!-- svelte-ignore a11y_mouse_events_have_key_events -->
             <tr
+              use:categoryRowRef={index}
               class:bg-[cornflowerblue]={$selectedCategoryIndex === index}
               class:bg-[lightgray]={$hoveredCategoryIndex === index && $selectedCategoryIndex !== index}
               on:click={() => selectCategory(index)}
@@ -428,16 +478,16 @@
               {/if}
 
               {#if !$selectedSubGroup}
-                <td class="text-center border border-solid border-[black]">{row.subGroupName}</td>
+                <td class="text-left border border-solid border-[black]">{row.subGroupName}</td>
               {/if}
 
-              <td class="text-center border border-solid border-[black]">{row.externalCode}</td>
-              <td class="text-center border border-solid border-[black]">{row.function}</td>
-              <td class="text-center border border-solid border-[black]">{row.author}</td>
-              <td class="text-center border border-solid border-[black]">{row.name}</td>
-              <td class="text-center border border-solid border-[black]">{row.design}</td>
-              <td class="text-center border border-solid border-[black]">{row.dimOrig}</td>
-              <td class="text-center border border-solid border-[black]">{row.lenAbrv}</td>
+              <td class="text-left border border-solid border-[black]">{row.externalCode}</td>
+              <td class="text-left border border-solid border-[black]">{row.function}</td>
+              <td class="text-left border border-solid border-[black]">{row.author}</td>
+              <td class="text-left border border-solid border-[black]">{row.name}</td>
+              <td class="text-left border border-solid border-[black]">{row.design}</td>
+              <td class="text-left border border-solid border-[black]">{row.dimOrig}</td>
+              <td class="text-left border border-solid border-[black]">{row.lenAbrv}</td>
             </tr>
           {/each}
         </tbody>
@@ -462,7 +512,8 @@
           src={row.picturesId && row.picturesId[0]
             ? PUBLIC_API_URL + `/api/pictures/${row.picturesId[0]}`
             : "/default/no_picture.png"}
-          on:click={() => modals.open(BigPicturesModal, { instrument: row, index, isInstrument: false, isAlternative: false })}
+          on:click={() => onImageClick(index)}
+          on:dblclick={() => onImageDoubleClick(row, index)}
           on:mouseover={() => hoveredCategoryImageIndex.set(index)}
           on:mouseout={() => hoveredCategoryImageIndex.set(null)}
           class="{$selectedCategoryIndex === index
