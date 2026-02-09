@@ -99,18 +99,24 @@
   $: shouldCheckUser = !$user || ($user?.expiresAt ?? 0) < Date.now();
 
   onMount(async () => {
-    i18nInit();
+    await i18nInit();
 
     if (shouldCheckUser) {
-      checkUser();
+      await checkUser();
     }
 
     if (browser && $page.url.searchParams.get("login") === "success") {
-      toast.push($_('header.toast'));
+      toast.push($_("header.toast"));
     }
-  }
-)
 
+    // Optional safety net: re-check the session periodically
+    const intervalId = setInterval(() => {
+      checkUser();
+    }, 60_000); // every 60 seconds
+
+    return () => clearInterval(intervalId);
+  });
+  
   function redirectToHome() {
     goto('/'); // Redirect to the home page
   }
