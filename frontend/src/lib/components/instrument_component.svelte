@@ -52,7 +52,7 @@
 
 </script>
 
-<div class="flex-[3] overflow-y-auto box-border m-0 ml-1">
+<div class="flex-[3] flex flex-col box-border m-0 ml-1 min-h-0">
     <!-- PICTURES OF THE INSTRUMENTS -->
     <div class="border bg-teal-400 mb-[5px] font-sans text-base py-0.5 px-2">
         <span class="">{$_('instruments_component.title.suppliers')}</span>
@@ -84,189 +84,191 @@
         {/each}
     </div>
 
-    <!-- TABLE OF THE INSTRUMENTS -->
-    <table data-testid="suppliers-table" class="w-full border-collapse mt-4 bg-white">
-        <thead class="bg-teal-400">
-            <tr class="bg-white text-teal-400">
-                {#if $isEditing && $selectedCategoryIndex >=0 && $selectedCategoryIndex !== null && $selectedCategoryIndex !== '' }
-                <th colspan="2" class="text-center py-2">
-                    <button class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
-                    onclick={() => {
-                        const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
-                        modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
-                        }}>
-                        {$_('instruments_component.add')}
-                    </button>
-                </th>
-                {:else}
-                <th colspan="2"></th>
-                {/if}
-                <th colspan="3" class="text-center py-2">{$_('instruments_component.title.instruments')}</th>
-            </tr>
-            <tr class="bg-teal-400">
-                {#if $isEditing}
-                  <th class="text-center border border-solid border-[black] w-10 overflow-hidden"></th>
-                {/if}
-                {#if notEditing}
-                    <th class="text-center border border-solid border-[black] w-5 overflow-hidden">
-                    <div class="flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
-                            <path d="m15 11-1 9"/>
-                            <path d="m19 11-4-7"/>
-                            <path d="M2 11h20"/>
-                            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
-                            <path d="M4.5 15.5h15"/>
-                            <path d="m5 11 4-7"/>
-                            <path d="m9 11 1 9"/>
-                            </svg>
-                    </div>
+    <div class="flex-1 min-h-0 overflow-y-auto">
+        <!-- TABLE OF THE INSTRUMENTS -->
+        <table data-testid="suppliers-table" class="w-full border-collapse mt-4 bg-white">
+            <thead class="bg-teal-400">
+                <tr class="bg-white text-teal-400">
+                    {#if $isEditing && $selectedCategoryIndex >=0 && $selectedCategoryIndex !== null && $selectedCategoryIndex !== '' }
+                    <th colspan="2" class="text-center py-2">
+                        <button class="px-3 py-1 rounded bg-yellow-100 text-black hover:bg-gray-500 transition focus:outline-none"
+                        onclick={() => {
+                            const selectedCategory = $selectedCategoryIndex != null ? $categories[$selectedCategoryIndex] : null;
+                            modals.open(addInstrumentModal, { initInstrument: null, initCategory: selectedCategory });
+                            }}>
+                            {$_('instruments_component.add')}
+                        </button>
                     </th>
-                {/if}
-                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.reference')}</th>
-                <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.brand')}</th>
-                <th class="text-center border border-solid border-[black] w-16 overflow-hidden">{$_('instruments_component.table.description')}</th> 
-                <th class="text-center border border-solid border-[black] w-5 overflow-hidden">{$_('instruments_component.table.price')}</th>
-            </tr>
-              
-        </thead>
-        <tbody>
-            {#each $currentSuppliers as row, index}
-            <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                <tr
-                    class="cursor-pointer {row.obsolete ? 'bg-red-500' : ''}" 
-                    class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
-                    class:bg-[lightgray]={$hoveredSupplierIndex === index &&
-                    $selectedSupplierIndex !== index}
-                    onclick={() => selectedSupplierIndex.set(index)}
-                    onmouseover={() => (hoveredSupplierIndex.set(index))}
-                    onmouseout={() => (hoveredSupplierIndex.set(null))}
-                >
-                {#if $isEditing}
-                    <EditInstrumentButton instrument={row}/>
-                {/if}
-                {#if !$isEditing}
-                    <td
-                    class="text-center border border-solid border-[black]"
-                    onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
-                    >
-                {/if}
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.reference}"
-                >
-                    {row.reference}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.supplier}"
-                >
-                    {row.supplier}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
-                >
-                    {row.supplierDescription}
-                </td>                
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
-                >
-                    {row.price}
-                </td>   
+                    {:else}
+                    <th colspan="2"></th>
+                    {/if}
+                    <th colspan="3" class="text-center py-2">{$_('instruments_component.title.instruments')}</th>
                 </tr>
-            {/each}
-        </tbody>
-    </table>
-
-    <!-- TABLE OF THE ALTERNATIVES -->
-    {#if $alternatives.length >0} 
-    <table class="w-full border-collapse mt-4">
-        <thead>
-            <tr class="bg-white text-teal-400">
-                <th colspan="2" class="text-center py-2">
-                    <button class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700 focus:outline-none"
-                    onclick={()=>seeAllAlternatives()}>
-                    {$_('instruments_component.button.see_more')}
-                    </button>
-                </th>
-                <th colspan="3" class="text-center py-2">{$_('instruments_component.title.alternatives')}</th>
-            </tr>
-            <tr class="bg-teal-400">
-                {#if $isEditing}
-                    <th class="text-center border border-solid border-[black]"></th>
-                {/if}
-                {#if notEditing}
-                <th class="border border-solid border-black w-5">
-                    <div class="flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
-                            <path d="m15 11-1 9"/>
-                            <path d="m19 11-4-7"/>
-                            <path d="M2 11h20"/>
-                            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
-                            <path d="M4.5 15.5h15"/>
-                            <path d="m5 11 4-7"/>
-                            <path d="m9 11 1 9"/>
-                        </svg>
-                    </div>
-                </th>            
-                {/if}
-                <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.reference')}</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.brand')}</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.description')}</th>
-                <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.price')}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each $alternatives.slice(0,2) as row, index}
+                <tr class="bg-teal-400">
+                    {#if $isEditing}
+                    <th class="text-center border border-solid border-[black] w-10 overflow-hidden"></th>
+                    {/if}
+                    {#if notEditing}
+                        <th class="text-center border border-solid border-[black] w-5 overflow-hidden">
+                        <div class="flex justify-center items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                                <path d="m15 11-1 9"/>
+                                <path d="m19 11-4-7"/>
+                                <path d="M2 11h20"/>
+                                <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+                                <path d="M4.5 15.5h15"/>
+                                <path d="m5 11 4-7"/>
+                                <path d="m9 11 1 9"/>
+                                </svg>
+                        </div>
+                        </th>
+                    {/if}
+                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.reference')}</th>
+                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.brand')}</th>
+                    <th class="text-center border border-solid border-[black] w-16 overflow-hidden">{$_('instruments_component.table.description')}</th> 
+                    <th class="text-center border border-solid border-[black] w-5 overflow-hidden">{$_('instruments_component.table.price')}</th>
+                </tr>
+                
+            </thead>
+            <tbody>
+                {#each $currentSuppliers as row, index}
                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
-                <tr
-                    class="cursor-pointer {index === 1 ? 'opacity-50' : ''} {row.obsolete ? 'bg-red-500' : ''}"
-                    class:bg-[lightgray]={$hoveredAlternativeIndex === index}
-                    onclick={() => clickOnAlt(row, index)}
-                    ondblclick={() => doubleClickOnAlt(row, index)}
-                    onmouseover={() => (hoveredAlternativeIndex.set(index))}
-                    onmouseout={() => (hoveredAlternativeIndex.set(null))}
-                >
-                {#if $isEditing}
+                    <tr
+                        class="cursor-pointer {row.obsolete ? 'bg-red-500' : ''}" 
+                        class:bg-[cornflowerblue]= {$selectedSupplierIndex === index}
+                        class:bg-[lightgray]={$hoveredSupplierIndex === index &&
+                        $selectedSupplierIndex !== index}
+                        onclick={() => selectedSupplierIndex.set(index)}
+                        onmouseover={() => (hoveredSupplierIndex.set(index))}
+                        onmouseout={() => (hoveredSupplierIndex.set(null))}
+                    >
+                    {#if $isEditing}
+                        <EditInstrumentButton instrument={row}/>
+                    {/if}
+                    {#if !$isEditing}
+                        <td
+                        class="text-center border border-solid border-[black]"
+                        onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
+                        >
+                    {/if}
                     <td 
-                    class="w-[1px] text-center border border-solid border-[black] {row.obsolete ? 'text-white' : 'text-red-500'}"
-                    onclick={() => removeAlternative(row.id)}
+                    class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                    title="{row.reference}"
                     >
-                    &times;
-                    </td>
-                {/if}
-                {#if notEditing}
-                    <td
-                    class="text-center border border-solid border-[black]"
-                    onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
+                        {row.reference}
+                    </td> 
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                    title="{row.supplier}"
                     >
-                {/if}
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.reference}"
-                >
-                    {row.reference}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
-                title="{row.supplier}"
-                >
-                    {row.supplier}
-                </td> 
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
-                >
-                    {row.supplierDescription}
-                </td>                
-                <td 
-                class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
-                >
-                    {row.price}
-                </td>   
+                        {row.supplier}
+                    </td> 
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
+                    >
+                        {row.supplierDescription}
+                    </td>                
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
+                    >
+                        {row.price}
+                    </td>   
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+
+        <!-- TABLE OF THE ALTERNATIVES -->
+        {#if $alternatives.length >0} 
+        <table class="w-full border-collapse mt-4">
+            <thead>
+                <tr class="bg-white text-teal-400">
+                    <th colspan="2" class="text-center py-2">
+                        <button class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700 focus:outline-none"
+                        onclick={()=>seeAllAlternatives()}>
+                        {$_('instruments_component.button.see_more')}
+                        </button>
+                    </th>
+                    <th colspan="3" class="text-center py-2">{$_('instruments_component.title.alternatives')}</th>
                 </tr>
-            {/each}
-        </tbody>
-    </table>
-    {/if}
+                <tr class="bg-teal-400">
+                    {#if $isEditing}
+                        <th class="text-center border border-solid border-[black]"></th>
+                    {/if}
+                    {#if notEditing}
+                    <th class="border border-solid border-black w-5">
+                        <div class="flex justify-center items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket">
+                                <path d="m15 11-1 9"/>
+                                <path d="m19 11-4-7"/>
+                                <path d="M2 11h20"/>
+                                <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+                                <path d="M4.5 15.5h15"/>
+                                <path d="m5 11 4-7"/>
+                                <path d="m9 11 1 9"/>
+                            </svg>
+                        </div>
+                    </th>            
+                    {/if}
+                    <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.reference')}</th>
+                    <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.brand')}</th>
+                    <th class="text-center border border-solid border-[black] overflow-hidden w-[50%]">{$_('instruments_component.table.description')}</th>
+                    <th class="text-center border border-solid border-[black] overflow-hidden w-8">{$_('instruments_component.table.price')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each $alternatives.slice(0,2) as row, index}
+                    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+                    <tr
+                        class="cursor-pointer {index === 1 ? 'opacity-50' : ''} {row.obsolete ? 'bg-red-500' : ''}"
+                        class:bg-[lightgray]={$hoveredAlternativeIndex === index}
+                        onclick={() => clickOnAlt(row, index)}
+                        ondblclick={() => doubleClickOnAlt(row, index)}
+                        onmouseover={() => (hoveredAlternativeIndex.set(index))}
+                        onmouseout={() => (hoveredAlternativeIndex.set(null))}
+                    >
+                    {#if $isEditing}
+                        <td 
+                        class="w-[1px] text-center border border-solid border-[black] {row.obsolete ? 'text-white' : 'text-red-500'}"
+                        onclick={() => removeAlternative(row.id)}
+                        >
+                        &times;
+                        </td>
+                    {/if}
+                    {#if notEditing}
+                        <td
+                        class="text-center border border-solid border-[black]"
+                        onclick= {() => modals.open(addInstrumentToOrderModal, { instrument: row})}>+</td
+                        >
+                    {/if}
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                    title="{row.reference}"
+                    >
+                        {row.reference}
+                    </td> 
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[100px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                    title="{row.supplier}"
+                    >
+                        {row.supplier}
+                    </td> 
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{row.supplierDescription}"
+                    >
+                        {row.supplierDescription}
+                    </td>                
+                    <td 
+                    class="text-center border border-solid border-[black] truncate max-w-[150px] min-w-0 text-ellipsis whitespace-nowrap" title="{new Intl.DateTimeFormat($locale).format(new Date(row.priceDate))}"
+                    >
+                        {row.price}
+                    </td>   
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+        {/if}
+    </div>
 
 </div>
 

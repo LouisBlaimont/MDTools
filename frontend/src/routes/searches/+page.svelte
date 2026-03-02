@@ -208,7 +208,7 @@
     
       <!-- INSTRUMENTS -->
       <div
-        class="relative border border-gray-300 flex-none min-w-[150px] resize-x w-[600px]"
+        class="relative border border-gray-300 flex-none min-w-[150px] resize-x w-[600px] flex flex-col min-h-0 h-full overflow-hidden"
         bind:this={div4}
       >
         <InstrumentComponent />
@@ -216,7 +216,7 @@
         <div
           class="absolute w-0.5 h-full bg-gray-300 bottom-0 left-0 cursor-ew-resize"
           on:mousedown={(e) => startResizeRightToLeft(e, div4)}
-      ></div>
+        ></div>
       </div>
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div class="absolute w-full h-0.5 bg-gray-300 bottom-0 left-0 cursor-ns-resize" on:mousedown={(e) => startResizeVertical(e, div1)}></div>
