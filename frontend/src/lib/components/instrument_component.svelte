@@ -50,6 +50,56 @@
         selectAlternative(row, index);
     }
 
+    // --- LOCAL SORT FOR INSTRUMENTS ---
+    let supplierSortKey = "reference";
+    let supplierSortDir = "asc"; // "asc" | "desc"
+
+    function setSupplierSort(key) {
+        if (supplierSortKey === key) {
+            supplierSortDir = supplierSortDir === "asc" ? "desc" : "asc";
+        } else {
+            supplierSortKey = key;
+            supplierSortDir = "asc";
+        }
+    }
+
+    function compareNullableString(a, b, dir) {
+        const A = (a ?? "").toString().toLowerCase();
+        const B = (b ?? "").toString().toLowerCase();
+
+        if (A < B) return dir === "asc" ? -1 : 1;
+        if (A > B) return dir === "asc" ? 1 : -1;
+        return 0;
+    }
+
+    function compareNullableNumber(a, b, dir) {
+        const na = a == null || a === "" ? null : Number(a);
+        const nb = b == null || b === "" ? null : Number(b);
+
+        const aMissing = na == null || Number.isNaN(na);
+        const bMissing = nb == null || Number.isNaN(nb);
+
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+
+        if (na < nb) return dir === "asc" ? -1 : 1;
+        if (na > nb) return dir === "asc" ? 1 : -1;
+        return 0;
+    }
+
+    $: displayedSuppliers = (() => {
+        const list = Array.isArray($currentSuppliers) ? [...$currentSuppliers] : [];
+
+        return list.sort((a, b) => {
+            if (supplierSortKey === "price") {
+                return compareNullableNumber(a?.[supplierSortKey], b?.[supplierSortKey], supplierSortDir);
+            }
+
+            return compareNullableString(a?.[supplierSortKey], b?.[supplierSortKey], supplierSortDir);
+        });
+    })();
+
 </script>
 
 <div class="flex-[3] flex flex-col box-border m-0 ml-1 min-h-0">
@@ -58,7 +108,7 @@
         <span class="">{$_('instruments_component.title.suppliers')}</span>
     </div>
     <div class="flex h-40 max-w-full overflow-x-auto box-border mb-[15px]">
-        {#each $currentSuppliers as row, index}
+        {#each displayedSuppliers as row, index}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
@@ -123,15 +173,38 @@
                         </div>
                         </th>
                     {/if}
-                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.reference')}</th>
-                    <th class="text-center border border-solid border-[black] w-8 overflow-hidden">{$_('instruments_component.table.brand')}</th>
-                    <th class="text-center border border-solid border-[black] w-16 overflow-hidden">{$_('instruments_component.table.description')}</th> 
-                    <th class="text-center border border-solid border-[black] w-5 overflow-hidden">{$_('instruments_component.table.price')}</th>
+                    <th
+                        class="text-center border border-solid border-[black] w-8 overflow-hidden cursor-pointer select-none"
+                        onclick={() => setSupplierSort("reference")}
+                    >
+                        {$_('instruments_component.table.reference')}
+                    </th>
+
+                    <th
+                        class="text-center border border-solid border-[black] w-8 overflow-hidden cursor-pointer select-none"
+                        onclick={() => setSupplierSort("supplier")}
+                    >
+                        {$_('instruments_component.table.brand')}
+                    </th>
+
+                    <th
+                        class="text-center border border-solid border-[black] w-16 overflow-hidden cursor-pointer select-none"
+                        onclick={() => setSupplierSort("supplierDescription")}
+                    >
+                        {$_('instruments_component.table.description')}
+                    </th>
+
+                    <th
+                        class="text-center border border-solid border-[black] w-5 overflow-hidden cursor-pointer select-none"
+                        onclick={() => setSupplierSort("price")}
+                    >
+                        {$_('instruments_component.table.price')}
+                    </th>
                 </tr>
                 
             </thead>
             <tbody>
-                {#each $currentSuppliers as row, index}
+                {#each displayedSuppliers as row, index}
                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
                     <tr
                         class="cursor-pointer {row.obsolete ? 'bg-red-500' : ''}" 

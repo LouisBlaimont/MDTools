@@ -59,6 +59,7 @@
   // Track upload status for each reference
   let uploadStatus = [];
   let isUploading = false;
+  let isUploadFinished = false;
   let overallProgress = 0;
   let currentUploadIndex = -1;
   let statusContainerRef;
@@ -177,6 +178,7 @@
   async function submitForm(event) {
     event.preventDefault();
     isUploading = true;
+    isUploadFinished = false;
     let cumulativeSize = 0;
     let successCount = 0;
     let failCount = 0;
@@ -224,6 +226,7 @@
     });
 
     isUploading = false;
+    isUploadFinished = true;
   }
 
   // Accordion state
@@ -553,7 +556,16 @@
             {/if}
           </div>
 
-          <div class="flex justify-end gap-4 mt-4">
+        <div class="flex justify-end gap-4 mt-4">
+          {#if isUploadFinished}
+            <button
+              type="button"
+              onclick={close}
+              class="px-4 py-2 bg-gray-500 text-white rounded"
+            >
+          {$_("import_pages.svelte.quit")}
+            </button>
+          {:else}
             <button
               type="button"
               onclick={cancel}
@@ -562,6 +574,7 @@
             >
               {$_("modals.add_group.cancel")}
             </button>
+
             <button
               type="submit"
               class="bg-teal-500 text-white px-4 py-2 rounded flex items-center"
@@ -593,7 +606,8 @@
                 {$_("import_pages.svelte.upload")}
               {/if}
             </button>
-          </div>
+          {/if}
+        </div>
         </form>
       </div>
     </div>

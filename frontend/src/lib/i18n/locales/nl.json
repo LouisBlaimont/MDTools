@@ -597,6 +597,7 @@
       "delete": "Bestand verwijderd",
       "click": "Sleep een zipbestand hierheen of klik om er een te selecteren",
       "continue": "Ga verder",
+      "quit": "Sluiten",
       "response": "Reactie server"
     }
   },
