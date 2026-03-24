@@ -204,8 +204,17 @@ public class PictureController {
       // Search for the instrument by reference
       InstrumentDTO instrument = instrumentService.findByReference(reference);
 
-      // Add picture to the instrument
-      uploadSinglePicture(picture, "INSTRUMENT", instrument.getId());
+      // Check whether this instrument already has at least one picture
+      List<Long> existingPictures = storageService.getPicturesIdByReferenceIdAndPictureType(
+            instrument.getId().longValue(),
+            PictureType.INSTRUMENT);
+
+      if (existingPictures != null && !existingPictures.isEmpty()) {
+         throw new BadRequestException("This instrument already has a picture");
+      }
+
+      // Add picture to the instrument only if none exists yet
+      uploadSinglePicture(picture, "INSTRUMENT", instrument.getId().longValue());
 
       return ResponseEntity.ok().build();
    }
